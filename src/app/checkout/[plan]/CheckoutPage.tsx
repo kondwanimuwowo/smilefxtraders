@@ -1,0 +1,352 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+// ── Plan config ───────────────────────────────────────────────────────────────
+
+const PLANS = {
+  pro: {
+    name:    "Pro Trader",
+    icon:    "trending_up",
+    color:   "#08AEAA",
+    tagline: "Full toolkit for serious SMC traders.",
+    features: [
+      "Unlimited journal trades",
+      "Live setup alerts from Kondwani",
+      "Full Academy (all courses)",
+      "Gavo AI Trade Review",
+      "COT data integration",
+      "Community posting & comments",
+      "Leaderboard participation",
+    ],
+    price: { monthly: { usd: 29, zmw: 750 }, annual: { usd: 278, zmw: 7200 } },
+  },
+  funded: {
+    name:    "Funded Track",
+    icon:    "workspace_premium",
+    color:   "#F8B93D",
+    tagline: "Everything in Pro + 1-on-1 mentorship.",
+    features: [
+      "Everything in Pro Trader",
+      "1-on-1 mentorship with Kondwani",
+      "Priority alert notifications",
+      "Private Funded Track community",
+      "Monthly strategy review calls",
+    ],
+    price: { monthly: { usd: 79, zmw: 2000 }, annual: { usd: 758, zmw: 19200 } },
+  },
+} as const;
+
+type PlanId  = keyof typeof PLANS;
+type Cycle   = "monthly" | "annual";
+type Currency = "ZMW" | "USD";
+type Step    = "form" | "waiting" | "success" | "failed";
+
+const OPERATORS = ["Airtel Money", "MTN Mobile Money"];
+
+// ── Checkout page ─────────────────────────────────────────────────────────────
+
+export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan: string }> }) {
+  const router = useRouter();
+  const [planId, setPlanId] = useState<PlanId | null>(null);
+
+  useEffect(() => {
+    paramsPromise.then(({ plan }) => {
+      if (plan === "pro" || plan === "funded") setPlanId(plan);
+      else router.replace("/pricing");
+    });
+  }, [paramsPromise, router]);
+
+  const [cycle,    setCycle]    = useState<Cycle>("monthly");
+  const [currency, setCurrency] = useState<Currency>("ZMW");
+  const [phone,    setPhone]    = useState("");
+  const [operator, setOperator] = useState(OPERATORS[0]);
+  const [step,     setStep]     = useState<Step>("form");
+  const [errMsg,   setErrMsg]   = useState("");
+  const [reference, setReference] = useState("");
+  const [polling,   setPolling]   = useState(false);
+
+  if (!planId) return null;
+  const plan = PLANS[planId];
+  const price = plan.price[cycle][currency === "ZMW" ? "zmw" : "usd"];
+  const symbol = currency === "ZMW" ? "K" : "$";
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setErrMsg("");
+    setStep("waiting");
+
+    const res = await fetch("/api/checkout/mobile-money", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plan: planId, cycle, phone, operator, currency }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      setErrMsg(data.error ?? "Payment initiation failed. Please try again.");
+      setStep("form");
+      return;
+    }
+
+    setReference(data.reference);
+    setStep("waiting");
+    startPolling(data.reference);
+  }
+
+  function startPolling(ref: string) {
+    setPolling(true);
+    let attempts = 0;
+    const max    = 24; // 2 minutes at 5s intervals
+
+    const interval = setInterval(async () => {
+      attempts++;
+      try {
+        const res  = await fetch(`/api/checkout/verify?ref=${encodeURIComponent(ref)}`);
+        const data = await res.json().catch(() => ({}));
+
+        if (data.activated) {
+          clearInterval(interval);
+          setPolling(false);
+          setStep("success");
+          return;
+        }
+        if (data.status === "failed") {
+          clearInterval(interval);
+          setPolling(false);
+          setErrMsg("Payment failed. Please try again.");
+          setStep("failed");
+          return;
+        }
+      } catch { /* ignore network hiccups during polling */ }
+
+      if (attempts >= max) {
+        clearInterval(interval);
+        setPolling(false);
+        setStep("waiting"); // leave on waiting — webhook may still come
+      }
+    }, 5000);
+  }
+
+  if (step === "success") {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: "var(--app-bg)" }}>
+        <div className="rounded-3xl px-10 py-12 text-center max-w-sm w-full" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
+          <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5"
+            style={{ background: "rgba(8,174,170,0.12)", border: "2px solid var(--teal)" }}
+          >
+            <span className="material-symbols-rounded text-[32px]" style={{ color: "var(--teal)", fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+          </div>
+          <h2 className="font-display font-bold text-[24px] mb-2" style={{ color: "var(--ink-strong)", letterSpacing: "-0.02em" }}>
+            You&apos;re on {plan.name}!
+          </h2>
+          <p className="text-[13.5px] mb-6" style={{ color: "var(--ink-dim)" }}>
+            Your payment was confirmed. Full access is now active.
+          </p>
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard")}
+            className="w-full py-3 rounded-xl font-semibold text-[14px]"
+            style={{ background: "var(--teal)", color: "#fff" }}
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === "waiting" || step === "failed") {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: "var(--app-bg)" }}>
+        <div className="rounded-3xl px-10 py-12 text-center max-w-sm w-full" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
+          {step === "waiting" ? (
+            <>
+              <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5"
+                style={{ background: "rgba(248,185,61,0.12)", border: "2px solid var(--gold)" }}
+              >
+                <span className="material-symbols-rounded text-[32px] animate-pulse" style={{ color: "var(--gold)", fontVariationSettings: "'FILL' 1" }}>phone_android</span>
+              </div>
+              <h2 className="font-display font-bold text-[22px] mb-2" style={{ color: "var(--ink-strong)", letterSpacing: "-0.02em" }}>
+                Check your phone
+              </h2>
+              <p className="text-[13.5px] mb-3" style={{ color: "var(--ink-dim)" }}>
+                A USSD prompt has been sent to <strong style={{ color: "var(--ink-strong)" }}>{phone}</strong>. Approve the payment to activate your plan.
+              </p>
+              <p className="text-[12px] mb-6" style={{ color: "var(--ink-dim)" }}>
+                {polling ? "Waiting for confirmation…" : "Your plan will activate automatically once payment is confirmed."}
+              </p>
+              <button
+                type="button"
+                onClick={() => { setStep("form"); setErrMsg(""); }}
+                className="text-[12.5px] font-medium"
+                style={{ color: "var(--ink-dim)" }}
+              >
+                ← Change payment details
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5"
+                style={{ background: "rgba(234,82,61,0.12)", border: "2px solid var(--coral)" }}
+              >
+                <span className="material-symbols-rounded text-[32px]" style={{ color: "var(--coral)", fontVariationSettings: "'FILL' 1" }}>error</span>
+              </div>
+              <h2 className="font-display font-bold text-[22px] mb-2" style={{ color: "var(--ink-strong)", letterSpacing: "-0.02em" }}>Payment failed</h2>
+              <p className="text-[13.5px] mb-6" style={{ color: "var(--ink-dim)" }}>{errMsg}</p>
+              <button
+                type="button"
+                onClick={() => { setStep("form"); setErrMsg(""); }}
+                className="w-full py-3 rounded-xl font-semibold text-[14px]"
+                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+              >
+                Try again
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6" style={{ background: "var(--app-bg)" }}>
+      <div className="w-full max-w-md">
+
+        {/* Back link */}
+        <button type="button" onClick={() => router.push("/pricing")}
+          className="flex items-center gap-1.5 text-[12.5px] mb-5"
+          style={{ color: "var(--ink-dim)" }}
+        >
+          <span className="material-symbols-rounded" style={{ fontSize: 16 }}>arrow_back</span>
+          Back to Pricing
+        </button>
+
+        {/* Plan summary card */}
+        <div className="rounded-2xl p-5 mb-4" style={{ background: "var(--panel)", border: `1px solid ${plan.color}40` }}>
+          <div className="flex items-start gap-3 mb-3">
+            <div className="size-10 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: `${plan.color}20`, border: `1px solid ${plan.color}40` }}
+            >
+              <span className="material-symbols-rounded" style={{ fontSize: 20, color: plan.color, fontVariationSettings: "'FILL' 1" }}>
+                {plan.icon}
+              </span>
+            </div>
+            <div>
+              <div className="font-display font-bold text-[18px]" style={{ color: "var(--ink-strong)", letterSpacing: "-0.02em" }}>{plan.name}</div>
+              <div className="text-[12.5px]" style={{ color: "var(--ink-dim)" }}>{plan.tagline}</div>
+            </div>
+          </div>
+          <ul className="space-y-1.5">
+            {plan.features.map((f) => (
+              <li key={f} className="flex items-center gap-2 text-[12.5px]" style={{ color: "var(--ink-mid)" }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 14, color: "var(--teal)", fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                {f}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Payment form */}
+        <div className="rounded-2xl p-5" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
+          <h2 className="font-display font-bold text-[18px] mb-4" style={{ color: "var(--ink-strong)", letterSpacing: "-0.02em" }}>
+            Payment details
+          </h2>
+
+          {/* Billing cycle */}
+          <div className="mb-4">
+            <label className="block text-[11px] font-semibold uppercase tracking-wide mb-2" style={{ color: "var(--ink-dim)" }}>Billing cycle</label>
+            <div className="flex rounded-xl overflow-hidden" style={{ border: "1px solid var(--line)" }}>
+              {(["monthly", "annual"] as const).map((c) => (
+                <button key={c} type="button" onClick={() => setCycle(c)}
+                  className="flex-1 py-2.5 text-[13px] font-semibold capitalize transition-all"
+                  style={cycle === c
+                    ? { background: "var(--teal)", color: "#fff" }
+                    : { background: "var(--panel-2)", color: "var(--ink-mid)" }
+                  }
+                >
+                  {c} {c === "annual" && <span className="text-[11px] opacity-75">−20%</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Currency */}
+          <div className="mb-4">
+            <label className="block text-[11px] font-semibold uppercase tracking-wide mb-2" style={{ color: "var(--ink-dim)" }}>Currency</label>
+            <div className="flex rounded-xl overflow-hidden" style={{ border: "1px solid var(--line)" }}>
+              {(["ZMW", "USD"] as const).map((c) => (
+                <button key={c} type="button" onClick={() => setCurrency(c)}
+                  className="flex-1 py-2.5 text-[13px] font-semibold transition-all"
+                  style={currency === c
+                    ? { background: "var(--navy)", color: "#fff" }
+                    : { background: "var(--panel-2)", color: "var(--ink-mid)" }
+                  }
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Amount display */}
+          <div className="flex items-center justify-center mb-4 py-3 rounded-xl" style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}>
+            <span className="font-display font-bold tabular-nums" style={{ fontSize: 32, color: plan.color, letterSpacing: "-0.03em" }}>
+              {symbol}{price.toLocaleString()}
+            </span>
+            <span className="text-[13px] ml-2 mt-1" style={{ color: "var(--ink-dim)" }}>/{cycle === "annual" ? "yr" : "mo"}</span>
+          </div>
+
+          <form onSubmit={submit} className="space-y-4">
+            {/* Phone */}
+            <div>
+              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Phone number (mobile money)</label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+260 97 123 4567"
+                required
+                className="w-full px-4 py-3 rounded-xl text-[14px] font-mono"
+                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+              />
+            </div>
+
+            {/* Operator */}
+            <div>
+              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Mobile money operator</label>
+              <select
+                value={operator}
+                onChange={(e) => setOperator(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl text-[14px]"
+                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+              >
+                {OPERATORS.map((op) => <option key={op}>{op}</option>)}
+              </select>
+            </div>
+
+            {errMsg && (
+              <p className="text-[12.5px] px-3 py-2 rounded-xl" style={{ background: "rgba(234,82,61,0.08)", color: "var(--coral)", border: "1px solid rgba(234,82,61,0.2)" }}>
+                {errMsg}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-3.5 rounded-xl font-semibold text-[14px] transition-all active:scale-98"
+              style={{ background: plan.color, color: planId === "funded" ? "var(--navy-deep)" : "#fff" }}
+            >
+              Pay {symbol}{price.toLocaleString()} — Activate {plan.name}
+            </button>
+
+            <p className="text-[11.5px] text-center" style={{ color: "var(--ink-dim)" }}>
+              You will receive a USSD prompt on your phone to confirm the payment.
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,227 @@
+@import "tailwindcss";
+
+/* ─── Brand + semantic palette ──────────────────────────────────────────────── */
+:root {
+  --teal:         #08AEAA;
+  --teal-bright:  #30E8DF;
+  --coral:        #EA523D;
+  --coral-bright: #FF5942;
+  --gold:         #F8B93D;
+  --navy:         #0B425D;
+  --navy-deep:    #082A3B;
+
+  /* direction semantics (tweakable — never hard-code teal/coral directly) */
+  --long:         var(--teal);
+  --long-bright:  var(--teal-bright);
+  --short:        var(--coral);
+  --short-bright: var(--coral-bright);
+}
+
+/* ─── Light theme surfaces (default) ────────────────────────────────────────── */
+:root,
+[data-theme="light"] {
+  --app-bg:     #EAEEF2;
+  --sidebar:    #FFFFFF;
+  --panel:      #FFFFFF;
+  --panel-2:    #EEF2F6;
+  --line:       rgba(11, 66, 93, 0.13);
+  --ink:        rgba(8, 42, 59, 0.90);
+  --ink-mid:    rgba(8, 42, 59, 0.60);
+  --ink-dim:    rgba(8, 42, 59, 0.42);
+  --ink-strong: #082A3B;
+  --navy-grad:  linear-gradient(135deg, #E7EEF3, #D8E4EC);
+  --hover:      rgba(8, 42, 59, 0.05);
+  --track:      rgba(8, 42, 59, 0.10);
+  --row-hover:  rgba(8, 42, 59, 0.035);
+  --topbar-bg:  rgba(255, 255, 255, 0.78);
+}
+
+/* ─── Dark theme surfaces ────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --app-bg:     #07212E;
+  --sidebar:    #061A25;
+  --panel:      #0C3245;
+  --panel-2:    #103A50;
+  --line:       rgba(148, 210, 208, 0.13);
+  --ink:        rgba(255, 255, 255, 0.87);
+  --ink-mid:    rgba(255, 255, 255, 0.62);
+  --ink-dim:    rgba(255, 255, 255, 0.42);
+  --ink-strong: #FFFFFF;
+  --navy-grad:  linear-gradient(135deg, #0C3A52, #0A2737);
+  --hover:      rgba(255, 255, 255, 0.05);
+  --track:      rgba(255, 255, 255, 0.08);
+  --row-hover:  rgba(255, 255, 255, 0.03);
+  --topbar-bg:  rgba(6, 22, 30, 0.6);
+}
+
+/* ─── Tailwind theme registration ────────────────────────────────────────────── */
+@theme inline {
+  /* Fonts */
+  --font-sans:    var(--font-inter);
+  --font-display: var(--font-space-grotesk);
+
+  /* Brand colors as Tailwind utilities */
+  --color-teal:         var(--teal);
+  --color-teal-bright:  var(--teal-bright);
+  --color-coral:        var(--coral);
+  --color-coral-bright: var(--coral-bright);
+  --color-gold:         var(--gold);
+  --color-navy:         var(--navy);
+  --color-navy-deep:    var(--navy-deep);
+
+  /* Surface colors as Tailwind utilities */
+  --color-app-bg:    var(--app-bg);
+  --color-sidebar:   var(--sidebar);
+  --color-panel:     var(--panel);
+  --color-panel-2:   var(--panel-2);
+  --color-ink:       var(--ink);
+  --color-ink-mid:   var(--ink-mid);
+  --color-ink-dim:   var(--ink-dim);
+  --color-ink-strong: var(--ink-strong);
+
+  /* Motion */
+  --ease-app: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────────── */
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--app-bg);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Prevent icon reflow during font block period — icon spans keep their declared size
+   even while the font file is in-flight, so nothing jumps when icons appear */
+.material-symbols-rounded {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  overflow: hidden;
+  font-size: inherit;
+}
+
+/* Tabular numbers for price/stat text */
+.tabular-nums,
+[class*="tabular-nums"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--track); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-dim); }
+
+/* Sidebar nav — 3px, half the global width */
+.sidebar-scroll { scrollbar-width: thin; scrollbar-color: var(--track) transparent; }
+.sidebar-scroll::-webkit-scrollbar        { width: 3px; }
+.sidebar-scroll::-webkit-scrollbar-track  { background: transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb  { background: var(--track); border-radius: 999px; }
+.sidebar-scroll::-webkit-scrollbar-thumb:hover { background: var(--ink-dim); }
+
+/* Nav tooltip — shown when sidebar is in collapsed icon-rail mode */
+.nav-tip { position: relative; }
+.nav-tip[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%; transform: translateY(-50%);
+  background: var(--teal); color: #fff;
+  font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: opacity 150ms 80ms;
+  z-index: 60;
+}
+.nav-tip[data-tip]:hover::after { opacity: 1; }
+
+/* ─── Cursor: pointer on all interactive elements ────────────────────────────── */
+@layer base {
+  button:not(:disabled),
+  a,
+  [role="button"],
+  label,
+  [type="checkbox"],
+  [type="radio"],
+  select {
+    cursor: pointer;
+  }
+  button:disabled { cursor: not-allowed; }
+}
+
+/* ─── Button active micro-press ──────────────────────────────────────────────── */
+button:active {
+  transform: scale(0.98);
+}
+
+/* ─── Candle chart (Classic scheme, light chart surface in both themes) ─────── */
+:root {
+  --chart-bg:         #F4F6F3;
+  --chart-grid:       rgba(14, 17, 22, 0.07);
+  --chart-axis:       rgba(14, 17, 22, 0.5);
+  --candle-up-body:   #15B85F;
+  --candle-down-body: #0E1116;
+  --candle-up-line:   #0E1116;
+  --candle-down-line: #0E1116;
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-7px); }
+}
+.float { animation: float 3.2s ease-in-out infinite; }
+
+@keyframes modal-pop {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+@theme inline {
+  --animate-modal-pop: modal-pop 180ms var(--ease-app) both;
+  --animate-toast-in:  toast-in  240ms var(--ease-app) both;
+  --animate-live:      live-pulse 1.6s ease-in-out infinite;
+}
+
+/* ─── Auth page ──────────────────────────────────────────────────────────────── */
+.auth-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--track);
+  outline: none;
+  cursor: pointer;
+}
+.auth-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 0 3px rgba(8,174,170,0.25);
+  cursor: pointer;
+}

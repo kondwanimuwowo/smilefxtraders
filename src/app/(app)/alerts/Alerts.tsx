@@ -1,0 +1,716 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useStore } from "@/lib/store";
+import { Panel, DirPill, Chip, Icon, Button, CandleChart } from "@/components/ui";
+import { useAddTrade } from "@/lib/hooks/useTrades";
+import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+export type AlertStatusApp = "active" | "tp1" | "tp2" | "sl" | "cancelled" | "closed";
+
+export interface InstructorAlert {
+  id:         string;
+  pair:       string;
+  dir:        "long" | "short";
+  model:      string;
+  session:    string;
+  rr:         string;
+  entry:      string;
+  sl:         string;
+  tp1:        string;
+  tp2?:       string;
+  tags:       string[];
+  note:       string;
+  status:     AlertStatusApp;
+  timePosted: string;
+  authorId?:  string | null;
+  reactions?: number;
+  taken?:     number;
+}
+
+// ── Hooks ─────────────────────────────────────────────────────────────────────
+
+function useAlerts() {
+  return useQuery({
+    queryKey: ["alerts"],
+    queryFn: async () => {
+      const res = await fetch("/api/alerts");
+      if (!res.ok) throw new Error("Failed to fetch alerts");
+      return res.json() as Promise<InstructorAlert[]>;
+    },
+    refetchInterval: 60_000,
+  });
+}
+
+function useUpdateAlertStatus() {
+  const queryClient = useQueryClient();
+  const toast = useStore((s) => s.toast);
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: AlertStatusApp }) => {
+      const res = await fetch(`/api/alerts/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error("Failed to update alert");
+      return res.json() as Promise<InstructorAlert>;
+    },
+    onSuccess: (updated) => {
+      queryClient.setQueryData<InstructorAlert[]>(["alerts"], (old) =>
+        (old ?? []).map((a) => (a.id === updated.id ? updated : a))
+      );
+      toast("Alert status updated", "teal", "check_circle");
+    },
+    onError: () => toast("Failed to update alert status", "coral", "error"),
+  });
+}
+
+function useDeleteAlert() {
+  const queryClient = useQueryClient();
+  const toast = useStore((s) => s.toast);
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/alerts/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete alert");
+    },
+    onSuccess: (_, id) => {
+      queryClient.setQueryData<InstructorAlert[]>(["alerts"], (old) =>
+        (old ?? []).filter((a) => a.id !== id)
+      );
+      toast("Alert deleted", "gold", "delete");
+    },
+    onError: () => toast("Failed to delete alert", "coral", "error"),
+  });
+}
+
+function usePostAlert() {
+  const queryClient = useQueryClient();
+  const toast = useStore((s) => s.toast);
+  return useMutation({
+    mutationFn: async (data: Omit<InstructorAlert, "id" | "timePosted" | "status">) => {
+      const res = await fetch("/api/alerts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pair:    data.pair,
+          dir:     data.dir,
+          model:   data.model,
+          session: data.session,
+          entry:   parseFloat(data.entry.replace(/,/g, "")),
+          sl:      parseFloat(data.sl.replace(/,/g, "")),
+          tp1:     parseFloat(data.tp1.replace(/,/g, "")),
+          tp2:     data.tp2 ? parseFloat(data.tp2.replace(/,/g, "")) : undefined,
+          rr:      data.rr,
+          tags:    data.tags,
+          note:    data.note,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to post alert");
+      return res.json() as Promise<InstructorAlert>;
+    },
+    onSuccess: (newAlert) => {
+      queryClient.setQueryData<InstructorAlert[]>(["alerts"], (old) =>
+        [newAlert, ...(old ?? [])]
+      );
+      toast(`${newAlert.pair} alert posted`, "teal", "notifications_active");
+    },
+    onError: () => toast("Failed to post alert", "coral", "error"),
+  });
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function timeAgo(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const diffM  = Math.floor(diffMs / 60_000);
+  const diffH  = Math.floor(diffM / 60);
+  const diffD  = Math.floor(diffH / 24);
+  if (diffM < 1)   return "just now";
+  if (diffM < 60)  return `${diffM}m ago`;
+  if (diffH < 24)  return `${diffH}h ago`;
+  return `${diffD}d ago`;
+}
+
+const STATUS_CONFIG: Record<AlertStatusApp, { label: string; color: string; bg: string; icon: string }> = {
+  active:    { label: "Active",    color: "var(--teal)",         bg: "rgba(8,174,170,0.12)",    icon: "radio_button_checked" },
+  tp1:       { label: "TP1 Hit",   color: "var(--teal-bright)",  bg: "rgba(48,232,223,0.12)",   icon: "done_all" },
+  tp2:       { label: "TP2 Hit",   color: "var(--teal-bright)",  bg: "rgba(48,232,223,0.16)",   icon: "verified" },
+  sl:        { label: "Stop Loss", color: "var(--coral)",        bg: "rgba(234,82,61,0.12)",    icon: "cancel" },
+  cancelled: { label: "Cancelled", color: "var(--ink-dim)",      bg: "rgba(0,0,0,0.06)",        icon: "block" },
+  closed:    { label: "Closed",    color: "var(--ink-dim)",      bg: "rgba(0,0,0,0.06)",        icon: "lock" },
+};
+
+const STATUS_TRANSITIONS: AlertStatusApp[] = ["active", "tp1", "tp2", "sl", "cancelled"];
+
+// ── Seeded chart helpers ──────────────────────────────────────────────────────
+
+function mulberry32(seed: number) {
+  return () => {
+    seed |= 0; seed = seed + 0x6d2b79f5 | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = t + Math.imul(t ^ (t >>> 7), 61 | t) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function strHash(s: string) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
+  return h >>> 0;
+}
+
+const PAIR_START: Record<string, number> = { EURUSD: 1.085, GBPUSD: 1.27, NZDUSD: 0.608, XAUUSD: 2328, NAS100: 19800 };
+const PAIR_VOL:   Record<string, number> = { EURUSD: 0.0008, GBPUSD: 0.001, NZDUSD: 0.0007, XAUUSD: 4, NAS100: 60 };
+
+function buildChart(alert: InstructorAlert): { candles: Candle[]; annotations: { zones: Zone[]; lines: PriceLine[]; marks: Mark[] } } {
+  const rng   = mulberry32(strHash(alert.id));
+  const start = PAIR_START[alert.pair] ?? 1.1;
+  const vol   = PAIR_VOL[alert.pair]   ?? 0.001;
+  const drift = alert.dir === "long" ? 0.8 : -0.8;
+
+  const candles: Candle[] = [];
+  let price = start;
+  for (let i = 0; i < 55; i++) {
+    const d = (rng() - 0.5 + drift * 0.08) * vol;
+    const o = price;
+    const c = price + d;
+    const h = Math.max(o, c) + rng() * vol * 0.35;
+    const l = Math.min(o, c) - rng() * vol * 0.35;
+    candles.push({ o, h, l, c });
+    price = c;
+  }
+
+  const zones: Zone[] = [{
+    i0: 24, i1: 29,
+    lo: Math.min(candles[24].l, candles[25].l, candles[26].l),
+    hi: Math.max(candles[24].h, candles[25].h, candles[26].h),
+    type: "fvg", dir: alert.dir,
+  }];
+  const lines: PriceLine[] = [{
+    price: candles[29].o,
+    label: "Entry",
+    color: alert.dir === "long" ? "var(--teal)" : "var(--coral)",
+  }];
+  const marks: Mark[] = [{
+    i: 42, price: alert.dir === "long" ? candles[42].h : candles[42].l,
+    label: "BOS", type: "bos",
+  }];
+
+  return { candles, annotations: { zones, lines, marks } };
+}
+
+// ── Post Alert Modal ──────────────────────────────────────────────────────────
+
+const PAIRS    = ["EURUSD", "GBPUSD", "NZDUSD", "XAUUSD", "NAS100"];
+const SESSIONS = ["London", "New York", "Asia"];
+const MODELS   = [
+  "Liquidity Sweep → FVG", "OB + BOS", "Liquidity → CHoCH",
+  "SMT + OB", "OB + FVG", "Turtle Soup", "BOS + retrace",
+];
+
+function PostAlertModal({ onClose }: { onClose: () => void }) {
+  const { mutate: postAlert, isPending } = usePostAlert();
+  const [form, setForm] = useState({
+    pair: "XAUUSD", dir: "long" as "long" | "short",
+    model: MODELS[0], session: "London",
+    entry: "", sl: "", tp1: "", tp2: "",
+    rr: "", tagInput: "", tags: [] as string[], note: "",
+  });
+
+  const set = (k: string, v: string | string[]) => setForm((f) => ({ ...f, [k]: v }));
+
+  function addTag() {
+    const t = form.tagInput.trim();
+    if (t && !form.tags.includes(t)) set("tags", [...form.tags, t]);
+    set("tagInput", "");
+  }
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    postAlert({
+      pair: form.pair, dir: form.dir, model: form.model,
+      session: form.session, rr: form.rr,
+      entry: form.entry, sl: form.sl, tp1: form.tp1,
+      tp2: form.tp2 || undefined, tags: form.tags, note: form.note,
+    }, { onSuccess: onClose });
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
+    >
+      <div
+        className="w-full max-w-lg rounded-2xl p-6 overflow-y-auto"
+        style={{ background: "var(--panel)", border: "1px solid var(--line)", maxHeight: "90vh", boxShadow: "0 24px 70px rgba(0,0,0,0.4)" }}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="font-display font-bold text-[18px]" style={{ color: "var(--ink-strong)" }}>Post Alert</h2>
+          <button type="button" onClick={onClose} style={{ color: "var(--ink-dim)" }}>
+            <Icon name="close" size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={submit} className="space-y-4">
+          {/* Pair + Direction */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Pair</label>
+              <select
+                value={form.pair} onChange={(e) => set("pair", e.target.value)}
+                className="w-full px-3 py-2 rounded-xl text-[13px]"
+                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+              >
+                {PAIRS.map((p) => <option key={p}>{p}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Direction</label>
+              <div className="flex rounded-xl overflow-hidden" style={{ border: "1px solid var(--line)" }}>
+                {(["long", "short"] as const).map((d) => (
+                  <button
+                    key={d} type="button" onClick={() => set("dir", d)}
+                    className="flex-1 py-2 text-[12.5px] font-semibold capitalize transition-all"
+                    style={form.dir === d
+                      ? { background: d === "long" ? "var(--teal)" : "var(--coral)", color: "#fff" }
+                      : { background: "var(--panel-2)", color: "var(--ink-mid)" }
+                    }
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Model + Session */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Model</label>
+              <select
+                value={form.model} onChange={(e) => set("model", e.target.value)}
+                className="w-full px-3 py-2 rounded-xl text-[13px]"
+                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+              >
+                {MODELS.map((m) => <option key={m}>{m}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Session</label>
+              <select
+                value={form.session} onChange={(e) => set("session", e.target.value)}
+                className="w-full px-3 py-2 rounded-xl text-[13px]"
+                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+              >
+                {SESSIONS.map((s) => <option key={s}>{s}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Entry / SL / TP1 / TP2 / RR */}
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { label: "Entry", key: "entry" }, { label: "Stop Loss", key: "sl" },
+              { label: "TP1",   key: "tp1" },   { label: "TP2 (opt)", key: "tp2" },
+              { label: "R:R",   key: "rr" },
+            ].map(({ label, key }) => (
+              <div key={key}>
+                <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>{label}</label>
+                <input
+                  type="text" value={(form as unknown as Record<string, string>)[key]}
+                  onChange={(e) => set(key, e.target.value)}
+                  placeholder={label}
+                  className="w-full px-3 py-2 rounded-xl text-[13px] font-mono"
+                  style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Tags</label>
+            <div className="flex gap-2">
+              <input
+                type="text" value={form.tagInput} onChange={(e) => set("tagInput", e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+                placeholder="Add tag, press Enter"
+                className="flex-1 px-3 py-2 rounded-xl text-[13px]"
+                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+              />
+              <button type="button" onClick={addTag} className="px-3 rounded-xl" style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-mid)" }}>
+                <Icon name="add" size={16} />
+              </button>
+            </div>
+            {form.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {form.tags.map((t) => (
+                  <button key={t} type="button" onClick={() => set("tags", form.tags.filter((x) => x !== t))}
+                    className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
+                    style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.2)" }}
+                  >
+                    {t} <Icon name="close" size={10} />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Note */}
+          <div>
+            <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Analysis Note</label>
+            <textarea
+              value={form.note} onChange={(e) => set("note", e.target.value)}
+              rows={4} placeholder="HTF bias, entry rationale, key levels..."
+              className="w-full px-3 py-2 rounded-xl text-[13px] resize-none"
+              style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+            />
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <Button type="button" variant="ghost" onClick={onClose} className="flex-1">Cancel</Button>
+            <Button type="submit" variant="primary" icon="notifications_active" className="flex-1" disabled={isPending}>
+              {isPending ? "Posting…" : "Post Alert"}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ── Alert card ────────────────────────────────────────────────────────────────
+
+function AlertCard({
+  alert, onCopy, copied, isInstructor,
+}: {
+  alert: InstructorAlert;
+  onCopy: () => void;
+  copied: boolean;
+  isInstructor: boolean;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const { mutate: updateStatus } = useUpdateAlertStatus();
+  const { mutate: deleteAlert }  = useDeleteAlert();
+  const statusCfg = STATUS_CONFIG[alert.status];
+  const chart     = useMemo(() => buildChart(alert), [alert]);
+
+  return (
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{
+        border: `1px solid ${alert.status === "active" ? "rgba(8,174,170,0.25)" : "var(--line)"}`,
+        background: "var(--panel)",
+        opacity: alert.status === "sl" || alert.status === "cancelled" || alert.status === "closed" ? 0.75 : 1,
+      }}
+    >
+      {/* Card header */}
+      <div className="px-5 pt-4 pb-3">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2.5 mb-1.5">
+              <span className="font-display font-bold text-[22px]" style={{ color: "var(--ink-strong)", letterSpacing: "-0.02em" }}>
+                {alert.pair}
+              </span>
+              <DirPill dir={alert.dir} />
+              <span
+                className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
+                style={{ background: statusCfg.bg, color: statusCfg.color }}
+              >
+                <span className="material-symbols-rounded" style={{ fontSize: 12, fontVariationSettings: "'FILL' 1" }}>
+                  {statusCfg.icon}
+                </span>
+                {statusCfg.label}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[12.5px]" style={{ color: "var(--ink-dim)" }}>{alert.model}</span>
+              <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>·</span>
+              <span className="text-[12.5px]" style={{ color: "var(--ink-dim)" }}>{alert.session} KZ</span>
+              <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>·</span>
+              <span className="text-[12.5px]" style={{ color: "var(--ink-dim)" }}>{timeAgo(alert.timePosted)}</span>
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <div className="font-display font-bold tabular-nums" style={{ fontSize: 24, color: "var(--gold)", letterSpacing: "-0.02em" }}>
+              {alert.rr}R
+            </div>
+            <div className="text-[11px] font-semibold" style={{ color: "var(--ink-dim)" }}>Planned R:R</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Levels grid */}
+      <div
+        className="mx-5 mb-3 grid grid-cols-2 sm:grid-cols-4 rounded-xl overflow-hidden"
+        style={{ border: "1px solid var(--line)" }}
+      >
+        {[
+          { label: "Entry", value: alert.entry, color: alert.dir === "long" ? "var(--teal)" : "var(--coral)", icon: "login" },
+          { label: "Stop",  value: alert.sl,    color: "var(--coral-bright)", icon: "stop_circle" },
+          { label: "TP 1",  value: alert.tp1,   color: "var(--teal-bright)",  icon: "flag" },
+          { label: "TP 2",  value: alert.tp2 ?? "—", color: alert.tp2 ? "var(--teal-bright)" : "var(--ink-dim)", icon: "flag_2" },
+        ].map(({ label, value, color, icon }, i) => (
+          <div
+            key={label}
+            className="flex flex-col items-center py-2.5 px-2"
+            style={{ borderLeft: i > 0 ? "1px solid var(--line)" : undefined, background: "var(--panel-2)" }}
+          >
+            <span className="material-symbols-rounded mb-0.5" style={{ fontSize: 13, color, fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: "var(--ink-dim)" }}>{label}</span>
+            <span className="font-display font-bold tabular-nums text-[13px]" style={{ color, letterSpacing: "-0.01em" }}>{value}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Chart */}
+      <div
+        className="mx-5 mb-3 rounded-xl overflow-hidden cursor-pointer"
+        style={{ height: expanded ? 180 : 100, border: "1px solid var(--line)", transition: "height 300ms var(--ease-app)" }}
+        onClick={() => setExpanded((e) => !e)}
+        title={expanded ? "Collapse chart" : "Expand chart"}
+      >
+        <CandleChart candles={chart.candles} annotations={chart.annotations} height={expanded ? 180 : 100} />
+      </div>
+
+      {/* Tags + note */}
+      <div className="px-5 pb-2">
+        <div className="flex flex-wrap gap-1.5 mb-2">
+          {alert.tags.map((tag) => <Chip key={tag} tone="teal">{tag}</Chip>)}
+        </div>
+        <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-dim)" }}>{alert.note}</p>
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center gap-2.5 px-5 py-3 border-t flex-wrap" style={{ borderColor: "var(--line)" }}>
+        <div className="flex items-center gap-2">
+          <div
+            className="size-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+            style={{ background: "linear-gradient(135deg, var(--gold), #e09b25)", color: "var(--navy-deep)" }}
+          >
+            K
+          </div>
+          <span className="text-[12px] font-medium" style={{ color: "var(--ink-mid)" }}>Kondwani · Instructor</span>
+        </div>
+
+        <div className="flex-1" />
+
+        {/* Instructor status controls */}
+        {isInstructor && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {STATUS_TRANSITIONS.filter((s) => s !== alert.status).map((s) => (
+              <button
+                key={s} type="button"
+                onClick={() => updateStatus({ id: alert.id, status: s })}
+                className="px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all"
+                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-mid)" }}
+              >
+                → {STATUS_CONFIG[s].label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => { if (confirm("Delete this alert?")) deleteAlert(alert.id); }}
+              className="p-1 rounded-lg"
+              style={{ color: "var(--coral)" }}
+            >
+              <Icon name="delete" size={14} />
+            </button>
+          </div>
+        )}
+
+        {/* Student copy-to-journal */}
+        {!isInstructor && alert.status === "active" && (
+          copied ? (
+            <span className="flex items-center gap-1.5 text-[12.5px] font-semibold" style={{ color: "var(--teal)" }}>
+              <Icon name="check_circle" size={16} fill />
+              In your journal
+            </span>
+          ) : (
+            <Button type="button" variant="primary" icon="add_task" onClick={onCopy}>
+              Copy to journal
+            </Button>
+          )
+        )}
+        {!isInstructor && alert.status !== "active" && (
+          <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>Trade closed · {statusCfg.label}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Filters ───────────────────────────────────────────────────────────────────
+
+const STATUS_FILTERS = [
+  { v: "all",    l: "All" },
+  { v: "active", l: "Active" },
+  { v: "closed", l: "Closed" },
+] as const;
+
+const PAIR_FILTERS = ["All", "EURUSD", "GBPUSD", "NZDUSD", "XAUUSD", "NAS100"];
+
+// ── Alerts page ───────────────────────────────────────────────────────────────
+
+export function Alerts() {
+  const { journaledAlerts, addJournaledAlert, toast, user } = useStore();
+  const { mutate: addTrade } = useAddTrade();
+  const { data: alerts = [], isLoading } = useAlerts();
+  const [showPostModal, setShowPostModal] = useState(false);
+
+  const isInstructor = user?.role === "instructor";
+
+  const handleCopyAlert = (alert: InstructorAlert) => {
+    if (journaledAlerts.has(alert.id)) { toast("Already in your journal", "gold", "info"); return; }
+    addTrade({
+      date:       new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short" }),
+      pair:       alert.pair,
+      dir:        alert.dir,
+      model:      alert.model,
+      session:    alert.session,
+      rr:         parseFloat(alert.rr),
+      result:     "open",
+      pnlR:       0,
+      tags:       alert.tags,
+      note:       `From Kondwani's alert · Entry ${alert.entry} / SL ${alert.sl} / TP ${alert.tp1}`,
+      fromAlert:  alert.id,
+      discipline: true,
+    });
+    addJournaledAlert(alert.id);
+    toast(`${alert.pair} setup copied to journal`, "teal", "add_task");
+  };
+
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "closed">("all");
+  const [pairFilter, setPairFilter]     = useState("All");
+
+  const filtered = useMemo(() => {
+    let list = alerts;
+    if (statusFilter === "active") list = list.filter((a) => a.status === "active");
+    if (statusFilter === "closed") list = list.filter((a) => a.status !== "active");
+    if (pairFilter !== "All")      list = list.filter((a) => a.pair === pairFilter);
+    return list;
+  }, [alerts, statusFilter, pairFilter]);
+
+  const activeCount = alerts.filter((a) => a.status === "active").length;
+
+  return (
+    <div className="view">
+      {showPostModal && <PostAlertModal onClose={() => setShowPostModal(false)} />}
+
+      {/* Header */}
+      <div className="flex items-start justify-between mb-5">
+        <div>
+          <h1 className="font-display font-bold" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
+            Setup Alerts
+          </h1>
+          <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+            Live calls from Kondwani — reviewed against the SMC rulebook before posting.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          {activeCount > 0 && (
+            <div
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl"
+              style={{ background: "rgba(8,174,170,0.1)", border: "1px solid rgba(8,174,170,0.3)" }}
+            >
+              <span className="relative flex size-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "var(--teal)" }} />
+                <span className="relative inline-flex rounded-full size-2" style={{ background: "var(--teal)" }} />
+              </span>
+              <span className="text-[12.5px] font-semibold" style={{ color: "var(--teal)" }}>
+                {activeCount} active {activeCount === 1 ? "alert" : "alerts"}
+              </span>
+            </div>
+          )}
+          {isInstructor && (
+            <Button type="button" variant="primary" icon="add_alert" onClick={() => setShowPostModal(true)}>
+              Post Alert
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="flex items-center gap-3 mb-5 flex-wrap">
+        <div
+          className="flex items-center rounded-xl p-0.5"
+          style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
+        >
+          {STATUS_FILTERS.map(({ v, l }) => (
+            <button
+              key={v} type="button" onClick={() => setStatusFilter(v)}
+              className="px-3.5 py-1.5 rounded-[10px] text-[12.5px] font-semibold transition-all"
+              style={statusFilter === v
+                ? { background: "var(--panel)", color: "var(--ink-strong)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }
+                : { color: "var(--ink-dim)" }
+              }
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {PAIR_FILTERS.map((p) => (
+            <button
+              key={p} type="button" onClick={() => setPairFilter(p)}
+              className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all"
+              style={pairFilter === p
+                ? { background: "var(--teal)", color: "#fff" }
+                : { background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }
+              }
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Alert grid */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="rounded-2xl h-64 animate-pulse" style={{ background: "var(--panel)", border: "1px solid var(--line)" }} />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <Panel>
+          <div className="flex flex-col items-center py-14 text-center">
+            <Icon name="notifications_off" size={32} style={{ color: "var(--ink-dim)", marginBottom: 12 }} />
+            <div className="font-semibold text-[15px] mb-1" style={{ color: "var(--ink-strong)" }}>No alerts match</div>
+            <div className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
+              {isInstructor ? "Post your first alert using the button above." : "Try changing the filter above."}
+            </div>
+          </div>
+        </Panel>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {filtered.map((alert) => (
+            <AlertCard
+              key={alert.id}
+              alert={alert}
+              copied={journaledAlerts.has(alert.id)}
+              onCopy={() => handleCopyAlert(alert)}
+              isInstructor={isInstructor}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Pro plan note — students only */}
+      {!isInstructor && (
+        <div
+          className="mt-6 rounded-2xl px-5 py-4 flex items-start gap-3"
+          style={{ background: "rgba(248,185,61,0.06)", border: "1px solid rgba(248,185,61,0.2)" }}
+        >
+          <Icon name="workspace_premium" size={17} fill style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }} />
+          <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
+            <strong style={{ color: "var(--ink-strong)" }}>Pro & Funded Track traders</strong> receive alerts in real time via this feed and push notifications. Free plan members see alerts with a 4-hour delay. Upgrade in{" "}
+            <a href="/pricing" style={{ color: "var(--gold)", textDecoration: "none" }}>Membership</a>.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}

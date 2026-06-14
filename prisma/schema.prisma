@@ -1,0 +1,331 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Auth ────────────────────────────────────────────────────────────────────
+
+model User {
+  id         String   @id @default(cuid())
+  supabaseId String   @unique @map("supabase_id")
+  name       String
+  username   String   @unique
+  email      String   @unique
+  location   String?
+  avatarUrl  String?  @map("avatar_url")
+  role       Role     @default(STUDENT)
+  plan       Plan     @default(FREE)
+  level      Int      @default(1)
+  streak     Int      @default(0)
+  riskPct    Float    @default(0.5) @map("risk_pct")
+  experience Experience @default(BEGINNER)
+  instruments String[] // e.g. ["EURUSD","XAUUSD"]
+  framework  String   @default("SMC") // "SMC" | "SnD"
+  notifPrefs Json?    @map("notif_prefs")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  trades         Trade[]
+  priceAlerts    PriceAlert[]
+  badges         UserBadge[]
+  lessonProgress LessonProgress[]
+  posts          Post[]
+  postLikes      PostLike[]
+  postComments   PostComment[]
+  subscriptions  Subscription[]
+  alerts         Alert[]
+
+  @@map("users")
+}
+
+enum Role {
+  STUDENT
+  INSTRUCTOR
+}
+
+enum Plan {
+  FREE
+  PRO
+  FUNDED
+}
+
+enum Experience {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+// ─── Trades / Journal ────────────────────────────────────────────────────────
+
+model Trade {
+  id         String      @id @default(cuid())
+  userId     String      @map("user_id")
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date       DateTime    @default(now())
+  pair       String      // EURUSD, XAUUSD, etc.
+  direction  Direction
+  model      String      // model name (SMC or SnD)
+  framework  String      @default("SMC") // "SMC" | "SnD"
+  session    Session?
+  entryPrice Float?      @map("entry_price")
+  stopLoss   Float?      @map("stop_loss")
+  takeProfit Float?      @map("take_profit")
+  rr         Float?      // planned R:R
+  closePrice Float?      @map("close_price") // actual exit price
+  pnlR       Float       @default(0) @map("pnl_r") // actual R outcome
+  riskPct    Float       @default(0.5) @map("risk_pct")
+  closedAt   DateTime?   @map("closed_at")
+  result     TradeResult @default(OPEN)
+  rating     Int         @default(3) // 1-5 execution rating
+  discipline Boolean     @default(true)
+  tags       String[]
+  mistake    String?
+  note       String?
+  chartUrl   String?     @map("chart_url") // Supabase Storage URL
+  fromAlert  String?     @map("from_alert") // alert id if copied
+  aiReview   Json?       @map("ai_review")  // persisted Gavo review result
+
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+
+  @@map("trades")
+}
+
+enum Direction {
+  LONG
+  SHORT
+}
+
+enum Session {
+  LONDON
+  NEW_YORK
+  ASIA
+}
+
+enum TradeResult {
+  WIN
+  LOSS
+  OPEN
+}
+
+// ─── Instructor Alerts ───────────────────────────────────────────────────────
+
+model Alert {
+  id         String      @id @default(cuid())
+  authorId   String?     @map("author_id")
+  author     User?       @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  pair       String
+  direction  Direction
+  status     AlertStatus @default(ACTIVE)
+  title      String
+  model      String
+  session    Session?
+  entryPrice Float       @map("entry_price")
+  stopLoss   Float       @map("stop_loss")
+  tp1        Float
+  tp2        Float?
+  rr         String      // e.g. "3.1R"
+  tags       String[]
+  note       String?
+  reactions  Int         @default(0)
+  taken      Int         @default(0)
+  result     String?
+  postedAt   DateTime    @default(now()) @map("posted_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+
+  @@map("alerts")
+}
+
+enum AlertStatus {
+  ACTIVE
+  TP1
+  TP2
+  SL
+  CANCELLED
+  CLOSED
+}
+
+// ─── Price Alerts ────────────────────────────────────────────────────────────
+
+model PriceAlert {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pair      String
+  condition String   // "crosses" | "above" | "below"
+  price     Float
+  note      String?
+  triggered Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("price_alerts")
+}
+
+// ─── Payments ────────────────────────────────────────────────────────────────
+
+model Subscription {
+  id              String             @id @default(cuid())
+  userId          String             @map("user_id")
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan            Plan
+  status          SubscriptionStatus @default(PENDING)
+  lencoReference  String?            @unique @map("lenco_reference")
+  currency        String             @default("ZMW") // "ZMW" | "USD"
+  amountCents     Int                @map("amount_cents")
+  billingCycle    String             @default("monthly") @map("billing_cycle") // "monthly" | "annual"
+  startedAt       DateTime?          @map("started_at")
+  renewsAt        DateTime?          @map("renews_at")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  @@map("subscriptions")
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+// ─── Community ───────────────────────────────────────────────────────────────
+
+model Post {
+  id        String      @id @default(cuid())
+  authorId  String      @map("author_id")
+  author    User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  text      String
+  pair      String?
+  dir       Direction?
+  result    TradeResult?
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  likes    PostLike[]
+  comments PostComment[]
+
+  @@map("posts")
+}
+
+model PostLike {
+  id     String @id @default(cuid())
+  postId String @map("post_id")
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("post_likes")
+}
+
+model PostComment {
+  id        String   @id @default(cuid())
+  postId    String   @map("post_id")
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String   @map("author_id")
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  text      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("post_comments")
+}
+
+// ─── Academy ─────────────────────────────────────────────────────────────────
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  level       Int      @default(1)
+  order       Int      @default(0)
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  lessons     Lesson[]
+
+  @@map("courses")
+}
+
+model Lesson {
+  id        String  @id @default(cuid())
+  courseId  String? @map("course_id")
+  course    Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  level     Int
+  title     String
+  duration  String  // "9:42"
+  summary   String
+  points    String[]
+  videoUrl  String? @map("video_url") // Cloudflare Stream or Canva embed URL
+  published Boolean @default(false)
+  order     Int
+
+  progress LessonProgress[]
+
+  @@map("lessons")
+}
+
+model LessonProgress {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId  String   @map("lesson_id")
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  completed Boolean  @default(false)
+  completedAt DateTime? @map("completed_at")
+
+  @@unique([userId, lessonId])
+  @@map("lesson_progress")
+}
+
+// ─── COT Data ────────────────────────────────────────────────────────────────
+
+model CotReport {
+  id            String   @id @default(cuid())
+  pair          String   // "EURUSD" | "GBPUSD" | "NZDUSD" | "AUDUSD" | "XAUUSD" | "NAS100" | "DXY"
+  reportDate    DateTime @map("report_date")
+  largeSpecNet  Int      @map("large_spec_net")
+  commercialNet Int      @map("commercial_net")
+  smallSpecNet  Int      @map("small_spec_net")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@unique([pair, reportDate])
+  @@index([pair, reportDate(sort: Desc)])
+  @@map("cot_reports")
+}
+
+// ─── FX Option Expiries ──────────────────────────────────────────────────────
+
+model FxOptionExpiry {
+  id         String   @id @default(cuid())
+  expiryDate DateTime @map("expiry_date") // UTC midnight of the expiry day
+  pair       String   // normalized: "EURUSD", "USDJPY", etc.
+  spotPrice  String?  @map("spot_price")  // spot at time of fetch
+  levels     Json     // FxLevel[] — see types/fx-orders.ts
+  sourceUrl  String?  @map("source_url")  // InvestingLive page URL
+  imageUrl   String?  @map("image_url")   // direct image URL that was parsed
+  fetchedAt  DateTime @default(now()) @map("fetched_at")
+
+  @@unique([expiryDate, pair])
+  @@index([expiryDate(sort: Desc)])
+  @@index([pair, expiryDate(sort: Desc)])
+  @@map("fx_option_expiries")
+}
+
+// ─── Badges ──────────────────────────────────────────────────────────────────
+
+model UserBadge {
+  id       String @id @default(cuid())
+  userId   String @map("user_id")
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  icon     String
+  label    String
+  tone     String // "teal" | "gold" | "coral"
+  earnedAt DateTime @default(now()) @map("earned_at")
+
+  @@map("user_badges")
+}
