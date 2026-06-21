@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import crypto from "crypto";
+import { addMonths } from "@/lib/date";
 
 // Create a module-level Prisma instance that is guaranteed to be initialised
 // after Next.js has loaded all environment variables. Using the shared
@@ -83,8 +84,7 @@ export async function POST(req: NextRequest) {
   }
 
   const now      = new Date();
-  const renewsAt = new Date(now);
-  renewsAt.setMonth(renewsAt.getMonth() + (sub.billingCycle === "annual" ? 12 : 1));
+  const renewsAt = addMonths(now, sub.billingCycle === "annual" ? 12 : 1);
 
   // Activate subscription and upgrade user plan
   await db.$transaction([

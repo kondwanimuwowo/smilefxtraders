@@ -1,12 +1,16 @@
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const TD_SUBSCRIBE = "EUR/USD,GBP/USD,NZD/USD,XAU/USD,IXIC,DXY";
+const TD_SUBSCRIBE = "EUR/USD,GBP/USD,USD/JPY,USD/CHF,AUD/USD,NZD/USD,USD/CAD,XAU/USD,IXIC,DXY";
 
 const DISPLAY: Record<string, string> = {
   "EUR/USD": "EURUSD",
   "GBP/USD": "GBPUSD",
+  "USD/JPY": "USDJPY",
+  "USD/CHF": "USDCHF",
+  "AUD/USD": "AUDUSD",
   "NZD/USD": "NZDUSD",
+  "USD/CAD": "USDCAD",
   "XAU/USD": "XAUUSD",
   IXIC:      "NAS100",
   DXY:       "DXY",

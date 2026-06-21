@@ -37,18 +37,18 @@ interface SocrataRow {
 
 function n(s: string) { return parseInt(s ?? "0") || 0; }
 
-async function syncInstrument(code: string, pair: string, usdBase: boolean) {
+async function syncInstrument(code: string, pair: string, usdBase: boolean, limit = 156) {
   const url = new URL(CFTC_BASE);
   url.searchParams.set("$where",  `cftc_contract_market_code='${code}'`);
   url.searchParams.set("$order",  "report_date_as_yyyy_mm_dd DESC");
-  url.searchParams.set("$limit",  "8");
+  url.searchParams.set("$limit",  String(limit));
   url.searchParams.set(
     "$select",
     "report_date_as_yyyy_mm_dd,noncomm_positions_long_all,noncomm_positions_short_all,comm_positions_long_all,comm_positions_short_all,nonrept_positions_long_all,nonrept_positions_short_all"
   );
 
   const ac  = new AbortController();
-  const tid = setTimeout(() => ac.abort(), 25_000);
+  const tid = setTimeout(() => ac.abort(), 30_000);
   const res = await fetch(url.toString(), { signal: ac.signal });
   clearTimeout(tid);
 
@@ -60,14 +60,26 @@ async function syncInstrument(code: string, pair: string, usdBase: boolean) {
   await Promise.all(
     rows.map((r) => {
       const reportDate    = new Date(r.report_date_as_yyyy_mm_dd.slice(0, 10) + "T00:00:00.000Z");
-      const largeSpecNet  = sign * (n(r.noncomm_positions_long_all)  - n(r.noncomm_positions_short_all));
-      const commercialNet = sign * (n(r.comm_positions_long_all)     - n(r.comm_positions_short_all));
-      const smallSpecNet  = sign * (n(r.nonrept_positions_long_all)  - n(r.nonrept_positions_short_all));
+      const lsLong        = n(r.noncomm_positions_long_all);
+      const lsShort       = n(r.noncomm_positions_short_all);
+      const cLong         = n(r.comm_positions_long_all);
+      const cShort        = n(r.comm_positions_short_all);
+      const ssLong        = n(r.nonrept_positions_long_all);
+      const ssShort       = n(r.nonrept_positions_short_all);
+      const largeSpecNet  = sign * (lsLong  - lsShort);
+      const commercialNet = sign * (cLong   - cShort);
+      const smallSpecNet  = sign * (ssLong  - ssShort);
+
+      const fields = {
+        largeSpecNet,  largeSpecLong: lsLong,  largeSpecShort: lsShort,
+        commercialNet, commercialLong: cLong,  commercialShort: cShort,
+        smallSpecNet,  smallSpecLong: ssLong,  smallSpecShort: ssShort,
+      };
 
       return prisma.cotReport.upsert({
         where:  { pair_reportDate: { pair, reportDate } },
-        update: { largeSpecNet, commercialNet, smallSpecNet },
-        create: { pair, reportDate, largeSpecNet, commercialNet, smallSpecNet },
+        update: fields,
+        create: { pair, reportDate, ...fields },
       });
     })
   );

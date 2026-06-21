@@ -9,9 +9,8 @@ export interface FxLevel {
 }
 
 export interface FxExpiryDay {
-  dayName: string;   // "Tuesday"
-  date:    string;   // "09/06"
-  levels:  Record<string, FxLevel[]>; // key: normalized pair e.g. "EURUSD"
+  rowIndex: number;  // 0-based position in the image table (top = 0)
+  levels:   Record<string, FxLevel[]>; // key: normalized pair e.g. "EURUSD"
 }
 
 export interface FxImageExtraction {

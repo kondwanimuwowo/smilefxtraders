@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useStore } from "@/lib/store";
 import type { Trade } from "@/lib/store";
 import { useAddTrade, useUpdateTrade } from "@/lib/hooks/useTrades";
@@ -8,13 +8,12 @@ import { Modal, Button, Field, MonoInput, Textarea, Select, SegRow, Stars, Image
 import { MODELS, TAG_POOL, FIB_TAG_OPTIONS, type Framework } from "@/lib/frameworks";
 import confetti from "canvas-confetti";
 
-const PAIRS    = ["EURUSD", "GBPUSD", "NZDUSD", "XAUUSD", "NAS100"];
+const PAIRS    = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
 const SESSIONS = ["London", "New York", "Asia"];
 
+import { format } from "@/lib/date";
 function nowLocal() {
-  const d = new Date();
-  d.setSeconds(0, 0);
-  return d.toISOString().slice(0, 16);
+  return format(new Date(), "yyyy-MM-dd'T'HH:mm");
 }
 
 interface FormState {
@@ -124,7 +123,7 @@ export function LogTradeModal({ open, onClose, edit }: Props) {
     const isClosed = f.result !== "open";
 
     const payload = {
-      date:       edit?.date ?? new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit" }),
+      date:       edit?.date ?? format(new Date(), "MMM dd"),
       openedAt:   f.openedAt ? new Date(f.openedAt).toISOString() : undefined,
       closedAt:   isClosed && f.closedAt ? new Date(f.closedAt).toISOString() : undefined,
       pair:       f.pair,
@@ -164,6 +163,26 @@ export function LogTradeModal({ open, onClose, edit }: Props) {
     }
     onClose();
   }
+
+  // Auto-calculate R:R whenever entry, SL, and TP are all filled
+  const calculatedRR = useMemo(() => {
+    const en = parseFloat(f.entryPrice);
+    const sl = parseFloat(f.stopLoss);
+    const tp = parseFloat(f.takeProfit);
+    if (isNaN(en) || isNaN(sl) || isNaN(tp)) return null;
+    const risk   = Math.abs(en - sl);
+    const reward = Math.abs(tp - en);
+    if (risk < 0.000001) return null;
+    return +(reward / risk).toFixed(2);
+  }, [f.entryPrice, f.stopLoss, f.takeProfit]);
+
+  const lastCalcRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (calculatedRR !== null && calculatedRR !== lastCalcRef.current) {
+      lastCalcRef.current = calculatedRR;
+      set("rr", String(calculatedRR));
+    }
+  }, [calculatedRR]);
 
   const isSMC      = f.framework === "SMC";
   const modelLabel = isSMC ? "SMC Model" : "S&D Setup";
@@ -266,10 +285,25 @@ export function LogTradeModal({ open, onClose, edit }: Props) {
             }}
           />
         </Field>
-        <Field label="Planned R:R" half>
+        <Field
+          label={
+            <span className="flex items-center gap-1.5">
+              Planned R:R
+              {calculatedRR !== null && (
+                <span
+                  className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
+                  style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.2)" }}
+                >
+                  auto
+                </span>
+              )}
+            </span>
+          }
+          half
+        >
           <MonoInput
             value={f.rr}
-            onChange={(e) => set("rr", e.target.value)}
+            onChange={(e) => { lastCalcRef.current = null; set("rr", e.target.value); }}
             placeholder="3.1"
           />
         </Field>

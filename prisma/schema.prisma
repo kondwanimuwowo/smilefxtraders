@@ -238,8 +238,12 @@ model PostComment {
 
 model Course {
   id          String   @id @default(cuid())
+  slug        String   @unique
   title       String
   description String
+  tier        String   @default("free")        // "free" | "pro" | "funded"
+  icon        String   @default("school")
+  color       String   @default("var(--teal)")
   level       Int      @default(1)
   order       Int      @default(0)
   published   Boolean  @default(false)
@@ -255,17 +259,20 @@ model Lesson {
   id        String  @id @default(cuid())
   courseId  String? @map("course_id")
   course    Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  slug      String
   level     Int
   title     String
-  duration  String  // "9:42"
+  duration  String  // e.g. "18 min"
+  body      String? // markdown text content
   summary   String
   points    String[]
-  videoUrl  String? @map("video_url") // Cloudflare Stream or Canva embed URL
+  videoUrl  String? @map("video_url")
   published Boolean @default(false)
   order     Int
 
   progress LessonProgress[]
 
+  @@unique([courseId, slug])
   @@map("lessons")
 }
 
@@ -285,13 +292,19 @@ model LessonProgress {
 // ─── COT Data ────────────────────────────────────────────────────────────────
 
 model CotReport {
-  id            String   @id @default(cuid())
-  pair          String   // "EURUSD" | "GBPUSD" | "NZDUSD" | "AUDUSD" | "XAUUSD" | "NAS100" | "DXY"
-  reportDate    DateTime @map("report_date")
-  largeSpecNet  Int      @map("large_spec_net")
-  commercialNet Int      @map("commercial_net")
-  smallSpecNet  Int      @map("small_spec_net")
-  createdAt     DateTime @default(now()) @map("created_at")
+  id              String   @id @default(cuid())
+  pair            String   // "EURUSD" | "GBPUSD" | "NZDUSD" | "AUDUSD" | "XAUUSD" | "NAS100" | "DXY"
+  reportDate      DateTime @map("report_date")
+  largeSpecLong   Int?     @map("large_spec_long")
+  largeSpecShort  Int?     @map("large_spec_short")
+  largeSpecNet    Int      @map("large_spec_net")
+  commercialLong  Int?     @map("commercial_long")
+  commercialShort Int?     @map("commercial_short")
+  commercialNet   Int      @map("commercial_net")
+  smallSpecLong   Int?     @map("small_spec_long")
+  smallSpecShort  Int?     @map("small_spec_short")
+  smallSpecNet    Int      @map("small_spec_net")
+  createdAt       DateTime @default(now()) @map("created_at")
 
   @@unique([pair, reportDate])
   @@index([pair, reportDate(sort: Desc)])
@@ -314,6 +327,18 @@ model FxOptionExpiry {
   @@index([expiryDate(sort: Desc)])
   @@index([pair, expiryDate(sort: Desc)])
   @@map("fx_option_expiries")
+}
+
+// ─── Trend Matrix ────────────────────────────────────────────────────────────
+
+model TrendMatrix {
+  id        String   @id  // always "singleton" — one shared record
+  matrix    Json     // Record<pair, Record<tf, "bullish"|"bearish"|"ranging">>
+  notes     Json     // Record<pair, string>
+  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedBy String?  @map("updated_by") // instructor user id
+
+  @@map("trend_matrix")
 }
 
 // ─── Badges ──────────────────────────────────────────────────────────────────

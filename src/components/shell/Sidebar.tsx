@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { useStore } from "@/lib/store";
+import type { AppUser } from "@/lib/store";
 import { signoutAction } from "@/app/(auth)/actions";
 
 interface NavItem {
@@ -19,7 +21,7 @@ const ADMIN_NAV: { section: string; items: NavItem[] } = {
     { href: "/admin",          icon: "monitoring",    label: "Platform Stats"  },
     { href: "/admin/students", icon: "manage_accounts", label: "Students"      },
     { href: "/admin/alerts",   icon: "campaign",      label: "Alerts Manager"  },
-    { href: "/admin/academy",  icon: "edit_note",     label: "Academy Manager" },
+    { href: "/admin/academy",  icon: "edit_note",     label: "Course Builder"  },
   ],
 };
 
@@ -35,6 +37,7 @@ const NAV: { section: string; items: NavItem[] }[] = [
       { href: "/validator", icon: "checklist",            label: "Rules Validator"  },
       { href: "/trend",     icon: "trending_up",          label: "Trend Matrix"     },
       { href: "/calendar",  icon: "event",               label: "Economic Calendar" },
+      { href: "/sessions",   icon: "schedule",              label: "Market Sessions"  },
       { href: "/cot",       icon: "bar_chart",            label: "COT Reports"      },
       { href: "/fx-orders", icon: "candlestick_chart",    label: "FX Option Expiries" },
       { href: "/pairs",     icon: "currency_exchange",    label: "Pair Overviews"   },
@@ -46,14 +49,6 @@ const NAV: { section: string; items: NavItem[] }[] = [
       { href: "/alerts",    icon: "notifications_active", label: "Setup Alerts" },
       { href: "/community", icon: "groups",               label: "Community"    },
       { href: "/academy",   icon: "school",               label: "Academy"      },
-    ],
-  },
-  {
-    section: "Account",
-    items: [
-      { href: "/profile",  icon: "person",            label: "Profile"    },
-      { href: "/settings", icon: "settings",          label: "Settings"   },
-      { href: "/pricing",  icon: "workspace_premium", label: "Membership" },
     ],
   },
 ];
@@ -235,107 +230,219 @@ export function Sidebar() {
           className="shrink-0 border-t overflow-x-hidden"
           style={{ borderColor: "var(--line)", padding: effectiveCollapsed ? "8px" : "8px 10px" }}
         >
-          {/* Instructor strip */}
-          <div
-            className="rounded-xl flex items-center mb-2 overflow-hidden"
+          {user && (
+            <ProfileButton
+              user={user}
+              isInstructor={isInstructor}
+              initials={initials}
+              planLabel={planLabel}
+              collapsed={effectiveCollapsed}
+              onSignout={handleSignout}
+              signingOut={pending}
+            />
+          )}
+        </div>
+      </aside>
+    </>
+  );
+}
+
+// ── ProfileButton ────────────────────────────────────────────────────────────
+
+const DROPUP_LINKS = [
+  { href: "/profile",  icon: "person",            label: "Profile"    },
+  { href: "/settings", icon: "settings",          label: "Settings"   },
+  { href: "/pricing",  icon: "workspace_premium", label: "Membership" },
+];
+
+function ProfileButton({
+  user, isInstructor, initials, planLabel, collapsed, onSignout, signingOut,
+}: {
+  user: AppUser;
+  isInstructor: boolean;
+  initials: string;
+  planLabel: string;
+  collapsed: boolean;
+  onSignout: () => void;
+  signingOut: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [menuRect, setMenuRect] = useState<DOMRect | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  // Recalculate position on open
+  function toggle() {
+    if (!open) setMenuRect(triggerRef.current?.getBoundingClientRect() ?? null);
+    setOpen((v) => !v);
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    function onDown(e: MouseEvent) {
+      if (
+        !triggerRef.current?.contains(e.target as Node) &&
+        !menuRef.current?.contains(e.target as Node)
+      ) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  function navigate(href: string) {
+    setOpen(false);
+    router.push(href);
+  }
+
+  const avatarStyle = isInstructor
+    ? { background: "linear-gradient(135deg, var(--gold), #e09b25)", color: "var(--navy-deep)" }
+    : { background: "linear-gradient(135deg, var(--teal), var(--navy))", color: "#fff" };
+
+  const subline = isInstructor
+    ? "Lead Instructor"
+    : `@${user.handle.replace(/^@/, "")} · ${planLabel}`;
+
+  const sublineColor = isInstructor ? "var(--gold)" : "var(--ink-dim)";
+
+  const menuWidth = 220;
+
+  return (
+    <>
+      {/* ── Trigger button ── */}
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={toggle}
+        className="nav-tip w-full flex items-center rounded-xl transition-colors hover:bg-[var(--hover)]"
+        style={{
+          padding: collapsed ? "7px 0" : "7px 8px",
+          justifyContent: collapsed ? "center" : "flex-start",
+          gap: collapsed ? 0 : 9,
+          transition: "padding 260ms var(--ease-app)",
+          background: open ? "var(--hover)" : "transparent",
+        }}
+        data-tip={collapsed ? user.name : undefined}
+        aria-label="Account menu"
+        aria-expanded={open}
+      >
+        <div
+          className="size-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
+          style={avatarStyle}
+        >
+          {initials}
+        </div>
+
+        <div
+          style={{
+            opacity: collapsed ? 0 : 1,
+            maxWidth: collapsed ? 0 : 140,
+            overflow: "hidden",
+            transition: "opacity 180ms var(--ease-app), max-width 260ms var(--ease-app)",
+            whiteSpace: "nowrap",
+            textAlign: "left",
+            flex: 1,
+          }}
+        >
+          <div className="text-[12px] font-semibold truncate" style={{ color: "var(--ink-strong)" }}>
+            {user.name}
+          </div>
+          <div className="text-[10px] truncate" style={{ color: sublineColor }}>
+            {subline}
+          </div>
+        </div>
+
+        {!collapsed && (
+          <span
+            className="material-symbols-rounded shrink-0"
             style={{
-              background: "rgba(248,185,61,0.06)",
-              border: "1px solid rgba(248,185,61,0.15)",
-              padding: effectiveCollapsed ? "8px 0" : "8px 10px",
-              justifyContent: effectiveCollapsed ? "center" : "flex-start",
-              gap: effectiveCollapsed ? 0 : 10,
-              transition: "padding 260ms var(--ease-app)",
+              fontSize: 15,
+              color: "var(--ink-dim)",
+              transform: open ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 200ms var(--ease-app)",
             }}
           >
+            expand_less
+          </span>
+        )}
+      </button>
+
+      {/* ── Dropup — portal so the sidebar's overflow-hidden doesn't clip it ── */}
+      {open && menuRect && typeof document !== "undefined" && createPortal(
+        <div
+          ref={menuRef}
+          className="rounded-xl overflow-hidden"
+          style={{
+            position: "fixed",
+            bottom: window.innerHeight - menuRect.top + 8,
+            left: menuRect.left,
+            width: menuWidth,
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+            boxShadow: "0 -12px 40px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.15)",
+            zIndex: 9999,
+          }}
+        >
+          {/* Identity header */}
+          <div
+            className="flex items-center gap-2.5 px-3.5 py-3"
+            style={{ borderBottom: "1px solid var(--line)" }}
+          >
             <div
-              className="size-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-              style={{ background: "linear-gradient(135deg, var(--gold), #e09b25)", color: "var(--navy-deep)" }}
+              className="size-8 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0"
+              style={avatarStyle}
             >
-              K
+              {initials}
             </div>
-            <div
-              style={{
-                opacity: effectiveCollapsed ? 0 : 1,
-                maxWidth: effectiveCollapsed ? 0 : 160,
-                overflow: "hidden",
-                transition: "opacity 180ms var(--ease-app), max-width 260ms var(--ease-app)",
-                whiteSpace: "nowrap",
-              }}
-            >
-              <div className="text-[12px] font-semibold" style={{ color: "var(--ink-strong)" }}>Kondwani</div>
-              <div className="text-[10px]" style={{ color: "var(--gold)", opacity: 0.8 }}>Lead Instructor</div>
+            <div className="min-w-0">
+              <div className="text-[13px] font-semibold truncate" style={{ color: "var(--ink-strong)" }}>
+                {user.name}
+              </div>
+              <div className="text-[11px] truncate" style={{ color: sublineColor }}>
+                {subline}
+              </div>
             </div>
           </div>
 
-          {/* User card */}
-          {user && (
-            <div
-              className="flex items-center rounded-xl mb-1 overflow-hidden"
-              style={{
-                background: "var(--panel-2)",
-                border: "1px solid var(--line)",
-                padding: effectiveCollapsed ? "8px 0" : "8px 10px",
-                justifyContent: effectiveCollapsed ? "center" : "flex-start",
-                gap: effectiveCollapsed ? 0 : 10,
-                transition: "padding 260ms var(--ease-app)",
-              }}
+          {/* Nav links */}
+          {DROPUP_LINKS.map(({ href, icon, label }) => (
+            <button
+              key={href}
+              type="button"
+              onClick={() => navigate(href)}
+              className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-medium transition-colors hover:bg-[var(--hover)]"
+              style={{ color: "var(--ink-strong)" }}
             >
-              <div
-                className="size-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-                style={{ background: "linear-gradient(135deg, var(--teal), var(--navy))", color: "#fff" }}
-              >
-                {initials}
-              </div>
-              <div
-                style={{
-                  opacity: effectiveCollapsed ? 0 : 1,
-                  maxWidth: effectiveCollapsed ? 0 : 160,
-                  overflow: "hidden",
-                  transition: "opacity 180ms var(--ease-app), max-width 260ms var(--ease-app)",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <div className="text-[12px] font-semibold truncate" style={{ color: "var(--ink-strong)" }}>
-                  {user.name}
-                </div>
-                <div className="text-[10px]" style={{ color: "var(--ink-dim)" }}>
-                  @{user.handle.replace(/^@/, "")} · {planLabel}
-                </div>
-              </div>
-            </div>
-          )}
+              <span className="material-symbols-rounded text-[17px]" style={{ color: "var(--ink-dim)" }}>
+                {icon}
+              </span>
+              {label}
+            </button>
+          ))}
 
           {/* Sign out */}
-          <button
-            type="button"
-            onClick={handleSignout}
-            disabled={pending}
-            className="nav-tip w-full flex items-center rounded-xl transition-colors hover:bg-[var(--hover)]"
-            style={{
-              padding: effectiveCollapsed ? "7px 0" : "7px 10px",
-              justifyContent: effectiveCollapsed ? "center" : "flex-start",
-              gap: effectiveCollapsed ? 0 : 8,
-              color: "var(--ink-dim)",
-              transition: "padding 260ms var(--ease-app)",
-            }}
-            data-tip={effectiveCollapsed ? "Sign out" : undefined}
-          >
-            <span className="material-symbols-rounded text-[17px] shrink-0">logout</span>
-            <span
-              className="text-[12.5px] font-medium"
-              style={{
-                opacity: effectiveCollapsed ? 0 : 1,
-                maxWidth: effectiveCollapsed ? 0 : 120,
-                overflow: "hidden",
-                whiteSpace: "nowrap",
-                transition: "opacity 180ms var(--ease-app), max-width 260ms var(--ease-app)",
-              }}
+          <div style={{ borderTop: "1px solid var(--line)" }}>
+            <button
+              type="button"
+              onClick={() => { setOpen(false); onSignout(); }}
+              disabled={signingOut}
+              className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-medium transition-colors hover:bg-[var(--hover)]"
+              style={{ color: "var(--coral)" }}
             >
-              {pending ? "Signing out…" : "Sign out"}
-            </span>
-          </button>
-        </div>
-      </aside>
+              <span className="material-symbols-rounded text-[17px]">logout</span>
+              {signingOut ? "Signing out…" : "Sign out"}
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
     </>
   );
 }
@@ -400,27 +507,12 @@ function NavLink({
 
 function BrandMark() {
   return (
-    <div
-      style={{
-        width: 34,
-        height: 34,
-        borderRadius: 9,
-        overflow: "hidden",
-        background: "linear-gradient(135deg, #08AEAA, #0B425D)",
-        flexShrink: 0,
-      }}
-    >
+    <div style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 8, overflow: "hidden" }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/Smile%20FX%20Traders%20Logo%20bg-W.png"
-        alt=""
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "contain",
-          filter: "invert(1)",
-          mixBlendMode: "screen",
-        }}
+        src="/Smile-FX-Traders-Logo-bg-G%20(2).png"
+        alt="Smile FX Traders"
+        style={{ width: "100%", height: "100%", objectFit: "contain" }}
       />
     </div>
   );

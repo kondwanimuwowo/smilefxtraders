@@ -16,3 +16,4 @@ export { Stars } from "./Stars";
 export { ToastHost } from "./ToastHost";
 export { CandleChart } from "./CandleChart";
 export type { Candle, Zone, PriceLine, Mark } from "./CandleChart";
+export { SessionTimeline } from "./SessionTimeline";

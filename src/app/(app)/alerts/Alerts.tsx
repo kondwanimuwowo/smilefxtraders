@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useStore } from "@/lib/store";
-import { Panel, DirPill, Chip, Icon, Button, CandleChart } from "@/components/ui";
+import { Panel, DirPill, Chip, Icon, Button, CandleChart, Select, Avatar } from "@/components/ui";
 import { useAddTrade } from "@/lib/hooks/useTrades";
 import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
 
@@ -37,15 +37,24 @@ function useAlerts() {
   return useQuery({
     queryKey: ["alerts"],
     queryFn: async () => {
-      const res = await fetch("/api/alerts");
-      if (!res.ok) throw new Error("Failed to fetch alerts");
+      let res: Response;
+      try {
+        res = await fetch("/api/alerts");
+      } catch {
+        throw new Error("Can't reach the server — check your internet connection.");
+      }
+      if (res.status === 401) throw new Error("Session expired — please sign in again.");
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(body.error ?? `Server error (${res.status})`);
+      }
       return res.json() as Promise<InstructorAlert[]>;
     },
     refetchInterval: 60_000,
   });
 }
 
-function useUpdateAlertStatus() {
+export function useUpdateAlertStatus() {
   const queryClient = useQueryClient();
   const toast = useStore((s) => s.toast);
   return useMutation({
@@ -68,7 +77,7 @@ function useUpdateAlertStatus() {
   });
 }
 
-function useDeleteAlert() {
+export function useDeleteAlert() {
   const queryClient = useQueryClient();
   const toast = useStore((s) => s.toast);
   return useMutation({
@@ -108,7 +117,10 @@ function usePostAlert() {
           note:    data.note,
         }),
       });
-      if (!res.ok) throw new Error("Failed to post alert");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(err.error ?? `Server error ${res.status}`);
+      }
       return res.json() as Promise<InstructorAlert>;
     },
     onSuccess: (newAlert) => {
@@ -117,22 +129,14 @@ function usePostAlert() {
       );
       toast(`${newAlert.pair} alert posted`, "teal", "notifications_active");
     },
-    onError: () => toast("Failed to post alert", "coral", "error"),
+    onError: (err: Error) => toast(err.message || "Failed to post alert", "coral", "error"),
   });
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function timeAgo(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const diffM  = Math.floor(diffMs / 60_000);
-  const diffH  = Math.floor(diffM / 60);
-  const diffD  = Math.floor(diffH / 24);
-  if (diffM < 1)   return "just now";
-  if (diffM < 60)  return `${diffM}m ago`;
-  if (diffH < 24)  return `${diffH}h ago`;
-  return `${diffD}d ago`;
-}
+import { fmtRelative } from "@/lib/date";
+function timeAgo(iso: string): string { return fmtRelative(iso); }
 
 const STATUS_CONFIG: Record<AlertStatusApp, { label: string; color: string; bg: string; icon: string }> = {
   active:    { label: "Active",    color: "var(--teal)",         bg: "rgba(8,174,170,0.12)",    icon: "radio_button_checked" },
@@ -161,8 +165,8 @@ function strHash(s: string) {
   return h >>> 0;
 }
 
-const PAIR_START: Record<string, number> = { EURUSD: 1.085, GBPUSD: 1.27, NZDUSD: 0.608, XAUUSD: 2328, NAS100: 19800 };
-const PAIR_VOL:   Record<string, number> = { EURUSD: 0.0008, GBPUSD: 0.001, NZDUSD: 0.0007, XAUUSD: 4, NAS100: 60 };
+const PAIR_START: Record<string, number> = { EURUSD: 1.085, GBPUSD: 1.27, USDJPY: 155.4, USDCHF: 0.905, AUDUSD: 0.648, NZDUSD: 0.608, USDCAD: 1.376, XAUUSD: 2328, NAS100: 19800 };
+const PAIR_VOL:   Record<string, number> = { EURUSD: 0.0008, GBPUSD: 0.001, USDJPY: 0.15, USDCHF: 0.0008, AUDUSD: 0.0008, NZDUSD: 0.0007, USDCAD: 0.0008, XAUUSD: 4, NAS100: 60 };
 
 function buildChart(alert: InstructorAlert): { candles: Candle[]; annotations: { zones: Zone[]; lines: PriceLine[]; marks: Mark[] } } {
   const rng   = mulberry32(strHash(alert.id));
@@ -203,14 +207,14 @@ function buildChart(alert: InstructorAlert): { candles: Candle[]; annotations: {
 
 // ── Post Alert Modal ──────────────────────────────────────────────────────────
 
-const PAIRS    = ["EURUSD", "GBPUSD", "NZDUSD", "XAUUSD", "NAS100"];
+const PAIRS    = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
 const SESSIONS = ["London", "New York", "Asia"];
 const MODELS   = [
   "Liquidity Sweep → FVG", "OB + BOS", "Liquidity → CHoCH",
   "SMT + OB", "OB + FVG", "Turtle Soup", "BOS + retrace",
 ];
 
-function PostAlertModal({ onClose }: { onClose: () => void }) {
+export function PostAlertModal({ onClose }: { onClose: () => void }) {
   const { mutate: postAlert, isPending } = usePostAlert();
   const [form, setForm] = useState({
     pair: "XAUUSD", dir: "long" as "long" | "short",
@@ -258,13 +262,7 @@ function PostAlertModal({ onClose }: { onClose: () => void }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Pair</label>
-              <select
-                value={form.pair} onChange={(e) => set("pair", e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-[13px]"
-                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
-              >
-                {PAIRS.map((p) => <option key={p}>{p}</option>)}
-              </select>
+              <Select value={form.pair} onChange={(v) => set("pair", v)} options={PAIRS} />
             </div>
             <div>
               <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Direction</label>
@@ -289,23 +287,11 @@ function PostAlertModal({ onClose }: { onClose: () => void }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Model</label>
-              <select
-                value={form.model} onChange={(e) => set("model", e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-[13px]"
-                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
-              >
-                {MODELS.map((m) => <option key={m}>{m}</option>)}
-              </select>
+              <Select value={form.model} onChange={(v) => set("model", v)} options={MODELS} />
             </div>
             <div>
               <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Session</label>
-              <select
-                value={form.session} onChange={(e) => set("session", e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-[13px]"
-                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
-              >
-                {SESSIONS.map((s) => <option key={s}>{s}</option>)}
-              </select>
+              <Select value={form.session} onChange={(v) => set("session", v)} options={SESSIONS} />
             </div>
           </div>
 
@@ -486,13 +472,17 @@ function AlertCard({
       {/* Actions */}
       <div className="flex items-center gap-2.5 px-5 py-3 border-t flex-wrap" style={{ borderColor: "var(--line)" }}>
         <div className="flex items-center gap-2">
-          <div
-            className="size-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-            style={{ background: "linear-gradient(135deg, var(--gold), #e09b25)", color: "var(--navy-deep)" }}
-          >
-            K
-          </div>
+          <Avatar
+            seed={alert.authorId ? alert.authorId.charCodeAt(0) + (alert.authorId.charCodeAt(1) ?? 0) : 186}
+            name="Kondwani"
+            size={26}
+          />
           <span className="text-[12px] font-medium" style={{ color: "var(--ink-mid)" }}>Kondwani · Instructor</span>
+          {(alert.taken ?? 0) > 0 && (
+            <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md" style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)" }}>
+              {alert.taken} taken
+            </span>
+          )}
         </div>
 
         <div className="flex-1" />
@@ -550,7 +540,7 @@ const STATUS_FILTERS = [
   { v: "closed", l: "Closed" },
 ] as const;
 
-const PAIR_FILTERS = ["All", "EURUSD", "GBPUSD", "NZDUSD", "XAUUSD", "NAS100"];
+const PAIR_FILTERS = ["All", "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
 
 // ── Alerts page ───────────────────────────────────────────────────────────────
 
@@ -593,7 +583,9 @@ export function Alerts() {
     return list;
   }, [alerts, statusFilter, pairFilter]);
 
-  const activeCount = alerts.filter((a) => a.status === "active").length;
+  const activeCount  = alerts.filter((a) => a.status === "active").length;
+  const tpCount      = alerts.filter((a) => a.status === "tp1" || a.status === "tp2").length;
+  const slCount      = alerts.filter((a) => a.status === "sl").length;
 
   return (
     <div className="view">
@@ -631,6 +623,26 @@ export function Alerts() {
           )}
         </div>
       </div>
+
+      {/* Stats strip */}
+      {alerts.length > 0 && (
+        <div className="grid grid-cols-4 gap-3 mb-5">
+          {[
+            { label: "Total alerts", value: alerts.length,  icon: "notifications",        color: "var(--ink-strong)" },
+            { label: "Active",       value: activeCount,    icon: "radio_button_checked", color: "var(--teal)"       },
+            { label: "TP hit",       value: tpCount,        icon: "done_all",             color: "var(--teal-bright)"},
+            { label: "Stop loss",    value: slCount,        icon: "cancel",               color: "var(--coral)"      },
+          ].map(({ label, value, icon, color }) => (
+            <div key={label} className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
+              <span className="material-symbols-rounded shrink-0" style={{ fontSize: 18, color, fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+              <div>
+                <div className="font-display font-bold text-[20px] tabular-nums leading-none" style={{ color }}>{value}</div>
+                <div className="text-[10.5px] font-medium mt-0.5" style={{ color: "var(--ink-dim)" }}>{label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex items-center gap-3 mb-5 flex-wrap">
@@ -677,10 +689,20 @@ export function Alerts() {
       ) : filtered.length === 0 ? (
         <Panel>
           <div className="flex flex-col items-center py-14 text-center">
-            <Icon name="notifications_off" size={32} style={{ color: "var(--ink-dim)", marginBottom: 12 }} />
-            <div className="font-semibold text-[15px] mb-1" style={{ color: "var(--ink-strong)" }}>No alerts match</div>
+            <Icon
+              name={alerts.length === 0 ? "notifications_active" : "filter_list_off"}
+              size={32}
+              style={{ color: "var(--ink-dim)", marginBottom: 12 }}
+            />
+            <div className="font-semibold text-[15px] mb-1" style={{ color: "var(--ink-strong)" }}>
+              {alerts.length === 0 ? "No alerts posted yet" : "No alerts match"}
+            </div>
             <div className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
-              {isInstructor ? "Post your first alert using the button above." : "Try changing the filter above."}
+              {alerts.length === 0
+                ? isInstructor
+                  ? "Post your first trade setup using the button above."
+                  : "Kondwani hasn't posted any alerts yet — check back soon."
+                : "Try a different pair or status filter."}
             </div>
           </div>
         </Panel>

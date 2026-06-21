@@ -1,5 +1,6 @@
 import { requireInstructor } from "@/lib/admin-guard";
 import { prisma } from "@/lib/prisma";
+import { fmtCompact } from "@/lib/date";
 
 export default async function AdminStudentsPage() {
   await requireInstructor();
@@ -95,7 +96,7 @@ export default async function AdminStudentsPage() {
                   {u._count.posts}
                 </div>
                 <div className="text-right text-[11.5px]" style={{ color: "var(--ink-dim)" }}>
-                  {u.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" })}
+                  {fmtCompact(u.createdAt)}
                 </div>
               </div>
             ))}

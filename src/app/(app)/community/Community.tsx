@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { useStore } from "@/lib/store";
-import { Panel, PanelHead, Avatar, DirPill, Chip, Icon, Button, EmptyState } from "@/components/ui";
+import { Panel, PanelHead, Avatar, DirPill, Chip, Icon, Button, EmptyState, Select } from "@/components/ui";
 
 // ── API types ─────────────────────────────────────────────────────────────────
 
@@ -39,12 +39,25 @@ interface PostsPage {
 
 // ── Time formatter ────────────────────────────────────────────────────────────
 
-function relativeTime(iso: string): string {
-  const diff = (Date.now() - new Date(iso).getTime()) / 1000;
-  if (diff < 60)   return "just now";
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
+import { fmtRelative } from "@/lib/date";
+function relativeTime(iso: string): string { return fmtRelative(iso); }
+
+// ── Feed filter ───────────────────────────────────────────────────────────────
+
+type FeedFilter = "all" | "instructor" | "wins" | "losses";
+
+const FILTER_TABS: { id: FeedFilter; label: string }[] = [
+  { id: "all",        label: "All"        },
+  { id: "instructor", label: "Instructor" },
+  { id: "wins",       label: "Wins"       },
+  { id: "losses",     label: "Losses"     },
+];
+
+function filterPosts(posts: ApiPost[], filter: FeedFilter): ApiPost[] {
+  if (filter === "instructor") return posts.filter((p) => p.isInstructor);
+  if (filter === "wins")       return posts.filter((p) => p.result === "WIN");
+  if (filter === "losses")     return posts.filter((p) => p.result === "LOSS");
+  return posts;
 }
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────
@@ -56,8 +69,16 @@ function usePosts() {
       const url = pageParam
         ? `/api/community/posts?cursor=${encodeURIComponent(pageParam as string)}`
         : "/api/community/posts";
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Failed to load posts");
+      let res: Response;
+      try {
+        res = await fetch(url);
+      } catch {
+        throw new Error("Can't reach the server — check your internet connection.");
+      }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(body.error ?? `Server error (${res.status})`);
+      }
       return res.json();
     },
     initialPageParam: null as string | null,
@@ -74,7 +95,6 @@ function useToggleLike(postId: string) {
       return res.json() as Promise<{ liked: boolean; likes: number }>;
     },
     onMutate: async () => {
-      // Optimistic toggle
       qc.setQueryData<{ pages: PostsPage[] }>(["community-posts"], (old) => {
         if (!old) return old;
         return {
@@ -129,13 +149,18 @@ function useCreatePost() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (body: { text: string; pair?: string; dir?: string; result?: string }) => {
-      const res = await fetch("/api/community/posts", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Post failed");
+      let res: Response;
+      try {
+        res = await fetch("/api/community/posts", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify(body),
+        });
+      } catch {
+        throw new Error("Can't reach the server — check your internet connection.");
+      }
+      const data = await res.json().catch(() => ({}) as Record<string, unknown>);
+      if (!res.ok) throw new Error((data as { error?: string }).error ?? `Server error (${res.status})`);
       return data as ApiPost;
     },
     onSuccess: (newPost) => {
@@ -220,7 +245,7 @@ function PostCard({ post }: { post: ApiPost }) {
           type="button"
           onClick={() => toggleLike()}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors hover:bg-[var(--hover)]"
-          style={{ color: post.likedByMe ? "var(--coral)" : "var(--ink-dim)" }}
+          style={{ color: post.likedByMe ? "var(--teal)" : "var(--ink-dim)" }}
         >
           <span className="material-symbols-rounded text-[18px]" style={{ fontVariationSettings: post.likedByMe ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
           {post.likes}
@@ -230,7 +255,7 @@ function PostCard({ post }: { post: ApiPost }) {
           type="button"
           onClick={() => { setCommentOpen((o) => !o); setTimeout(() => inputRef.current?.focus(), 50); }}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors hover:bg-[var(--hover)]"
-          style={{ color: "var(--ink-dim)" }}
+          style={{ color: commentOpen ? "var(--teal)" : "var(--ink-dim)" }}
         >
           <Icon name="chat_bubble_outline" size={17} />
           {post.comments}
@@ -289,67 +314,169 @@ function PostCard({ post }: { post: ApiPost }) {
 
 // ── Compose ───────────────────────────────────────────────────────────────────
 
+const PAIR_OPTIONS = [
+  { v: "",        l: "Tag pair…"  },
+  { header: "Majors"              },
+  { v: "EURUSD",  l: "EURUSD"    },
+  { v: "GBPUSD",  l: "GBPUSD"    },
+  { v: "USDJPY",  l: "USDJPY"    },
+  { v: "USDCHF",  l: "USDCHF"    },
+  { v: "AUDUSD",  l: "AUDUSD"    },
+  { v: "NZDUSD",  l: "NZDUSD"    },
+  { v: "USDCAD",  l: "USDCAD"    },
+  { header: "Metals & Indices"    },
+  { v: "XAUUSD",  l: "XAUUSD"    },
+  { v: "NAS100",  l: "NAS100"    },
+];
+
+function TogglePill({
+  active, activeStyle, children, onClick,
+}: {
+  active: boolean;
+  activeStyle: React.CSSProperties;
+  children: React.ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded-lg px-2.5 py-1 text-[11.5px] font-semibold transition-all"
+      style={active
+        ? activeStyle
+        : { background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }
+      }
+    >
+      {children}
+    </button>
+  );
+}
+
 function ComposeBox() {
   const { user, toast }            = useStore();
   const { mutate: createPost, isPending, error } = useCreatePost();
   const [text, setText]            = useState("");
-
+  const [pair, setPair]            = useState("");
+  const [dir, setDir]              = useState<"" | "long" | "short">("");
+  const [result, setResult]        = useState<"" | "WIN" | "LOSS">("");
   function post() {
     const trimmed = text.trim();
     if (!trimmed) return;
-    createPost({ text: trimmed }, {
-      onSuccess: () => {
-        setText("");
-        toast("Post shared with the community", "teal", "send");
-      },
-      onError: (err) => {
-        const msg = err instanceof Error ? err.message : "Failed to post";
-        if (msg.includes("Pro")) {
-          toast("Community posting requires a Pro plan", "coral", "lock");
-        } else {
-          toast(msg, "coral", "error");
-        }
-      },
-    });
+    createPost(
+      { text: trimmed, pair: pair || undefined, dir: dir || undefined, result: result || undefined },
+      {
+        onSuccess: () => {
+          setText(""); setPair(""); setDir(""); setResult("");
+          toast("Post shared with the community", "teal", "send");
+        },
+        onError: (err) => {
+          const msg = err instanceof Error ? err.message : "Failed to post";
+          if (msg.includes("Pro")) {
+            toast("Community posting requires a Pro plan", "coral", "lock");
+          } else {
+            toast(msg, "coral", "error");
+          }
+        },
+      }
+    );
   }
 
   return (
-    <div className="rounded-2xl px-5 py-4" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
-      <div className="flex items-start gap-3">
-        <Avatar seed={user?.avatarSeed ?? 99} name={user?.name ?? "You"} size={36} />
-        <div className="flex-1">
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Share a trade idea, analysis, or lesson with the community…"
-            rows={3}
-            className="w-full bg-transparent text-[13.5px] resize-none outline-none leading-relaxed"
-            style={{ color: "var(--ink-strong)" }}
-          />
-          {error instanceof Error && error.message.includes("Pro") && (
-            <p className="text-[12px] mb-2" style={{ color: "var(--coral)" }}>
-              Community posting requires a Pro plan.{" "}
-              <a href="/pricing" style={{ color: "var(--teal)", textDecoration: "underline" }}>Upgrade</a>
-            </p>
-          )}
-          <div className="flex items-center justify-end mt-2">
-            <Button
-              type="button"
-              variant="primary"
-              icon="send"
-              disabled={!text.trim() || isPending}
-              onClick={post}
-            >
-              {isPending ? "Posting…" : "Post"}
-            </Button>
-          </div>
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
+    >
+      {/* Writing area */}
+      <div className="flex items-start gap-3 px-4 pt-4 pb-3">
+        <div className="shrink-0 mt-1">
+          <Avatar seed={user?.avatarSeed ?? 99} name={user?.name ?? "You"} size={34} />
         </div>
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Share a trade idea, analysis, or lesson…"
+          rows={3}
+          className="flex-1 rounded-xl px-3.5 py-2.5 mt-2 text-[13.5px] resize-none outline-none leading-relaxed placeholder:text-[var(--ink-dim)]"
+          style={{ background: "var(--panel-2)", color: "var(--ink-strong)" }}
+        />
       </div>
+
+      {/* Action bar */}
+      <div
+        className="flex items-center gap-2 px-5 py-3 flex-wrap"
+        style={{ borderTop: "1px solid var(--line)" }}
+      >
+        {/* Pair picker */}
+        <div style={{ width: 130 }}>
+          <Select
+            compact
+            value={pair}
+            placeholder="Tag pair…"
+            options={PAIR_OPTIONS}
+            onChange={(v) => { setPair(v); if (!v) { setDir(""); setResult(""); } }}
+          />
+        </div>
+
+        {/* Direction + result tags — only visible once a pair is selected */}
+        {pair && (
+          <>
+            <div className="w-px h-4 shrink-0" style={{ background: "var(--line)" }} />
+            <TogglePill
+              active={dir === "long"}
+              activeStyle={{ background: "rgba(8,174,170,0.15)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.3)" }}
+              onClick={() => setDir(dir === "long" ? "" : "long")}
+            >
+              Long
+            </TogglePill>
+            <TogglePill
+              active={dir === "short"}
+              activeStyle={{ background: "rgba(234,82,61,0.12)", color: "var(--coral)", border: "1px solid rgba(234,82,61,0.3)" }}
+              onClick={() => setDir(dir === "short" ? "" : "short")}
+            >
+              Short
+            </TogglePill>
+            <div className="w-px h-4 shrink-0" style={{ background: "var(--line)" }} />
+            <TogglePill
+              active={result === "WIN"}
+              activeStyle={{ background: "rgba(8,174,170,0.12)", color: "var(--teal-bright)", border: "1px solid rgba(8,174,170,0.25)" }}
+              onClick={() => setResult(result === "WIN" ? "" : "WIN")}
+            >
+              Win
+            </TogglePill>
+            <TogglePill
+              active={result === "LOSS"}
+              activeStyle={{ background: "rgba(234,82,61,0.1)", color: "var(--coral)", border: "1px solid rgba(234,82,61,0.25)" }}
+              onClick={() => setResult(result === "LOSS" ? "" : "LOSS")}
+            >
+              Loss
+            </TogglePill>
+          </>
+        )}
+
+        <div className="flex-1" />
+
+        <Button
+          type="button"
+          variant="primary"
+          icon="send"
+          disabled={!text.trim() || isPending}
+          onClick={post}
+        >
+          {isPending ? "Posting…" : "Post"}
+        </Button>
+      </div>
+
+      {error instanceof Error && error.message.includes("Pro") && (
+        <div className="px-5 pb-3 text-[12px]" style={{ color: "var(--coral)" }}>
+          Community posting requires a Pro plan.{" "}
+          <a href="/pricing" style={{ color: "var(--teal)", textDecoration: "underline" }}>Upgrade</a>
+        </div>
+      )}
     </div>
   );
 }
 
-// ── Leaderboard sidebar (real data wired via Task #19) ─────────────────────────
+// ── Leaderboard sidebar ────────────────────────────────────────────────────────
 
 function useLeaderboard() {
   return useQuery({
@@ -371,42 +498,59 @@ interface LeaderEntry {
 }
 
 function Leaderboard() {
-  const { data: leaders = [] } = useLeaderboard();
+  const { data: leaders = [], isLoading } = useLeaderboard();
   const month = new Date().toLocaleString("en-US", { month: "long" });
-
-  if (leaders.length === 0) return null;
 
   return (
     <Panel>
       <PanelHead title={`${month} leaderboard`} icon="leaderboard" />
-      <div className="flex flex-col gap-2.5">
-        {leaders.map((l, i) => (
-          <div key={l.handle} className="flex items-center gap-3">
-            <div
-              className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-              style={{
-                background: i === 0 ? "var(--gold)" : i === 1 ? "rgba(154,208,206,0.3)" : "var(--panel-2)",
-                color: i === 0 ? "var(--navy-deep)" : "var(--ink-dim)",
-              }}
-            >
-              {i + 1}
+      {isLoading ? (
+        <div className="flex flex-col gap-2.5">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex items-center gap-3 animate-pulse">
+              <div className="w-5 h-5 rounded-full shrink-0" style={{ background: "var(--track)" }} />
+              <div className="w-8 h-8 rounded-full shrink-0" style={{ background: "var(--track)" }} />
+              <div className="flex-1">
+                <div className="h-3 w-24 rounded mb-1.5" style={{ background: "var(--track)" }} />
+                <div className="h-2.5 w-16 rounded" style={{ background: "var(--track)" }} />
+              </div>
             </div>
-            <Avatar seed={l.avatarSeed} name={l.name} size={30} />
-            <div className="flex-1 min-w-0">
-              <div className="text-[12.5px] font-semibold truncate" style={{ color: "var(--ink-strong)" }}>{l.name}</div>
-              <div className="text-[11px]" style={{ color: "var(--ink-dim)" }}>{l.winRate}% win rate</div>
+          ))}
+        </div>
+      ) : leaders.length === 0 ? (
+        <p className="text-[12.5px]" style={{ color: "var(--ink-dim)" }}>
+          No trades logged yet this month.
+        </p>
+      ) : (
+        <div className="flex flex-col gap-2.5">
+          {leaders.map((l, i) => (
+            <div key={l.handle} className="flex items-center gap-3">
+              <div
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
+                style={{
+                  background: i === 0 ? "var(--gold)" : i === 1 ? "rgba(154,208,206,0.3)" : "var(--panel-2)",
+                  color: i === 0 ? "var(--navy-deep)" : "var(--ink-dim)",
+                }}
+              >
+                {i + 1}
+              </div>
+              <Avatar seed={l.avatarSeed} name={l.name} size={30} />
+              <div className="flex-1 min-w-0">
+                <div className="text-[12.5px] font-semibold truncate" style={{ color: "var(--ink-strong)" }}>{l.name}</div>
+                <div className="text-[11px]" style={{ color: "var(--ink-dim)" }}>{l.winRate}% win rate</div>
+              </div>
+              <span className="font-display font-bold text-[13px] tabular-nums" style={{ color: "var(--teal-bright)" }}>
+                {l.netR}
+              </span>
             </div>
-            <span className="font-display font-bold text-[13px] tabular-nums" style={{ color: "var(--teal-bright)" }}>
-              {l.netR}
-            </span>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </Panel>
   );
 }
 
-// ── Community stats (static — update from DB later if needed) ────────────────
+// ── Community stats ───────────────────────────────────────────────────────────
 
 function CommunityStats() {
   return (
@@ -433,8 +577,10 @@ function CommunityStats() {
 // ── Community ─────────────────────────────────────────────────────────────────
 
 export function Community() {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = usePosts();
+  const [filter, setFilter] = useState<FeedFilter>("all");
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } = usePosts();
   const allPosts = data?.pages.flatMap((p) => p.posts) ?? [];
+  const filtered = filterPosts(allPosts, filter);
 
   return (
     <div className="view">
@@ -454,24 +600,50 @@ export function Community() {
         <div className="flex flex-col gap-4">
           <ComposeBox />
 
-          {isLoading ? (
+          {/* Filter tabs */}
+          <div className="flex items-center gap-1">
+            {FILTER_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setFilter(tab.id)}
+                className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all"
+                style={filter === tab.id
+                  ? { background: "rgba(8,174,170,0.12)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.25)" }
+                  : { background: "transparent", color: "var(--ink-dim)", border: "1px solid transparent" }
+                }
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {error instanceof Error ? (
+            <div className="rounded-2xl px-5 py-10 text-center" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
+              <Icon name="wifi_off" size={28} style={{ color: "var(--ink-dim)", marginBottom: 8 }} />
+              <p className="text-[13px] font-medium mb-1" style={{ color: "var(--ink-strong)" }}>Could not load posts</p>
+              <p className="text-[12.5px]" style={{ color: "var(--ink-dim)" }}>{error.message}</p>
+            </div>
+          ) : isLoading ? (
             <div className="flex flex-col gap-4">
               {[0, 1, 2].map((i) => (
-                <div key={i} className="rounded-2xl h-32 animate-pulse" style={{ background: "var(--panel)", border: "1px solid var(--line)" }} />
+                <div key={i} className="rounded-2xl h-36 animate-pulse" style={{ background: "var(--panel)", border: "1px solid var(--line)" }} />
               ))}
             </div>
-          ) : allPosts.length === 0 ? (
+          ) : filtered.length === 0 ? (
             <EmptyState
               icon="groups"
-              title="Nothing here yet"
-              body="Be the first to share a trade idea with the community."
+              title={filter === "all" ? "Nothing here yet" : `No ${filter} posts yet`}
+              body={filter === "all"
+                ? "Be the first to share a trade idea with the community."
+                : "Try a different filter or check back later."}
             />
           ) : (
             <>
-              {allPosts.map((post) => (
+              {filtered.map((post) => (
                 <PostCard key={post.id} post={post} />
               ))}
-              {hasNextPage && (
+              {hasNextPage && filter === "all" && (
                 <button
                   type="button"
                   onClick={() => fetchNextPage()}

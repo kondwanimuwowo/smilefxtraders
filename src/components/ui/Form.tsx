@@ -8,7 +8,7 @@ import { Icon } from "./Icon";
 // ─── Field wrapper ─────────────────────────────────────────────────────────────
 
 interface FieldProps {
-  label: string;
+  label: ReactNode;
   hint?: string;
   half?: boolean;
   children: ReactNode;
@@ -73,21 +73,29 @@ export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
 
 // ─── Select ────────────────────────────────────────────────────────────────────
 
+type SelectOption = string | { v: string; l: string } | { header: string };
+
 interface SelectProps {
-  value: string;
-  onChange: (v: string) => void;
-  options: (string | { v: string; l: string })[];
-  disabled?: boolean;
+  value:        string;
+  onChange:     (v: string) => void;
+  options:      SelectOption[];
+  disabled?:    boolean;
+  compact?:     boolean;
+  borderless?:  boolean;
+  placeholder?: string;
 }
 
-export function Select({ value, onChange, options, disabled }: SelectProps) {
+export function Select({ value, onChange, options, disabled, compact, borderless, placeholder }: SelectProps) {
   const [open, setOpen] = useState(false);
   const [rect, setRect] = useState<DOMRect | null>(null);
   const triggerRef      = useRef<HTMLButtonElement>(null);
   const listRef         = useRef<HTMLDivElement>(null);
 
-  const normalised = options.map((o) => (typeof o === "string" ? { v: o, l: o } : o));
-  const selected   = normalised.find((o) => o.v === value);
+  const items = options.map((o) => {
+    if (typeof o === "string") return { v: o, l: o };
+    return o;
+  });
+  const selected = items.find((o) => "v" in o && o.v === value) as { v: string; l: string } | undefined;
 
   function toggle() {
     if (disabled) return;
@@ -114,6 +122,15 @@ export function Select({ value, onChange, options, disabled }: SelectProps) {
     };
   }, [open]);
 
+  const triggerCls = compact
+    ? "w-full rounded-lg border px-2.5 py-1.5 text-[12px] flex items-center justify-between gap-1.5 outline-none transition-colors"
+    : "w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] flex items-center justify-between gap-2 outline-none transition-colors";
+
+  const iconSize = compact ? 14 : 18;
+
+  const displayLabel = selected?.l ?? placeholder ?? "—";
+  const isPlaceholder = !selected;
+
   return (
     <div className="relative">
       <button
@@ -121,21 +138,21 @@ export function Select({ value, onChange, options, disabled }: SelectProps) {
         type="button"
         disabled={disabled}
         onClick={toggle}
-        className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] flex items-center justify-between gap-2 outline-none transition-colors"
+        className={triggerCls}
         style={{
           background:  "var(--panel-2)",
-          borderColor: open ? "var(--teal)" : "var(--line)",
-          color:       "var(--ink-strong)",
+          borderColor: borderless ? "transparent" : open ? "var(--teal)" : "var(--line)",
+          color:       isPlaceholder ? "var(--ink-dim)" : "var(--ink-strong)",
           opacity:     disabled ? 0.5 : 1,
           cursor:      disabled ? "not-allowed" : "pointer",
-          boxShadow:   open ? "0 0 0 3px rgba(8,174,170,0.18)" : undefined,
+          boxShadow:   open && !borderless ? "0 0 0 3px rgba(8,174,170,0.18)" : undefined,
         }}
       >
-        <span className="truncate text-left">{selected?.l ?? "—"}</span>
+        <span className="truncate text-left">{displayLabel}</span>
         <span
           className="material-symbols-rounded shrink-0"
           style={{
-            fontSize:   18,
+            fontSize:   iconSize,
             color:      "var(--ink-dim)",
             transition: "transform 200ms var(--ease-app)",
             transform:  open ? "rotate(180deg)" : "rotate(0deg)",
@@ -153,18 +170,29 @@ export function Select({ value, onChange, options, disabled }: SelectProps) {
               position:     "fixed",
               top:          (rect?.bottom ?? 0) + 5,
               left:         rect?.left ?? 0,
-              width:        rect?.width ?? 200,
+              minWidth:     compact ? 160 : (rect?.width ?? 200),
               zIndex:       9999,
               background:   "var(--panel)",
               border:       "1px solid var(--line)",
               borderRadius: 10,
               boxShadow:    "0 8px 32px rgba(0,0,0,0.22)",
               overflow:     "hidden",
-              maxHeight:    280,
+              maxHeight:    300,
               overflowY:    "auto",
             }}
           >
-            {normalised.map((o) => {
+            {items.map((o, idx) => {
+              if ("header" in o) {
+                return (
+                  <div
+                    key={`h-${idx}`}
+                    className="px-3.5 pt-3 pb-1 text-[10.5px] font-bold uppercase tracking-widest"
+                    style={{ color: "var(--ink-dim)" }}
+                  >
+                    {o.header}
+                  </div>
+                );
+              }
               const active = o.v === value;
               return (
                 <button
@@ -177,14 +205,16 @@ export function Select({ value, onChange, options, disabled }: SelectProps) {
                   onMouseLeave={(e) => {
                     if (!active) (e.currentTarget as HTMLElement).style.background = "transparent";
                   }}
-                  className="w-full text-left px-3.5 py-2.5 text-[13px] flex items-center justify-between gap-2 transition-colors"
+                  className="w-full text-left px-3.5 py-2 text-[13px] flex items-center justify-between gap-2 transition-colors"
                   style={{
                     background: active ? "rgba(8,174,170,0.10)" : "transparent",
                     color:      active ? "var(--teal-bright)" : "var(--ink-strong)",
                     cursor:     "pointer",
                   }}
                 >
-                  <span>{o.l}</span>
+                  <span className="font-medium" style={{ fontSize: 13 }}>
+                    {o.l}
+                  </span>
                   {active && (
                     <span
                       className="material-symbols-rounded"

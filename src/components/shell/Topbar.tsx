@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useStore } from "@/lib/store";
 import { Icon } from "@/components/ui";
@@ -9,7 +11,11 @@ import type { PriceTick } from "@/app/api/prices/route";
 const FALLBACK: PriceTick[] = [
   { sym: "EURUSD", price: "1.08642", chg: +0.34 },
   { sym: "GBPUSD", price: "1.27310", chg: -0.18 },
+  { sym: "USDJPY", price: "155.420", chg: -0.21 },
+  { sym: "USDCHF", price: "0.90520", chg: +0.12 },
+  { sym: "AUDUSD", price: "0.64810", chg: +0.28 },
   { sym: "NZDUSD", price: "0.61245", chg: +0.52 },
+  { sym: "USDCAD", price: "1.37650", chg: -0.09 },
   { sym: "XAUUSD", price: "2338.40", chg: +0.91 },
   { sym: "NAS100", price: "18742.5", chg: -0.27 },
   { sym: "DXY",    price: "104.27",  chg: -0.21 },
@@ -146,20 +152,7 @@ export function Topbar() {
 
         <ThemeToggle />
 
-        {/* Notifications */}
-        <button
-          type="button"
-          className="relative p-1.5 rounded-lg transition-colors hover:bg-[var(--hover)]"
-          style={{ color: "var(--ink-mid)" }}
-        >
-          <Icon name="notifications" size={20} />
-          {unreadCount > 0 && (
-            <span
-              className="absolute top-1 right-1 size-2 rounded-full"
-              style={{ background: "var(--coral)", animation: "var(--animate-live)" }}
-            />
-          )}
-        </button>
+        <NotifBell />
 
         <div className="w-px h-5 mx-0.5" style={{ background: "var(--line)" }} />
 
@@ -186,6 +179,185 @@ export function Topbar() {
         </button>
       </div>
     </header>
+  );
+}
+
+// ── NotifBell ─────────────────────────────────────────────────────────────────
+
+const TONE_CONFIG: Record<string, { icon: string; color: string; bg: string }> = {
+  teal:  { icon: "notifications_active", color: "var(--teal)",  bg: "rgba(8,174,170,0.1)"  },
+  gold:  { icon: "workspace_premium",    color: "var(--gold)",  bg: "rgba(248,185,61,0.1)" },
+  coral: { icon: "warning",              color: "var(--coral)", bg: "rgba(234,82,61,0.1)"  },
+};
+
+import { fmtRelative } from "@/lib/date";
+function timeAgo(iso: string): string { return fmtRelative(iso); }
+
+function NotifBell() {
+  const { unreadCount, notifs, markNotifsRead } = useStore();
+  const [open, setOpen]     = useState(false);
+  const [rect, setRect]     = useState<DOMRect | null>(null);
+  const triggerRef          = useRef<HTMLButtonElement>(null);
+  const panelRef            = useRef<HTMLDivElement>(null);
+
+  function toggle() {
+    if (!open) setRect(triggerRef.current?.getBoundingClientRect() ?? null);
+    setOpen((v) => !v);
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    function onDown(e: MouseEvent) {
+      if (
+        !triggerRef.current?.contains(e.target as Node) &&
+        !panelRef.current?.contains(e.target as Node)
+      ) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") setOpen(false); }
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const preview = notifs.slice(0, 6);
+
+  return (
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={toggle}
+        className="relative p-1.5 rounded-lg transition-colors hover:bg-[var(--hover)]"
+        style={{ color: open ? "var(--ink-strong)" : "var(--ink-mid)", background: open ? "var(--hover)" : undefined }}
+        aria-label="Notifications"
+        aria-expanded={open}
+      >
+        <Icon name="notifications" size={20} />
+        {unreadCount > 0 && (
+          <span
+            className="absolute top-1 right-1 size-2 rounded-full"
+            style={{ background: "var(--coral)", animation: "var(--animate-live)" }}
+          />
+        )}
+      </button>
+
+      {open && rect && typeof document !== "undefined" && createPortal(
+        <div
+          ref={panelRef}
+          className="rounded-2xl overflow-hidden"
+          style={{
+            position: "fixed",
+            top: rect.bottom + 8,
+            right: window.innerWidth - rect.right,
+            width: 340,
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+            boxShadow: "0 12px 40px rgba(0,0,0,0.25)",
+            zIndex: 9999,
+          }}
+        >
+          {/* Header */}
+          <div
+            className="flex items-center justify-between px-4 py-3"
+            style={{ borderBottom: "1px solid var(--line)" }}
+          >
+            <span className="text-[13.5px] font-semibold" style={{ color: "var(--ink-strong)" }}>
+              Notifications
+              {unreadCount > 0 && (
+                <span
+                  className="ml-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold"
+                  style={{ background: "var(--coral)", color: "#fff" }}
+                >
+                  {unreadCount}
+                </span>
+              )}
+            </span>
+            {unreadCount > 0 && (
+              <button
+                type="button"
+                onClick={markNotifsRead}
+                className="text-[11.5px] font-semibold transition-colors hover:opacity-80"
+                style={{ color: "var(--teal)" }}
+              >
+                Mark all read
+              </button>
+            )}
+          </div>
+
+          {/* Notif list */}
+          {preview.length === 0 ? (
+            <div className="flex flex-col items-center py-10 text-center px-4">
+              <span className="material-symbols-rounded mb-2" style={{ fontSize: 28, color: "var(--ink-dim)" }}>
+                notifications
+              </span>
+              <div className="text-[13px]" style={{ color: "var(--ink-dim)" }}>No notifications yet</div>
+            </div>
+          ) : (
+            <div>
+              {preview.map((n, i) => {
+                const cfg = TONE_CONFIG[n.tone] ?? TONE_CONFIG.teal;
+                return (
+                  <div
+                    key={n.id}
+                    className="flex items-start gap-3 px-4 py-3"
+                    style={{
+                      borderTop: i > 0 ? "1px solid var(--line)" : undefined,
+                      background: n.unread ? "rgba(8,174,170,0.03)" : undefined,
+                    }}
+                  >
+                    <div
+                      className="size-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                      style={{ background: cfg.bg }}
+                    >
+                      <span
+                        className="material-symbols-rounded"
+                        style={{ fontSize: 14, color: cfg.color, fontVariationSettings: "'FILL' 1" }}
+                      >
+                        {n.icon || cfg.icon}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      {n.title && (
+                        <div className="text-[12.5px] font-semibold leading-snug" style={{ color: "var(--ink-strong)" }}>
+                          {n.title}
+                        </div>
+                      )}
+                      <div
+                        className="text-[12.5px] leading-snug"
+                        style={{ color: n.title ? "var(--ink-mid)" : "var(--ink-strong)" }}
+                      >
+                        {n.body}
+                      </div>
+                      <div className="text-[11px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+                        {timeAgo(n.time)}
+                      </div>
+                    </div>
+                    {n.unread && (
+                      <div className="size-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--teal)" }} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Footer */}
+          <Link
+            href="/notifications"
+            onClick={() => setOpen(false)}
+            className="flex items-center justify-center gap-1.5 py-3 text-[12.5px] font-semibold transition-colors hover:bg-[var(--hover)]"
+            style={{ borderTop: "1px solid var(--line)", color: "var(--teal)" }}
+          >
+            See all notifications
+            <span className="material-symbols-rounded" style={{ fontSize: 15 }}>arrow_forward</span>
+          </Link>
+        </div>,
+        document.body
+      )}
+    </>
   );
 }
 

@@ -96,8 +96,8 @@ function computeEntry(
   let signal: CotSignal;
   if      (netLong  && lsIncreasing  && cotIndex >= 65) signal = "strong_bull";
   else if (netLong  && lsIncreasing)                    signal = "bull";
-  else if (netLong  && !lsIncreasing && cotIndex >= 70) signal = "neutral";  // distributing from extreme long
-  else if (netLong  && !lsIncreasing)                   signal = "bull";     // still net long, just trimming
+  else if (netLong  && !lsIncreasing && cotIndex >= 30) signal = "neutral";  // trimming from moderate/high levels
+  else if (netLong  && !lsIncreasing)                   signal = "bear";     // aggressive unwinding at extreme low
   else if (!netLong && !lsIncreasing && cotIndex <= 35) signal = "strong_bear";
   else if (!netLong && !lsIncreasing)                   signal = "bear";
   else if (!netLong && lsIncreasing  && cotIndex <= 30) signal = "neutral";  // covering from extreme short

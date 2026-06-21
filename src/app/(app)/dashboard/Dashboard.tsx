@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useRef, useState, useEffect } from "react";
+import { format, parseISO, getHours, getUTCHours, getUTCMinutes, fmtRelative, fmtMonthDay, fmtISODate, fmtWeekdayLong, fmtTime, isForexClosed, hoursUntilForexReopen } from "@/lib/date";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { useStore } from "@/lib/store";
 import { useTrades, useAddTrade } from "@/lib/hooks/useTrades";
 import {
@@ -9,6 +11,8 @@ import {
   Button, Ring, Sparkline, Icon, CandleChart, EmptyState,
 } from "@/components/ui";
 import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
+import type { InstructorAlert } from "@/app/(app)/alerts/Alerts";
+import type { CalEvent } from "@/app/api/calendar/route";
 
 // ── Candle generator (seeded RNG — matches design reference) ──────────────────
 function mulberry32(a: number) {
@@ -37,58 +41,325 @@ function genCandles(seed: number, n: number, start: number, vol: number, drift: 
   return out;
 }
 
-// ── Static dashboard data ─────────────────────────────────────────────────────
-const FEAT = {
-  id: "a1",
-  pair: "XAUUSD",
-  dir: "long" as const,
-  model: "Liquidity Sweep → FVG",
-  session: "London",
-  rr: "3.1",
-  entry: "2,331.50",
-  sl: "2,326.10",
-  tp1: "2,344.00",
-  tags: ["FVG", "Sweep", "Discount"],
-  title:
-    "Price swept Asian lows into the 4H bullish FVG sitting in discount. M5 CHoCH confirmed — looking for continuation to TP1 at PDH.",
-  reactions: 24,
-  taken: 11,
-  time: "08:42",
+// ── Featured alert ────────────────────────────────────────────────────────────
+
+const PAIR_META: Record<string, { vol: number }> = {
+  EURUSD: { vol: 0.0006 },
+  GBPUSD: { vol: 0.0008 },
+  USDJPY: { vol: 0.15   },
+  USDCHF: { vol: 0.0006 },
+  AUDUSD: { vol: 0.0006 },
+  NZDUSD: { vol: 0.0005 },
+  USDCAD: { vol: 0.0007 },
+  XAUUSD: { vol: 2.5    },
+  NAS100: { vol: 50     },
 };
 
-const DISCIPLINE_ROWS: [string, boolean][] = [
-  ["Rules checklist run", true],
-  ["Risk ≤ 1% kept",      true],
-  ["No revenge trades",   true],
-  ["SL untouched",        false],
-];
+function strSeed(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
+  return h >>> 0;
+}
 
-const CAL_EVENTS = [
-  { time: "09:30", cur: "USD", event: "Core CPI m/m",           impact: "high"   },
-  { time: "10:00", cur: "EUR", event: "ECB President Speech",    impact: "high"   },
-  { time: "13:30", cur: "GBP", event: "BoE Governor Bailey",     impact: "medium" },
-];
+function useFeaturedAlert() {
+  return useQuery({
+    queryKey: ["alerts"],
+    queryFn: async () => {
+      const res = await fetch("/api/alerts");
+      if (!res.ok) return [] as InstructorAlert[];
+      return res.json() as Promise<InstructorAlert[]>;
+    },
+    select: (alerts: InstructorAlert[]) =>
+      alerts.find((a) => a.status === "active") ?? null,
+    staleTime: 60_000,
+  });
+}
 
-const TREND_DATA = [
-  { pair: "EURUSD", tfs: ["bull","bull","bull","neutral","bear"],  bias: "Bullish"  },
-  { pair: "GBPUSD", tfs: ["bull","bull","neutral","bear","bear"],  bias: "Bullish"  },
-  { pair: "XAUUSD", tfs: ["bull","bull","bull","bull","bull"],     bias: "Bullish"  },
-  { pair: "NZDUSD", tfs: ["bear","bear","neutral","bear","bear"],  bias: "Bearish"  },
-  { pair: "NAS100", tfs: ["bear","neutral","bear","bear","bull"],  bias: "Bearish"  },
-];
+function buildFeaturedChart(alert: InstructorAlert): {
+  candles: Candle[];
+  annotations: { zones: Zone[]; lines: PriceLine[]; marks: Mark[] };
+} {
+  const seed   = strSeed(alert.id);
+  const entry  = parseFloat(alert.entry.replace(/,/g, ""));
+  const sl     = parseFloat(alert.sl.replace(/,/g, ""));
+  const tp1    = parseFloat(alert.tp1.replace(/,/g, ""));
+  const vol    = PAIR_META[alert.pair]?.vol ?? 0.001;
+  const drift  = alert.dir === "long" ? 0.04 : -0.04;
+  const candles = genCandles(seed, 56, entry, vol, drift);
 
-const TF_LABELS = ["M15", "H1", "H4", "D1", "W1"];
+  const fvgIdx = 28;
+  const zones: Zone[] = [{
+    i0: fvgIdx, i1: fvgIdx + 6,
+    lo: Math.min(candles[fvgIdx].l, candles[fvgIdx + 1].l),
+    hi: Math.max(candles[fvgIdx].h, candles[fvgIdx + 1].h),
+    type: "fvg", dir: alert.dir,
+  }];
+
+  const lines: PriceLine[] = [
+    { price: entry, label: "Entry", color: alert.dir === "long" ? "var(--teal)"         : "var(--coral)"       },
+    { price: sl,    label: "SL",    color: "var(--coral-bright)" },
+    { price: tp1,   label: "TP1",   color: "var(--teal-bright)"  },
+  ];
+
+  const bosIdx = 44;
+  const marks: Mark[] = [{
+    i: bosIdx,
+    price: alert.dir === "long" ? candles[bosIdx].h : candles[bosIdx].l,
+    label: "BOS", type: "bos",
+  }];
+
+  return { candles, annotations: { zones, lines, marks } };
+}
+
+function FeaturedAlertCard() {
+  const { journaledAlerts, addJournaledAlert, toast } = useStore();
+  const { mutate: addTrade } = useAddTrade();
+  const { data: alert, isLoading } = useFeaturedAlert();
+
+  const chart = useMemo(
+    () => (alert ? buildFeaturedChart(alert) : null),
+    [alert]
+  );
+
+  if (isLoading) {
+    return (
+      <Panel pad={0} style={{ overflow: "hidden" }}>
+        <div className="animate-pulse">
+          <div className="h-14 border-b" style={{ background: "var(--panel-2)", borderColor: "var(--line)" }} />
+          <div className="p-5 space-y-3">
+            <div className="h-4 w-2/3 rounded-lg" style={{ background: "var(--track)" }} />
+            <div className="h-3 w-full rounded-lg" style={{ background: "var(--track)" }} />
+            <div className="h-56 rounded-xl" style={{ background: "var(--track)" }} />
+          </div>
+        </div>
+      </Panel>
+    );
+  }
+
+  if (!alert || !chart) {
+    return (
+      <Panel pad={0} style={{ overflow: "hidden" }}>
+        <EmptyState
+          icon="notifications_active"
+          title="No active setup right now"
+          body="Kondwani will post the next live setup here when a high-probability entry appears."
+        />
+      </Panel>
+    );
+  }
+
+  const postedTime = fmtTime(alert.timePosted);
+  const journaled = journaledAlerts.has(alert.id);
+
+  function handleCopy() {
+    if (!alert) return;
+    if (journaled) { toast("Already in your journal", "gold", "info"); return; }
+    addTrade({
+      date:       format(new Date(), "dd MMM"),
+      pair:       alert.pair,
+      dir:        alert.dir,
+      model:      alert.model,
+      session:    alert.session,
+      rr:         parseFloat(alert.rr),
+      result:     "open",
+      pnlR:       0,
+      tags:       alert.tags,
+      note:       `From Kondwani's alert · Entry ${alert.entry} / SL ${alert.sl} / TP ${alert.tp1}`,
+      fromAlert:  alert.id,
+      discipline: true,
+    });
+    addJournaledAlert(alert.id);
+    toast(`${alert.pair} setup copied to journal`, "teal", "add_task");
+  }
+
+  return (
+    <Panel pad={0} style={{ overflow: "hidden" }}>
+      {/* Card header */}
+      <div
+        className="flex items-center justify-between px-5 py-3.5"
+        style={{ borderBottom: "1px solid var(--line)" }}
+      >
+        <div className="flex items-center gap-3">
+          <Avatar seed={3} name="Kondwani" size={36} ring="var(--gold)" />
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-[13.5px]" style={{ color: "var(--ink-strong)" }}>
+                Kondwani
+              </span>
+              <span
+                className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
+                style={{ background: "var(--gold)", color: "var(--navy-deep)" }}
+              >
+                Lead Trader
+              </span>
+            </div>
+            <div className="text-[11.5px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+              Posted a live setup · {postedTime}
+            </div>
+          </div>
+        </div>
+        <div
+          className="flex items-center gap-1.5 text-[10.5px] font-bold tracking-widest uppercase"
+          style={{ color: "var(--teal-bright)" }}
+        >
+          <span
+            className="size-1.5 rounded-full"
+            style={{ background: "var(--teal-bright)", animation: "var(--animate-live)" }}
+          />
+          LIVE
+        </div>
+      </div>
+
+      {/* Card body */}
+      <div className="px-5 py-4">
+        <div className="flex items-center gap-2.5 flex-wrap mb-2.5">
+          <span className="font-display font-bold text-[17px]" style={{ color: "var(--ink-strong)" }}>
+            {alert.pair}
+          </span>
+          <DirPill dir={alert.dir} />
+          <Chip tone="teal">{alert.model}</Chip>
+          <Chip>{alert.session} KZ</Chip>
+          {alert.tags.map((t) => <Chip key={t}>{t}</Chip>)}
+        </div>
+        {alert.note && (
+          <p className="text-[13.5px] leading-relaxed mb-4" style={{ color: "var(--ink)" }}>
+            {alert.note}
+          </p>
+        )}
+
+        <CandleChart candles={chart.candles} height={228} annotations={chart.annotations} />
+
+        {/* Entry stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
+          {(
+            [
+              ["Entry", alert.entry,           alert.dir === "long" ? "var(--teal)" : "var(--coral)"],
+              ["Stop",  alert.sl,              "var(--coral-bright)"],
+              ["TP1",   alert.tp1,             "var(--teal-bright)"],
+              ["R:R",   alert.rr + "R",        "var(--gold)"],
+            ] as [string, string, string][]
+          ).map(([label, val, color]) => (
+            <div key={label} className="rounded-xl p-3" style={{ background: "var(--panel-2)" }}>
+              <div className="text-[10px] uppercase tracking-widest font-semibold mb-1" style={{ color: "var(--ink-dim)" }}>
+                {label}
+              </div>
+              <div className="font-semibold text-[14.5px] tabular-nums" style={{ color }}>
+                {val}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2.5 mt-4 flex-wrap">
+          <Button
+            variant="primary" size="sm"
+            icon={journaled ? "check" : "content_copy"}
+            disabled={journaled}
+            onClick={handleCopy}
+          >
+            {journaled ? "In journal" : "Copy to journal"}
+          </Button>
+          <Link href="/alerts">
+            <Button variant="ghost" size="sm" icon="open_in_full">View setup</Button>
+          </Link>
+          <div className="ml-auto flex items-center gap-4 text-[12px]" style={{ color: "var(--ink-dim)" }}>
+            <span className="flex items-center gap-1.5">
+              <Icon name="favorite" size={14} fill style={{ color: "var(--coral)" }} />
+              {alert.reactions ?? 0}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Icon name="bolt" size={14} />
+              {alert.taken ?? 0} took it
+            </span>
+          </div>
+        </div>
+      </div>
+    </Panel>
+  );
+}
+
+
+// ── Today's high-impact events ────────────────────────────────────────────────
+
+const IMPACT_COLOR: Record<number, string> = { 3: "var(--coral)", 2: "var(--gold)", 1: "var(--ink-dim)" };
+
+function useTodayEvents() {
+  return useQuery({
+    queryKey: ["calendar", "today"],
+    queryFn: async () => {
+      const res = await fetch("/api/calendar");
+      if (!res.ok) return [] as CalEvent[];
+      const all: CalEvent[] = await res.json();
+      const today = fmtISODate(new Date());
+      return all
+        .filter((e) => e.date === today && e.impact >= 2)
+        .sort((a, b) => a.time.localeCompare(b.time));
+    },
+    staleTime: 30 * 60_000,
+  });
+}
+
+// ── Trend snapshot — fetched from API (instructor publishes, everyone reads) ───
+
+const TREND_PAIRS = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"] as const;
+const TREND_TFS   = ["MN", "W", "D", "H4", "H1"] as const;
+
+type TrendBias = "bullish" | "bearish" | "ranging";
+type TrendMatrixData = Record<string, Record<string, TrendBias>>;
+
+const TREND_DEFAULT: TrendMatrixData = {
+  EURUSD: { MN: "bullish",  W: "bullish",  D: "bearish", H4: "bullish", H1: "bullish"  },
+  GBPUSD: { MN: "bullish",  W: "ranging",  D: "ranging", H4: "bearish", H1: "bearish"  },
+  USDJPY: { MN: "bullish",  W: "bullish",  D: "bullish", H4: "ranging", H1: "ranging"  },
+  USDCHF: { MN: "bearish",  W: "ranging",  D: "ranging", H4: "bullish", H1: "bullish"  },
+  AUDUSD: { MN: "bearish",  W: "bearish",  D: "ranging", H4: "bearish", H1: "ranging"  },
+  NZDUSD: { MN: "bearish",  W: "bearish",  D: "bearish", H4: "bearish", H1: "ranging"  },
+  USDCAD: { MN: "bullish",  W: "ranging",  D: "bullish", H4: "bullish", H1: "ranging"  },
+  XAUUSD: { MN: "bullish",  W: "bullish",  D: "bullish", H4: "bullish", H1: "bullish"  },
+  NAS100: { MN: "bullish",  W: "bullish",  D: "ranging", H4: "ranging", H1: "bearish"  },
+};
+
+function useTrendSnapshot() {
+  const [matrix, setMatrix]       = useState<TrendMatrixData>(TREND_DEFAULT);
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/trend-matrix")
+      .then((r) => r.json())
+      .then((data: { matrix: TrendMatrixData; updatedAt: string } | null) => {
+        if (data?.matrix) setMatrix(data.matrix);
+        if (data?.updatedAt) setUpdatedAt(data.updatedAt);
+      })
+      .catch(() => {/* keep defaults */});
+  }, []);
+
+  const rows = TREND_PAIRS.map((pair) => {
+    const row = matrix[pair] ?? TREND_DEFAULT[pair];
+    const counts = { bullish: 0, bearish: 0, ranging: 0 };
+    TREND_TFS.forEach((tf) => { counts[row[tf] as TrendBias]++; });
+    const bias: string = counts.bullish > counts.bearish
+      ? "Bullish" : counts.bearish > counts.bullish
+      ? "Bearish" : "Neutral";
+    const tfs = TREND_TFS.map((tf) => row[tf] as TrendBias);
+    return { pair, tfs, bias };
+  });
+
+  return { rows, updatedAt };
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getGreeting() {
-  const h = new Date().getHours();
+  const h = getHours(new Date());
   if (h < 12) return "Good morning";
   if (h < 17) return "Good afternoon";
   return "Good evening";
 }
 
 function getSessionLabel() {
-  const h = new Date().getUTCHours();
+  const now = new Date();
+  if (isForexClosed(now)) return "Market Closed";
+  const h = getUTCHours(now);
   if (h < 8)  return "Asia Session";
   if (h < 13) return "London Session";
   if (h < 17) return "London / NY Overlap";
@@ -97,7 +368,7 @@ function getSessionLabel() {
 }
 
 function getDayLabel() {
-  return new Date().toLocaleDateString("en-US", { weekday: "long" });
+  return fmtWeekdayLong(new Date());
 }
 
 function fmtR(r: number) {
@@ -127,44 +398,296 @@ function EquityCurve({ data }: { data: number[] }) {
   );
 }
 
+// ── Active Trades Panel ───────────────────────────────────────────────────────
+function ActiveTradesPanel() {
+  const { trades } = useTrades();
+  const active = trades.filter((t) => t.result.toLowerCase() === "open");
+
+  if (active.length === 0) return null;
+
+  return (
+    <Panel pad={0} style={{ overflow: "hidden" }}>
+      <div className="px-5 pt-4 pb-3">
+        <PanelHead title="Active Positions" icon="radar" style={{ marginBottom: 0 }} />
+      </div>
+      <div className="flex flex-col">
+        {active.map((t, i) => {
+          const isLong = t.dir.toLowerCase() === "long";
+          const dirColor = isLong ? "var(--teal)" : "var(--coral)";
+          return (
+            <div
+              key={t.id}
+              className="relative flex items-center gap-4 px-5 py-3.5"
+              style={{
+                borderTop: i > 0 ? "1px solid var(--line)" : "none",
+                background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)",
+              }}
+            >
+              {/* Direction accent bar */}
+              <div
+                className="absolute left-0 top-3 bottom-3 rounded-r-full"
+                style={{ width: 3, background: dirColor, opacity: 0.7 }}
+              />
+
+              {/* Pair + direction */}
+              <div className="flex flex-col gap-1 min-w-[90px] shrink-0">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="font-bold text-[15px] tracking-tight"
+                    style={{ color: "var(--ink-strong)", fontFamily: "var(--font-display)" }}
+                  >
+                    {t.pair}
+                  </span>
+                  <DirPill dir={t.dir} size="sm" />
+                </div>
+                {t.model && (
+                  <span
+                    className="text-[10px] font-medium truncate"
+                    style={{ color: "var(--ink-dim)", maxWidth: 110 }}
+                  >
+                    {t.model}
+                  </span>
+                )}
+              </div>
+
+              {/* Price levels */}
+              <div
+                className="flex-1 grid gap-x-4 gap-y-0.5 tabular-nums text-[11px]"
+                style={{ gridTemplateColumns: "repeat(3, auto)", fontFamily: "var(--mono)", color: "var(--ink-dim)" }}
+              >
+                <span style={{ color: dirColor, fontWeight: 600 }}>
+                  {t.entryPrice ?? "—"}
+                </span>
+                <span>{t.stopLoss ?? "—"}</span>
+                <span>{t.takeProfit ?? "—"}</span>
+
+                <span style={{ fontSize: 9, opacity: 0.6, letterSpacing: "0.04em" }}>ENTRY</span>
+                <span style={{ fontSize: 9, opacity: 0.6, letterSpacing: "0.04em" }}>SL</span>
+                <span style={{ fontSize: 9, opacity: 0.6, letterSpacing: "0.04em" }}>TP</span>
+              </div>
+
+              {/* Right: R:R + date */}
+              <div className="flex flex-col items-end gap-1.5 shrink-0">
+                {t.rr != null && (
+                  <span
+                    className="text-[11px] font-bold tabular-nums"
+                    style={{ color: "var(--gold)", fontFamily: "var(--mono)" }}
+                  >
+                    {t.rr}R
+                  </span>
+                )}
+                <span
+                  className="text-[10px] tabular-nums"
+                  style={{ color: "var(--ink-dim)", fontFamily: "var(--mono)" }}
+                >
+                  {t.openedAt ? fmtMonthDay(t.openedAt) : t.date}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Footer pulse */}
+      <div
+        className="flex items-center gap-2 px-5 py-2.5"
+        style={{ borderTop: "1px solid var(--line)", background: "rgba(248,185,61,0.03)" }}
+      >
+        <span
+          className="inline-block w-1.5 h-1.5 rounded-full"
+          style={{ background: "var(--gold)", boxShadow: "0 0 6px var(--gold)", animation: "live-pulse 2s infinite" }}
+        />
+        <span className="text-[10.5px] font-semibold uppercase tracking-widest" style={{ color: "var(--gold)", letterSpacing: "0.1em" }}>
+          {active.length} position{active.length !== 1 ? "s" : ""} live
+        </span>
+      </div>
+    </Panel>
+  );
+}
+
+// ── Session status card (compact, for right-column) ──────────────────────────
+
+const SESSION_DEFS = [
+  { name: "Sydney",    flag: "🇦🇺", open: 23, close: 8,  color: "var(--ink-mid)",      closeL: "08:00" },
+  { name: "Tokyo",     flag: "🇯🇵", open: 2,  close: 11, color: "var(--gold)",          closeL: "11:00" },
+  { name: "Frankfurt", flag: "🇩🇪", open: 8,  close: 17, color: "var(--teal)",          closeL: "17:00" },
+  { name: "London",    flag: "🇬🇧", open: 9,  close: 18, color: "var(--teal-bright)",   closeL: "18:00" },
+  { name: "New York",  flag: "🇺🇸", open: 14, close: 23, color: "var(--coral-bright)",  closeL: "23:00" },
+] as const;
+
+function nowGMT2() {
+  const d = new Date();
+  return ((d.getUTCHours() + 2) % 24) + d.getUTCMinutes() / 60;
+}
+
+function sessionActive(open: number, close: number, h: number) {
+  return open < close ? h >= open && h < close : h >= open || h < close;
+}
+
+function sessionHoursUntil(target: number, from: number) {
+  const d = target - from;
+  return d < 0 ? d + 24 : d;
+}
+
+function fmtCountdown(totalH: number) {
+  const h = Math.floor(totalH);
+  const m = Math.round((totalH - h) * 60);
+  if (h === 0) return `${m}m`;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+function SessionCard() {
+  const [gmt2,   setGmt2]   = useState<number | null>(null);
+  const [closed, setClosed] = useState(false);
+  const [reopenH, setReopenH] = useState(0);
+
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      setGmt2(nowGMT2());
+      setClosed(isForexClosed(now));
+      setReopenH(hoursUntilForexReopen(now));
+    };
+    tick();
+    const t = setInterval(tick, 60_000);
+    return () => clearInterval(t);
+  }, []);
+
+  if (gmt2 === null) return null;
+
+  // Over the weekend the market is closed — no session is active regardless of
+  // the hour, so don't surface London/NY as "open".
+  const open = closed ? [] : SESSION_DEFS.filter((s) => sessionActive(s.open, s.close, gmt2));
+  const isKillzone = !closed && gmt2 >= 14 && gmt2 < 18; // London + NY overlap
+
+  // Next session: first one that isn't active, sorted by soonest open. While
+  // closed, the daily cycle is meaningless — we show the weekend reopen instead.
+  const next = closed
+    ? undefined
+    : SESSION_DEFS
+        .filter((s) => !sessionActive(s.open, s.close, gmt2))
+        .sort((a, b) => sessionHoursUntil(a.open, gmt2) - sessionHoursUntil(b.open, gmt2))[0];
+
+  const timeLabel = `${String(Math.floor(gmt2) % 24).padStart(2, "0")}:${String(Math.round((gmt2 % 1) * 60)).padStart(2, "0")}`;
+
+  return (
+    <Panel pad={0}>
+      <div className="px-4 py-3.5">
+        {/* Header row */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span
+              className="material-symbols-rounded"
+              style={{ fontSize: 14, color: "var(--ink-dim)", fontVariationSettings: "'FILL' 1" }}
+            >
+              schedule
+            </span>
+            <span className="text-[12px] font-semibold" style={{ color: "var(--ink-strong)", fontFamily: "var(--font-display)" }}>
+              Sessions
+            </span>
+            {isKillzone && (
+              <span
+                className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full"
+                style={{ background: "rgba(48,232,223,0.08)", color: "var(--teal-bright)", border: "1px solid rgba(48,232,223,0.22)", letterSpacing: "0.08em" }}
+              >
+                Killzone
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] tabular-nums font-semibold" style={{ color: "var(--ink-strong)", fontFamily: "var(--mono)" }}>
+              {timeLabel}
+            </span>
+            <span className="text-[8.5px] font-bold uppercase px-1 py-0.5 rounded" style={{ background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)", letterSpacing: "0.08em" }}>
+              GMT+2
+            </span>
+          </div>
+        </div>
+
+        {/* Active sessions */}
+        {open.length === 0 ? (
+          <div className="flex items-center gap-1.5 mb-2.5">
+            <span className="size-1.5 rounded-full shrink-0" style={{ background: "var(--ink-dim)" }} />
+            <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+              {closed ? "Closed for the weekend" : "Market closed"}
+            </span>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1.5 mb-2.5">
+            {open.map((s) => (
+              <div key={s.name} className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="size-1.5 rounded-full shrink-0"
+                    style={{ background: s.color, boxShadow: `0 0 4px ${s.color}` }}
+                  />
+                  <span style={{ fontSize: 12 }}>{s.flag}</span>
+                  <span className="text-[12.5px] font-semibold" style={{ color: s.color }}>
+                    {s.name}
+                  </span>
+                  <span className="text-[9.5px] font-bold uppercase tracking-widest" style={{ color: s.color, opacity: 0.7 }}>
+                    open
+                  </span>
+                </div>
+                <span className="text-[11px] tabular-nums" style={{ color: "var(--ink-dim)", fontFamily: "var(--mono)" }}>
+                  closes {s.closeL}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Divider */}
+        <div className="my-2.5" style={{ height: 1, background: "var(--line)", opacity: 0.5 }} />
+
+        {/* Next session + link */}
+        <div className="flex items-center justify-between gap-2">
+          {closed ? (
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-rounded" style={{ fontSize: 13, color: "var(--ink-dim)" }}>
+                arrow_forward
+              </span>
+              <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+                Reopens in{" "}
+                <span className="font-semibold tabular-nums" style={{ color: "var(--ink-strong)", fontFamily: "var(--mono)" }}>
+                  {fmtCountdown(reopenH)}
+                </span>
+              </span>
+            </div>
+          ) : next ? (
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-rounded" style={{ fontSize: 13, color: "var(--ink-dim)" }}>
+                arrow_forward
+              </span>
+              <span style={{ fontSize: 12 }}>{next.flag}</span>
+              <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+                {next.name} in{" "}
+                <span className="font-semibold tabular-nums" style={{ color: "var(--ink-strong)", fontFamily: "var(--mono)" }}>
+                  {fmtCountdown(sessionHoursUntil(next.open, gmt2))}
+                </span>
+              </span>
+            </div>
+          ) : (
+            <div />
+          )}
+          <Link href="/sessions" className="text-[11.5px] font-medium" style={{ color: "var(--teal)" }}>
+            All sessions →
+          </Link>
+        </div>
+      </div>
+    </Panel>
+  );
+}
+
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 export function Dashboard() {
-  const { user, journaledAlerts, addJournaledAlert, toast } = useStore();
+  const { user } = useStore();
   const { trades, stats } = useTrades();
-  const { mutate: addTrade } = useAddTrade();
+  const { data: todayEvents = [], isLoading: eventsLoading } = useTodayEvents();
+  const { rows: trendRows, updatedAt: trendUpdatedAt } = useTrendSnapshot();
 
-  const handleCopyAlert = () => {
-    if (journaledAlerts.has(FEAT.id)) { toast("Already in your journal", "gold", "info"); return; }
-    addTrade({
-      date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short" }),
-      pair: FEAT.pair,
-      dir: FEAT.dir,
-      model: FEAT.model,
-      session: FEAT.session,
-      rr: parseFloat(FEAT.rr),
-      result: "open",
-      pnlR: 0,
-      tags: FEAT.tags,
-      note: `From Kondwani's alert · Entry ${FEAT.entry} / SL ${FEAT.sl} / TP ${FEAT.tp1}`,
-      fromAlert: FEAT.id,
-      discipline: true,
-    });
-    addJournaledAlert(FEAT.id);
-    toast(`${FEAT.pair} setup copied to journal`, "teal", "add_task");
-  };
-
-  const journaled = journaledAlerts.has(FEAT.id);
-
-  const candles = useMemo(() => genCandles(42, 56, 2330, 2.6, 0.04), []);
-
-  const annotations = useMemo(() => {
-    const asiaLow = Math.min(...candles.map((c) => c.l)) + 0.6;
-    return {
-      zones:  [{ i0: 30, i1: 38, lo: 2330.5, hi: 2333.2, type: "fvg" as const, dir: "long" as const }] as Zone[],
-      lines:  [{ price: asiaLow, label: "ASIA LOW — swept", color: "var(--coral-bright)" }] as PriceLine[],
-      marks:  [{ i: 41, price: candles[41].c, label: "CHoCH", type: "choch" as const }] as Mark[],
-    };
-  }, [candles]);
+  // Last 4 trades for discipline checklist
+  const recentTrades = trades.slice(0, 4);
 
   const eq = stats.equity.length > 1 ? stats.equity : [0, 0.5, 1, 0.7, 1.4, 2.1, 1.8, 2.6];
 
@@ -235,115 +758,11 @@ export function Dashboard() {
         {/* ── Left column ── */}
         <div className="flex flex-col gap-4 min-w-0">
 
-          {/* Featured alert */}
-          <Panel pad={0} style={{ overflow: "hidden" }}>
-            {/* Card header */}
-            <div
-              className="flex items-center justify-between px-5 py-3.5"
-              style={{ borderBottom: "1px solid var(--line)" }}
-            >
-              <div className="flex items-center gap-3">
-                <Avatar seed={3} name="Kondwani" size={36} ring="var(--gold)" />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-[13.5px]" style={{ color: "var(--ink-strong)" }}>
-                      Kondwani
-                    </span>
-                    <span
-                      className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
-                      style={{ background: "var(--gold)", color: "var(--navy-deep)" }}
-                    >
-                      Lead Trader
-                    </span>
-                  </div>
-                  <div className="text-[11.5px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
-                    Posted a live setup · {FEAT.time}
-                  </div>
-                </div>
-              </div>
-              {/* LIVE indicator */}
-              <div
-                className="flex items-center gap-1.5 text-[10.5px] font-bold tracking-widest uppercase"
-                style={{ color: "var(--teal-bright)" }}
-              >
-                <span
-                  className="size-1.5 rounded-full"
-                  style={{ background: "var(--teal-bright)", animation: "var(--animate-live)" }}
-                />
-                LIVE
-              </div>
-            </div>
+          {/* User's own active trades */}
+          <ActiveTradesPanel />
 
-            {/* Card body */}
-            <div className="px-5 py-4">
-              <div className="flex items-center gap-2.5 flex-wrap mb-2.5">
-                <span className="font-display font-bold text-[17px]" style={{ color: "var(--ink-strong)" }}>
-                  {FEAT.pair}
-                </span>
-                <DirPill dir={FEAT.dir} />
-                <Chip tone="teal">{FEAT.model}</Chip>
-                <Chip>{FEAT.session} KZ</Chip>
-              </div>
-              <p className="text-[13.5px] leading-relaxed mb-4" style={{ color: "var(--ink)" }}>
-                {FEAT.title}
-              </p>
-
-              <CandleChart candles={candles} height={228} annotations={annotations} />
-
-              {/* Entry stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
-                {(
-                  [
-                    ["Entry", FEAT.entry, "var(--ink-strong)"],
-                    ["Stop",  FEAT.sl,    "var(--coral-bright)"],
-                    ["TP1",   FEAT.tp1,   "var(--teal-bright)"],
-                    ["R:R",   FEAT.rr + "R", "var(--gold)"],
-                  ] as [string, string, string][]
-                ).map(([label, val, color]) => (
-                  <div key={label} className="rounded-xl p-3" style={{ background: "var(--panel-2)" }}>
-                    <div
-                      className="text-[10px] uppercase tracking-widest font-semibold mb-1"
-                      style={{ color: "var(--ink-dim)" }}
-                    >
-                      {label}
-                    </div>
-                    <div
-                      className="font-semibold text-[14.5px] tabular-nums"
-                      style={{ color }}
-                    >
-                      {val}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-2.5 mt-4 flex-wrap">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  icon={journaled ? "check" : "content_copy"}
-                  disabled={journaled}
-                  onClick={handleCopyAlert}
-                >
-                  {journaled ? "In journal" : "Copy to journal"}
-                </Button>
-                <Link href="/alerts">
-                  <Button variant="ghost" size="sm" icon="open_in_full">View setup</Button>
-                </Link>
-                <div className="ml-auto flex items-center gap-4 text-[12px]" style={{ color: "var(--ink-dim)" }}>
-                  <span className="flex items-center gap-1.5">
-                    <Icon name="favorite" size={14} fill style={{ color: "var(--coral)" }} />
-                    {FEAT.reactions}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Icon name="bolt" size={14} />
-                    {FEAT.taken} took it
-                  </span>
-                </div>
-              </div>
-            </div>
-          </Panel>
+          {/* Featured alert — live from API */}
+          <FeaturedAlertCard />
 
           {/* Equity curve */}
           <Panel pad={0} style={{ overflow: "hidden" }}>
@@ -399,88 +818,105 @@ export function Dashboard() {
                   </div>
                 </div>
               </Ring>
-              <div className="flex flex-col gap-2.5 flex-1 min-w-0">
-                {DISCIPLINE_ROWS.map(([label, ok]) => (
-                  <div
-                    key={label}
-                    className="flex items-center gap-2 text-[12px] leading-none"
-                    style={{ color: ok ? "var(--ink)" : "var(--ink-dim)" }}
-                  >
-                    <Icon
-                      name={ok ? "check_circle" : "cancel"}
-                      size={14}
-                      fill
-                      style={{ color: ok ? "var(--teal-bright)" : "var(--coral-bright)", flexShrink: 0 }}
-                    />
-                    {label}
+              <div className="flex flex-col gap-2 flex-1 min-w-0">
+                {recentTrades.length === 0 ? (
+                  <div className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+                    No trades logged yet
                   </div>
-                ))}
+                ) : (
+                  recentTrades.map((t) => (
+                    <div
+                      key={t.id}
+                      className="flex items-center gap-2 text-[12px] leading-none"
+                      style={{ color: t.discipline ? "var(--ink)" : "var(--ink-dim)" }}
+                    >
+                      <Icon
+                        name={t.discipline ? "check_circle" : "cancel"}
+                        size={14}
+                        fill
+                        style={{ color: t.discipline ? "var(--teal-bright)" : "var(--coral-bright)", flexShrink: 0 }}
+                      />
+                      <span className="truncate">{t.pair} · {t.model}</span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </Panel>
 
-          {/* High-impact calendar */}
+          {/* Session status */}
+          <SessionCard />
+
+          {/* High-impact calendar — today only */}
           <Panel>
             <PanelHead
               title="High-impact today"
               icon="event"
               action={
-                <Link
-                  href="/calendar"
-                  className="text-[12px] font-medium"
-                  style={{ color: "var(--teal)" }}
-                >
+                <Link href="/calendar" className="text-[12px] font-medium" style={{ color: "var(--teal)" }}>
                   Calendar →
                 </Link>
               }
             />
-            <div className="flex flex-col">
-              {CAL_EVENTS.map((ev, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-2.5 py-2.5"
-                  style={{ borderBottom: i < CAL_EVENTS.length - 1 ? "1px solid var(--line)" : "none" }}
-                >
-                  <span
-                    className="size-2 rounded-full shrink-0"
-                    style={{ background: ev.impact === "high" ? "var(--coral)" : "var(--gold)" }}
-                  />
-                  <span
-                    className="text-[11px] shrink-0 tabular-nums"
-                    style={{ color: "var(--ink-dim)", width: 36 }}
+            {eventsLoading ? (
+              <div className="space-y-2.5">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-4 rounded animate-pulse" style={{ background: "var(--track)" }} />
+                ))}
+              </div>
+            ) : todayEvents.length === 0 ? (
+              <div className="py-4 text-center text-[12.5px]" style={{ color: "var(--ink-dim)" }}>
+                No high-impact events scheduled today.
+              </div>
+            ) : (
+              <div className="flex flex-col">
+                {todayEvents.map((ev, i) => (
+                  <div
+                    key={ev.id}
+                    className="flex items-center gap-2.5 py-2.5"
+                    style={{ borderBottom: i < todayEvents.length - 1 ? "1px solid var(--line)" : "none" }}
                   >
-                    {ev.time}
-                  </span>
-                  <Chip tone="neutral" style={{ fontSize: 10, padding: "2px 7px" }}>{ev.cur}</Chip>
-                  <span
-                    className="text-[12.5px] min-w-0 truncate"
-                    style={{ color: "var(--ink)" }}
-                  >
-                    {ev.event}
-                  </span>
-                </div>
-              ))}
-            </div>
+                    <span
+                      className="size-2 rounded-full shrink-0"
+                      style={{ background: IMPACT_COLOR[ev.impact] ?? "var(--ink-dim)" }}
+                    />
+                    <span className="text-[11px] shrink-0 tabular-nums" style={{ color: "var(--ink-dim)", width: 36 }}>
+                      {ev.time}
+                    </span>
+                    <Chip tone="neutral" style={{ fontSize: 10, padding: "2px 7px" }}>{ev.currency}</Chip>
+                    <span className="text-[12.5px] min-w-0 truncate" style={{ color: "var(--ink)" }}>
+                      {ev.event}
+                    </span>
+                    {ev.actual && (
+                      <span className="text-[11px] font-semibold shrink-0 ml-auto" style={{ color: "var(--teal)" }}>
+                        {ev.actual}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </Panel>
 
-          {/* Trend snapshot */}
+          {/* Trend snapshot — live from TrendMatrix localStorage */}
           <Panel>
             <PanelHead
               title="Trend snapshot"
               icon="ssid_chart"
               action={
-                <Link
-                  href="/trend"
-                  className="text-[12px] font-medium"
-                  style={{ color: "var(--teal)" }}
-                >
+                <Link href="/trend" className="text-[12px] font-medium" style={{ color: "var(--teal)" }}>
                   Matrix →
                 </Link>
               }
             />
+            {trendUpdatedAt && (
+              <div className="text-[10.5px] mb-2" style={{ color: "var(--ink-dim)" }}>
+                Updated {new Date(trendUpdatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+              </div>
+            )}
             {/* TF header labels */}
             <div className="flex items-center gap-1.5 mb-2" style={{ paddingLeft: "clamp(48px, 17%, 68px)" }}>
-              {TF_LABELS.map((tf) => (
+              {(["MN", "W", "D", "H4", "H1"] as const).map((tf) => (
                 <div
                   key={tf}
                   className="flex-1 text-center text-[9.5px] font-semibold uppercase tracking-wider"
@@ -491,7 +927,7 @@ export function Dashboard() {
               ))}
             </div>
             <div className="flex flex-col gap-2">
-              {TREND_DATA.map(({ pair, tfs, bias }) => (
+              {trendRows.map(({ pair, tfs, bias }) => (
                 <div key={pair} className="flex items-center gap-1.5">
                   <span
                     className="text-[12px] font-semibold shrink-0"
@@ -506,8 +942,8 @@ export function Dashboard() {
                         className="flex-1 h-[18px] rounded"
                         style={{
                           background:
-                            d === "bull" ? "rgba(8,174,170,0.25)" :
-                            d === "bear" ? "rgba(234,82,61,0.25)" :
+                            d === "bullish" ? "rgba(8,174,170,0.25)" :
+                            d === "bearish" ? "rgba(234,82,61,0.25)" :
                             "var(--track)",
                         }}
                       />

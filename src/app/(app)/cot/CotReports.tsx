@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Panel, PanelHead, Ring, Sparkline, Skeleton, Icon } from "@/components/ui";
+import { Panel, PanelHead, Sparkline, Skeleton, Icon } from "@/components/ui";
+import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import type { CotEntry, CotSignal } from "@/app/api/cot/route";
 
 // ── Signal config ─────────────────────────────────────────────────────────────
@@ -13,16 +14,15 @@ interface SignalCfg {
   shortLabel: string;
   color:     string;
   bg:        string;
-  ringColor: string;
   icon:      string;
 }
 
 const SIGNAL_CFG: Record<CotSignal, SignalCfg> = {
-  strong_bull: { label: "Strong Bullish Setup",  shortLabel: "S.Bull",  color: "var(--teal-bright)",  bg: "rgba(48,232,223,0.12)",  ringColor: "var(--teal-bright)",  icon: "trending_up"   },
-  bull:        { label: "Bullish Bias",           shortLabel: "Bull",    color: "var(--teal)",         bg: "rgba(8,174,170,0.10)",   ringColor: "var(--teal)",         icon: "arrow_upward"  },
-  neutral:     { label: "Neutral / Mixed",        shortLabel: "Neutral", color: "var(--ink-dim)",      bg: "var(--panel-2)",         ringColor: "var(--gold)",         icon: "remove"        },
-  bear:        { label: "Bearish Bias",           shortLabel: "Bear",    color: "var(--coral)",        bg: "rgba(234,82,61,0.10)",   ringColor: "var(--coral)",        icon: "arrow_downward"},
-  strong_bear: { label: "Strong Bearish Setup",   shortLabel: "S.Bear",  color: "var(--coral-bright)", bg: "rgba(255,89,66,0.12)",   ringColor: "var(--coral-bright)", icon: "trending_down" },
+  strong_bull: { label: "Strong Bullish Setup",  shortLabel: "S.Bull",  color: "var(--teal-bright)",  bg: "rgba(48,232,223,0.12)",  icon: "trending_up"   },
+  bull:        { label: "Bullish Bias",           shortLabel: "Bull",    color: "var(--teal)",         bg: "rgba(8,174,170,0.10)",   icon: "arrow_upward"  },
+  neutral:     { label: "Neutral / Mixed",        shortLabel: "Neutral", color: "var(--ink-dim)",      bg: "var(--panel-2)",         icon: "remove"        },
+  bear:        { label: "Bearish Bias",           shortLabel: "Bear",    color: "var(--coral)",        bg: "rgba(234,82,61,0.10)",   icon: "arrow_downward"},
+  strong_bear: { label: "Strong Bearish Setup",   shortLabel: "S.Bear",  color: "var(--coral-bright)", bg: "rgba(255,89,66,0.12)",   icon: "trending_down" },
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -66,19 +66,6 @@ function PositionBar({ value, max, color }: { value: number; max: number; color:
       <div className="absolute inset-y-0 w-px" style={{ left: "50%", background: "var(--line)" }} />
     </div>
   );
-}
-
-// ── COT Index label from numeric value ────────────────────────────────────────
-
-// COT Index label describes WHERE in the 52-week range positioning sits,
-// not the trade direction — that comes from the net value sign.
-function indexLabel(idx: number): string {
-  if (idx >= 80) return "Near Cycle High";
-  if (idx >= 65) return "Elevated";
-  if (idx >= 45) return "Above Midpoint";
-  if (idx >= 35) return "Below Midpoint";
-  if (idx >= 20) return "Near Cycle Low";
-  return "At Cycle Extreme";
 }
 
 // ── Divergence panel ──────────────────────────────────────────────────────────
@@ -224,6 +211,26 @@ function HistoryBadge({ weeks }: { weeks: number }) {
 function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) => void }) {
   const [histOpen, setHistOpen] = useState(false);
 
+  // No DB data yet — render a placeholder card
+  if (!entry.history.length) {
+    return (
+      <div
+        className="rounded-2xl p-5 flex items-center gap-4"
+        style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
+      >
+        <div className="size-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--panel-2)" }}>
+          <Icon name="hourglass_empty" size={18} style={{ color: "var(--ink-dim)" }} />
+        </div>
+        <div>
+          <div className="font-display font-bold text-[15px]" style={{ color: "var(--ink-strong)" }}>{entry.label}</div>
+          <div className="text-[12px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+            No COT data yet — seed the database to load historical positioning.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const sig = SIGNAL_CFG[entry.signal];
   const cur = entry.history[0];
   const prev = entry.history[1] ?? entry.history[0];
@@ -239,9 +246,6 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
   const sparkData = [...entry.history].reverse().map((w) => w.largeSpecNet);
   // Color based on net direction — are specs net long or net short?
   const sparkColor = cur.largeSpecNet >= 0 ? "var(--teal-bright)" : "var(--coral-bright)";
-
-  const cotLabel = indexLabel(entry.cotIndex);
-  const ringColor = sig.ringColor;
 
   return (
     // Outer wrapper is relative + no overflow clip so the floating dropdown can escape
@@ -313,26 +317,15 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
       {/* ── COT Index + Position bars + Sparkline ── */}
       <div className="px-5 pb-4 grid gap-5" style={{ gridTemplateColumns: "auto 1fr auto" }}>
 
-        {/* COT Index ring */}
-        <div className="flex flex-col items-center gap-1.5">
-          <Ring value={entry.cotIndex} size={72} stroke={7} color={ringColor}>
-            <div className="text-center">
-              <div className="font-display font-bold tabular-nums text-[18px] leading-none"
-                style={{ color: ringColor }}>
-                {entry.cotIndex}
-              </div>
-              <div className="text-[9px] font-medium leading-none mt-0.5" style={{ color: "var(--ink-dim)" }}>
-                /100
-              </div>
-            </div>
-          </Ring>
-          <div className="text-[10.5px] font-semibold text-center leading-tight" style={{ color: sig.color, maxWidth: 76 }}>
-            {cotLabel}
-          </div>
-          <div className="text-[10px] text-center" style={{ color: "var(--ink-dim)" }}>
-            COT Index
-          </div>
-        </div>
+        {/* COT Index — compact display with zone label + lookback */}
+        <CotIndexDisplay
+          rows={entry.history}
+          cotIndex={entry.cotIndex}
+          signal={entry.signal}
+          pair={entry.pair}
+          totalWeeks={entry.totalWeeks}
+          compact
+        />
 
         {/* Position breakdown */}
         <div className="flex flex-col justify-center gap-3.5">

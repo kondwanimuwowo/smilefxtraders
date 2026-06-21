@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 
 // Twelve Data symbol → display name mapping
-const TD_SYMBOLS = ["EUR/USD", "GBP/USD", "NZD/USD", "XAU/USD", "IXIC", "DXY"] as const;
+const TD_SYMBOLS = ["EUR/USD", "GBP/USD", "USD/JPY", "USD/CHF", "AUD/USD", "NZD/USD", "USD/CAD", "XAU/USD", "IXIC", "DXY"] as const;
 const DISPLAY: Record<string, string> = {
   "EUR/USD": "EURUSD",
   "GBP/USD": "GBPUSD",
+  "USD/JPY": "USDJPY",
+  "USD/CHF": "USDCHF",
+  "AUD/USD": "AUDUSD",
   "NZD/USD": "NZDUSD",
+  "USD/CAD": "USDCAD",
   "XAU/USD": "XAUUSD",
   "IXIC":    "NAS100",
   "DXY":     "DXY",
@@ -20,7 +24,11 @@ export interface PriceTick {
 const FALLBACK: PriceTick[] = [
   { sym: "EURUSD", price: "1.08642", chg: +0.34 },
   { sym: "GBPUSD", price: "1.27310", chg: -0.18 },
+  { sym: "USDJPY", price: "155.420", chg: -0.21 },
+  { sym: "USDCHF", price: "0.90520", chg: +0.12 },
+  { sym: "AUDUSD", price: "0.64810", chg: +0.28 },
   { sym: "NZDUSD", price: "0.61245", chg: +0.52 },
+  { sym: "USDCAD", price: "1.37650", chg: -0.09 },
   { sym: "XAUUSD", price: "2338.40", chg: +0.91 },
   { sym: "NAS100", price: "18742.5", chg: -0.27 },
   { sym: "DXY",    price: "104.27",  chg: -0.21 },

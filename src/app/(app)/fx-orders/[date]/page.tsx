@@ -223,7 +223,6 @@ export default function FxOrdersDatePage() {
     }).length;
   }, [records, liveSpots]);
 
-  const imageUrl  = records[0]?.imageUrl ?? null;
   const fetchedAt = records[0]?.fetchedAt ?? null;
 
   return (
@@ -345,35 +344,6 @@ export default function FxOrdersDatePage() {
         </div>
       )}
 
-      {/* ── Source image ── */}
-      {!loading && imageUrl && imageUrl !== "manual-upload" && (
-        <div className="mt-8">
-          <div
-            className="flex items-center justify-between px-4 py-3 rounded-t-2xl"
-            style={{ background: "var(--panel-2)", border: "1px solid var(--line)", borderBottom: "none" }}
-          >
-            <span className="text-[12px] font-semibold" style={{ color: "var(--ink-dim)" }}>
-              Source · InvestingLive
-            </span>
-            <a
-              href={imageUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[12px] font-semibold hover:opacity-75"
-              style={{ color: "var(--teal)" }}
-            >
-              Open original <Icon name="open_in_new" size={12} />
-            </a>
-          </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imageUrl}
-            alt="FX Option Expiries source"
-            className="w-full rounded-b-2xl"
-            style={{ border: "1px solid var(--line)", borderTop: "none", display: "block" }}
-          />
-        </div>
-      )}
     </div>
   );
 }

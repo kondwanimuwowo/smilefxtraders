@@ -61,15 +61,27 @@ async function syncInstrument(code: string, pair: string, usdBase: boolean) {
 
   await Promise.all(
     rows.map((r) => {
-      const reportDate = new Date(r.report_date_as_yyyy_mm_dd.slice(0, 10) + "T00:00:00.000Z");
-      const largeSpecNet  = sign * (n(r.noncomm_positions_long_all)  - n(r.noncomm_positions_short_all));
-      const commercialNet = sign * (n(r.comm_positions_long_all)     - n(r.comm_positions_short_all));
-      const smallSpecNet  = sign * (n(r.nonrept_positions_long_all)  - n(r.nonrept_positions_short_all));
+      const reportDate    = new Date(r.report_date_as_yyyy_mm_dd.slice(0, 10) + "T00:00:00.000Z");
+      const lsLong        = n(r.noncomm_positions_long_all);
+      const lsShort       = n(r.noncomm_positions_short_all);
+      const cLong         = n(r.comm_positions_long_all);
+      const cShort        = n(r.comm_positions_short_all);
+      const ssLong        = n(r.nonrept_positions_long_all);
+      const ssShort       = n(r.nonrept_positions_short_all);
+      const largeSpecNet  = sign * (lsLong  - lsShort);
+      const commercialNet = sign * (cLong   - cShort);
+      const smallSpecNet  = sign * (ssLong  - ssShort);
+
+      const fields = {
+        largeSpecNet,  largeSpecLong: lsLong,  largeSpecShort: lsShort,
+        commercialNet, commercialLong: cLong,  commercialShort: cShort,
+        smallSpecNet,  smallSpecLong: ssLong,  smallSpecShort: ssShort,
+      };
 
       return prisma.cotReport.upsert({
         where:  { pair_reportDate: { pair, reportDate } },
-        update: { largeSpecNet, commercialNet, smallSpecNet },
-        create: { pair, reportDate, largeSpecNet, commercialNet, smallSpecNet },
+        update: fields,
+        create: { pair, reportDate, ...fields },
       });
     })
   );

@@ -13,9 +13,15 @@ function createPrismaClient() {
 
 const globalForPrisma = globalThis as unknown as { prisma: ReturnType<typeof createPrismaClient> };
 
-// Lazy singleton: if the global instance exists, reuse it; otherwise create one.
-// The factory is intentionally deferred so that DATABASE_URL is guaranteed to
-// be injected by Next.js before this module is evaluated during a request.
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+// Lazy singleton: initialized on first access so that DATABASE_URL is
+// guaranteed to be injected by Next.js before the first query is executed.
+function getPrisma() {
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = createPrismaClient();
+  }
+  return globalForPrisma.prisma;
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+export const prisma = new Proxy({} as ReturnType<typeof createPrismaClient>, {
+  get: (_, prop) => (getPrisma() as any)[prop],
+});

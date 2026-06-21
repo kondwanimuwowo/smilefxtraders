@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { addMonths } from "@/lib/date";
 
 const LENCO_BASE = "https://api.lenco.co/access/v2";
 const LENCO_KEY  = process.env.LENCO_API_KEY ?? "";
@@ -39,8 +40,7 @@ export async function GET(req: NextRequest) {
 
     if (sub && sub.status === "PENDING") {
       const now      = new Date();
-      const renewsAt = new Date(now);
-      renewsAt.setMonth(renewsAt.getMonth() + (sub.billingCycle === "annual" ? 12 : 1));
+      const renewsAt = addMonths(now, sub.billingCycle === "annual" ? 12 : 1);
 
       await prisma.$transaction([
         prisma.subscription.update({

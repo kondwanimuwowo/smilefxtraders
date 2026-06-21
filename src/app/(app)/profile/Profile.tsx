@@ -1,8 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
+import type { Trade } from "@/lib/store";
 import { useTrades } from "@/lib/hooks/useTrades";
-import { Panel, PanelHead, Avatar, DirPill, Chip, Stars, Ring, Sparkline, Icon } from "@/components/ui";
+import type { TradeStats } from "@/lib/hooks/useTrades";
+import { Panel, PanelHead, Avatar, DirPill, Chip, Ring, Sparkline, Button } from "@/components/ui";
 
 // ── Stat box ──────────────────────────────────────────────────────────────────
 
@@ -20,14 +23,46 @@ function StatBox({ label, value, sub, color }: { label: string; value: string; s
 
 // ── Badge ─────────────────────────────────────────────────────────────────────
 
-const BADGES = [
-  { icon: "military_tech",   label: "First Trade",     desc: "Logged your first trade",             earned: true  },
-  { icon: "local_fire_department", label: "5W Streak", desc: "5 winning trades in a row",           earned: true  },
-  { icon: "checklist",       label: "Rule Follower",   desc: "100% discipline for a week",          earned: true  },
-  { icon: "trending_up",     label: "+10R Club",       desc: "Reached +10R net profit",             earned: false },
-  { icon: "psychology",      label: "Model Master",    desc: "Win 10+ trades with one model",       earned: false },
-  { icon: "workspace_premium", label: "Funded",        desc: "Pass a prop firm evaluation",         earned: false },
-];
+function computeBadges(trades: Trade[], stats: TradeStats, plan: string) {
+  return [
+    {
+      icon: "military_tech",
+      label: "First Trade",
+      desc: "Logged your first trade",
+      earned: trades.length >= 1,
+    },
+    {
+      icon: "local_fire_department",
+      label: "5 Wins",
+      desc: "5 winning trades logged",
+      earned: stats.wins >= 5,
+    },
+    {
+      icon: "checklist",
+      label: "Rule Follower",
+      desc: "≥80% discipline score",
+      earned: trades.length >= 5 && stats.discFollowed >= 80,
+    },
+    {
+      icon: "trending_up",
+      label: "+10R Club",
+      desc: "Reached +10R net profit",
+      earned: stats.netR >= 10,
+    },
+    {
+      icon: "psychology",
+      label: "Model Master",
+      desc: "Win 10+ trades with one model",
+      earned: stats.models.some((m) => m.n >= 10),
+    },
+    {
+      icon: "workspace_premium",
+      label: "Funded",
+      desc: "Upgraded to Funded Track",
+      earned: plan === "funded",
+    },
+  ];
+}
 
 // ── Trade history mini ────────────────────────────────────────────────────────
 
@@ -43,6 +78,7 @@ function TradeHistoryRow({ label, value, color }: { label: string; value: string
 // ── Profile ───────────────────────────────────────────────────────────────────
 
 export function Profile() {
+  const router     = useRouter();
   const { user } = useStore();
   const { stats, trades } = useTrades();
 
@@ -55,6 +91,10 @@ export function Profile() {
   const riskPct    = user?.riskPct    ?? 0.5;
   const seed       = user?.avatarSeed ?? 0;
 
+  const memberSince = user?.joinedAt
+    ? new Date(user.joinedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+    : "—";
+
   const PLAN_LABEL: Record<string, { label: string; color: string }> = {
     free:   { label: "Starter",       color: "var(--ink-dim)"  },
     pro:    { label: "Pro Trader",    color: "var(--teal)"     },
@@ -62,11 +102,14 @@ export function Profile() {
   };
   const planCfg = PLAN_LABEL[plan];
 
-  // best model
-  const bestModel = stats.models[0];
+  // badges driven from trade data
+  const badges = computeBadges(trades, stats, plan);
 
   // equity sparkline
   const equityData = stats.equity.length > 1 ? stats.equity : [0, 0.5, 1.2, 0.8, 2.1, 1.6, 2.8];
+
+  // last 5 trades for recent history
+  const recentTrades = trades.slice(0, 5);
 
   return (
     <div className="view">
@@ -103,9 +146,10 @@ export function Profile() {
 
             <div className="mt-4 pt-4 border-t flex flex-col gap-2" style={{ borderColor: "var(--line)" }}>
               {[
-                { icon: "bar_chart",     label: "Experience",  value: experience.charAt(0).toUpperCase() + experience.slice(1) },
-                { icon: "percent",       label: "Risk per trade", value: `${riskPct}%` },
-                { icon: "today",         label: "Member since",   value: "Jun 2026" },
+                { icon: "bar_chart", label: "Experience",    value: experience.charAt(0).toUpperCase() + experience.slice(1) },
+                { icon: "percent",   label: "Risk per trade", value: `${riskPct}%` },
+                { icon: "today",     label: "Member since",   value: memberSince },
+                ...(user?.loc ? [{ icon: "location_on", label: "Location", value: user.loc }] : []),
               ].map(({ icon, label, value }) => (
                 <div key={label} className="flex items-center gap-3 py-1.5">
                   <span className="material-symbols-rounded text-[17px]" style={{ color: "var(--teal)" }}>{icon}</span>
@@ -114,13 +158,19 @@ export function Profile() {
                 </div>
               ))}
             </div>
+
+            <div className="mt-4 pt-4 border-t" style={{ borderColor: "var(--line)" }}>
+              <Button type="button" variant="ghost" icon="settings" onClick={() => router.push("/settings")} style={{ width: "100%" }}>
+                Edit profile
+              </Button>
+            </div>
           </Panel>
 
           {/* Badges */}
           <Panel>
-            <PanelHead title="Badges" icon="military_tech" />
+            <PanelHead title="Badges" icon="military_tech" sub={`${badges.filter((b) => b.earned).length} / ${badges.length} earned`} />
             <div className="grid grid-cols-3 gap-3">
-              {BADGES.map((b) => (
+              {badges.map((b) => (
                 <div
                   key={b.label}
                   className="flex flex-col items-center text-center gap-1 rounded-xl py-3 px-1"
@@ -149,11 +199,12 @@ export function Profile() {
         {/* ── Right: stats + history ── */}
         <div className="flex flex-col gap-4">
           {/* Stats grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <StatBox label="Net R"     value={(stats.netR >= 0 ? "+" : "") + stats.netR.toFixed(1) + "R"} color={stats.netR >= 0 ? "var(--teal-bright)" : "var(--coral-bright)"} />
-            <StatBox label="Win Rate"  value={`${stats.winRate}%`}     sub={`${stats.wins}W / ${stats.losses}L`} />
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <StatBox label="Net R"      value={(stats.netR >= 0 ? "+" : "") + stats.netR.toFixed(1) + "R"} color={stats.netR >= 0 ? "var(--teal-bright)" : "var(--coral-bright)"} />
+            <StatBox label="Win Rate"   value={`${stats.winRate}%`}      sub={`${stats.wins}W / ${stats.losses}L`} />
+            <StatBox label="Expectancy" value={(stats.expectancy >= 0 ? "+" : "") + stats.expectancy + "R"} sub="Expected R/trade" color={stats.expectancy > 0 ? "var(--teal)" : stats.expectancy < 0 ? "var(--coral)" : "var(--ink-dim)"} />
             <StatBox label="Discipline" value={`${stats.discFollowed}%`} sub="Rules followed" color={stats.discFollowed >= 80 ? "var(--teal)" : "var(--coral)"} />
-            <StatBox label="Trades"    value={String(trades.length)}  sub={`${stats.closed} closed`} />
+            <StatBox label="Trades"     value={String(trades.length)}   sub={`${stats.closed} closed`} />
           </div>
 
           {/* Equity sparkline */}
@@ -201,31 +252,56 @@ export function Profile() {
             </Panel>
           </div>
 
-          {/* Best model */}
-          {bestModel && (
+          {/* Model breakdown */}
+          {stats.models.length > 0 && (
             <Panel>
-              <PanelHead title="Top performing model" icon="star" />
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <div className="font-display font-semibold text-[16px] mb-1" style={{ color: "var(--ink-strong)" }}>
-                    {bestModel.model}
+              <PanelHead title="Model breakdown" icon="star" sub="Win rate per SMC model" />
+              <div className="flex flex-col gap-3 mt-1">
+                {stats.models.map((m) => (
+                  <div key={m.model}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[12.5px] font-medium" style={{ color: "var(--ink-strong)" }}>{m.model}</span>
+                      <span className="text-[12px] tabular-nums font-semibold" style={{ color: m.pct >= 60 ? "var(--teal)" : m.pct >= 40 ? "var(--gold)" : "var(--coral)" }}>
+                        {m.pct}% · {m.n}T
+                      </span>
+                    </div>
+                    <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: "var(--track)" }}>
+                      <div
+                        className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
+                        style={{ width: `${m.pct}%`, background: m.pct >= 60 ? "var(--teal)" : m.pct >= 40 ? "var(--gold)" : "var(--coral)" }}
+                      />
+                    </div>
                   </div>
-                  <div className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
-                    {bestModel.n} trades · {bestModel.pct}% win rate
-                  </div>
-                </div>
-                <div
-                  className="font-display font-bold text-[28px] tabular-nums"
-                  style={{ color: "var(--teal-bright)", letterSpacing: "-0.02em" }}
-                >
-                  {bestModel.pct}%
-                </div>
+                ))}
               </div>
-              <div className="relative h-2 rounded-full overflow-hidden mt-3" style={{ background: "var(--track)" }}>
-                <div
-                  className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
-                  style={{ width: `${bestModel.pct}%`, background: "var(--teal)" }}
-                />
+            </Panel>
+          )}
+
+          {/* Recent trades */}
+          {recentTrades.length > 0 && (
+            <Panel>
+              <PanelHead title="Recent trades" icon="history" />
+              <div className="flex flex-col">
+                {recentTrades.map((t) => (
+                  <div key={t.id} className="flex items-center gap-3 py-2.5 border-b last:border-0" style={{ borderColor: "var(--line)" }}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-[13px]" style={{ color: "var(--ink-strong)" }}>{t.pair}</span>
+                        <DirPill dir={t.dir} />
+                      </div>
+                      <div className="text-[11.5px] mt-0.5 truncate" style={{ color: "var(--ink-dim)" }}>{t.model}</div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div
+                        className="font-display font-bold tabular-nums text-[14px]"
+                        style={{ color: t.result === "win" ? "var(--teal-bright)" : t.result === "loss" ? "var(--coral-bright)" : "var(--gold)", letterSpacing: "-0.01em" }}
+                      >
+                        {t.result === "open" ? "Open" : (t.pnlR >= 0 ? "+" : "") + t.pnlR.toFixed(1) + "R"}
+                      </div>
+                      <div className="text-[11px]" style={{ color: "var(--ink-dim)" }}>{t.date}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </Panel>
           )}

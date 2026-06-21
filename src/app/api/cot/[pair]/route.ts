@@ -23,10 +23,16 @@ export const revalidate = 1800;
 const TAKE = 104;
 
 export interface CotDetailRow {
-  date:          string;
-  largeSpecNet:  number;
-  commercialNet: number;
-  smallSpecNet:  number;
+  date:           string;
+  largeSpecLong:  number | null;
+  largeSpecShort: number | null;
+  largeSpecNet:   number;
+  commercialLong:  number | null;
+  commercialShort: number | null;
+  commercialNet:  number;
+  smallSpecLong:  number | null;
+  smallSpecShort: number | null;
+  smallSpecNet:   number;
 }
 
 export interface CotDetailResponse {
@@ -81,12 +87,12 @@ function computeSignal(rows52: CotDetailRow[]): Pick<
   let signal: CotSignal;
   if      (netLong  && lsIncreasing  && cotIndex >= 65) signal = "strong_bull";
   else if (netLong  && lsIncreasing)                    signal = "bull";
-  else if (netLong  && !lsIncreasing && cotIndex >= 70) signal = "neutral";
-  else if (netLong  && !lsIncreasing)                   signal = "bull";
+  else if (netLong  && !lsIncreasing && cotIndex >= 30) signal = "neutral";  // trimming from moderate/high levels
+  else if (netLong  && !lsIncreasing)                   signal = "bear";     // aggressive unwinding at extreme low
   else if (!netLong && !lsIncreasing && cotIndex <= 35) signal = "strong_bear";
   else if (!netLong && !lsIncreasing)                   signal = "bear";
-  else if (!netLong && lsIncreasing  && cotIndex <= 30) signal = "neutral";
-  else if (!netLong && lsIncreasing)                    signal = "bear";
+  else if (!netLong && lsIncreasing  && cotIndex <= 30) signal = "neutral";  // covering from extreme short
+  else if (!netLong && lsIncreasing)                    signal = "bear";     // still net short, just covering
   else                                                  signal = "neutral";
 
   const reportDate = new Date(current.date + "T12:00:00Z").toLocaleDateString("en-US", {
@@ -120,16 +126,27 @@ export async function GET(
       orderBy: { reportDate: "desc" },
       take,
       skip:    offset,
-      select:  { reportDate: true, largeSpecNet: true, commercialNet: true, smallSpecNet: true },
+      select:  {
+        reportDate:     true,
+        largeSpecLong:  true, largeSpecShort:  true, largeSpecNet:  true,
+        commercialLong: true, commercialShort: true, commercialNet: true,
+        smallSpecLong:  true, smallSpecShort:  true, smallSpecNet:  true,
+      },
     }),
     prisma.cotReport.count({ where: { pair: upper } }),
   ]);
 
   const mapped: CotDetailRow[] = rows.map((r) => ({
-    date:          r.reportDate.toISOString().split("T")[0],
-    largeSpecNet:  r.largeSpecNet,
-    commercialNet: r.commercialNet,
-    smallSpecNet:  r.smallSpecNet,
+    date:           r.reportDate.toISOString().split("T")[0],
+    largeSpecLong:  r.largeSpecLong,
+    largeSpecShort: r.largeSpecShort,
+    largeSpecNet:   r.largeSpecNet,
+    commercialLong:  r.commercialLong,
+    commercialShort: r.commercialShort,
+    commercialNet:  r.commercialNet,
+    smallSpecLong:  r.smallSpecLong,
+    smallSpecShort: r.smallSpecShort,
+    smallSpecNet:   r.smallSpecNet,
   }));
 
   // Compute signal from first 52 (or all available) rows

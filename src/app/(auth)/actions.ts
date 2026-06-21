@@ -7,52 +7,64 @@ import { prisma } from "@/lib/prisma";
 
 export async function loginAction(formData: FormData) {
   const supabase = await createClient();
-  const email = formData.get("email") as string;
+  const email    = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return { error: error.message };
+  try {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      if (error.message.toLowerCase().includes("invalid login")) {
+        return { error: "Incorrect email or password." };
+      }
+      return { error: error.message };
+    }
+  } catch {
+    return { error: "Could not reach the server. Check your internet connection and try again." };
+  }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  return { success: true };
 }
 
 export async function demoLoginAction() {
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: process.env.DEMO_EMAIL ?? "demo@smilefxtraders.com",
-    password: process.env.DEMO_PASSWORD ?? "demo-trader-2025",
-  });
-
-  if (error) {
-    // If demo account doesn't exist, sign up and create it
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email: process.env.DEMO_EMAIL ?? "demo@smilefxtraders.com",
+  try {
+    const { error } = await supabase.auth.signInWithPassword({
+      email:    process.env.DEMO_EMAIL    ?? "demo@smilefxtraders.com",
       password: process.env.DEMO_PASSWORD ?? "demo-trader-2025",
     });
-    if (signUpError || !data.user) return { error: signUpError?.message ?? "Demo login failed" };
 
-    await prisma.user.upsert({
-      where: { supabaseId: data.user.id },
-      update: {},
-      create: {
-        supabaseId: data.user.id,
-        name: "Demo Trader",
-        username: "demo_trader",
-        email: data.user.email!,
-        plan: "PRO",
-        level: 3,
-        streak: 7,
-        riskPct: 0.5,
-        experience: "INTERMEDIATE",
-        instruments: ["EURUSD", "GBPUSD", "XAUUSD", "NAS100"],
-      },
-    });
+    if (error) {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email:    process.env.DEMO_EMAIL    ?? "demo@smilefxtraders.com",
+        password: process.env.DEMO_PASSWORD ?? "demo-trader-2025",
+      });
+      if (signUpError || !data.user) return { error: signUpError?.message ?? "Demo login failed" };
+
+      await prisma.user.upsert({
+        where:  { supabaseId: data.user.id },
+        update: {},
+        create: {
+          supabaseId:  data.user.id,
+          name:        "Demo Trader",
+          username:    "demo_trader",
+          email:       data.user.email!,
+          plan:        "PRO",
+          level:       3,
+          streak:      7,
+          riskPct:     0.5,
+          experience:  "INTERMEDIATE",
+          instruments: ["EURUSD", "GBPUSD", "XAUUSD", "NAS100"],
+        },
+      });
+    }
+  } catch {
+    return { error: "Could not reach the server. Check your internet connection and try again." };
   }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  return { success: true };
 }
 
 export async function signupAction(formData: FormData) {
@@ -110,6 +122,7 @@ export async function updateProfileAction(formData: FormData) {
 
   const name     = (formData.get("name") as string ?? "").trim();
   const username = (formData.get("username") as string ?? "").replace(/^@/, "").trim();
+  const location = (formData.get("location") as string ?? "").trim() || null;
 
   if (!name)     return { error: "Name is required" };
   if (!username) return { error: "Username is required" };
@@ -117,10 +130,10 @@ export async function updateProfileAction(formData: FormData) {
   try {
     await prisma.user.update({
       where: { supabaseId: user.id },
-      data:  { name, username },
+      data:  { name, username, location },
     });
     revalidatePath("/", "layout");
-    return { success: true, name, username };
+    return { success: true, name, username, location };
   } catch (err: unknown) {
     const msg = (err as { code?: string })?.code === "P2002"
       ? "Username already taken — choose another"

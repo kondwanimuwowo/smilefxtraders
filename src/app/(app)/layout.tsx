@@ -48,6 +48,7 @@ function dbToAppUser(db: NonNullable<Awaited<ReturnType<typeof prisma.user.findU
     handle:      db.username,
     email:       db.email,
     loc:         db.location ?? undefined,
+    joinedAt:    db.createdAt.toISOString(),
     role:        db.role.toLowerCase() as AppUser["role"],
     plan:        db.plan.toLowerCase() as AppUser["plan"],
     level:       db.level,

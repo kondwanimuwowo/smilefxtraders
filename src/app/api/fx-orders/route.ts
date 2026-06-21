@@ -7,13 +7,21 @@ export const revalidate = 1800; // 30 min
 
 export async function GET() {
   try {
-    const dateKeys = await prisma.fxOptionExpiry
+    const rawDateKeys = await prisma.fxOptionExpiry
       .groupBy({
         by:      ["expiryDate"],
         _count:  { pair: true },
         orderBy: { expiryDate: "desc" },
         take:    60, // ~3 months of trading days
       });
+
+    // FX option expiries are only published on trading days. Never surface a
+    // Saturday/Sunday date — these only ever appear from a bad parse, and the
+    // market is closed over the weekend.
+    const dateKeys = rawDateKeys.filter((g) => {
+      const dow = g.expiryDate.getUTCDay();
+      return dow !== 0 && dow !== 6;
+    });
 
     const dates = dateKeys.map((g) => g.expiryDate);
     const allRecords = await prisma.fxOptionExpiry.findMany({

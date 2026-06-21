@@ -12,8 +12,8 @@ import {
 // ── Grade display helpers ─────────────────────────────────────────────────────
 
 const GRADE_COLOR: Record<string, string> = {
-  "A+": "var(--teal)",  A: "var(--teal)",
-  B:    "var(--gold)",  C: "var(--coral)",
+  "A+": "var(--teal)",   A: "var(--teal)",
+  B:    "var(--gold)",   C: "var(--coral)",
   D:    "var(--coral-bright)",
 };
 const GRADE_BG: Record<string, string> = {
@@ -56,8 +56,8 @@ function RuleRow({ rule }: { rule: RuleResult }) {
     <div
       className="flex items-start gap-3 px-4 py-3 rounded-xl border transition-colors"
       style={{
-        background: rule.status === "fail" ? "rgba(234,82,61,0.05)" : rule.status === "warn" ? "rgba(248,185,61,0.05)" : "transparent",
-        borderColor: rule.status === "fail" ? "rgba(234,82,61,0.2)" : rule.status === "warn" ? "rgba(248,185,61,0.2)" : "var(--line)",
+        background:  rule.status === "fail" ? "rgba(234,82,61,0.05)" : rule.status === "warn" ? "rgba(248,185,61,0.05)" : "transparent",
+        borderColor: rule.status === "fail" ? "rgba(234,82,61,0.2)"  : rule.status === "warn" ? "rgba(248,185,61,0.2)"  : "var(--line)",
       }}
     >
       <span
@@ -74,11 +74,37 @@ function RuleRow({ rule }: { rule: RuleResult }) {
   );
 }
 
-function ScoreBar({ score }: { score: number }) {
-  const color = score >= 85 ? "var(--teal)" : score >= 60 ? "var(--gold)" : "var(--coral)";
+function GradeRing({ grade, score }: { grade: string; score: number }) {
+  const color = GRADE_COLOR[grade] ?? "var(--teal)";
+  const r     = 38;
+  const circ  = 2 * Math.PI * r;
+  const dash  = (score / 100) * circ;
   return (
-    <div className="relative h-2 rounded-full overflow-hidden" style={{ background: "var(--track)" }}>
-      <div className="absolute inset-y-0 left-0 rounded-full transition-all duration-700" style={{ width: `${score}%`, background: color }} />
+    <div className="relative shrink-0" style={{ width: 96, height: 96 }}>
+      <svg width={96} height={96} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={48} cy={48} r={r} fill="none" stroke="var(--track)" strokeWidth={6} />
+        <circle
+          cx={48} cy={48} r={r} fill="none"
+          stroke={color} strokeWidth={6}
+          strokeDasharray={`${dash.toFixed(1)} ${circ.toFixed(1)}`}
+          strokeLinecap="round"
+          style={{ transition: "stroke-dasharray 0.7s cubic-bezier(0.16,1,0.3,1)" }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
+        <span
+          className="font-display font-bold"
+          style={{ fontSize: 26, letterSpacing: "-0.02em", color, lineHeight: 1 }}
+        >
+          {grade}
+        </span>
+        <span
+          className="tabular-nums font-semibold"
+          style={{ fontSize: 11, color: "var(--ink-dim)", fontFamily: "var(--mono)" }}
+        >
+          {score}%
+        </span>
+      </div>
     </div>
   );
 }
@@ -116,14 +142,14 @@ const KILLZONE_WINDOWS: Record<string, [number, number]> = {
 };
 
 function isInKillzone(session: string): boolean {
-  const now = new Date();
+  const now  = new Date();
   const mins = now.getUTCHours() * 60 + now.getUTCMinutes();
   const [start, end] = KILLZONE_WINDOWS[session] ?? [0, 0];
   return mins >= start && mins < end;
 }
 
 function timeUntilOpen(session: string): string {
-  const now = new Date();
+  const now  = new Date();
   const mins = now.getUTCHours() * 60 + now.getUTCMinutes();
   const [start] = KILLZONE_WINDOWS[session] ?? [0, 0];
   let diff = start - mins;
@@ -138,7 +164,7 @@ function timeUntilOpen(session: string): string {
 // ── Position size helpers ─────────────────────────────────────────────────────
 
 const PIP_VALUE: Record<string, number> = {
-  EURUSD: 10, GBPUSD: 10, NZDUSD: 10,
+  EURUSD: 10, GBPUSD: 10, USDJPY: 9, USDCHF: 10, AUDUSD: 10, NZDUSD: 10, USDCAD: 10,
   XAUUSD: 100, NAS100: 1,
 };
 
@@ -160,26 +186,39 @@ interface HistoryEntry {
   time:      string;
 }
 
+const HISTORY_KEY = "smfx_validator_history";
+
 function HistoryRow({ entry }: { entry: HistoryEntry }) {
+  const color = GRADE_COLOR[entry.grade] ?? "var(--teal)";
   return (
-    <div className="flex items-center gap-3 py-2">
+    <div className="flex items-center gap-3 py-2.5">
       <div
-        className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-display font-bold text-[12px]"
-        style={{ background: GRADE_BG[entry.grade], color: GRADE_COLOR[entry.grade] }}
+        className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center font-display font-bold text-[13px]"
+        style={{ background: GRADE_BG[entry.grade], color }}
       >
         {entry.grade}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mb-1">
           <span className="font-semibold text-[13px]" style={{ color: "var(--ink-strong)" }}>{entry.pair}</span>
           <DirPill dir={entry.dir} size="sm" />
-          <span className="text-[10.5px] px-1.5 py-0.5 rounded" style={{ background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }}>
+          <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold" style={{ background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }}>
             {entry.framework}
           </span>
         </div>
-        <div className="text-[11px] truncate" style={{ color: "var(--ink-dim)" }}>{entry.model}</div>
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: "var(--track)" }}>
+            <div
+              className="h-full rounded-full transition-all"
+              style={{ width: `${entry.score}%`, background: color }}
+            />
+          </div>
+          <span className="text-[10px] tabular-nums shrink-0" style={{ color: "var(--ink-dim)", fontFamily: "var(--mono)" }}>
+            {entry.score}%
+          </span>
+        </div>
       </div>
-      <span className="text-[11px] shrink-0" style={{ color: "var(--ink-dim)" }}>{entry.time}</span>
+      <span className="text-[10.5px] shrink-0" style={{ color: "var(--ink-dim)" }}>{entry.time}</span>
     </div>
   );
 }
@@ -187,21 +226,28 @@ function HistoryRow({ entry }: { entry: HistoryEntry }) {
 // ── Validator ─────────────────────────────────────────────────────────────────
 
 export function Validator() {
-  const [setup,        setSetup]        = useState<Setup>(BLANK_SETUP("SMC"));
-  const [history,      setHistory]      = useState<HistoryEntry[]>([]);
-  const [logOpen,      setLogOpen]      = useState(false);
-  const [killzoneNow,  setKillzoneNow]  = useState(() => isInKillzone("London"));
-  const [calcOpen,     setCalcOpen]     = useState(false);
-  const [calcBalance,  setCalcBalance]  = useState("10000");
-  const [calcRisk,     setCalcRisk]     = useState("1");
-  const [calcEntry,    setCalcEntry]    = useState("");
-  const [calcSl,       setCalcSl]       = useState("");
+  const [setup,       setSetup]       = useState<Setup>(BLANK_SETUP("SMC"));
+  const [history,     setHistory]     = useState<HistoryEntry[]>([]);
+  const [logOpen,     setLogOpen]     = useState(false);
+  const [killzoneNow, setKillzoneNow] = useState(() => isInKillzone("London"));
+  const [calcOpen,    setCalcOpen]    = useState(false);
+  const [calcBalance, setCalcBalance] = useState("10000");
+  const [calcRisk,    setCalcRisk]    = useState("1");
+  const [calcEntry,   setCalcEntry]   = useState("");
+  const [calcSl,      setCalcSl]      = useState("");
 
-  // Pre-fill saved balance from localStorage
+  // Restore history + balance from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("smfx_balance");
-    if (saved) setCalcBalance(saved);
+    const saved = localStorage.getItem(HISTORY_KEY);
+    if (saved) { try { setHistory(JSON.parse(saved)); } catch { /* ignore */ } }
+    const bal = localStorage.getItem("smfx_balance");
+    if (bal) setCalcBalance(bal);
   }, []);
+
+  // Persist history to localStorage
+  useEffect(() => {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 10)));
+  }, [history]);
 
   // Killzone auto-detection — updates every 60s
   useEffect(() => {
@@ -218,30 +264,29 @@ export function Validator() {
   const set = <K extends keyof Setup>(k: K, v: Setup[K]) =>
     setSetup((p) => ({ ...p, [k]: v }));
 
-  function handleFrameworkChange(fw: Framework) {
-    setSetup(BLANK_SETUP(fw));
-  }
+  function handleFrameworkChange(fw: Framework) { setSetup(BLANK_SETUP(fw)); }
 
   const result: ValidationResult = useMemo(() => validate(setup), [setup]);
 
   const calcResult = useMemo(() => {
-    const balance = parseFloat(calcBalance);
-    const risk    = parseFloat(calcRisk);
-    const entry   = parseFloat(calcEntry);
-    const sl      = parseFloat(calcSl);
-    const rrRatio = parseFloat(setup.rr) || 0;
+    const balance  = parseFloat(calcBalance);
+    const risk     = parseFloat(calcRisk);
+    const entry    = parseFloat(calcEntry);
+    const sl       = parseFloat(calcSl);
+    const rrRatio  = parseFloat(setup.rr) || 0;
     if (!balance || !risk || !entry || !sl || entry === sl) return null;
-    const pipDist   = calcPipDist(setup.pair, entry, sl);
+    const pipDist    = calcPipDist(setup.pair, entry, sl);
     if (pipDist === 0) return null;
-    const dollarRisk = (balance * risk) / 100;
-    const lots       = dollarRisk / (pipDist * (PIP_VALUE[setup.pair] ?? 10));
-    const isForex    = !["XAUUSD", "NAS100"].includes(setup.pair);
+    const dollarRisk   = (balance * risk) / 100;
+    const lots         = dollarRisk / (pipDist * (PIP_VALUE[setup.pair] ?? 10));
+    const isForex      = !["XAUUSD", "NAS100"].includes(setup.pair);
+    const dollarProfit = rrRatio > 0 ? dollarRisk * rrRatio : null;
     let tp: number | null = null;
     if (rrRatio > 0) {
       const tpMove = isForex ? (pipDist * rrRatio) / 10_000 : pipDist * rrRatio;
       tp = setup.dir === "long" ? entry + tpMove : entry - tpMove;
     }
-    return { pipDist, dollarRisk, lots, tp, isForex };
+    return { pipDist, dollarRisk, dollarProfit, lots, tp, isForex };
   }, [calcBalance, calcRisk, calcEntry, calcSl, setup.pair, setup.dir, setup.rr]);
 
   function saveToHistory() {
@@ -249,19 +294,23 @@ export function Validator() {
     const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
     setHistory((h) => [
       { id: "h" + Date.now(), pair: setup.pair, dir: setup.dir as "long" | "short", model: setup.model, framework: setup.framework, grade: result.grade, score: result.score, time },
-      ...h.slice(0, 4),
+      ...h.slice(0, 9),
     ]);
   }
 
+  // Pre-fill LogTradeModal with prices from the calculator if available
   const tradePreset = {
-    pair:      setup.pair,
-    dir:       setup.dir,
-    model:     setup.model,
-    framework: setup.framework,
-    session:   setup.session,
-    rr:        setup.rr,
-    result:    "open",
+    pair:       setup.pair,
+    dir:        setup.dir,
+    model:      setup.model,
+    framework:  setup.framework,
+    session:    setup.session,
+    rr:         setup.rr,
+    result:     "open",
     discipline: "yes",
+    entryPrice: calcEntry ? parseFloat(calcEntry) || undefined : undefined,
+    stopLoss:   calcSl    ? parseFloat(calcSl)    || undefined : undefined,
+    takeProfit: calcResult?.tp ?? undefined,
   } as unknown as Trade;
 
   const isSMC      = setup.framework === "SMC";
@@ -269,6 +318,8 @@ export function Validator() {
   const emptyBody  = isSMC
     ? "Your setup meets every SMC rule. Execute with confidence."
     : "Your setup meets every Supply & Demand rule. Execute with confidence.";
+
+  const passCount = result.rules.filter((r) => r.status === "pass").length;
 
   return (
     <div className="view">
@@ -296,21 +347,18 @@ export function Validator() {
             <PanelHead title="Setup inputs" icon="tune" />
 
             <div className="flex flex-col gap-4">
-              {/* Framework selector */}
+              {/* Framework */}
               <Field label="Framework">
                 <SegRow
                   value={setup.framework}
                   onChange={(v) => handleFrameworkChange(v as Framework)}
-                  options={[
-                    { v: "SMC", l: "SMC" },
-                    { v: "SnD", l: "S&D" },
-                  ]}
+                  options={[{ v: "SMC", l: "SMC" }, { v: "SnD", l: "S&D" }]}
                 />
               </Field>
 
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Instrument" half>
-                  <Select value={setup.pair} onChange={(v) => set("pair", v)} options={["EURUSD", "GBPUSD", "NZDUSD", "XAUUSD", "NAS100"]} />
+                  <Select value={setup.pair} onChange={(v) => set("pair", v)} options={["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"]} />
                 </Field>
                 <Field label="Direction" half>
                   <SegRow value={setup.dir} onChange={(v) => set("dir", v)} options={[{ v: "long", l: "Long" }, { v: "short", l: "Short" }]} />
@@ -358,27 +406,17 @@ export function Validator() {
                 <MonoInput value={setup.rr} onChange={(e) => set("rr", e.target.value)} placeholder="e.g. 3.5" />
               </Field>
 
-              {/* Condition checkboxes — framework-aware */}
+              {/* Condition checkboxes */}
               <Field label="Setup conditions">
                 <div className="flex flex-col gap-2">
                   {isSMC ? (
                     <>
-                      <CheckToggle label="Liquidity swept (EQH/EQL/PDH/PDL)" checked={setup.liqSwept}  onChange={(v) => set("liqSwept", v)} />
-                      <CheckToggle label="Break of Structure (BOS) confirmed"  checked={setup.bos}       onChange={(v) => set("bos", v)} />
-                      <CheckToggle label="Change of Character (CHoCH) confirmed" checked={setup.choch}  onChange={(v) => set("choch", v)} />
+                      <CheckToggle label="Liquidity swept (EQH/EQL/PDH/PDL)" checked={setup.liqSwept} onChange={(v) => set("liqSwept", v)} />
+                      <CheckToggle label="Break of Structure (BOS) confirmed"  checked={setup.bos}     onChange={(v) => set("bos", v)} />
+                      <CheckToggle label="Change of Character (CHoCH) confirmed" checked={setup.choch} onChange={(v) => set("choch", v)} />
                       <div className="flex flex-col gap-1">
                         <CheckToggle label="Entry inside session killzone" checked={setup.killzone} onChange={(v) => set("killzone", v)} />
-                        {killzoneNow ? (
-                          <div className="flex items-center gap-1.5 pl-1">
-                            <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: "var(--teal)" }} />
-                            <span className="text-[11px] font-semibold" style={{ color: "var(--teal)" }}>Active now</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5 pl-1">
-                            <span className="material-symbols-rounded" style={{ fontSize: 12, color: "var(--ink-dim)" }}>schedule</span>
-                            <span className="text-[11px]" style={{ color: "var(--ink-dim)" }}>Opens in {timeUntilOpen(setup.session)}</span>
-                          </div>
-                        )}
+                        <KillzoneBadge active={killzoneNow} session={setup.session} />
                       </div>
                       {setup.model === "SMT + OB" && (
                         <CheckToggle label="SMT divergence between correlated pairs" checked={setup.smtDiv} onChange={(v) => set("smtDiv", v)} />
@@ -386,60 +424,41 @@ export function Validator() {
                     </>
                   ) : (
                     <>
-                      <CheckToggle label="Zone is fresh (untested)"            checked={setup.zoneIsFresh}       onChange={(v) => set("zoneIsFresh", v)} />
-                      <CheckToggle label="Origin move was strong and impulsive" checked={setup.strongOrigin}     onChange={(v) => set("strongOrigin", v)} />
-                      <CheckToggle label="Price approaching from correct side"  checked={setup.correctSide}      onChange={(v) => set("correctSide", v)} />
-                      <CheckToggle label={setup.dir === "short" ? "Zone sits in premium area" : "Zone sits in discount area"}
-                                   checked={setup.inPremiumDiscount} onChange={(v) => set("inPremiumDiscount", v)} />
+                      <CheckToggle label="Zone is fresh (untested)"            checked={setup.zoneIsFresh}      onChange={(v) => set("zoneIsFresh", v)} />
+                      <CheckToggle label="Origin move was strong and impulsive" checked={setup.strongOrigin}    onChange={(v) => set("strongOrigin", v)} />
+                      <CheckToggle label="Price approaching from correct side"  checked={setup.correctSide}     onChange={(v) => set("correctSide", v)} />
+                      <CheckToggle
+                        label={setup.dir === "short" ? "Zone sits in premium area" : "Zone sits in discount area"}
+                        checked={setup.inPremiumDiscount}
+                        onChange={(v) => set("inPremiumDiscount", v)}
+                      />
                       <div className="flex flex-col gap-1">
                         <CheckToggle label="Entry inside session killzone" checked={setup.killzone} onChange={(v) => set("killzone", v)} />
-                        {killzoneNow ? (
-                          <div className="flex items-center gap-1.5 pl-1">
-                            <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: "var(--teal)" }} />
-                            <span className="text-[11px] font-semibold" style={{ color: "var(--teal)" }}>Active now</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5 pl-1">
-                            <span className="material-symbols-rounded" style={{ fontSize: 12, color: "var(--ink-dim)" }}>schedule</span>
-                            <span className="text-[11px]" style={{ color: "var(--ink-dim)" }}>Opens in {timeUntilOpen(setup.session)}</span>
-                          </div>
-                        )}
+                        <KillzoneBadge active={killzoneNow} session={setup.session} />
                       </div>
                     </>
                   )}
                 </div>
               </Field>
 
-              {/* ── Fibonacci confluence ── */}
+              {/* Fibonacci confluence */}
               <div style={{ borderTop: "1px solid var(--line)", paddingTop: 16 }}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="material-symbols-rounded" style={{ fontSize: 15, color: "var(--gold)" }}>architecture</span>
                   <span className="text-[11.5px] font-semibold uppercase tracking-wider" style={{ color: "var(--ink-dim)" }}>
                     Fibonacci confluence
                   </span>
-                  <span
-                    className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
-                    style={{ background: "rgba(248,185,61,0.1)", color: "var(--gold)", border: "1px solid rgba(248,185,61,0.2)" }}
-                  >
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ background: "rgba(248,185,61,0.1)", color: "var(--gold)", border: "1px solid rgba(248,185,61,0.2)" }}>
                     optional
                   </span>
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <CheckToggle
-                    label="Fibonacci level at POI"
-                    checked={setup.fibConfluence}
-                    onChange={(v) => set("fibConfluence", v)}
-                  />
-
+                  <CheckToggle label="Fibonacci level at POI" checked={setup.fibConfluence} onChange={(v) => set("fibConfluence", v)} />
                   {setup.fibConfluence && (
                     <div className="pl-1">
                       <div className="text-[11px] mb-1.5" style={{ color: "var(--ink-dim)" }}>Which level?</div>
-                      <SegRow
-                        value={setup.fibLevel}
-                        onChange={(v) => set("fibLevel", v)}
-                        options={FIB_LEVELS.map((l) => ({ v: l, l: l }))}
-                      />
+                      <SegRow value={setup.fibLevel} onChange={(v) => set("fibLevel", v)} options={FIB_LEVELS.map((l) => ({ v: l, l: l }))} />
                       <p className="text-[11px] mt-2 leading-relaxed" style={{ color: "var(--ink-dim)" }}>
                         {setup.fibLevel === "OTE (62–79%)"
                           ? "Optimal Trade Entry — the highest-probability Fibonacci zone. Price retracing into an OB or FVG that also sits in the 62–79% retracement is the strongest possible confluence."
@@ -454,10 +473,7 @@ export function Validator() {
                 </div>
 
                 {setup.fibConfluence && (
-                  <div
-                    className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5"
-                    style={{ background: "rgba(248,185,61,0.06)", border: "1px solid rgba(248,185,61,0.18)" }}
-                  >
+                  <div className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5" style={{ background: "rgba(248,185,61,0.06)", border: "1px solid rgba(248,185,61,0.18)" }}>
                     <Icon name="bolt" size={13} fill style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }} />
                     <p className="text-[11.5px] leading-relaxed" style={{ color: "var(--ink-dim)" }}>
                       Fibonacci confluence is active — if all main rules pass, this{" "}
@@ -468,7 +484,7 @@ export function Validator() {
                 )}
               </div>
 
-              {/* ── Position size calculator ── */}
+              {/* Position size calculator */}
               <div style={{ borderTop: "1px solid var(--line)", paddingTop: 16 }}>
                 <button
                   type="button"
@@ -490,19 +506,12 @@ export function Validator() {
                       <Field label="Account balance" half>
                         <MonoInput
                           value={calcBalance}
-                          onChange={(e) => {
-                            setCalcBalance(e.target.value);
-                            localStorage.setItem("smfx_balance", e.target.value);
-                          }}
+                          onChange={(e) => { setCalcBalance(e.target.value); localStorage.setItem("smfx_balance", e.target.value); }}
                           placeholder="10000"
                         />
                       </Field>
                       <Field label="Risk %" half>
-                        <MonoInput
-                          value={calcRisk}
-                          onChange={(e) => setCalcRisk(e.target.value)}
-                          placeholder="1"
-                        />
+                        <MonoInput value={calcRisk} onChange={(e) => setCalcRisk(e.target.value)} placeholder="1" />
                       </Field>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
@@ -524,34 +533,42 @@ export function Validator() {
 
                     {calcResult && (
                       <div className="rounded-xl p-4" style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}>
-                        <div className="grid grid-cols-2 gap-y-3">
+                        <div className="grid grid-cols-2 gap-y-4">
                           <div>
-                            <div className="text-[10.5px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>
-                              {calcResult.isForex ? "Pips" : setup.pair === "XAUUSD" ? "$ dist" : "Points"}
+                            <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>
+                              {calcResult.isForex ? "Pip distance" : setup.pair === "XAUUSD" ? "$ distance" : "Points"}
                             </div>
                             <div className="font-mono text-[14px] font-semibold" style={{ color: "var(--ink-strong)" }}>
                               {calcResult.isForex ? calcResult.pipDist.toFixed(1) : calcResult.pipDist.toFixed(2)}
                             </div>
                           </div>
                           <div>
-                            <div className="text-[10.5px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>Dollar risk</div>
-                            <div className="font-mono text-[14px] font-semibold" style={{ color: "var(--ink-strong)" }}>
-                              ${calcResult.dollarRisk.toFixed(2)}
+                            <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>Dollar risk</div>
+                            <div className="font-mono text-[14px] font-semibold" style={{ color: "var(--coral)" }}>
+                              −${calcResult.dollarRisk.toFixed(2)}
                             </div>
                           </div>
-                          <div>
-                            <div className="text-[10.5px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>Lot size</div>
-                            <div className="font-mono font-bold" style={{ fontSize: 22, color: "var(--gold)", letterSpacing: "-0.02em" }}>
+                          <div className="col-span-2">
+                            <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>Lot size</div>
+                            <div className="font-mono font-bold" style={{ fontSize: 26, color: "var(--gold)", letterSpacing: "-0.02em" }}>
                               {calcResult.lots < 0.01 ? calcResult.lots.toFixed(4) : calcResult.lots.toFixed(2)}
                             </div>
                           </div>
                           {calcResult.tp !== null && (
                             <div>
-                              <div className="text-[10.5px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>
+                              <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>
                                 TP ({setup.rr}R)
                               </div>
                               <div className="font-mono text-[14px] font-semibold" style={{ color: setup.dir === "long" ? "var(--teal)" : "var(--coral)" }}>
                                 {calcResult.tp.toFixed(calcResult.isForex ? 5 : setup.pair === "XAUUSD" ? 2 : 1)}
+                              </div>
+                            </div>
+                          )}
+                          {calcResult.dollarProfit !== null && (
+                            <div>
+                              <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>Expected profit</div>
+                              <div className="font-mono text-[14px] font-semibold" style={{ color: "var(--teal)" }}>
+                                +${calcResult.dollarProfit.toFixed(2)}
                               </div>
                             </div>
                           )}
@@ -560,8 +577,12 @@ export function Validator() {
                     )}
 
                     {!calcResult && calcEntry && calcSl && (
-                      <p className="text-[11.5px]" style={{ color: "var(--coral)" }}>
-                        Enter valid entry and SL prices.
+                      <p className="text-[11.5px]" style={{ color: "var(--coral)" }}>Enter valid entry and SL prices.</p>
+                    )}
+
+                    {calcResult && (
+                      <p className="text-[11px]" style={{ color: "var(--ink-dim)" }}>
+                        These prices will pre-fill the trade log when you click "Log this trade".
                       </p>
                     )}
                   </div>
@@ -579,42 +600,31 @@ export function Validator() {
             className="rounded-2xl p-5"
             style={{ background: GRADE_BG[result.grade], border: `1px solid ${GRADE_COLOR[result.grade]}33` }}
           >
-            <div className="flex items-center justify-between gap-4 mb-3">
-              <div>
+            <div className="flex items-center gap-5 mb-3">
+              <GradeRing grade={result.grade} score={result.score} />
+              <div className="flex-1">
                 <div className="text-[11px] font-semibold uppercase tracking-widest mb-1" style={{ color: GRADE_COLOR[result.grade] }}>
                   Overall grade
                 </div>
-                <div className="font-display font-bold" style={{ fontSize: 42, letterSpacing: "-0.03em", color: GRADE_COLOR[result.grade], lineHeight: 1 }}>
-                  {result.grade}
+                <p className="text-[14px] font-semibold leading-snug mb-2" style={{ color: "var(--ink-strong)" }}>
+                  {result.verdict}
+                </p>
+                <div className="text-[11.5px]" style={{ color: "var(--ink-dim)" }}>
+                  {passCount}/{result.rules.length} rules passed
                 </div>
-              </div>
-              <div className="flex-1 max-w-[200px]">
-                <div className="flex justify-between text-[11px] mb-1.5" style={{ color: "var(--ink-dim)" }}>
-                  <span>Score</span>
-                  <span className="font-semibold tabular-nums">{result.score}%</span>
-                </div>
-                <ScoreBar score={result.score} />
-                <div className="text-[11px] mt-1.5 font-medium" style={{ color: "var(--ink-dim)" }}>
-                  {result.rules.filter(r => r.status === "pass").length}/{result.rules.length} rules passed
-                </div>
+                {setup.fibConfluence && (
+                  <div className="flex items-center gap-1.5 mt-1.5">
+                    <span className="material-symbols-rounded" style={{ fontSize: 13, color: "var(--gold)", fontVariationSettings: "'FILL' 1" }}>architecture</span>
+                    <span className="text-[11px] font-semibold" style={{ color: "var(--gold)" }}>
+                      Fib {setup.fibLevel} active
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
-            <p className="text-[13.5px] font-semibold leading-snug" style={{ color: "var(--ink-strong)" }}>
-              {result.verdict}
-            </p>
-
-            {setup.fibConfluence && (
-              <div className="flex items-center gap-1.5 mt-2">
-                <span className="material-symbols-rounded" style={{ fontSize: 13, color: "var(--gold)", fontVariationSettings: "'FILL' 1" }}>architecture</span>
-                <span className="text-[11.5px] font-semibold" style={{ color: "var(--gold)" }}>
-                  Fibonacci {setup.fibLevel} confluence active
-                </span>
-              </div>
-            )}
-
-            {/* Action buttons */}
-            <div className="flex gap-2.5 mt-4">
+            {/* Action — logging auto-saves to history */}
+            <div className="flex gap-2.5 mt-1">
               {result.canLog ? (
                 <Button type="button" variant="primary" icon="add_task" onClick={() => { saveToHistory(); setLogOpen(true); }}>
                   Log this trade
@@ -624,9 +634,6 @@ export function Validator() {
                   Resolve fails to log
                 </Button>
               )}
-              <Button type="button" variant="ghost" icon="save" onClick={saveToHistory}>
-                Save to history
-              </Button>
             </div>
           </div>
 
@@ -667,8 +674,15 @@ export function Validator() {
           {history.length > 0 && (
             <Panel pad={0}>
               <div className="px-5 pt-4 pb-1 flex items-center justify-between">
-                <div className="font-display font-semibold text-[15px]" style={{ color: "var(--ink-strong)" }}>Recent validations</div>
-                <button type="button" className="text-[11.5px] font-medium" style={{ color: "var(--ink-dim)" }} onClick={() => setHistory([])}>
+                <div className="font-display font-semibold text-[15px]" style={{ color: "var(--ink-strong)" }}>
+                  Recent validations
+                </div>
+                <button
+                  type="button"
+                  className="text-[11.5px] font-medium hover:underline"
+                  style={{ color: "var(--ink-dim)" }}
+                  onClick={() => { setHistory([]); localStorage.removeItem(HISTORY_KEY); }}
+                >
                   Clear
                 </button>
               </div>
@@ -682,6 +696,25 @@ export function Validator() {
 
       {/* Pre-filled log modal */}
       <LogTradeModal open={logOpen} onClose={() => setLogOpen(false)} edit={tradePreset} />
+    </div>
+  );
+}
+
+// ── Killzone badge — extracted to avoid duplication ───────────────────────────
+
+function KillzoneBadge({ active, session }: { active: boolean; session: string }) {
+  if (active) {
+    return (
+      <div className="flex items-center gap-1.5 pl-1">
+        <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: "var(--teal)", animation: "live-pulse 2s infinite" }} />
+        <span className="text-[11px] font-semibold" style={{ color: "var(--teal)" }}>Active now</span>
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center gap-1.5 pl-1">
+      <span className="material-symbols-rounded" style={{ fontSize: 12, color: "var(--ink-dim)" }}>schedule</span>
+      <span className="text-[11px]" style={{ color: "var(--ink-dim)" }}>Opens in {timeUntilOpen(session)}</span>
     </div>
   );
 }

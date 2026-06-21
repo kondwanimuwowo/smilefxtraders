@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Icon, Skeleton } from "@/components/ui";
 import { PAIRS_ORDER, PAIR_LABELS } from "@/types/fx-orders";
 import type { FxDateSummary } from "@/types/fx-orders";
+import { useStore } from "@/lib/store";
 
 // ── Upload modal ──────────────────────────────────────────────────────────────
 
@@ -322,6 +323,9 @@ function CardSkeleton() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function FxOrdersPage() {
+  const user = useStore((s) => s.user);
+  const isInstructor = user?.role === "instructor";
+
   const [summaries,  setSummaries]  = useState<FxDateSummary[]>([]);
   const [loading,    setLoading]    = useState(true);
   const [showUpload, setShowUpload] = useState(false);
@@ -408,25 +412,29 @@ export default function FxOrdersPage() {
               </div>
             </div>
           )}
-          <button
-            type="button"
-            onClick={() => setShowUpload(true)}
-            className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] hover:opacity-80"
-            style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-mid)" }}
-          >
-            <Icon name="upload_file" size={15} />
-            Upload Image
-          </button>
-          <button
-            type="button"
-            onClick={syncToday}
-            disabled={syncing}
-            className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] disabled:opacity-60"
-            style={{ background: "var(--teal)", color: "#fff" }}
-          >
-            <Icon name={syncing ? "autorenew" : "sync"} size={15} className={syncing ? "animate-spin" : ""} />
-            {syncing ? "Syncing…" : "Sync Today"}
-          </button>
+          {isInstructor && (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowUpload(true)}
+                className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] hover:opacity-80"
+                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-mid)" }}
+              >
+                <Icon name="upload_file" size={15} />
+                Upload Image
+              </button>
+              <button
+                type="button"
+                onClick={syncToday}
+                disabled={syncing}
+                className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] disabled:opacity-60"
+                style={{ background: "var(--teal)", color: "#fff" }}
+              >
+                <Icon name={syncing ? "autorenew" : "sync"} size={15} className={syncing ? "animate-spin" : ""} />
+                {syncing ? "Syncing…" : "Sync Today"}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -480,31 +488,35 @@ export default function FxOrdersPage() {
               No data yet
             </div>
             <p className="text-[13px] leading-relaxed max-w-xs" style={{ color: "var(--ink-dim)" }}>
-              Click <strong style={{ color: "var(--ink-mid)" }}>Sync Today</strong> to fetch option expiries,
-              or <strong style={{ color: "var(--ink-mid)" }}>Upload Image</strong> to parse an existing screenshot.
+              {isInstructor
+                ? <>Click <strong style={{ color: "var(--ink-mid)" }}>Sync Today</strong> to fetch option expiries, or <strong style={{ color: "var(--ink-mid)" }}>Upload Image</strong> to parse an existing screenshot.</>
+                : "No option expiry data has been published yet. Check back after Kondwani posts the daily levels."
+              }
             </p>
           </div>
-          <div className="flex items-center gap-2 mt-1">
-            <button
-              type="button"
-              onClick={() => setShowUpload(true)}
-              className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] hover:opacity-80"
-              style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-mid)" }}
-            >
-              <Icon name="upload_file" size={15} />
-              Upload Image
-            </button>
-            <button
-              type="button"
-              onClick={syncToday}
-              disabled={syncing}
-              className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] disabled:opacity-60"
-              style={{ background: "var(--teal)", color: "#fff" }}
-            >
-              <Icon name="sync" size={15} />
-              Sync Today
-            </button>
-          </div>
+          {isInstructor && (
+            <div className="flex items-center gap-2 mt-1">
+              <button
+                type="button"
+                onClick={() => setShowUpload(true)}
+                className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] hover:opacity-80"
+                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-mid)" }}
+              >
+                <Icon name="upload_file" size={15} />
+                Upload Image
+              </button>
+              <button
+                type="button"
+                onClick={syncToday}
+                disabled={syncing}
+                className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] disabled:opacity-60"
+                style={{ background: "var(--teal)", color: "#fff" }}
+              >
+                <Icon name="sync" size={15} />
+                Sync Today
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>

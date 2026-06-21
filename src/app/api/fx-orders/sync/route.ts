@@ -21,34 +21,84 @@ function buildInvestingLiveUrl(date: Date): string {
   return `https://investinglive.com/Orders/fx-option-expiries-for-${day}-${month}-10am-new-york-cut-${y}${mm}${dd}/`;
 }
 
+// ── Trading-day sequence ──────────────────────────────────────────────────────
+
+function utcMidnight(d: Date): Date {
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+}
+
+function isWeekend(d: Date): boolean {
+  const day = d.getUTCDay();
+  return day === 0 || day === 6;
+}
+
+// Returns up to `count` trading days (Mon–Fri) starting from `from`.
+function tradingDaySequence(from: Date, count: number): Date[] {
+  const days: Date[] = [];
+  let cursor = utcMidnight(from);
+  while (days.length < count) {
+    if (!isWeekend(cursor)) days.push(new Date(cursor));
+    cursor = new Date(cursor);
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  return days;
+}
+
 // ── Claude Vision extraction prompt ──────────────────────────────────────────
+// Vision is only asked to count rows and extract price levels.
+// Dates are never read from the image — Vision returns a 0-based rowIndex,
+// and we map rowIndex → tradingDays[rowIndex] entirely in server code.
+// This eliminates all OCR digit-confusion on dates (5↔2, 6↔8, etc.).
 
-const EXTRACTION_PROMPT = `This image shows a table of FX option expiries at the 10am New York Cut published by InvestingLive (formerly ForexLive).
+function buildExtractionPrompt(tradingDays: Date[]): string {
+  const WEEKDAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const rowList = tradingDays
+    .map((d, i) => {
+      const name = WEEKDAY_NAMES[d.getUTCDay()];
+      const dd   = String(d.getUTCDate()).padStart(2, "0");
+      const mm   = String(d.getUTCMonth() + 1).padStart(2, "0");
+      return `  Row ${i} → ${name} ${dd}/${mm}`;
+    })
+    .join("\n");
 
-Extract ALL data from the table and return ONLY a valid JSON object — no markdown fences, no explanation, nothing else.
+  return `This image shows a table of FX option expiries at the 10am New York Cut published by InvestingLive.
+
+Extract ALL price level data and return ONLY a valid JSON object — no markdown fences, no explanation.
 
 Table structure:
-- First row: empty cell, then currency pair names as column headers (EUR/USD, USD/JPY, GBP/USD, USD/CHF, USD/CAD, AUD/USD, NZD/USD, EUR/GBP, etc.)
-- Second row: "Spot Price" label, then current spot price for each pair
-- Remaining rows: day + date label (e.g. "Tuesday 09/06"), then cells with option levels
-- Each level entry: "- 1.1470 (€580m)" = price 1.1470, currency €, notional 580, unit m (million)
-- Entries shown in BOLD are large/notable expiries
-- Grey/dark cells with no text = no expiry for that pair on that day
+- Row 0 (header): pair names — EUR/USD, USD/JPY, GBP/USD, USD/CHF, USD/CAD, AUD/USD, NZD/USD, EUR/GBP, etc.
+- Row 1: Spot Price for each pair
+- Rows 2+: one trading-day band per row, containing option expiry levels per pair
 
-Return this exact JSON:
+For the trading-day bands (rows 2 onwards), the date label in the image is for reference only.
+Your output MUST use these 0-based row indices instead (0 = first trading-day band, top of table):
+${rowList}
+
+The image may show anywhere from 1 to ${tradingDays.length} trading-day bands.
+Only include entries for bands that actually appear in the image.
+
+Each level cell contains entries like "- 1.1470 (€580m)":
+  price = 1.1470, currency = €, notional = 580, unit = m
+  "large": true if the entry is BOLD
+
+Return this exact JSON shape:
 {
-  "spotPrices": {
-    "EURUSD": "1.1545",
-    "USDJPY": "160.14"
-  },
+  "spotPrices": { "EURUSD": "1.1545", "USDJPY": "160.14" },
   "days": [
     {
-      "dayName": "Tuesday",
-      "date": "09/06",
+      "rowIndex": 0,
       "levels": {
         "EURUSD": [
           { "price": "1.1470", "notional": "580", "currency": "€", "unit": "m", "large": false },
           { "price": "1.1570", "notional": "1.1", "currency": "€", "unit": "bn", "large": true }
+        ]
+      }
+    },
+    {
+      "rowIndex": 1,
+      "levels": {
+        "USDJPY": [
+          { "price": "158.00", "notional": "2.2", "currency": "$", "unit": "bn", "large": false }
         ]
       }
     }
@@ -56,24 +106,22 @@ Return this exact JSON:
 }
 
 Rules:
-- Normalize pair names: remove the slash — EUR/USD → EURUSD, USD/JPY → USDJPY, etc.
-- Only include pairs that actually have level data in each day's "levels" object (skip empty cells entirely)
-- "large": true if the entry appears BOLD or highlighted in the table
-- Currency symbols: € for EUR pairs, $ for USD pairs, £ for GBP pairs, A$ for AUD/USD, NZ$ for NZD/USD
-- Include ALL days shown (usually 2 — today and next trading day)
-- The "spotPrices" keys must use normalized pair names`;
+- Normalize pair names: remove slash — EUR/USD → EURUSD, GBP/USD → GBPUSD, etc.
+- Only include pairs with actual level data (skip grey/empty cells entirely)
+- "large": true only for BOLD entries
+- Currency symbols: € for EUR notional, $ for USD, £ for GBP, A$ for AUD/USD, NZ$ for NZD/USD
+- DO NOT include "dayName" or "date" fields — only "rowIndex" and "levels"
+- spotPrices keys use normalized pair names`;
+}
 
 // ── Image extraction from InvestingLive page ──────────────────────────────────
 
 async function extractImageUrl(pageHtml: string): Promise<string | null> {
-  // The FXO image is in a <figure class="content-data__image"> with alt="FXO DD-MM"
-  // It uses data-src (lazy loaded) and the URL contains "FXO%20" or "FXO "
   const patterns = [
     /data-src="(https:\/\/images\.investinglive\.com\/images\/FXO[^"]+_size900\.jpg)"/,
     /data-src="(https:\/\/images\.investinglive\.com\/images\/FXO[^"]+\.jpg)"/,
     /og:image[^>]*content="(https:\/\/images\.investinglive\.com\/images\/FXO[^"]+\.jpg)"/,
   ];
-
   for (const pattern of patterns) {
     const m = pageHtml.match(pattern);
     if (m?.[1]) return m[1];
@@ -81,59 +129,73 @@ async function extractImageUrl(pageHtml: string): Promise<string | null> {
   return null;
 }
 
-// ── Parse expiry date from "DD/MM" string ─────────────────────────────────────
-
-function parseExpiryDate(dateStr: string, contextYear: number): Date {
-  const [dd, mm] = dateStr.split("/").map(Number);
-  return new Date(Date.UTC(contextYear, mm - 1, dd));
-}
-
 // ── Claude Vision call ────────────────────────────────────────────────────────
 
-async function extractFromImage(imageUrl: string): Promise<FxImageExtraction> {
+type ImageSource =
+  | { type: "url";    url: string }
+  | { type: "base64"; media_type: "image/jpeg" | "image/png"; data: string };
+
+async function extractFromImage(
+  tradingDays: Date[],
+  source:      ImageSource,
+): Promise<FxImageExtraction> {
+  const prompt = buildExtractionPrompt(tradingDays);
+
   const response = await client.messages.create({
-    model:      "claude-haiku-4-5-20251001",
+    model:      "claude-sonnet-4-6",
     max_tokens: 4096,
     messages: [{
       role: "user",
       content: [
-        {
-          type:   "image",
-          source: { type: "url", url: imageUrl },
-        },
-        {
-          type: "text",
-          text: EXTRACTION_PROMPT,
-        },
+        { type: "image", source },
+        { type: "text",  text: prompt },
       ],
     }],
   });
 
-  const text = response.content[0].type === "text" ? response.content[0].text : "";
+  const text  = response.content[0].type === "text" ? response.content[0].text : "";
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error(`No JSON found in Claude response: ${text.slice(0, 200)}`);
 
-  return JSON.parse(match[0]) as FxImageExtraction;
+  const extraction = JSON.parse(match[0]) as FxImageExtraction;
+
+  // Log the raw extraction so we can verify row mapping in dev
+  console.log("[fx-orders/sync] raw extraction days:", JSON.stringify(extraction.days.map(d => ({
+    rowIndex: d.rowIndex,
+    pairs:    Object.keys(d.levels),
+  }))));
+
+  return extraction;
 }
 
 // ── Upsert records to DB ──────────────────────────────────────────────────────
+// Date assignment is fully deterministic: tradingDays[day.rowIndex].
+// We never ask Vision to parse or return dates — rowIndex is the only coupling.
 
 async function storeExtraction(
-  extraction: FxImageExtraction,
-  contextYear: number,
+  extraction:  FxImageExtraction,
+  tradingDays: Date[],
   sourceUrl:   string,
   imageUrl:    string,
 ): Promise<number> {
   let count = 0;
 
-  // Any date strictly before UTC midnight today is considered "settled" —
-  // never overwrite it, even if a new image mentions it as a past entry.
-  const todayUtc = new Date();
-  todayUtc.setUTCHours(0, 0, 0, 0);
+  const todayUtc = utcMidnight(new Date());
 
   for (const day of extraction.days) {
-    const expiryDate = parseExpiryDate(day.date, contextYear);
-    const isPast     = expiryDate < todayUtc;
+    const expiryDate = tradingDays[day.rowIndex];
+
+    if (!expiryDate) {
+      console.warn(`[fx-orders/sync] rowIndex ${day.rowIndex} out of bounds (max ${tradingDays.length - 1}) — skipped`);
+      continue;
+    }
+    // Sanity-check: trading-day sequence never includes weekends, but guard anyway.
+    if (isWeekend(expiryDate)) {
+      console.warn(`[fx-orders/sync] rowIndex ${day.rowIndex} resolved to weekend ${expiryDate.toISOString().slice(0,10)} — skipped`);
+      continue;
+    }
+
+    const isPast = expiryDate < todayUtc;
 
     for (const [pair, levels] of Object.entries(day.levels)) {
       if (!levels.length) continue;
@@ -142,7 +204,6 @@ async function storeExtraction(
       const levelsJson = levels as unknown as Parameters<typeof prisma.fxOptionExpiry.create>[0]["data"]["levels"];
 
       if (isPast) {
-        // Past date — only insert if no record exists yet; never overwrite.
         const existing = await prisma.fxOptionExpiry.findUnique({
           where:  { expiryDate_pair: { expiryDate, pair } },
           select: { id: true },
@@ -154,7 +215,6 @@ async function storeExtraction(
           count++;
         }
       } else {
-        // Today or future — always upsert with latest data.
         await prisma.fxOptionExpiry.upsert({
           where:  { expiryDate_pair: { expiryDate, pair } },
           create: { expiryDate, pair, spotPrice, levels: levelsJson, sourceUrl, imageUrl },
@@ -168,16 +228,12 @@ async function storeExtraction(
   return count;
 }
 
-// ── Route ─────────────────────────────────────────────────────────────────────
+// ── Route: POST (auto-sync from InvestingLive) ────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  // Cron-only protection: only enforce the secret when the request comes from
-  // outside the browser (i.e. a cron job). Requests originating from the app
-  // itself (same origin, no x-cron-secret header) are allowed through because
-  // the page is already guarded by Supabase auth via proxy.ts.
-  const secret  = req.headers.get("x-cron-secret");
-  const origin  = req.headers.get("origin");
-  const host    = req.headers.get("host");
+  const secret    = req.headers.get("x-cron-secret");
+  const origin    = req.headers.get("origin");
+  const host      = req.headers.get("host");
   const sameOrigin = origin ? origin.includes(host ?? "") : true;
 
   if (process.env.CRON_SECRET && !sameOrigin && secret !== process.env.CRON_SECRET) {
@@ -186,14 +242,14 @@ export async function POST(req: NextRequest) {
 
   try {
     const { searchParams } = new URL(req.url);
-    const dateParam = searchParams.get("date"); // optional: YYYY-MM-DD
+    const dateParam = searchParams.get("date");
 
     const targetDate = dateParam
       ? new Date(`${dateParam}T12:00:00.000Z`)
       : new Date();
 
-    const pageUrl  = buildInvestingLiveUrl(targetDate);
-    const year     = targetDate.getUTCFullYear();
+    const tradingDays = tradingDaySequence(targetDate, 7);
+    const pageUrl     = buildInvestingLiveUrl(targetDate);
 
     console.log("[fx-orders/sync] Fetching page:", pageUrl);
 
@@ -218,97 +274,77 @@ export async function POST(req: NextRequest) {
         pageRes.status === 404 ? `Page not found — today's FXO post may not have been published yet. Try again after 07:00 EST. URL tried: ${pageUrl}` :
         pageRes.status === 429 ? "Rate limited by InvestingLive. Wait a few minutes before retrying." :
         `InvestingLive returned HTTP ${pageRes.status}. Use Upload Image as a fallback.`;
-      return NextResponse.json(
-        { error: hint, status: pageRes.status, url: pageUrl },
-        { status: 502 },
-      );
+      return NextResponse.json({ error: hint, status: pageRes.status, url: pageUrl }, { status: 502 });
     }
 
     const html     = await pageRes.text();
     const imageUrl = await extractImageUrl(html);
 
     if (!imageUrl) {
-      return NextResponse.json(
-        { error: "Could not find FXO image URL in page HTML", url: pageUrl },
-        { status: 422 },
-      );
+      return NextResponse.json({ error: "Could not find FXO image URL in page HTML", url: pageUrl }, { status: 422 });
     }
 
     console.log("[fx-orders/sync] Extracted image URL:", imageUrl);
 
-    const extraction = await extractFromImage(imageUrl);
+    const extraction = await extractFromImage(tradingDays, { type: "url", url: imageUrl });
 
     console.log("[fx-orders/sync] Extracted days:", extraction.days.length);
 
-    const saved = await storeExtraction(extraction, year, pageUrl, imageUrl);
+    const saved = await storeExtraction(extraction, tradingDays, pageUrl, imageUrl);
 
     return NextResponse.json({
       ok:       true,
       date:     targetDate.toISOString().slice(0, 10),
       imageUrl,
-      days:     extraction.days.map((d) => d.date),
+      days:     extraction.days.map((d) => ({
+        rowIndex: d.rowIndex,
+        date:     tradingDays[d.rowIndex]?.toISOString().slice(0, 10) ?? "unknown",
+        pairs:    Object.keys(d.levels),
+      })),
       saved,
     });
   } catch (err) {
     console.error("[fx-orders/sync]", err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Sync failed" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Sync failed" }, { status: 500 });
   }
 }
 
-// Manual image upload: POST /api/fx-orders/sync with multipart form
-// Field: image (File), date (YYYY-MM-DD optional)
-// Manual upload is user-initiated from the browser — no cron secret needed.
-// Auth is handled by the Supabase session (proxy.ts guards the app shell).
-export async function PUT(req: NextRequest) {
+// ── Route: PUT (manual image upload) ─────────────────────────────────────────
 
+export async function PUT(req: NextRequest) {
   try {
-    const form       = await req.formData();
-    const imageFile  = form.get("image") as File | null;
-    const dateParam  = form.get("date") as string | null;
+    const form      = await req.formData();
+    const imageFile = form.get("image") as File | null;
+    const dateParam = form.get("date") as string | null;
 
     if (!imageFile) {
       return NextResponse.json({ error: "No image file provided" }, { status: 400 });
     }
 
-    const targetDate = dateParam ? new Date(`${dateParam}T12:00:00.000Z`) : new Date();
-    const year       = targetDate.getUTCFullYear();
+    const targetDate  = dateParam ? new Date(`${dateParam}T12:00:00.000Z`) : new Date();
+    const tradingDays = tradingDaySequence(targetDate, 7);
 
-    // Convert file to base64
-    const buffer = await imageFile.arrayBuffer();
-    const base64 = Buffer.from(buffer).toString("base64");
+    const buffer    = await imageFile.arrayBuffer();
+    const base64    = Buffer.from(buffer).toString("base64");
     const mediaType = (imageFile.type || "image/jpeg") as "image/jpeg" | "image/png";
 
-    const response = await client.messages.create({
-      model:      "claude-haiku-4-5-20251001",
-      max_tokens: 4096,
-      messages: [{
-        role: "user",
-        content: [
-          {
-            type:   "image",
-            source: { type: "base64", media_type: mediaType, data: base64 },
-          },
-          { type: "text", text: EXTRACTION_PROMPT },
-        ],
-      }],
+    const extraction = await extractFromImage(
+      tradingDays,
+      { type: "base64", media_type: mediaType, data: base64 },
+    );
+    const saved = await storeExtraction(extraction, tradingDays, "manual-upload", "manual-upload");
+
+    return NextResponse.json({
+      ok:   true,
+      days: extraction.days.map((d) => ({
+        rowIndex: d.rowIndex,
+        date:     tradingDays[d.rowIndex]?.toISOString().slice(0, 10) ?? "unknown",
+        pairs:    Object.keys(d.levels),
+      })),
+      saved,
     });
-
-    const text  = response.content[0].type === "text" ? response.content[0].text : "";
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error("No JSON in response");
-
-    const extraction = JSON.parse(match[0]) as FxImageExtraction;
-    const saved      = await storeExtraction(extraction, year, "manual-upload", "manual-upload");
-
-    return NextResponse.json({ ok: true, days: extraction.days.map((d) => d.date), saved });
   } catch (err) {
     console.error("[fx-orders/sync PUT]", err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Upload failed" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Upload failed" }, { status: 500 });
   }
 }

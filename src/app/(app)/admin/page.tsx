@@ -1,13 +1,14 @@
 import { requireInstructor } from "@/lib/admin-guard";
 import { prisma } from "@/lib/prisma";
 import { Icon } from "@/components/ui";
+import { startOfMonth, subDays, fmtMonthDay } from "@/lib/date";
 
 export default async function AdminPage() {
   await requireInstructor();
 
   const now        = new Date();
-  const monthStart = new Date(now.getUTCFullYear(), now.getUTCMonth(), 1);
-  const weekStart  = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const monthStart = startOfMonth(now);
+  const weekStart  = subDays(now, 7);
 
   const [
     totalUsers, freeUsers, proUsers, fundedUsers,
@@ -146,7 +147,7 @@ export default async function AdminPage() {
                   {u.plan === "FREE" ? "Free" : u.plan === "PRO" ? "Pro" : "Funded"}
                 </span>
                 <span className="text-[11px] shrink-0" style={{ color: "var(--ink-dim)" }}>
-                  {u.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  {fmtMonthDay(u.createdAt)}
                 </span>
               </div>
             ))}

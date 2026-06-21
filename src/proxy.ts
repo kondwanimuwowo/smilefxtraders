@@ -43,7 +43,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (session && isPublic && pathname !== "/onboarding") {
+  if (session && isPublic && !pathname.startsWith("/api") && pathname !== "/onboarding") {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);

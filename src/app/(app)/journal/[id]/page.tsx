@@ -78,12 +78,8 @@ function fmtDuration(a: string, b: string): string {
   return remH > 0 ? `${days}d ${remH}h` : `${days}d`;
 }
 
-function fmtDateTime(iso: string): string {
-  return new Date(iso).toLocaleString("en-US", {
-    month: "short", day: "2-digit",
-    hour: "2-digit", minute: "2-digit", hour12: false,
-  });
-}
+import { fmtDateTime as _fmtDateTime } from "@/lib/date";
+function fmtDateTime(iso: string): string { return _fmtDateTime(iso); }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -177,6 +173,10 @@ export default function TradeDetailPage() {
 
   if (!trade) return <NotFound />;
 
+  const tradeIndex = trades.findIndex((t) => t.id === id);
+  const olderTrade = tradeIndex < trades.length - 1 ? trades[tradeIndex + 1] : null;
+  const newerTrade = tradeIndex > 0                  ? trades[tradeIndex - 1] : null;
+
   const t = trade;
   const brief     = MODEL_BRIEF[t.framework === "SnD" ? "SnD" : "SMC"]?.[t.model] ?? "Confluence setup.";
   const isClosed  = t.result !== "open";
@@ -194,15 +194,47 @@ export default function TradeDetailPage() {
 
       {/* ── Nav bar ── */}
       <div className="flex items-center justify-between mb-6">
-        <button
-          type="button"
-          onClick={() => router.push("/journal")}
-          className="flex items-center gap-1.5 text-[13px] font-semibold transition-opacity hover:opacity-70"
-          style={{ color: "var(--ink-dim)" }}
-        >
-          <Icon name="arrow_back" size={16} />
-          Journal
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => router.push("/journal")}
+            className="flex items-center gap-1.5 text-[13px] font-semibold transition-opacity hover:opacity-70"
+            style={{ color: "var(--ink-dim)" }}
+          >
+            <Icon name="arrow_back" size={16} />
+            Journal
+          </button>
+
+          {/* Prev / next */}
+          <div
+            className="flex items-center rounded-lg overflow-hidden"
+            style={{ border: "1px solid var(--line)" }}
+          >
+            <button
+              type="button"
+              disabled={!olderTrade}
+              onClick={() => olderTrade && router.push(`/journal/${olderTrade.id}`)}
+              className="flex items-center gap-1 px-2.5 py-1.5 text-[11.5px] font-semibold transition-colors hover:bg-[var(--hover)] disabled:opacity-30"
+              style={{ color: "var(--ink-dim)", borderRight: "1px solid var(--line)" }}
+              title={olderTrade ? `${olderTrade.pair} ${olderTrade.date}` : undefined}
+            >
+              <Icon name="chevron_left" size={15} />
+              Older
+            </button>
+            <button
+              type="button"
+              disabled={!newerTrade}
+              onClick={() => newerTrade && router.push(`/journal/${newerTrade.id}`)}
+              className="flex items-center gap-1 px-2.5 py-1.5 text-[11.5px] font-semibold transition-colors hover:bg-[var(--hover)] disabled:opacity-30"
+              style={{ color: "var(--ink-dim)" }}
+              title={newerTrade ? `${newerTrade.pair} ${newerTrade.date}` : undefined}
+            >
+              Newer
+              <Icon name="chevron_right" size={15} />
+            </button>
+          </div>
+        </div>
+
         <div className="flex items-center gap-2">
           <Button type="button" variant="ghost" icon="edit" onClick={() => setEditing(true)}>
             Edit
@@ -240,7 +272,7 @@ export default function TradeDetailPage() {
             )}
           </div>
           <div className="flex items-center gap-2 text-[13px]" style={{ color: "var(--ink-dim)" }}>
-            <span>{t.date}</span>
+            <span>{t.openedAt ? fmtDateTime(t.openedAt) : t.date}</span>
             {t.session && <><span>·</span><span>{t.session} KZ</span></>}
             {duration && <><span>·</span><Icon name="schedule" size={13} /><span>{duration}</span></>}
             {t.fromAlert && (
@@ -294,7 +326,7 @@ export default function TradeDetailPage() {
       {/* ── Chart ── */}
       <div
         className="rounded-2xl overflow-hidden mb-6"
-        style={{ height: 300, border: "1px solid var(--line)" }}
+        style={{ height: 380, border: "1px solid var(--line)" }}
       >
         {t.chartUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -417,7 +449,7 @@ export default function TradeDetailPage() {
 
           {/* Meta grid */}
           <div className="grid grid-cols-3 gap-3">
-            <MetaBox label="Planned R:R" value={t.rr ? `${t.rr}:1` : "—"} />
+            <MetaBox label="Planned R:R" value={t.rr ? `1:${t.rr}` : "—"} />
             <MetaBox label="Risk"         value={t.riskPct ? `${t.riskPct}%` : "—"} />
             <MetaBox label="Session"      value={t.session ?? "—"} />
           </div>
@@ -490,21 +522,6 @@ export default function TradeDetailPage() {
             );
           })()}
 
-          {/* Mistake */}
-          {t.mistake && (
-            <div
-              className="rounded-xl px-4 py-4"
-              style={{ background: "rgba(234,82,61,0.06)", border: "1px solid rgba(234,82,61,0.2)" }}
-            >
-              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-1.5" style={{ color: "var(--coral)" }}>
-                Rule broken
-              </div>
-              <p className="text-[13px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
-                {t.mistake}
-              </p>
-            </div>
-          )}
-
           {/* Notes */}
           {t.note && (
             <div
@@ -520,19 +537,19 @@ export default function TradeDetailPage() {
             </div>
           )}
 
-          {/* Discipline breach */}
+          {/* Discipline breach — merged with mistake if both present */}
           {!t.discipline && (
             <div
               className="flex items-start gap-3 rounded-xl px-4 py-4"
-              style={{ background: "rgba(234,82,61,0.08)", border: "1px solid rgba(234,82,61,0.22)" }}
+              style={{ background: "rgba(234,82,61,0.07)", border: "1px solid rgba(234,82,61,0.22)" }}
             >
               <Icon name="warning" size={18} fill style={{ color: "var(--coral)", flexShrink: 0, marginTop: 1 }} />
               <div>
-                <div className="font-semibold text-[13px] mb-0.5" style={{ color: "var(--coral)" }}>
-                  Discipline breach recorded
+                <div className="font-semibold text-[13px] mb-1" style={{ color: "var(--coral)" }}>
+                  {t.mistake ? "Rule broken" : "Discipline breach recorded"}
                 </div>
-                <div className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-dim)" }}>
-                  This trade broke your rules. Review your mistake log to find patterns — recurring breaches are usually the same emotional trigger.
+                <div className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
+                  {t.mistake ?? "This trade broke your rules. Review your mistake log to find patterns — recurring breaches are usually the same emotional trigger."}
                 </div>
               </div>
             </div>

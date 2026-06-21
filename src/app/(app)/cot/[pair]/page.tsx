@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Icon, Ring, Skeleton } from "@/components/ui";
+import { Icon, Skeleton } from "@/components/ui";
+import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import type { CotSignal } from "@/app/api/cot/route";
 import type { CotDetailRow, CotDetailResponse } from "@/app/api/cot/[pair]/route";
 
@@ -32,6 +33,11 @@ function heatBg(value: number, min: number, max: number): string {
 
 function fmtNet(n: number): string {
   return (n >= 0 ? "+" : "−") + Math.abs(n).toLocaleString();
+}
+
+function fmtRaw(n: number | null | undefined): string {
+  if (n == null) return "—";
+  return n.toLocaleString();
 }
 
 function fmtDateShort(iso: string): string {
@@ -111,7 +117,34 @@ export default function CotPairPage() {
     };
   }, [rows]);
 
+  // 13-week average — pinned row above the data table
+  const avg13 = useMemo(() => {
+    const slice = rows.slice(0, 13);
+    if (slice.length < 2) return null;
+    const n   = slice.length;
+    const avg = (fn: (r: CotDetailRow) => number) => Math.round(slice.reduce((s, r) => s + fn(r), 0) / n);
+    const wows = slice.slice(0, -1).map((r, i) => r.largeSpecNet - slice[i + 1].largeSpecNet);
+    const avgWow = wows.length ? Math.round(wows.reduce((s, v) => s + v, 0) / wows.length) : null;
+    const hasLS = slice.some((r) => r.largeSpecLong != null);
+    const totalLong = slice.reduce((s, r) => s + (r.largeSpecLong ?? 0), 0);
+    const totalPos  = slice.reduce((s, r) => s + (r.largeSpecLong ?? 0) + (r.largeSpecShort ?? 0), 0);
+    return {
+      largeSpecNet:    avg((r) => r.largeSpecNet),
+      largeSpecLong:   hasLS ? avg((r) => r.largeSpecLong ?? 0) : null,
+      largeSpecShort:  hasLS ? avg((r) => r.largeSpecShort ?? 0) : null,
+      commercialNet:   avg((r) => r.commercialNet),
+      commercialLong:  hasLS ? avg((r) => r.commercialLong ?? 0) : null,
+      commercialShort: hasLS ? avg((r) => r.commercialShort ?? 0) : null,
+      smallSpecNet:    avg((r) => r.smallSpecNet),
+      smallSpecLong:   hasLS ? avg((r) => r.smallSpecLong ?? 0) : null,
+      smallSpecShort:  hasLS ? avg((r) => r.smallSpecShort ?? 0) : null,
+      pctLong: totalPos > 0 && hasLS ? Math.round((totalLong / totalPos) * 100) : null,
+      avgWow,
+    };
+  }, [rows]);
+
   const sig = data ? SIGNAL_CFG[data.signal] : SIGNAL_CFG.neutral;
+  const [showSmallSpec, setShowSmallSpec] = useState(false);
 
   return (
     <div className="view">
@@ -167,17 +200,17 @@ export default function CotPairPage() {
         </div>
 
         {/* Current reading summary */}
-        {data && (
+        {data && rows.length > 0 && (
           <div className="flex items-center gap-5 shrink-0">
-            {/* COT Index ring */}
-            <div className="flex flex-col items-center gap-1">
-              <Ring value={data.cotIndex} size={56} stroke={6} color={sig.color}>
-                <span className="font-display font-bold text-[14px]" style={{ color: sig.color }}>
-                  {data.cotIndex}
-                </span>
-              </Ring>
-              <span className="text-[10.5px]" style={{ color: "var(--ink-dim)" }}>COT Index</span>
-            </div>
+            {/* COT Index — compact */}
+            <CotIndexDisplay
+              rows={rows}
+              cotIndex={data.cotIndex}
+              signal={data.signal}
+              pair={pair.toUpperCase()}
+              totalWeeks={data.totalWeeks}
+              compact
+            />
 
             {/* WoW change */}
             <div className="text-right">
@@ -192,6 +225,19 @@ export default function CotPairPage() {
           </div>
         )}
       </div>
+
+      {/* ── Full COT Index display — three-range comparison + interpretation ── */}
+      {!error && !loading && data && rows.length > 0 && (
+        <div className="mb-6">
+          <CotIndexDisplay
+            rows={rows}
+            cotIndex={data.cotIndex}
+            signal={data.signal}
+            pair={pair.toUpperCase()}
+            totalWeeks={data.totalWeeks}
+          />
+        </div>
+      )}
 
       {/* ── Error state ── */}
       {error && (
@@ -233,55 +279,240 @@ export default function CotPairPage() {
               <Icon name="info" size={12} />
               Index = position within displayed range
             </span>
+            <button
+              type="button"
+              onClick={() => setShowSmallSpec((v) => !v)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all active:scale-95"
+              style={{
+                background: showSmallSpec ? "rgba(8,174,170,0.12)" : "var(--panel-2)",
+                color:      showSmallSpec ? "var(--teal)" : "var(--ink-dim)",
+                border:     `1px solid ${showSmallSpec ? "rgba(8,174,170,0.3)" : "var(--line)"}`,
+              }}
+            >
+              <Icon name={showSmallSpec ? "visibility" : "visibility_off"} size={12} />
+              Retail
+            </button>
           </div>
 
           {loading ? (
             <TableSkeleton />
           ) : (
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, minWidth: 680 }}>
+              <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, minWidth: showSmallSpec ? 1020 : 780 }}>
                 <thead>
-                  {/* Single sticky row — column headers only, at topbar bottom */}
+                  {/* Group row */}
                   <tr>
-                    {[
-                      { label: "Week Ending",    align: "left"  as const, w: 130 },
-                      { label: "Large Spec Net", align: "right" as const, w: 145 },
-                      { label: "WoW Δ",          align: "right" as const, w: 105 },
-                      { label: "Commercial Net", align: "right" as const, w: 145 },
-                      { label: "Small Spec Net", align: "right" as const, w: 135 },
-                      { label: "Index",          align: "left"  as const, w: 120 },
-                    ].map((col) => (
+                    <th
+                      rowSpan={2}
+                      style={{
+                        width: 130, padding: "8px 16px",
+                        textAlign: "left", fontSize: 10.5, fontWeight: 700,
+                        textTransform: "uppercase", letterSpacing: "0.07em",
+                        color: "var(--ink-dim)", whiteSpace: "nowrap",
+                        background: "var(--panel)", borderBottom: "1px solid var(--line)",
+                      }}
+                    >
+                      Week Ending
+                    </th>
+                    {/* Large Spec group — colspan 4: Long, Short, Net, % Long */}
+                    <th
+                      colSpan={4}
+                      style={{
+                        padding: "7px 16px 5px",
+                        textAlign: "center", fontSize: 10, fontWeight: 700,
+                        textTransform: "uppercase", letterSpacing: "0.07em",
+                        color: "var(--teal)", whiteSpace: "nowrap",
+                        background: "rgba(8,174,170,0.05)",
+                        borderBottom: "1px solid var(--line)",
+                        borderLeft: "1px solid rgba(8,174,170,0.2)",
+                        borderRight: "1px solid rgba(8,174,170,0.2)",
+                      }}
+                    >
+                      Large Spec
+                    </th>
+                    {/* WoW Δ */}
+                    <th
+                      rowSpan={2}
+                      style={{
+                        width: 88, padding: "8px 14px",
+                        textAlign: "right", fontSize: 10.5, fontWeight: 700,
+                        textTransform: "uppercase", letterSpacing: "0.07em",
+                        color: "var(--ink-dim)", whiteSpace: "nowrap",
+                        background: "var(--panel)", borderBottom: "1px solid var(--line)",
+                      }}
+                    >
+                      WoW Δ
+                    </th>
+                    {/* Commercial group */}
+                    <th
+                      colSpan={3}
+                      style={{
+                        padding: "7px 16px 5px",
+                        textAlign: "center", fontSize: 10, fontWeight: 700,
+                        textTransform: "uppercase", letterSpacing: "0.07em",
+                        color: "var(--gold)", whiteSpace: "nowrap",
+                        background: "rgba(248,185,61,0.05)",
+                        borderBottom: "1px solid var(--line)",
+                        borderLeft: "1px solid rgba(248,185,61,0.2)",
+                        borderRight: "1px solid rgba(248,185,61,0.2)",
+                      }}
+                    >
+                      Commercial
+                    </th>
+                    {/* Small Spec group — conditional */}
+                    {showSmallSpec && (
                       <th
-                        key={col.label}
+                        colSpan={3}
                         style={{
-                          position: "sticky",
-                          top: 60,
-                          zIndex: 10,
-                          width:      col.w,
-                          padding:    "9px 16px",
-                          textAlign:  col.align,
-                          fontSize:   10.5,
-                          fontWeight: 700,
-                          textTransform: "uppercase",
-                          letterSpacing: "0.07em",
-                          color: "var(--ink-dim)",
+                          padding: "7px 16px 5px",
+                          textAlign: "center", fontSize: 10, fontWeight: 700,
+                          textTransform: "uppercase", letterSpacing: "0.07em",
+                          color: "var(--ink-mid)", whiteSpace: "nowrap",
+                          background: "var(--panel)",
+                          borderBottom: "1px solid var(--line)",
+                          borderLeft: "1px solid var(--line)",
+                        }}
+                      >
+                        Retail
+                      </th>
+                    )}
+                    {/* Index */}
+                    <th
+                      rowSpan={2}
+                      style={{
+                        width: 110, padding: "8px 16px",
+                        textAlign: "left", fontSize: 10.5, fontWeight: 700,
+                        textTransform: "uppercase", letterSpacing: "0.07em",
+                        color: "var(--ink-dim)", whiteSpace: "nowrap",
+                        background: "var(--panel)", borderBottom: "1px solid var(--line)",
+                        borderLeft: "1px solid var(--line)",
+                      }}
+                    >
+                      Index
+                    </th>
+                  </tr>
+                  {/* Sub-header row */}
+                  <tr>
+                    {/* Large Spec sub-cols: Long, Short, Net, % Long */}
+                    {(["Long", "Short", "Net", "% Long"] as const).map((label, idx) => (
+                      <th
+                        key={`ls-${label}`}
+                        style={{
+                          padding: "5px 14px 8px",
+                          textAlign: "right", fontSize: 9.5, fontWeight: 600,
+                          textTransform: "uppercase", letterSpacing: "0.06em",
+                          color: label === "Net" || label === "% Long" ? "var(--teal)" : "var(--ink-dim)",
+                          whiteSpace: "nowrap",
+                          background: "rgba(8,174,170,0.05)",
+                          borderBottom: "2px solid var(--line)",
+                          borderLeft: idx === 0 ? "1px solid rgba(8,174,170,0.2)" : undefined,
+                          borderRight: idx === 3 ? "1px solid rgba(8,174,170,0.2)" : undefined,
+                        }}
+                      >
+                        {label}
+                      </th>
+                    ))}
+                    {/* Commercial sub-cols */}
+                    {(["Long", "Short", "Net"] as const).map((label, idx) => (
+                      <th
+                        key={`c-${label}`}
+                        style={{
+                          padding: "5px 14px 8px",
+                          textAlign: "right", fontSize: 9.5, fontWeight: 600,
+                          textTransform: "uppercase", letterSpacing: "0.06em",
+                          color: label === "Net" ? "var(--gold)" : "var(--ink-dim)",
+                          whiteSpace: "nowrap",
+                          background: "rgba(248,185,61,0.05)",
+                          borderBottom: "2px solid var(--line)",
+                          borderLeft: idx === 0 ? "1px solid rgba(248,185,61,0.2)" : undefined,
+                          borderRight: idx === 2 ? "1px solid rgba(248,185,61,0.2)" : undefined,
+                        }}
+                      >
+                        {label}
+                      </th>
+                    ))}
+                    {/* Small Spec sub-cols — conditional */}
+                    {showSmallSpec && (["Long", "Short", "Net"] as const).map((label, idx) => (
+                      <th
+                        key={`ss-${label}`}
+                        style={{
+                          padding: "5px 14px 8px",
+                          textAlign: "right", fontSize: 9.5, fontWeight: 600,
+                          textTransform: "uppercase", letterSpacing: "0.06em",
+                          color: label === "Net" ? "var(--ink-mid)" : "var(--ink-dim)",
                           whiteSpace: "nowrap",
                           background: "var(--panel)",
                           borderBottom: "2px solid var(--line)",
+                          borderLeft: idx === 0 ? "1px solid var(--line)" : undefined,
                         }}
                       >
-                        {col.label}
+                        {label}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
+                  {/* 13-week average — pinned reference row */}
+                  {avg13 && (() => {
+                    const avgCell: React.CSSProperties = {
+                      padding: "8px 14px",
+                      borderBottom: "2px solid var(--line)",
+                      fontFamily: "var(--mono)",
+                      fontFeatureSettings: '"tnum"',
+                      whiteSpace: "nowrap",
+                      fontSize: 11.5,
+                      textAlign: "right",
+                      color: "var(--ink-dim)",
+                      fontWeight: 500,
+                    };
+                    const deltaLS = rows[0] ? rows[0].largeSpecNet - avg13.largeSpecNet : 0;
+                    return (
+                      <tr style={{ background: "rgba(8,174,170,0.025)" }}>
+                        <td style={{ ...avgCell, textAlign: "left", fontFamily: "inherit", color: "var(--teal)", fontWeight: 700 }}>
+                          <span className="flex items-center gap-2">
+                            13W Avg
+                            <span
+                              className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded"
+                              style={{
+                                background: "var(--panel-2)",
+                                color: deltaLS >= 0 ? "var(--teal-bright)" : "var(--coral-bright)",
+                                fontFamily: "var(--mono)",
+                              }}
+                            >
+                              now {fmtNet(deltaLS)} vs avg
+                            </span>
+                          </span>
+                        </td>
+                        <td style={{ ...avgCell, borderLeft: "1px solid rgba(8,174,170,0.15)" }}>{fmtRaw(avg13.largeSpecLong)}</td>
+                        <td style={avgCell}>{fmtRaw(avg13.largeSpecShort)}</td>
+                        <td style={{ ...avgCell, fontWeight: 700, color: "var(--ink-mid)" }}>{fmtNet(avg13.largeSpecNet)}</td>
+                        <td style={{ ...avgCell, borderRight: "1px solid rgba(8,174,170,0.15)" }}>
+                          {avg13.pctLong != null ? `${avg13.pctLong}%` : "—"}
+                        </td>
+                        <td style={{ ...avgCell, fontWeight: 600, color: "var(--ink-mid)" }}>
+                          {avg13.avgWow != null ? fmtNet(avg13.avgWow) : "—"}
+                        </td>
+                        <td style={{ ...avgCell, borderLeft: "1px solid rgba(248,185,61,0.15)" }}>{fmtRaw(avg13.commercialLong)}</td>
+                        <td style={avgCell}>{fmtRaw(avg13.commercialShort)}</td>
+                        <td style={{ ...avgCell, fontWeight: 600, color: "var(--ink-mid)", borderRight: "1px solid rgba(248,185,61,0.15)" }}>
+                          {fmtNet(avg13.commercialNet)}
+                        </td>
+                        {showSmallSpec && (
+                          <>
+                            <td style={{ ...avgCell, borderLeft: "1px solid var(--line)" }}>{fmtRaw(avg13.smallSpecLong)}</td>
+                            <td style={avgCell}>{fmtRaw(avg13.smallSpecShort)}</td>
+                            <td style={avgCell}>{fmtNet(avg13.smallSpecNet)}</td>
+                          </>
+                        )}
+                        <td style={{ ...avgCell, borderLeft: "1px solid var(--line)" }}>—</td>
+                      </tr>
+                    );
+                  })()}
                   {rows.map((row, i) => {
                     const prev    = rows[i + 1];
                     const wow     = prev ? row.largeSpecNet - prev.largeSpecNet : null;
                     const isLatest = i === 0;
 
-                    // Position within the displayed window
                     const rangeIdx = ranges && ranges.lsMax !== ranges.lsMin
                       ? Math.round(Math.max(0, Math.min(100,
                           ((row.largeSpecNet - ranges.lsMin) / (ranges.lsMax - ranges.lsMin)) * 100
@@ -289,11 +520,19 @@ export default function CotPairPage() {
                       : 50;
 
                     const cellBase: React.CSSProperties = {
-                      padding: "9px 16px",
+                      padding: "8px 14px",
                       borderBottom: "1px solid var(--line)",
                       fontFamily: "var(--mono)",
                       fontFeatureSettings: '"tnum"',
                       whiteSpace: "nowrap",
+                      fontSize: 12,
+                    };
+
+                    const dimCell: React.CSSProperties = {
+                      ...cellBase,
+                      textAlign: "right",
+                      color: "var(--ink-dim)",
+                      fontWeight: 400,
                     };
 
                     return (
@@ -305,7 +544,6 @@ export default function CotPairPage() {
                         <td
                           style={{
                             ...cellBase,
-                            fontSize: 12.5,
                             fontFamily: "inherit",
                             color: isLatest ? "var(--ink-strong)" : "var(--ink-dim)",
                             fontWeight: isLatest ? 600 : 400,
@@ -324,19 +562,40 @@ export default function CotPairPage() {
                           </span>
                         </td>
 
-                        {/* Large Spec Net — primary heat map */}
+                        {/* Large Spec Long */}
+                        <td style={{ ...dimCell, borderLeft: "1px solid rgba(8,174,170,0.15)" }}>
+                          {fmtRaw(row.largeSpecLong)}
+                        </td>
+                        {/* Large Spec Short */}
+                        <td style={dimCell}>{fmtRaw(row.largeSpecShort)}</td>
+                        {/* Large Spec Net */}
                         <td
                           style={{
                             ...cellBase,
                             textAlign: "right",
                             background: ranges ? heatBg(row.largeSpecNet, ranges.lsMin, ranges.lsMax) : undefined,
-                            fontSize: 13,
                             fontWeight: 700,
                             color: "var(--ink-strong)",
                           }}
                         >
                           {fmtNet(row.largeSpecNet)}
                         </td>
+                        {/* % Long — longs as % of total LS open interest */}
+                        {(() => {
+                          const total = (row.largeSpecLong ?? 0) + (row.largeSpecShort ?? 0);
+                          const pct   = total > 0 && row.largeSpecLong != null
+                            ? Math.round((row.largeSpecLong / total) * 100)
+                            : null;
+                          const color = pct == null ? "var(--ink-dim)"
+                            : pct >= 60 ? "var(--teal-bright)"
+                            : pct <= 40 ? "var(--coral-bright)"
+                            : "var(--ink-mid)";
+                          return (
+                            <td style={{ ...cellBase, textAlign: "right", fontWeight: 600, color, borderRight: "1px solid rgba(8,174,170,0.15)" }}>
+                              {pct != null ? `${pct}%` : "—"}
+                            </td>
+                          );
+                        })()}
 
                         {/* WoW Δ */}
                         <td
@@ -346,7 +605,6 @@ export default function CotPairPage() {
                             background: ranges && wow !== null
                               ? heatBg(wow, ranges.wowMin, ranges.wowMax)
                               : undefined,
-                            fontSize: 12.5,
                             fontWeight: 500,
                             color: "var(--ink-strong)",
                           }}
@@ -354,37 +612,50 @@ export default function CotPairPage() {
                           {wow !== null ? fmtNet(wow) : "—"}
                         </td>
 
+                        {/* Commercial Long */}
+                        <td style={{ ...dimCell, borderLeft: "1px solid rgba(248,185,61,0.15)" }}>
+                          {fmtRaw(row.commercialLong)}
+                        </td>
+                        {/* Commercial Short */}
+                        <td style={dimCell}>{fmtRaw(row.commercialShort)}</td>
                         {/* Commercial Net */}
                         <td
                           style={{
                             ...cellBase,
                             textAlign: "right",
                             background: ranges ? heatBg(row.commercialNet, ranges.cMin, ranges.cMax) : undefined,
-                            fontSize: 12.5,
-                            fontWeight: 500,
+                            fontWeight: 600,
                             color: "var(--ink-strong)",
+                            borderRight: "1px solid rgba(248,185,61,0.15)",
                           }}
                         >
                           {fmtNet(row.commercialNet)}
                         </td>
 
-                        {/* Small Spec Net */}
-                        <td
-                          style={{
-                            ...cellBase,
-                            textAlign: "right",
-                            background: ranges ? heatBg(row.smallSpecNet, ranges.ssMin, ranges.ssMax) : undefined,
-                            fontSize: 12.5,
-                            fontWeight: 400,
-                            color: "var(--ink-mid)",
-                          }}
-                        >
-                          {fmtNet(row.smallSpecNet)}
-                        </td>
+                        {/* Small Spec — conditional */}
+                        {showSmallSpec && (
+                          <>
+                            <td style={{ ...dimCell, borderLeft: "1px solid var(--line)" }}>
+                              {fmtRaw(row.smallSpecLong)}
+                            </td>
+                            <td style={dimCell}>{fmtRaw(row.smallSpecShort)}</td>
+                            <td
+                              style={{
+                                ...cellBase,
+                                textAlign: "right",
+                                background: ranges ? heatBg(row.smallSpecNet, ranges.ssMin, ranges.ssMax) : undefined,
+                                fontWeight: 400,
+                                color: "var(--ink-mid)",
+                              }}
+                            >
+                              {fmtNet(row.smallSpecNet)}
+                            </td>
+                          </>
+                        )}
 
                         {/* Index bar */}
-                        <td style={{ ...cellBase, fontFamily: "inherit" }}>
-                          <div className="flex items-center gap-2.5">
+                        <td style={{ ...cellBase, fontFamily: "inherit", borderLeft: "1px solid var(--line)" }}>
+                          <div className="flex items-center gap-2">
                             <div
                               style={{
                                 flex: 1,
@@ -408,7 +679,7 @@ export default function CotPairPage() {
                                 fontFamily: "var(--mono)",
                                 fontSize: 11,
                                 color: "var(--ink-dim)",
-                                minWidth: 26,
+                                minWidth: 24,
                                 textAlign: "right",
                               }}
                             >

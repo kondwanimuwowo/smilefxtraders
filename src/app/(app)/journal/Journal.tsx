@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import type { Trade } from "@/lib/store";
 import { useTrades, useDeleteTrade } from "@/lib/hooks/useTrades";
 import {
-  Button, DirPill, Chip, StatTile, Stars, Icon, EmptyState, Panel,
+  Button, DirPill, Chip, StatTile, Stars, Icon, EmptyState, Panel, Sparkline,
 } from "@/components/ui";
 import { LogTradeModal } from "./LogTradeModal";
 
@@ -17,9 +17,9 @@ const FILTERS = ["All", "Wins", "Losses", "Open"] as const;
 type Filter   = typeof FILTERS[number];
 
 const SESSION_COLORS: Record<string, string> = {
-  London:   "var(--teal)",
+  London:     "var(--teal)",
   "New York": "var(--coral)",
-  Asia:     "var(--gold)",
+  Asia:       "var(--gold)",
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -47,7 +47,15 @@ function currentStreak(trades: Trade[]) {
   return { n, type: last as "win" | "loss" };
 }
 
-// ── AnalyticsPanel ────────────────────────────────────────────────────────────
+function fmtAvgHold(ms: number): string {
+  const mins = Math.round(ms / 60000);
+  const h    = Math.floor(mins / 60);
+  if (h === 0)  return `${mins}m`;
+  if (h < 24)   return `${h}h`;
+  return `${Math.floor(h / 24)}d`;
+}
+
+// ── Sub-components ─────────────────────────────────────────────────────────────
 
 function ModelBar({ model, pct, n }: { model: string; pct: number; n: number }) {
   const shortName = model.split("→")[0].split("+")[0].trim();
@@ -74,6 +82,31 @@ function ModelBar({ model, pct, n }: { model: string; pct: number; n: number }) 
   );
 }
 
+function PairBar({ pair, pct, n }: { pair: string; pct: number; n: number }) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <span
+        className="text-[11px] font-bold tabular-nums shrink-0"
+        style={{ color: "var(--ink-mid)", width: 56, fontFamily: "var(--mono)" }}
+      >
+        {pair}
+      </span>
+      <div className="flex-1 relative h-1.5 rounded-full overflow-hidden" style={{ background: "var(--track)" }}>
+        <div
+          className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
+          style={{ width: `${pct}%`, background: pct >= 60 ? "var(--teal)" : pct >= 40 ? "var(--gold)" : "var(--coral)" }}
+        />
+      </div>
+      <span className="text-[11px] font-semibold tabular-nums shrink-0" style={{ color: "var(--ink-dim)", width: 32, textAlign: "right" }}>
+        {pct}%
+      </span>
+      <span className="text-[10px] shrink-0" style={{ color: "var(--ink-dim)", width: 20 }}>
+        /{n}
+      </span>
+    </div>
+  );
+}
+
 function SessionBar({ session, count, max }: { session: string; count: number; max: number }) {
   const pct = max ? (count / max) * 100 : 0;
   return (
@@ -92,8 +125,11 @@ function SessionBar({ session, count, max }: { session: string; count: number; m
   );
 }
 
+// ── Analytics panel ────────────────────────────────────────────────────────────
+
 function AnalyticsPanel({ trades }: { trades: Trade[] }) {
   const { stats } = useTrades();
+  const sparkRef  = useRef<HTMLDivElement>(null);
 
   const sessionCounts = useMemo(() => {
     const counts: Record<string, number> = { London: 0, "New York": 0, Asia: 0 };
@@ -101,6 +137,32 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
     return counts;
   }, [trades]);
   const sessionMax = Math.max(...Object.values(sessionCounts), 1);
+
+  const pairStats = useMemo(() => {
+    const map: Record<string, { wins: number; total: number }> = {};
+    trades.filter((t) => t.result !== "open").forEach((t) => {
+      if (!map[t.pair]) map[t.pair] = { wins: 0, total: 0 };
+      map[t.pair].total++;
+      if (t.result === "win") map[t.pair].wins++;
+    });
+    return Object.entries(map)
+      .map(([pair, { wins, total }]) => ({
+        pair,
+        pct: Math.round((wins / total) * 100),
+        n: total,
+      }))
+      .sort((a, b) => b.n - a.n);
+  }, [trades]);
+
+  const avgHoldMs = useMemo(() => {
+    const timed = trades.filter((t) => t.openedAt && t.closedAt);
+    if (!timed.length) return null;
+    const total = timed.reduce(
+      (s, t) => s + (new Date(t.closedAt!).getTime() - new Date(t.openedAt!).getTime()),
+      0,
+    );
+    return total / timed.length;
+  }, [trades]);
 
   const leaks = useMemo(() => {
     const byModel: Record<string, number> = {};
@@ -113,20 +175,93 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
       .map(([model, count]) => ({ model: model.split("→")[0].split("+")[0].trim(), count }));
   }, [trades]);
 
+  const equityColor = (stats.netR ?? 0) >= 0 ? "var(--teal-bright)" : "var(--coral-bright)";
+
   return (
     <div className="flex flex-col gap-4">
-      {/* Model performance */}
+
+      {/* Equity curve */}
+      {stats.equity.length > 1 && (
+        <Panel>
+          <div className="px-4 pt-4 pb-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-display font-semibold text-[14px]" style={{ color: "var(--ink-strong)" }}>
+                Equity curve
+              </span>
+              <span
+                className="font-display font-bold tabular-nums text-[18px]"
+                style={{ color: equityColor, letterSpacing: "-0.01em" }}
+              >
+                {stats.netR >= 0 ? "+" : ""}{stats.netR.toFixed(1)}R
+              </span>
+            </div>
+            <p className="text-[11px] mb-3" style={{ color: "var(--ink-dim)" }}>
+              Cumulative R · {stats.closed} closed trades
+            </p>
+            <div ref={sparkRef} className="w-full" style={{ height: 80 }}>
+              <Sparkline
+                data={stats.equity}
+                width={260}
+                height={80}
+                color={equityColor}
+                strokeW={2}
+                fill
+              />
+            </div>
+            <div className="flex justify-between mt-1.5">
+              <span className="text-[9.5px] tabular-nums" style={{ color: "var(--ink-dim)", fontFamily: "var(--mono)" }}>
+                {Math.min(...stats.equity).toFixed(1)}R
+              </span>
+              <span className="text-[9.5px] tabular-nums" style={{ color: "var(--ink-dim)", fontFamily: "var(--mono)" }}>
+                {Math.max(...stats.equity).toFixed(1)}R
+              </span>
+            </div>
+          </div>
+        </Panel>
+      )}
+
+      {/* Avg win / avg loss / hold time */}
       <Panel>
-        <div className="px-4 pt-4 pb-1">
+        <div className="px-4 pt-4 pb-4 grid gap-3" style={{ gridTemplateColumns: avgHoldMs != null ? "1fr 1fr 1fr" : "1fr 1fr" }}>
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "var(--ink-dim)" }}>
+              Avg win
+            </div>
+            <div className="font-display font-bold tabular-nums text-[20px]" style={{ color: "var(--teal-bright)", letterSpacing: "-0.01em" }}>
+              +{stats.avgWin.toFixed(1)}R
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "var(--ink-dim)" }}>
+              Avg loss
+            </div>
+            <div className="font-display font-bold tabular-nums text-[20px]" style={{ color: "var(--coral-bright)", letterSpacing: "-0.01em" }}>
+              {stats.avgLoss.toFixed(1)}R
+            </div>
+          </div>
+          {avgHoldMs != null && (
+            <div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "var(--ink-dim)" }}>
+                Avg hold
+              </div>
+              <div className="font-display font-bold tabular-nums text-[20px]" style={{ color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
+                {fmtAvgHold(avgHoldMs)}
+              </div>
+            </div>
+          )}
+        </div>
+      </Panel>
+
+      {/* Model win rate */}
+      <Panel>
+        <div className="px-4 pt-4 pb-3">
           <div className="font-display font-semibold text-[14px] mb-3" style={{ color: "var(--ink-strong)" }}>
             Model win rate
           </div>
           {stats.models.length === 0 ? (
-            <p className="text-[12px] py-3" style={{ color: "var(--ink-dim)" }}>
-              No closed trades yet.
-            </p>
+            <p className="text-[12px] pb-2" style={{ color: "var(--ink-dim)" }}>No closed trades yet.</p>
           ) : (
-            <div className="flex flex-col gap-2.5 pb-3">
+            <div className="flex flex-col gap-2.5 pb-2">
               {stats.models.slice(0, 6).map((m) => (
                 <ModelBar key={m.model} model={m.model} pct={m.pct} n={m.n} />
               ))}
@@ -134,6 +269,22 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
           )}
         </div>
       </Panel>
+
+      {/* Pair performance */}
+      {pairStats.length > 0 && (
+        <Panel>
+          <div className="px-4 pt-4 pb-3">
+            <div className="font-display font-semibold text-[14px] mb-3" style={{ color: "var(--ink-strong)" }}>
+              Pair performance
+            </div>
+            <div className="flex flex-col gap-2.5 pb-2">
+              {pairStats.map((p) => (
+                <PairBar key={p.pair} pair={p.pair} pct={p.pct} n={p.n} />
+              ))}
+            </div>
+          </div>
+        </Panel>
+      )}
 
       {/* Session breakdown */}
       <Panel>
@@ -173,34 +324,6 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
           </div>
         </Panel>
       )}
-
-      {/* Avg win vs avg loss */}
-      <Panel>
-        <div className="px-4 pt-4 pb-4 grid grid-cols-2 gap-3">
-          <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "var(--ink-dim)" }}>
-              Avg win
-            </div>
-            <div
-              className="font-display font-bold tabular-nums text-[20px]"
-              style={{ color: "var(--teal-bright)", letterSpacing: "-0.01em" }}
-            >
-              +{stats.avgWin.toFixed(1)}R
-            </div>
-          </div>
-          <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "var(--ink-dim)" }}>
-              Avg loss
-            </div>
-            <div
-              className="font-display font-bold tabular-nums text-[20px]"
-              style={{ color: "var(--coral-bright)", letterSpacing: "-0.01em" }}
-            >
-              {stats.avgLoss.toFixed(1)}R
-            </div>
-          </div>
-        </div>
-      </Panel>
     </div>
   );
 }
@@ -214,8 +337,18 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
       onClick={() => onView(trade.id)}
     >
       <td className="px-4 py-3 whitespace-nowrap">
-        <div className="text-[12.5px] font-medium tabular-nums" style={{ color: "var(--ink-dim)" }}>
-          {trade.date}
+        <div className="flex items-center gap-2">
+          <span
+            className="shrink-0 rounded-full"
+            style={{
+              width: 6, height: 6,
+              background: pnlColor(trade),
+              boxShadow: trade.result !== "open" ? `0 0 4px ${pnlColor(trade)}` : "none",
+            }}
+          />
+          <div className="text-[12.5px] font-medium tabular-nums" style={{ color: "var(--ink-dim)" }}>
+            {trade.date}
+          </div>
         </div>
       </td>
       <td className="px-4 py-3">
@@ -243,7 +376,7 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
       </td>
       <td className="px-4 py-3 hidden lg:table-cell text-right">
         <span className="tabular-nums text-[12.5px]" style={{ color: "var(--ink-dim)" }}>
-          {trade.rr ? `${trade.rr}:1` : "—"}
+          {trade.rr ? `1:${trade.rr}` : "—"}
         </span>
       </td>
       <td className="px-4 py-3 text-right">
@@ -380,46 +513,45 @@ export function Journal() {
 
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  function handleFilterChange(f: Filter) {
-    setFilter(f);
-    setPage(1);
-  }
-  function handlePairToggle(pair: string) {
-    setPair((p) => (p === pair ? null : pair));
-    setPage(1);
-  }
-  function handleSearch(v: string) {
-    setSearch(v);
-    setPage(1);
-  }
-  function handleDelete(id: string) {
-    deleteTrade(id);
-    toast("Trade removed", "coral", "delete");
-  }
+  function handleFilterChange(f: Filter) { setFilter(f); setPage(1); }
+  function handlePairToggle(pair: string) { setPair((p) => (p === pair ? null : pair)); setPage(1); }
+  function handleSearch(v: string)        { setSearch(v); setPage(1); }
 
-  const netRTone = stats.netR > 0 ? "up" : stats.netR < 0 ? "down" : "neutral";
+  const openCount  = trades.filter((t) => t.result === "open").length;
+  const netRTone   = stats.netR > 0 ? "up" : stats.netR < 0 ? "down" : "neutral";
 
   return (
     <div className="view">
       {/* ── Header ── */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 className="font-display font-bold" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
-            Trade Journal
-          </h1>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="font-display font-bold" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
+              Trade Journal
+            </h1>
+            {streak.n >= 2 && (
+              <span
+                className="inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
+                style={{
+                  background: streak.type === "win" ? "rgba(8,174,170,0.1)" : "rgba(234,82,61,0.1)",
+                  color:      streak.type === "win" ? "var(--teal-bright)" : "var(--coral-bright)",
+                  border:     `1px solid ${streak.type === "win" ? "rgba(8,174,170,0.28)" : "rgba(234,82,61,0.28)"}`,
+                }}
+              >
+                <Icon
+                  name={streak.type === "win" ? "local_fire_department" : "trending_down"}
+                  size={12}
+                  fill
+                  style={{ color: "inherit" }}
+                />
+                {streak.n}{streak.type === "win" ? "W" : "L"} streak
+              </span>
+            )}
+          </div>
           <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
             {trades.length === 0
               ? "Start logging trades to build your edge."
-              : `${trades.length} trade${trades.length !== 1 ? "s" : ""} logged — ${stats.closed} closed`}
-            {streak.n >= 3 && (
-              <span
-                className="ml-2 font-semibold"
-                style={{ color: streak.type === "win" ? "var(--teal)" : "var(--coral)" }}
-              >
-                · {streak.n}
-                {streak.type === "win" ? "W" : "L"} streak
-              </span>
-            )}
+              : `${trades.length} trade${trades.length !== 1 ? "s" : ""} logged · ${stats.closed} closed`}
           </p>
         </div>
         <Button type="button" variant="primary" icon="add_task" onClick={() => { setEditing(null); setLogOpen(true); }}>
@@ -444,23 +576,30 @@ export function Journal() {
           icon="percent"
         />
         <StatTile
-          label="Discipline"
-          value={`${stats.discFollowed}%`}
-          sub="Rules followed"
-          tone={stats.discFollowed >= 80 ? "up" : stats.discFollowed >= 60 ? "gold" : "down"}
-          icon="checklist"
+          label="Expectancy"
+          value={(stats.expectancy > 0 ? "+" : "") + stats.expectancy + "R"}
+          sub="Expected R per trade"
+          tone={stats.expectancy > 0 ? "up" : stats.expectancy < 0 ? "down" : "neutral"}
+          icon="functions"
         />
-        <StatTile
-          label="Open"
-          value={String(trades.filter((t) => t.result === "open").length)}
-          sub="Active positions"
-          tone="gold"
-          icon="radio_button_checked"
-        />
+        <div
+          className="cursor-pointer select-none"
+          onClick={() => handleFilterChange(filter === "Open" ? "All" : "Open")}
+          title="Click to filter open positions"
+        >
+          <StatTile
+            label="Open"
+            value={String(openCount)}
+            sub="Active positions"
+            tone="gold"
+            icon="radio_button_checked"
+          />
+        </div>
       </div>
 
       {/* ── Main content ── */}
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-5">
+
         {/* ── Left: table ── */}
         <div className="flex flex-col gap-3">
           {/* Filter bar */}
@@ -556,15 +695,15 @@ export function Journal() {
                     <thead>
                       <tr style={{ borderBottom: "1px solid var(--line)" }}>
                         {[
-                          { label: "Date", cls: "" },
-                          { label: "Pair", cls: "" },
-                          { label: "Model", cls: "hidden lg:table-cell" },
+                          { label: "Date",    cls: "" },
+                          { label: "Pair",    cls: "" },
+                          { label: "Model",   cls: "hidden lg:table-cell" },
                           { label: "Session", cls: "hidden xl:table-cell" },
-                          { label: "R:R", cls: "hidden lg:table-cell text-right" },
-                          { label: "P&L", cls: "text-right" },
-                          { label: "Rating", cls: "hidden xl:table-cell" },
-                          { label: "Rules", cls: "hidden lg:table-cell text-center" },
-                          { label: "", cls: "" },
+                          { label: "R:R",     cls: "hidden lg:table-cell text-right" },
+                          { label: "P&L",     cls: "text-right" },
+                          { label: "Rating",  cls: "hidden xl:table-cell" },
+                          { label: "Rules",   cls: "hidden lg:table-cell text-center" },
+                          { label: "",        cls: "" },
                         ].map((h) => (
                           <th
                             key={h.label}
@@ -576,7 +715,7 @@ export function Journal() {
                         ))}
                       </tr>
                     </thead>
-                    <tbody style={{ borderBottom: "1px solid transparent" }}>
+                    <tbody>
                       {paginated.map((t) => (
                         <TradeRow
                           key={t.id}

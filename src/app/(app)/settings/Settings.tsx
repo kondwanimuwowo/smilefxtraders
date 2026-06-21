@@ -59,6 +59,7 @@ export function Settings() {
   const [name,   setName]   = useState("");
   const [handle, setHandle] = useState(""); // stored without @
   const [email,  setEmail]  = useState("");
+  const [loc,    setLoc]    = useState("");
 
   // Trading fields
   const [riskPct,     setRiskPct]   = useState("0.5");
@@ -73,6 +74,7 @@ export function Settings() {
       setName(user.name ?? "");
       setHandle((user.handle ?? "").replace(/^@/, "")); // strip @ for the input
       setEmail(user.email ?? "");
+      setLoc(user.loc ?? "");
       setRiskPct(String(user.riskPct ?? 0.5));
       setInstr(user.instruments?.length ? user.instruments : ["EURUSD", "XAUUSD"]);
       setExperience(user.experience ?? "intermediate");
@@ -112,11 +114,23 @@ export function Settings() {
     }
   }, [savedPrefs]);
 
-  // Privacy (local only)
+  // Privacy (localStorage)
   const [showOnLeaderboard, setShowOnLeaderboard] = useState(true);
   const [showWinRate,       setShowWinRate]        = useState(true);
 
-  const PAIRS = ["EURUSD", "GBPUSD", "NZDUSD", "XAUUSD", "NAS100"];
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const saved = localStorage.getItem("smfx_privacy");
+      if (saved) {
+        const p = JSON.parse(saved) as { showOnLeaderboard?: boolean; showWinRate?: boolean };
+        if (typeof p.showOnLeaderboard === "boolean") setShowOnLeaderboard(p.showOnLeaderboard);
+        if (typeof p.showWinRate       === "boolean") setShowWinRate(p.showWinRate);
+      }
+    } catch {}
+  }, []);
+
+  const PAIRS = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
 
   // ── Server action transitions ──────────────────────────────────────────────
 
@@ -127,17 +141,24 @@ export function Settings() {
     const fd = new FormData();
     fd.set("name", name.trim());
     fd.set("username", handle.trim());
+    fd.set("location", loc.trim());
 
     startProfileTransition(async () => {
       const result = await updateProfileAction(fd);
       if (result?.error) {
         toast(result.error, "coral", "error");
       } else {
-        // Update store immediately so the greeting + topbar reflect the change
-        if (user) setUser({ ...user, name: name.trim(), handle: handle.trim() });
+        if (user) setUser({ ...user, name: name.trim(), handle: handle.trim(), loc: loc.trim() || undefined });
         toast("Profile saved", "teal", "check_circle");
       }
     });
+  }
+
+  function savePrivacy() {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("smfx_privacy", JSON.stringify({ showOnLeaderboard, showWinRate }));
+    }
+    toast("Privacy settings saved", "teal", "check_circle");
   }
 
   function saveTrading() {
@@ -219,16 +240,25 @@ export function Settings() {
                 </Field>
               </div>
               <Field label="Email address">
-                <input
-                  type="email"
-                  value={email}
-                  readOnly
-                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none"
-                  style={{ background: "var(--track)", borderColor: "var(--line)", color: "var(--ink-dim)", cursor: "default" }}
-                />
+                <div
+                  className="px-3 py-2.5 rounded-[9px] text-[13.5px] select-all"
+                  style={{ background: "var(--track)", border: "1px solid var(--line)", color: "var(--ink-dim)" }}
+                >
+                  {email || "—"}
+                </div>
                 <span className="text-[11px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
-                  Email is managed by your Supabase account
+                  Managed by Supabase — contact support to change
                 </span>
+              </Field>
+              <Field label="Location">
+                <input
+                  type="text"
+                  value={loc}
+                  onChange={(e) => setLoc(e.target.value)}
+                  placeholder="e.g. Lusaka, Zambia"
+                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)]"
+                  style={{ background: "var(--panel-2)", borderColor: "var(--line)", color: "var(--ink-strong)" }}
+                />
               </Field>
               <div className="flex justify-end">
                 <Button
@@ -278,6 +308,11 @@ export function Settings() {
               checked={showWinRate}
               onChange={setShowWinRate}
             />
+            <div className="flex justify-end mt-4">
+              <Button type="button" variant="primary" icon="save" onClick={savePrivacy}>
+                Save privacy
+              </Button>
+            </div>
           </Section>
         </div>
 
@@ -391,7 +426,7 @@ export function Settings() {
               onChange={setEmailAlerts}
             />
             <div className="flex justify-end mt-4">
-              <Button type="button" variant="ghost" icon="save" loading={notifPending} onClick={saveNotifications}>
+              <Button type="button" variant="primary" icon="save" loading={notifPending} onClick={saveNotifications}>
                 Save notifications
               </Button>
             </div>

@@ -83,6 +83,7 @@ export interface AppUser {
   handle: string;
   email?: string;
   loc?: string;
+  joinedAt?: string;
   role: "student" | "instructor";
   plan: "free" | "pro" | "funded";
   level: number;

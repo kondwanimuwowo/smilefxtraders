@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import Script from "next/script";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
@@ -32,8 +33,11 @@ export default function RootLayout({
       className={`${inter.variable} ${plusJakartaSans.variable} h-full overflow-hidden`}
     >
       <head>
+        <link rel="icon" href="/favicon.png" type="image/png" />
         {/* Blocking theme script — runs before first paint so dark-mode users never see a light flash */}
-        <script
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'light')}catch(e){}})()`,
           }}

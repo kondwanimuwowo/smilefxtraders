@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { fmtDayMonth } from "@/lib/date";
 import { Prisma } from "@prisma/client";
 import type { Trade, AIReviewResult } from "@/lib/store";
 import type { Trade as PrismaTrade } from "@prisma/client";
@@ -17,7 +18,7 @@ const SESSION_TO_DB: Record<string, "LONDON" | "NEW_YORK" | "ASIA"> = {
 function dbToStore(db: PrismaTrade): Trade {
   return {
     id:          db.id,
-    date:        db.date.toLocaleDateString("en-US", { month: "short", day: "2-digit" }),
+    date:        fmtDayMonth(db.date),
     openedAt:    db.date.toISOString(),
     closedAt:    db.closedAt?.toISOString() ?? undefined,
     pair:        db.pair,

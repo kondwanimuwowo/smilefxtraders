@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
+import { subDays } from "@/lib/date";
 
 const FROM = "Smile FX Traders <noreply@smilefxtraders.com>";
 
@@ -113,7 +114,7 @@ export async function POST(req: NextRequest) {
 
   const resend  = new Resend(process.env.RESEND_API_KEY);
   const appUrl  = process.env.NEXT_PUBLIC_APP_URL ?? "https://smilefxtraders.com";
-  const weekStart  = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const weekStart  = subDays(new Date(), 7);
 
   // Fetch all Pro/Funded users with weeklyReport enabled
   const users = await prisma.user.findMany({

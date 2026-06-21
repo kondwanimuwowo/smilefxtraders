@@ -2,10 +2,12 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Input, Field, Button } from "@/components/ui";
 import { loginAction, demoLoginAction } from "../actions";
 
 export function LoginForm() {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isDemo, setIsDemo] = useState(false);
@@ -16,7 +18,12 @@ export function LoginForm() {
     const data = new FormData(e.currentTarget);
     startTransition(async () => {
       const result = await loginAction(data);
-      if (result?.error) setError(result.error);
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        router.push("/dashboard");
+        router.refresh();
+      }
     });
   }
 
@@ -25,7 +32,13 @@ export function LoginForm() {
     setError(null);
     startTransition(async () => {
       const result = await demoLoginAction();
-      if (result?.error) { setError(result.error); setIsDemo(false); }
+      if (result?.error) {
+        setError(result.error);
+        setIsDemo(false);
+      } else {
+        router.push("/dashboard");
+        router.refresh();
+      }
     });
   }
 

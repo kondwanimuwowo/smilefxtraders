@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ZM_OPERATORS, detectZmOperator, type ZmOperator } from "@/lib/mobile-money";
+import { NetworkLogo } from "@/components/checkout/NetworkLogo";
 
 // ── Plan config ───────────────────────────────────────────────────────────────
 
@@ -20,7 +22,7 @@ const PLANS = {
       "Community posting & comments",
       "Leaderboard participation",
     ],
-    price: { monthly: { usd: 29, zmw: 750 }, annual: { usd: 278, zmw: 7200 } },
+    price: { monthly: { usd: 20, zmw: 299 }, annual: { usd: 16, zmw: 239 } },
   },
   funded: {
     name:    "Funded Track",
@@ -34,7 +36,7 @@ const PLANS = {
       "Private Funded Track community",
       "Monthly strategy review calls",
     ],
-    price: { monthly: { usd: 79, zmw: 2000 }, annual: { usd: 758, zmw: 19200 } },
+    price: { monthly: { usd: 40, zmw: 599 }, annual: { usd: 32, zmw: 479 } },
   },
 } as const;
 
@@ -43,7 +45,7 @@ type Cycle   = "monthly" | "annual";
 type Currency = "ZMW" | "USD";
 type Step    = "form" | "waiting" | "success" | "failed";
 
-const OPERATORS = ["Airtel Money", "MTN Mobile Money"];
+const OPERATORS = ZM_OPERATORS;
 
 // ── Checkout page ─────────────────────────────────────────────────────────────
 
@@ -61,7 +63,8 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
   const [cycle,    setCycle]    = useState<Cycle>("monthly");
   const [currency, setCurrency] = useState<Currency>("ZMW");
   const [phone,    setPhone]    = useState("");
-  const [operator, setOperator] = useState(OPERATORS[0]);
+  const [operator, setOperator] = useState<ZmOperator>(OPERATORS[0].value);
+  const [autoPicked, setAutoPicked] = useState(false);
   const [step,     setStep]     = useState<Step>("form");
   const [errMsg,   setErrMsg]   = useState("");
   const [reference, setReference] = useState("");
@@ -71,6 +74,13 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
   const plan = PLANS[planId];
   const price = plan.price[cycle][currency === "ZMW" ? "zmw" : "usd"];
   const symbol = currency === "ZMW" ? "K" : "$";
+
+  function handlePhoneChange(value: string) {
+    setPhone(value);
+    const detected = detectZmOperator(value);
+    if (detected) { setOperator(detected); setAutoPicked(true); }
+    else setAutoPicked(false);
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -306,7 +316,7 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
               <input
                 type="tel"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => handlePhoneChange(e.target.value)}
                 placeholder="+260 97 123 4567"
                 required
                 className="w-full px-4 py-3 rounded-xl text-[14px] font-mono"
@@ -316,15 +326,39 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
 
             {/* Operator */}
             <div>
-              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Mobile money operator</label>
-              <select
-                value={operator}
-                onChange={(e) => setOperator(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl text-[14px]"
-                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
-              >
-                {OPERATORS.map((op) => <option key={op}>{op}</option>)}
-              </select>
+              <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                Mobile money operator
+                {autoPicked && (
+                  <span className="text-[9.5px] font-bold normal-case px-1.5 py-0.5 rounded-full"
+                    style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.2)" }}>
+                    auto-detected
+                  </span>
+                )}
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {OPERATORS.map((op) => {
+                  const active = operator === op.value;
+                  return (
+                    <button
+                      key={op.value}
+                      type="button"
+                      onClick={() => { setOperator(op.value); setAutoPicked(false); }}
+                      className="flex flex-col items-center gap-1.5 rounded-xl px-2 py-2.5 transition-all"
+                      style={{
+                        background: active ? "rgba(8,174,170,0.07)" : "var(--panel-2)",
+                        border:     `1px solid ${active ? "var(--teal)" : "var(--line)"}`,
+                        boxShadow:  active ? "inset 0 0 0 1px rgba(8,174,170,0.25)" : "none",
+                      }}
+                    >
+                      <NetworkLogo op={op.value} size={30} />
+                      <span className="text-[11px] font-semibold leading-tight text-center"
+                        style={{ color: active ? "var(--ink-strong)" : "var(--ink-dim)" }}>
+                        {op.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {errMsg && (

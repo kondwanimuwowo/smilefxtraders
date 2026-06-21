@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# internal docs — not for the repo
+walkthrough.md
+walkthrough2.md
+implementation_plan.md
+repo_review.md
+LENCO-V2-DOCS/
+CLAUDE.md
+FEATURES.md
+CRON.md
+spotware_api_plan.md
+public/inspo/*
