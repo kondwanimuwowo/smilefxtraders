@@ -11,10 +11,10 @@ const AVATAR_SEEDS = [11, 7, 2, 4];
 
 export function AuthShell({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen grid" style={{ gridTemplateColumns: "1.05fr 1fr" }}>
-      {/* ── Brand panel ── */}
+    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[1.05fr_1fr]">
+      {/* ── Brand panel — full version, desktop+ only ── */}
       <div
-        className="flex flex-col justify-between p-12 min-h-screen"
+        className="hidden md:flex flex-col justify-between p-12 min-h-screen"
         style={{ background: "linear-gradient(160deg, #0B425D 0%, #082A3B 70%)" }}
       >
         {/* Logo */}
@@ -76,9 +76,23 @@ export function AuthShell({ children }: { children: ReactNode }) {
         </div>
       </div>
 
+      {/* ── Brand header — compact version, mobile only ── */}
+      <div
+        className="flex md:hidden items-center gap-3 px-5 py-6"
+        style={{ background: "linear-gradient(160deg, #0B425D 0%, #082A3B 70%)" }}
+      >
+        <BrandMarkAuth size={38} />
+        <div style={{ lineHeight: 1.05 }}>
+          <div className="font-display font-bold text-base text-white">Smile FX Traders</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>
+            Trade smart money. Together.
+          </div>
+        </div>
+      </div>
+
       {/* ── Form panel ── */}
       <div
-        className="flex items-center justify-center px-8 py-12 min-h-screen"
+        className="flex items-center justify-center px-5 sm:px-8 py-8 md:py-12 min-h-0 md:min-h-screen"
         style={{ background: "var(--app-bg)" }}
       >
         <div className="w-full" style={{ maxWidth: 400 }}>
@@ -89,13 +103,13 @@ export function AuthShell({ children }: { children: ReactNode }) {
   );
 }
 
-function BrandMarkAuth() {
+function BrandMarkAuth({ size = 48 }: { size?: number }) {
   return (
     <div
       style={{
-        width: 48,
-        height: 48,
-        borderRadius: 13,
+        width: size,
+        height: size,
+        borderRadius: Math.round(size * 0.27),
         overflow: "hidden",
         background: "linear-gradient(135deg, #08AEAA, #0B425D)",
         flexShrink: 0,
