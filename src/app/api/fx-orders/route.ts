@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { PAIRS_ORDER } from "@/types/fx-orders";
 import type { FxDateSummary, FxLevel } from "@/types/fx-orders";
 
-export const revalidate = 1800; // 30 min
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
