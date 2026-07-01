@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PREFIXES = ["/login", "/signup", "/onboarding", "/api", "/auth", "/features", "/pricing", "/about", "/learn", "/our-community", "/insights", "/contact", "/stories", "/resources"];
+const PUBLIC_PREFIXES = ["/login", "/signup", "/onboarding", "/forgot-password", "/reset-password", "/api", "/auth", "/features", "/pricing", "/about", "/learn", "/our-community", "/insights", "/contact", "/stories", "/resources"];
 // Note: /api is already public, so /api/checkout/webhook is covered — no extra entry needed.
 const PUBLIC_EXACT    = ["/"]; // exact match only
 

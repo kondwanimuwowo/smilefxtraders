@@ -7,7 +7,7 @@ import { createBrowserClient } from "@supabase/ssr";
 import { Input, Field, Button } from "@/components/ui";
 import { loginAction, demoLoginAction } from "../actions";
 
-function GoogleButton({ loading, onClick }: { loading: boolean; onClick: () => void }) {
+function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onClick: () => void; icon: string; label: string }) {
   return (
     <button
       type="button"
@@ -28,9 +28,9 @@ function GoogleButton({ loading, onClick }: { loading: boolean; onClick: () => v
         <span className="material-symbols-rounded text-[18px] animate-spin" style={{ color: "var(--ink-dim)" }}>progress_activity</span>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src="/google.svg" alt="" width={18} height={18} />
+        <img src={icon} alt="" width={18} height={18} />
       )}
-      Continue with Google
+      {label}
     </button>
   );
 }
@@ -40,7 +40,8 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isDemo, setIsDemo] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleLoading,   setGoogleLoading]   = useState(false);
+  const [facebookLoading, setFacebookLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -72,8 +73,8 @@ export function LoginForm() {
     });
   }
 
-  async function handleGoogle() {
-    setGoogleLoading(true);
+  async function signInWithProvider(provider: "google" | "facebook", setLoading: (v: boolean) => void) {
+    setLoading(true);
     setError(null);
     try {
       const supabase = createBrowserClient(
@@ -81,14 +82,17 @@ export function LoginForm() {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
       await supabase.auth.signInWithOAuth({
-        provider: "google",
+        provider,
         options: { redirectTo: `${window.location.origin}/auth/callback` },
       });
     } catch {
-      setError("Google sign-in failed. Please try again.");
-      setGoogleLoading(false);
+      setError(`${provider === "google" ? "Google" : "Facebook"} sign-in failed. Please try again.`);
+      setLoading(false);
     }
   }
+
+  const handleGoogle   = () => signInWithProvider("google",   setGoogleLoading);
+  const handleFacebook = () => signInWithProvider("facebook", setFacebookLoading);
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
@@ -107,8 +111,11 @@ export function LoginForm() {
         Sign in to your desk
       </h1>
 
-      {/* Google */}
-      <GoogleButton loading={googleLoading} onClick={handleGoogle} />
+      {/* Social */}
+      <div className="flex flex-col gap-2.5">
+        <SocialButton loading={googleLoading}   onClick={handleGoogle}   icon="/google.svg"   label="Continue with Google"   />
+        <SocialButton loading={facebookLoading} onClick={handleFacebook} icon="/facebook.svg" label="Continue with Facebook" />
+      </div>
 
       {/* Divider */}
       <div className="flex items-center gap-3 my-5">
@@ -133,9 +140,9 @@ export function LoginForm() {
           <input type="checkbox" name="remember" defaultChecked style={{ accentColor: "var(--teal)" }} />
           Remember me
         </label>
-        <button type="button" className="text-[13px] font-medium hover:underline" style={{ color: "var(--teal)" }}>
+        <Link href="/forgot-password" className="text-[13px] font-medium hover:underline" style={{ color: "var(--teal)" }}>
           Forgot password?
-        </button>
+        </Link>
       </div>
 
       {/* Error */}

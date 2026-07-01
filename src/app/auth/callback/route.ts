@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  const next = searchParams.get("next"); // e.g. /reset-password (from forgot-password flow)
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);
@@ -34,6 +35,11 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?error=oauth_failed`);
   }
 
+  // Password reset flow — redirect to reset page (user is already authenticated)
+  if (next) {
+    return NextResponse.redirect(`${origin}${next}`);
+  }
+
   const sbUser = data.user;
 
   // Check if a Prisma user row already exists
@@ -43,7 +49,7 @@ export async function GET(request: Request) {
   }).catch(() => null);
 
   if (!existing) {
-    // New Google user — create Prisma row and send to onboarding
+    // New OAuth user — create Prisma row and send to onboarding
     const emailPrefix = sbUser.email!.split("@")[0].replace(/[^a-z0-9_]/gi, "").toLowerCase();
     let username = emailPrefix || "trader";
     let suffix = 0;
