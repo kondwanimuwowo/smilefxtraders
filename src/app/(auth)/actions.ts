@@ -101,9 +101,19 @@ export async function saveOnboardingAction(formData: FormData) {
   const experience = formData.get("experience") as string;
   const framework = (formData.get("framework") as string) || "SMC";
 
-  await prisma.user.update({
+  await prisma.user.upsert({
     where: { supabaseId: user.id },
-    data: {
+    update: {
+      instruments,
+      riskPct,
+      experience: experience.toUpperCase() as "BEGINNER" | "INTERMEDIATE" | "ADVANCED",
+      framework,
+    },
+    create: {
+      supabaseId:  user.id,
+      email:       user.email ?? "",
+      name:        (user.user_metadata?.full_name as string | undefined) ?? user.email?.split("@")[0] ?? "Trader",
+      username:    `trader_${user.id.slice(0, 8)}`,
       instruments,
       riskPct,
       experience: experience.toUpperCase() as "BEGINNER" | "INTERMEDIATE" | "ADVANCED",

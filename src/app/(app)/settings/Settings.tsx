@@ -197,11 +197,13 @@ export function Settings() {
     }
   }, [savedPrefs]);
 
-  // Privacy (localStorage)
-  const [showOnLeaderboard, setShowOnLeaderboard] = useState(true);
-  const [showWinRate,       setShowWinRate]        = useState(true);
+  // Privacy — seeded from user.privacyPrefs (DB) with localStorage fallback
+  const storedPrivacy = user?.privacyPrefs as { showOnLeaderboard?: boolean; showWinRate?: boolean } | null | undefined;
+  const [showOnLeaderboard, setShowOnLeaderboard] = useState(storedPrivacy?.showOnLeaderboard ?? true);
+  const [showWinRate,       setShowWinRate]        = useState(storedPrivacy?.showWinRate       ?? true);
 
   useEffect(() => {
+    if (storedPrivacy) return; // already seeded from DB
     if (typeof window === "undefined") return;
     try {
       const saved = localStorage.getItem("smfx_privacy");
@@ -211,6 +213,7 @@ export function Settings() {
         if (typeof p.showWinRate       === "boolean") setShowWinRate(p.showWinRate);
       }
     } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const PAIRS = pairs.length ? pairs : ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
@@ -241,6 +244,11 @@ export function Settings() {
     if (typeof window !== "undefined") {
       localStorage.setItem("smfx_privacy", JSON.stringify({ showOnLeaderboard, showWinRate }));
     }
+    fetch("/api/user/privacy", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ showOnLeaderboard, showWinRate }),
+    }).catch(() => null);
     toast("Privacy settings saved", "teal", "check_circle");
   }
 

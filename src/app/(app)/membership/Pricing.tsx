@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { Icon, Chip } from "@/components/ui";
 import { CheckoutModal } from "@/components/checkout/CheckoutModal";
@@ -47,11 +48,20 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export function Pricing() {
-  const { user } = useStore();
+  const { user, setUser, toast } = useStore();
+  const queryClient = useQueryClient();
+  const router = useRouter();
   const [annual,        setAnnual]        = useState(false);
   const [checkoutPlan,  setCheckoutPlan]  = useState<PaidPlan | null>(null);
   const [checkoutCycle, setCheckoutCycle] = useState<"monthly" | "annual">("monthly");
   const currentPlan = user?.plan ?? "free";
+
+  function handleUpgradeSuccess(newPlan: PaidPlan) {
+    if (user) setUser({ ...user, plan: newPlan });
+    queryClient.invalidateQueries({ queryKey: ["plan-prices"] });
+    toast(`You're now on ${newPlan === "pro" ? "Pro Trader" : "Funded Track"}!`, "teal", "check_circle");
+    router.push("/dashboard");
+  }
 
   const { data: allPrices = DEFAULT_PRICES } = usePlanPrices();
 
@@ -161,7 +171,7 @@ export function Pricing() {
           plan={checkoutPlan}
           cycle={checkoutCycle}
           onClose={() => setCheckoutPlan(null)}
-          onSuccess={(p) => console.log("Upgraded to", p)}
+          onSuccess={handleUpgradeSuccess}
         />
       )}
     </div>

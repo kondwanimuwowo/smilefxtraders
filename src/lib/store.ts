@@ -93,6 +93,9 @@ export interface AppUser {
   instruments: string[];
   experience: "beginner" | "intermediate" | "advanced";
   framework: string;
+  avatarUrl?: string;
+  planExpiresAt?: string;
+  privacyPrefs?: { showOnLeaderboard?: boolean; showWinRate?: boolean } | null;
 }
 
 export interface Toast {

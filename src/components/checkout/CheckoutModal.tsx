@@ -286,37 +286,29 @@ export function CheckoutModal({
                   </button>
                 </div>
               ) : (
-                <div className="flex flex-col gap-4">
-                  <div
-                    className="rounded-xl px-4 py-3 text-[13px]"
-                    style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-dim)" }}
+                <div className="flex flex-col items-center gap-4 py-4 text-center">
+                  <span
+                    className="material-symbols-rounded"
+                    style={{ fontSize: 40, color: "var(--ink-dim)", fontVariationSettings: "'FILL' 0" }}
                   >
-                    You will be taken to a secure Lenco card payment page to complete your payment of
-                    <strong style={{ color: "var(--ink-mid)" }}> K{price} ZMW</strong>.
-                    Return here after completing payment to confirm.
+                    credit_card
+                  </span>
+                  <div>
+                    <div className="font-semibold text-[14.5px] mb-1" style={{ color: "var(--ink-strong)" }}>
+                      Card payments coming soon
+                    </div>
+                    <p className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
+                      Use Mobile Money to pay now — Airtel, MTN, and Zamtel are all supported.
+                    </p>
                   </div>
-
                   <button
                     type="button"
-                    onClick={openCardPage}
-                    className="w-full py-3 rounded-xl text-[14px] font-bold flex items-center justify-center gap-2"
-                    style={{ background: "var(--teal)", color: "#fff" }}
+                    onClick={() => setMethod("mobile")}
+                    className="px-5 py-2 rounded-full text-[13px] font-semibold transition-all"
+                    style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.2)" }}
                   >
-                    <span className="material-symbols-rounded text-[18px]">credit_card</span>
-                    Pay with card
+                    Switch to Mobile Money
                   </button>
-
-                  <div className="text-center">
-                    <div className="text-[12px] mb-2" style={{ color: "var(--ink-dim)" }}>Completed payment in the other tab?</div>
-                    <button
-                      type="button"
-                      onClick={manualVerify}
-                      className="text-[12.5px] font-semibold hover:opacity-70 transition-opacity"
-                      style={{ color: "var(--teal)" }}
-                    >
-                      Confirm payment
-                    </button>
-                  </div>
                 </div>
               )}
             </div>

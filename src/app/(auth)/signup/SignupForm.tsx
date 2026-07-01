@@ -2,12 +2,42 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { createBrowserClient } from "@supabase/ssr";
 import { Input, Field, Button } from "@/components/ui";
 import { signupAction } from "../actions";
+
+function GoogleButton({ loading, onClick }: { loading: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      disabled={loading}
+      onClick={onClick}
+      className="flex items-center justify-center gap-3 w-full rounded-full font-semibold transition-all active:scale-[0.98]"
+      style={{
+        height: 46,
+        fontSize: 14.5,
+        background: "var(--panel-2)",
+        border: "1px solid var(--line)",
+        color: "var(--ink-strong)",
+        cursor: loading ? "not-allowed" : "pointer",
+        opacity: loading ? 0.6 : 1,
+      }}
+    >
+      {loading ? (
+        <span className="material-symbols-rounded text-[18px] animate-spin" style={{ color: "var(--ink-dim)" }}>progress_activity</span>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src="/google.svg" alt="" width={18} height={18} />
+      )}
+      Continue with Google
+    </button>
+  );
+}
 
 export function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -19,6 +49,24 @@ export function SignupForm() {
     });
   }
 
+  async function handleGoogle() {
+    setGoogleLoading(true);
+    setError(null);
+    try {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+    } catch {
+      setError("Google sign-up failed. Please try again.");
+      setGoogleLoading(false);
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
       <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2" style={{ color: "var(--teal)" }}>
@@ -28,6 +76,16 @@ export function SignupForm() {
       <h1 className="font-display font-semibold mb-6" style={{ fontSize: 26, color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
         Create your account
       </h1>
+
+      {/* Google */}
+      <GoogleButton loading={googleLoading} onClick={handleGoogle} />
+
+      {/* Divider */}
+      <div className="flex items-center gap-3 my-5">
+        <div className="flex-1 h-px" style={{ background: "var(--line)" }} />
+        <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>or sign up with email</span>
+        <div className="flex-1 h-px" style={{ background: "var(--line)" }} />
+      </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
         <Field label="Full name" half>

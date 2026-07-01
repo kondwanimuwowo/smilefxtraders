@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { Button, Icon } from "@/components/ui";
 import { saveOnboardingAction } from "../actions";
 import type { Framework } from "@/lib/frameworks";
@@ -32,8 +32,16 @@ export function OnboardingFlow() {
     : INSTRUMENTS_FALLBACK;
   const [step, setStep] = useState(0);
   const [framework,   setFramework]   = useState<Framework>("SMC");
-  const [instruments, setInstruments] = useState<string[]>(["EURUSD", "XAUUSD"]);
+  const [instruments, setInstruments] = useState<string[]>([]);
   const [riskPct,     setRiskPct]     = useState(0.5);
+
+  // Default-select first two instruments once they load from DB
+  useEffect(() => {
+    if (instruments.length === 0 && instrumentOptions.length > 0) {
+      setInstruments(instrumentOptions.slice(0, 2).map((i) => i.key));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instrumentOptions]);
   const [experience,  setExperience]  = useState("Intermediate");
   const [isPending,   startTransition] = useTransition();
 

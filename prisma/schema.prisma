@@ -24,8 +24,10 @@ model User {
   experience Experience @default(BEGINNER)
   instruments String[] // e.g. ["EURUSD","XAUUSD"]
   framework  String   @default("SMC") // "SMC" | "SnD"
-  notifPrefs Json?    @map("notif_prefs")
-  createdAt  DateTime @default(now()) @map("created_at")
+  notifPrefs    Json?     @map("notif_prefs")
+  privacyPrefs  Json?     @map("privacy_prefs")
+  planExpiresAt DateTime? @map("plan_expires_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
   trades         Trade[]

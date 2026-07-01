@@ -57,7 +57,10 @@ function dbToAppUser(db: NonNullable<Awaited<ReturnType<typeof prisma.user.findU
     instruments: db.instruments,
     experience:  db.experience.toLowerCase() as AppUser["experience"],
     framework:   db.framework,
-    avatarSeed:  (db.id.charCodeAt(0) ?? 0) + (db.id.charCodeAt(1) ?? 0),
+    avatarSeed:    (db.id.charCodeAt(0) ?? 0) + (db.id.charCodeAt(1) ?? 0),
+    avatarUrl:     db.avatarUrl ?? undefined,
+    planExpiresAt: db.planExpiresAt?.toISOString() ?? undefined,
+    privacyPrefs:  db.privacyPrefs as AppUser["privacyPrefs"] ?? null,
   };
 }
 
@@ -86,6 +89,15 @@ async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }>
     }
 
     if (db) {
+      // Lazy-expire cancelled subscriptions: if planExpiresAt has passed, downgrade to FREE
+      if (db.planExpiresAt && db.planExpiresAt < new Date() && db.plan !== "FREE") {
+        const expired = await prisma.user.update({
+          where: { id: db.id },
+          data:  { plan: "FREE", planExpiresAt: null },
+        }).catch(() => null);
+        if (expired) db = expired;
+      }
+
       const dbTrades = await prisma.trade.findMany({
         where: { userId: db.id },
         orderBy: { date: "desc" },
