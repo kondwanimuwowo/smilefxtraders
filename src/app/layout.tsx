@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
-import Script from "next/script";
+import { Inter, Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
@@ -18,6 +17,13 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   display: "swap",
 });
 
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Smile FX Traders",
   description: "Trade smart money. Together.",
@@ -30,14 +36,12 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${plusJakartaSans.variable} h-full overflow-hidden`}
+      className={`${inter.variable} ${plusJakartaSans.variable} ${ibmPlexMono.variable}`}
     >
       <head>
         <link rel="icon" href="/favicon.png" type="image/png" />
         {/* Blocking theme script — runs before first paint so dark-mode users never see a light flash */}
-        <Script
-          id="theme-init"
-          strategy="beforeInteractive"
+        <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'light')}catch(e){}})()`,
           }}
@@ -51,7 +55,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
         />
       </head>
-      <body className="h-full antialiased overflow-hidden">
+      <body className="antialiased">
         <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem={false}>
           {children}
         </ThemeProvider>

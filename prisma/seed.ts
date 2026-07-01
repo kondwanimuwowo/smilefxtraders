@@ -1885,9 +1885,84 @@ The criteria before attempting multiple accounts:
   },
 ] as const;
 
+// ── Instrument seed data ──────────────────────────────────────────────────────
+
+const INSTRUMENTS = [
+  {
+    symbol: "EURUSD", label: "EUR/USD", category: "forex",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "EUR/USD",
+    cotContract: "EURUSD", cotCode: "099741", cotMin52w: -98400, cotMax52w: 224600, cotMinC52w: -252400, cotMaxC52w: 98800,
+    cotInverted: false, fxoTracked: true, displayOrder: 1,
+  },
+  {
+    symbol: "GBPUSD", label: "GBP/USD", category: "forex",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "GBP/USD",
+    cotContract: "GBPUSD", cotCode: "096742", cotMin52w: -74200, cotMax52w: 58600, cotMinC52w: -68400, cotMaxC52w: 82400,
+    cotInverted: false, fxoTracked: true, displayOrder: 2,
+  },
+  {
+    symbol: "USDJPY", label: "USD/JPY", category: "forex",
+    pipSize: 0.01, pipValue: 9.1, tdSymbol: "USD/JPY",
+    cotContract: "USDJPY", cotCode: "097741", cotMin52w: -86400, cotMax52w: 76200, cotMinC52w: -78200, cotMaxC52w: 88400,
+    cotInverted: true, fxoTracked: true, displayOrder: 3,
+  },
+  {
+    symbol: "USDCHF", label: "USD/CHF", category: "forex",
+    pipSize: 0.0001, pipValue: 11.1, tdSymbol: "USD/CHF",
+    cotContract: "USDCHF", cotCode: "092741", cotMin52w: -42600, cotMax52w: 38400, cotMinC52w: -36400, cotMaxC52w: 44200,
+    cotInverted: true, fxoTracked: false, displayOrder: 4,
+  },
+  {
+    symbol: "AUDUSD", label: "AUD/USD", category: "forex",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "AUD/USD",
+    cotContract: "AUDUSD", cotCode: "232741", cotMin52w: -88400, cotMax52w: 72600, cotMinC52w: -84200, cotMaxC52w: 96400,
+    cotInverted: false, fxoTracked: true, displayOrder: 5,
+  },
+  {
+    symbol: "NZDUSD", label: "NZD/USD", category: "forex",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "NZD/USD",
+    cotContract: "NZDUSD", cotCode: "112741", cotMin52w: -32800, cotMax52w: 28400, cotMinC52w: -28600, cotMaxC52w: 36200,
+    cotInverted: false, fxoTracked: true, displayOrder: 6,
+  },
+  {
+    symbol: "USDCAD", label: "USD/CAD", category: "forex",
+    pipSize: 0.0001, pipValue: 7.5, tdSymbol: "USD/CAD",
+    cotContract: "USDCAD", cotCode: "090741", cotMin52w: -62800, cotMax52w: 56200, cotMinC52w: -58400, cotMaxC52w: 66400,
+    cotInverted: true, fxoTracked: false, displayOrder: 7,
+  },
+  {
+    symbol: "XAUUSD", label: "XAU/USD", category: "commodity",
+    pipSize: 0.01, pipValue: 1, tdSymbol: "XAU/USD",
+    cotContract: "XAUUSD", cotCode: "088691", cotMin52w: 68400, cotMax52w: 198200, cotMinC52w: -242600, cotMaxC52w: -82400,
+    cotInverted: false, fxoTracked: false, displayOrder: 8,
+  },
+  {
+    symbol: "NAS100", label: "NAS100", category: "index",
+    pipSize: 1, pipValue: 20, tdSymbol: "IXIC",
+    cotContract: "NAS100", cotCode: "209742", cotMin52w: -48600, cotMax52w: 82400, cotMinC52w: -58400, cotMaxC52w: 42600,
+    cotInverted: false, fxoTracked: false, displayOrder: 9,
+  },
+  {
+    symbol: "DXY", label: "DXY", category: "index",
+    pipSize: 0.001, pipValue: 10, tdSymbol: "DXY",
+    cotContract: "DXY", cotCode: "098662", cotMin52w: -62400, cotMax52w: 48200, cotMinC52w: -52800, cotMaxC52w: 64600,
+    cotInverted: false, fxoTracked: false, displayOrder: 10,
+  },
+];
+
 // ── Main seed function ────────────────────────────────────────────────────────
 
 async function main() {
+  console.log("Seeding instruments...");
+  for (const inst of INSTRUMENTS) {
+    await prisma.instrument.upsert({
+      where:  { symbol: inst.symbol },
+      update: inst,
+      create: inst,
+    });
+    console.log(`  Instrument: ${inst.symbol}`);
+  }
+
   console.log("Seeding academy courses and lessons...");
 
   for (const courseData of COURSES) {

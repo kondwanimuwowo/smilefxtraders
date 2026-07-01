@@ -121,7 +121,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <Providers>
-      <div className="flex h-full overflow-hidden" style={{ background: "var(--app-bg)" }}>
+      <div className="flex h-screen overflow-hidden" style={{ background: "var(--app-bg)" }}>
         <StoreHydrator user={appUser} trades={trades} />
         <Sidebar />
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">

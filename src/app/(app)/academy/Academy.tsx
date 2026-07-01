@@ -94,7 +94,7 @@ function tierAccess(userPlan: PlanTier, courseTier: string): boolean {
 function renderMarkdown(md: string): string {
   return md
     .replace(/^# (.+)$/gm,   "<h1>$1</h1>")
-    .replace(/^## (.+)$/gm,  "<h2>$2</h2>")
+    .replace(/^## (.+)$/gm,  "<h2>$1</h2>")
     .replace(/^### (.+)$/gm, "<h3>$1</h3>")
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g,     "<em>$1</em>")
@@ -474,7 +474,7 @@ export function Academy() {
   const completedIds = data?.completedIds ?? [];
   const totalLessons = courses.reduce((a, c) => a + c.lessons.length, 0);
 
-  function handleUpgrade() { router.push("/pricing"); }
+  function handleUpgrade() { router.push("/membership"); }
 
   if (open) {
     return (

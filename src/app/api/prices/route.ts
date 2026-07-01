@@ -1,19 +1,5 @@
 import { NextResponse } from "next/server";
-
-// Twelve Data symbol → display name mapping
-const TD_SYMBOLS = ["EUR/USD", "GBP/USD", "USD/JPY", "USD/CHF", "AUD/USD", "NZD/USD", "USD/CAD", "XAU/USD", "IXIC", "DXY"] as const;
-const DISPLAY: Record<string, string> = {
-  "EUR/USD": "EURUSD",
-  "GBP/USD": "GBPUSD",
-  "USD/JPY": "USDJPY",
-  "USD/CHF": "USDCHF",
-  "AUD/USD": "AUDUSD",
-  "NZD/USD": "NZDUSD",
-  "USD/CAD": "USDCAD",
-  "XAU/USD": "XAUUSD",
-  "IXIC":    "NAS100",
-  "DXY":     "DXY",
-};
+import { getInstruments } from "@/lib/server/getInstruments";
 
 export interface PriceTick {
   sym:   string;
@@ -44,8 +30,15 @@ export async function GET() {
   const apiKey = process.env.TWELVE_DATA_API_KEY;
   if (!apiKey) return NextResponse.json(FALLBACK);
 
+  const instruments = await getInstruments();
+  const tdInstruments = instruments.filter((i) => i.tdSymbol != null);
+  const tdSymbols = tdInstruments.map((i) => i.tdSymbol!);
+  const displayMap = Object.fromEntries(tdInstruments.map((i) => [i.tdSymbol!, i.symbol]));
+
+  if (!tdSymbols.length) return NextResponse.json(FALLBACK);
+
   try {
-    const symbols = TD_SYMBOLS.join(",");
+    const symbols = tdSymbols.join(",");
     const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symbols)}&apikey=${apiKey}`;
 
     const controller = new AbortController();
@@ -56,13 +49,13 @@ export async function GET() {
     if (!res.ok) return NextResponse.json(FALLBACK);
     const data = (await res.json()) as Record<string, Record<string, string>>;
 
-    const ticks: PriceTick[] = TD_SYMBOLS.flatMap((sym) => {
+    const ticks: PriceTick[] = tdSymbols.flatMap((sym) => {
       const q = data[sym];
       if (!q || q.status === "error" || !q.close) return [];
       const price = parseFloat(q.close);
       const chg   = parseFloat(q.percent_change ?? "0");
       if (isNaN(price)) return [];
-      return [{ sym: DISPLAY[sym] ?? sym, price: formatPrice(price, sym), chg: Math.round(chg * 100) / 100 }];
+      return [{ sym: displayMap[sym] ?? sym, price: formatPrice(price, sym), chg: Math.round(chg * 100) / 100 }];
     });
 
     return NextResponse.json(ticks.length >= 3 ? ticks : FALLBACK, {

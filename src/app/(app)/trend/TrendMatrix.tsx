@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Panel, Icon, Button } from "@/components/ui";
 import { fmtDateTime } from "@/lib/date";
+import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -10,7 +11,7 @@ type Bias   = "bullish" | "bearish" | "ranging";
 type Matrix = Record<string, Record<string, Bias>>;
 type Notes  = Record<string, string>;
 
-const PAIRS = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"] as const;
+const PAIRS_FALLBACK = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
 const TFS   = ["MN", "W", "D", "H4", "H1"] as const;
 
 // ── Defaults (shown before first publish) ─────────────────────────────────────
@@ -183,10 +184,10 @@ function NoteRow({ pair, value, onChange, readonly }: { pair: string; value: str
   );
 }
 
-function SummaryRow({ matrix }: { matrix: Matrix }) {
+function SummaryRow({ matrix, pairs }: { matrix: Matrix; pairs: string[] }) {
   const tfBias = TFS.map((tf) => {
     const counts = { bullish: 0, bearish: 0, ranging: 0 };
-    PAIRS.forEach((p) => counts[matrix[p][tf]]++);
+    pairs.forEach((p) => { if (matrix[p]?.[tf]) counts[matrix[p][tf] as Bias]++; });
     const dom: Bias = counts.bullish > counts.bearish ? "bullish" : counts.bearish > counts.bullish ? "bearish" : "ranging";
     return { tf, dom, counts };
   });
@@ -221,6 +222,8 @@ function SummaryRow({ matrix }: { matrix: Matrix }) {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
+  const instrumentSymbols = useInstrumentSymbols();
+  const PAIRS = instrumentSymbols.length ? instrumentSymbols : PAIRS_FALLBACK;
   const [matrix, setMatrix]         = useState<Matrix>(DEFAULT);
   const [notes, setNotes]           = useState<Notes>(DEFAULT_NOTES);
   const [updatedAt, setUpdatedAt]   = useState<string | null>(null);
@@ -257,12 +260,14 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
 
   const confluenceMap = useMemo(
     () => Object.fromEntries(PAIRS.map((p) => [p, getConfluence(matrix[p])])),
-    [matrix]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [matrix, PAIRS.join(",")]
   );
 
   const tradeablePairs = useMemo(
-    () => PAIRS.filter((p) => confluenceMap[p].bias !== "mixed"),
-    [confluenceMap]
+    () => PAIRS.filter((p) => confluenceMap[p]?.bias !== "mixed"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [confluenceMap, PAIRS.join(",")]
   );
 
   function toggleCell(pair: string, tf: string) {
@@ -440,7 +445,7 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
                     );
                   })
               }
-              {!loading && <SummaryRow matrix={matrix} />}
+              {!loading && <SummaryRow matrix={matrix} pairs={PAIRS} />}
             </tbody>
           </table>
         </div>

@@ -21,7 +21,9 @@ const ADMIN_NAV: { section: string; items: NavItem[] } = {
     { href: "/admin",          icon: "monitoring",    label: "Platform Stats"  },
     { href: "/admin/students", icon: "manage_accounts", label: "Students"      },
     { href: "/admin/alerts",   icon: "campaign",      label: "Alerts Manager"  },
-    { href: "/admin/academy",  icon: "edit_note",     label: "Course Builder"  },
+    { href: "/admin/academy",      icon: "edit_note",     label: "Course Builder"   },
+    { href: "/admin/instruments",  icon: "currency_exchange", label: "Instruments"    },
+    { href: "/admin/pricing",      icon: "sell",              label: "Pricing"        },
   ],
 };
 
@@ -59,7 +61,9 @@ export function Sidebar() {
   const isInstructor = user?.role === "instructor";
   const nav = isInstructor ? [...NAV, ADMIN_NAV] : NAV;
   const [pending, startTransition] = useTransition();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() =>
+    typeof window !== "undefined" && localStorage.getItem("smfx_sidebar") === "1"
+  );
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -180,7 +184,11 @@ export function Sidebar() {
           ) : (
             <button
               type="button"
-              onClick={() => setCollapsed((c) => !c)}
+              onClick={() => setCollapsed((c) => {
+                const next = !c;
+                localStorage.setItem("smfx_sidebar", next ? "1" : "0");
+                return next;
+              })}
               className="shrink-0 flex items-center justify-center rounded-lg transition-colors"
               style={{ width: 28, height: 28, color: "var(--ink-dim)", background: "transparent" }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(8,174,170,0.1)"; }}
@@ -215,7 +223,7 @@ export function Sidebar() {
                   <NavLink
                     key={item.href}
                     item={item}
-                    active={pathname === item.href}
+                    active={pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/"))}
                     collapsed={effectiveCollapsed}
                     onNavigate={isMobile ? () => setMobileSidebarOpen(false) : undefined}
                   />
@@ -252,7 +260,7 @@ export function Sidebar() {
 const DROPUP_LINKS = [
   { href: "/profile",  icon: "person",            label: "Profile"    },
   { href: "/settings", icon: "settings",          label: "Settings"   },
-  { href: "/pricing",  icon: "workspace_premium", label: "Membership" },
+  { href: "/membership", icon: "workspace_premium", label: "Membership" },
 ];
 
 function ProfileButton({

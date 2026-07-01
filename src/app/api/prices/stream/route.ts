@@ -1,9 +1,10 @@
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const TD_SUBSCRIBE = "EUR/USD,GBP/USD,USD/JPY,USD/CHF,AUD/USD,NZD/USD,USD/CAD,XAU/USD,IXIC,DXY";
+import { getInstruments } from "@/lib/server/getInstruments";
 
-const DISPLAY: Record<string, string> = {
+const TD_SUBSCRIBE_FALLBACK = "EUR/USD,GBP/USD,USD/JPY,USD/CHF,AUD/USD,NZD/USD,USD/CAD,XAU/USD,IXIC,DXY";
+const DISPLAY_FALLBACK: Record<string, string> = {
   "EUR/USD": "EURUSD",
   "GBP/USD": "GBPUSD",
   "USD/JPY": "USDJPY",
@@ -25,6 +26,15 @@ function fmt(price: number, tdSym: string): string {
 export async function GET() {
   const apiKey = process.env.TWELVE_DATA_API_KEY;
   if (!apiKey) return new Response("No API key", { status: 503 });
+
+  const instruments = await getInstruments().catch(() => []);
+  const tdInstruments = instruments.filter((i) => i.tdSymbol != null);
+  const TD_SUBSCRIBE = tdInstruments.length
+    ? tdInstruments.map((i) => i.tdSymbol!).join(",")
+    : TD_SUBSCRIBE_FALLBACK;
+  const DISPLAY: Record<string, string> = tdInstruments.length
+    ? Object.fromEntries(tdInstruments.map((i) => [i.tdSymbol!, i.symbol]))
+    : DISPLAY_FALLBACK;
 
   const enc = new TextEncoder();
   let ws: WebSocket | null = null;

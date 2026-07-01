@@ -148,11 +148,20 @@ interface AppStore {
 
 
 
+function loadJournaledAlerts(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = localStorage.getItem("smfx_journaled");
+    if (!raw) return new Set();
+    return new Set(JSON.parse(raw) as string[]);
+  } catch { return new Set(); }
+}
+
 export const useStore = create<AppStore>((set, get) => ({
   feed: [],
   notifs: [],
   priceAlerts: [],
-  journaledAlerts: new Set(),
+  journaledAlerts: loadJournaledAlerts(),
   likedPosts: new Set(),
   user: null,
   toasts: [],
@@ -186,7 +195,11 @@ export const useStore = create<AppStore>((set, get) => ({
     })),
 
   addJournaledAlert: (id) =>
-    set((s) => ({ journaledAlerts: new Set(s.journaledAlerts).add(id) })),
+    set((s) => {
+      const next = new Set(s.journaledAlerts).add(id);
+      try { localStorage.setItem("smfx_journaled", JSON.stringify([...next])); } catch { /* ignore */ }
+      return { journaledAlerts: next };
+    }),
 
   addPriceAlert: (pa) => {
     const id = "pa" + Date.now();

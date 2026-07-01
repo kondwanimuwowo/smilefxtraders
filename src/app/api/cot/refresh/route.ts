@@ -9,21 +9,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { getInstruments } from "@/lib/server/getInstruments";
 
 const CFTC_BASE = "https://publicreporting.cftc.gov/resource/6dca-aqww.json";
-
-const INSTRUMENTS = [
-  { pair: "EURUSD", code: "099741", usdBase: false },
-  { pair: "GBPUSD", code: "096742", usdBase: false },
-  { pair: "AUDUSD", code: "232741", usdBase: false },
-  { pair: "NZDUSD", code: "112741", usdBase: false },
-  { pair: "USDJPY", code: "097741", usdBase: true  },
-  { pair: "USDCHF", code: "092741", usdBase: true  },
-  { pair: "USDCAD", code: "090741", usdBase: true  },
-  { pair: "XAUUSD", code: "088691", usdBase: false },
-  { pair: "NAS100", code: "209742", usdBase: false },
-  { pair: "DXY",    code: "098662", usdBase: false },
-] as const;
 
 interface SocrataRow {
   report_date_as_yyyy_mm_dd:   string;
@@ -92,15 +80,18 @@ export async function POST() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const instruments = await getInstruments();
+  const cotInstruments = instruments.filter((i) => i.cotCode != null);
+
   const results: Record<string, string> = {};
 
   await Promise.allSettled(
-    INSTRUMENTS.map(async (inst) => {
+    cotInstruments.map(async (inst) => {
       try {
-        const count = await syncInstrument(inst.code, inst.pair, inst.usdBase);
-        results[inst.pair] = `${count} rows upserted`;
+        const count = await syncInstrument(inst.cotCode!, inst.symbol, !inst.cotInverted);
+        results[inst.symbol] = `${count} rows upserted`;
       } catch (e) {
-        results[inst.pair] = `error: ${e instanceof Error ? e.message : String(e)}`;
+        results[inst.symbol] = `error: ${e instanceof Error ? e.message : String(e)}`;
       }
     })
   );

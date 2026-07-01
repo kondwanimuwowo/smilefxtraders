@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { useStore } from "@/lib/store";
 import { useTrades, useAddTrade } from "@/lib/hooks/useTrades";
+import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 import {
   Panel, PanelHead, StatTile, DirPill, Chip, Avatar,
   Button, Ring, Sparkline, Icon, CandleChart, EmptyState,
@@ -13,6 +14,7 @@ import {
 import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
 import type { InstructorAlert } from "@/app/(app)/alerts/Alerts";
 import type { CalEvent } from "@/app/api/calendar/route";
+import { LogTradeModal } from "@/app/(app)/journal/LogTradeModal";
 
 // ── Candle generator (seeded RNG — matches design reference) ──────────────────
 function mulberry32(a: number) {
@@ -302,8 +304,8 @@ function useTodayEvents() {
 
 // ── Trend snapshot — fetched from API (instructor publishes, everyone reads) ───
 
-const TREND_PAIRS = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"] as const;
 const TREND_TFS   = ["MN", "W", "D", "H4", "H1"] as const;
+const TREND_PAIRS_FALLBACK = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
 
 type TrendBias = "bullish" | "bearish" | "ranging";
 type TrendMatrixData = Record<string, Record<string, TrendBias>>;
@@ -323,6 +325,7 @@ const TREND_DEFAULT: TrendMatrixData = {
 function useTrendSnapshot() {
   const [matrix, setMatrix]       = useState<TrendMatrixData>(TREND_DEFAULT);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const trendPairs = useInstrumentSymbols();
 
   useEffect(() => {
     fetch("/api/trend-matrix")
@@ -334,8 +337,10 @@ function useTrendSnapshot() {
       .catch(() => {/* keep defaults */});
   }, []);
 
-  const rows = TREND_PAIRS.map((pair) => {
-    const row = matrix[pair] ?? TREND_DEFAULT[pair];
+  const activePairs = trendPairs.length ? trendPairs : TREND_PAIRS_FALLBACK;
+  const rows = activePairs.map((pair) => {
+    const DEFAULT_ROW = { MN: "ranging", W: "ranging", D: "ranging", H4: "ranging", H1: "ranging" } as Record<string, TrendBias>;
+    const row = matrix[pair] ?? TREND_DEFAULT[pair] ?? DEFAULT_ROW;
     const counts = { bullish: 0, bearish: 0, ranging: 0 };
     TREND_TFS.forEach((tf) => { counts[row[tf] as TrendBias]++; });
     const bias: string = counts.bullish > counts.bearish
@@ -685,11 +690,12 @@ export function Dashboard() {
   const { trades, stats } = useTrades();
   const { data: todayEvents = [], isLoading: eventsLoading } = useTodayEvents();
   const { rows: trendRows, updatedAt: trendUpdatedAt } = useTrendSnapshot();
+  const [logOpen, setLogOpen] = useState(false);
 
   // Last 4 trades for discipline checklist
   const recentTrades = trades.slice(0, 4);
 
-  const eq = stats.equity.length > 1 ? stats.equity : [0, 0.5, 1, 0.7, 1.4, 2.1, 1.8, 2.6];
+  const eq = stats.equity.length > 1 ? stats.equity : null;
 
   return (
     <div>
@@ -710,7 +716,7 @@ export function Dashboard() {
             <span className="font-bold">{user?.name?.split(" ")[0] ?? "Trader"}</span>
           </h1>
         </div>
-        <Button variant="primary" icon="add">Log a trade</Button>
+        <Button variant="primary" icon="add" onClick={() => setLogOpen(true)}>Log a trade</Button>
       </div>
 
       {/* ── Stat tiles ── */}
@@ -738,7 +744,7 @@ export function Dashboard() {
         />
         <StatTile
           label="Discipline"
-          value={stats.discFollowed + "/100"}
+          value={trades.length === 0 ? "—" : stats.discFollowed + "%"}
           sub="rules followed"
           tone={stats.discFollowed >= 90 ? "gold" : "neutral"}
           icon="verified"
@@ -766,11 +772,11 @@ export function Dashboard() {
 
           {/* Equity curve */}
           <Panel pad={0} style={{ overflow: "hidden" }}>
-            {trades.length === 0 ? (
+            {!eq ? (
               <EmptyState
                 icon="candlestick_chart"
-                title="No trades logged yet"
-                body="Log your first trade to start building your performance history."
+                title="No closed trades yet"
+                body="Close your first trade to start building your equity curve."
               />
             ) : (
               <>
@@ -814,7 +820,7 @@ export function Dashboard() {
                     className="text-[10px] uppercase tracking-widest mt-0.5"
                     style={{ color: "var(--ink-dim)" }}
                   >
-                    /100
+                    %
                   </div>
                 </div>
               </Ring>
@@ -968,6 +974,7 @@ export function Dashboard() {
 
         </div>
       </div>
+      <LogTradeModal open={logOpen} onClose={() => setLogOpen(false)} />
     </div>
   );
 }

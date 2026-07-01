@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { useStore } from "@/lib/store";
 import { Panel, PanelHead, Avatar, DirPill, Chip, Icon, Button, EmptyState, Select } from "@/components/ui";
+import { useInstruments } from "@/lib/hooks/useInstruments";
 
 // ── API types ─────────────────────────────────────────────────────────────────
 
@@ -314,7 +315,7 @@ function PostCard({ post }: { post: ApiPost }) {
 
 // ── Compose ───────────────────────────────────────────────────────────────────
 
-const PAIR_OPTIONS = [
+const PAIR_OPTIONS_FALLBACK = [
   { v: "",        l: "Tag pair…"  },
   { header: "Majors"              },
   { v: "EURUSD",  l: "EURUSD"    },
@@ -355,6 +356,10 @@ function TogglePill({
 function ComposeBox() {
   const { user, toast }            = useStore();
   const { mutate: createPost, isPending, error } = useCreatePost();
+  const { data: instruments = [] } = useInstruments();
+  const pairOptions = instruments.length
+    ? [{ v: "", l: "Tag pair…" }, ...instruments.map((i) => ({ v: i.symbol, l: i.symbol }))]
+    : PAIR_OPTIONS_FALLBACK;
   const [text, setText]            = useState("");
   const [pair, setPair]            = useState("");
   const [dir, setDir]              = useState<"" | "long" | "short">("");
@@ -412,7 +417,7 @@ function ComposeBox() {
             compact
             value={pair}
             placeholder="Tag pair…"
-            options={PAIR_OPTIONS}
+            options={pairOptions}
             onChange={(v) => { setPair(v); if (!v) { setDir(""); setResult(""); } }}
           />
         </div>
@@ -469,7 +474,7 @@ function ComposeBox() {
       {error instanceof Error && error.message.includes("Pro") && (
         <div className="px-5 pb-3 text-[12px]" style={{ color: "var(--coral)" }}>
           Community posting requires a Pro plan.{" "}
-          <a href="/pricing" style={{ color: "var(--teal)", textDecoration: "underline" }}>Upgrade</a>
+          <a href="/membership" style={{ color: "var(--teal)", textDecoration: "underline" }}>Upgrade</a>
         </div>
       )}
     </div>
@@ -552,17 +557,29 @@ function Leaderboard() {
 
 // ── Community stats ───────────────────────────────────────────────────────────
 
+interface CommunityStatsData { members: number; tradesLogged: number; countries: number; avgWinRate: number }
+
+function useCommunityStats() {
+  return useQuery<CommunityStatsData>({
+    queryKey: ["community-stats"],
+    queryFn: () => fetch("/api/community/stats").then((r) => r.json()),
+    staleTime: 15 * 60 * 1000,
+  });
+}
+
 function CommunityStats() {
+  const { data } = useCommunityStats();
+  const stats = [
+    { label: "Members",       value: data ? data.members.toLocaleString()       : "—", icon: "person"    },
+    { label: "Trades logged", value: data ? data.tradesLogged.toLocaleString()  : "—", icon: "menu_book" },
+    { label: "Countries",     value: data ? String(data.countries)               : "—", icon: "public"    },
+    { label: "Win rate avg",  value: data ? data.avgWinRate + "%"               : "—", icon: "percent"   },
+  ];
   return (
     <Panel>
       <PanelHead title="Community stats" icon="groups" />
       <div className="grid grid-cols-2 gap-3">
-        {[
-          { label: "Members",       value: "2,418",  icon: "person"    },
-          { label: "Trades logged", value: "14,832", icon: "menu_book" },
-          { label: "Countries",     value: "12",     icon: "public"    },
-          { label: "Win rate avg",  value: "58%",    icon: "percent"   },
-        ].map(({ label, value, icon }) => (
+        {stats.map(({ label, value, icon }) => (
           <div key={label} className="rounded-xl px-3 py-3 flex flex-col gap-1" style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}>
             <span className="material-symbols-rounded text-[16px]" style={{ color: "var(--teal)" }}>{icon}</span>
             <div className="font-display font-bold text-[18px]" style={{ color: "var(--ink-strong)" }}>{value}</div>

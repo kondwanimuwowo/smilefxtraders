@@ -1,23 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
-
-// ── Instruments ───────────────────────────────────────────────────────────────
-// min52w / max52w are fallback ranges used when fewer than 52 weeks are in the
-// DB. Once the seed runs they are computed dynamically from real data.
-
-const INSTRUMENTS = [
-  { pair: "EURUSD", label: "Euro FX",          usdBase: false, min52w: -98400,  max52w: 224600,  minC52w: -252400, maxC52w: 98800   },
-  { pair: "GBPUSD", label: "British Pound",     usdBase: false, min52w: -74200,  max52w: 58600,   minC52w: -68400,  maxC52w: 82400   },
-  { pair: "AUDUSD", label: "Australian Dollar", usdBase: false, min52w: -88400,  max52w: 72600,   minC52w: -84200,  maxC52w: 96400   },
-  { pair: "NZDUSD", label: "NZ Dollar",         usdBase: false, min52w: -32800,  max52w: 28400,   minC52w: -28600,  maxC52w: 36200   },
-  { pair: "USDJPY", label: "Japanese Yen",      usdBase: true,  min52w: -86400,  max52w: 76200,   minC52w: -78200,  maxC52w: 88400   },
-  { pair: "USDCHF", label: "Swiss Franc",       usdBase: true,  min52w: -42600,  max52w: 38400,   minC52w: -36400,  maxC52w: 44200   },
-  { pair: "USDCAD", label: "Canadian Dollar",   usdBase: true,  min52w: -62800,  max52w: 56200,   minC52w: -58400,  maxC52w: 66400   },
-  { pair: "XAUUSD", label: "Gold",              usdBase: false, min52w: 68400,   max52w: 198200,  minC52w: -242600, maxC52w: -82400  },
-  { pair: "NAS100", label: "NASDAQ E-mini",     usdBase: false, min52w: -48600,  max52w: 82400,   minC52w: -58400,  maxC52w: 42600   },
-  { pair: "DXY",    label: "USD Index",         usdBase: false, min52w: -62400,  max52w: 48200,   minC52w: -52800,  maxC52w: 64600   },
-] as const;
+import { getInstruments } from "@/lib/server/getInstruments";
 
 // ── Types exported for the client component ────────────────────────────────────
 
@@ -127,9 +111,23 @@ export async function GET(_req: NextRequest) {
     }
   }
 
+  // Load instrument metadata from DB
+  const instruments = await getInstruments();
+  const cotInstruments = instruments
+    .filter((i) => i.cotContract != null)
+    .map((i) => ({
+      pair:    i.symbol,
+      label:   i.label,
+      usdBase: !i.cotInverted,
+      min52w:  i.cotMin52w  ?? 0,
+      max52w:  i.cotMax52w  ?? 0,
+      minC52w: i.cotMinC52w ?? 0,
+      maxC52w: i.cotMaxC52w ?? 0,
+    }));
+
   // Fetch 52 weeks for each instrument from Supabase in parallel
   const dbResults = await Promise.allSettled(
-    INSTRUMENTS.map((inst) =>
+    cotInstruments.map((inst) =>
       prisma.cotReport.findMany({
         where:   { pair: inst.pair },
         orderBy: { reportDate: "desc" },
@@ -141,10 +139,10 @@ export async function GET(_req: NextRequest) {
 
   // Count total available history per instrument
   const totalCounts = await Promise.allSettled(
-    INSTRUMENTS.map((inst) => prisma.cotReport.count({ where: { pair: inst.pair } }))
+    cotInstruments.map((inst) => prisma.cotReport.count({ where: { pair: inst.pair } }))
   );
 
-  const entries: CotEntry[] = INSTRUMENTS.map((inst, i) => {
+  const entries: CotEntry[] = cotInstruments.map((inst, i) => {
     const result     = dbResults[i];
     const countResult = totalCounts[i];
     const rows = result.status === "fulfilled" ? result.value : [];
@@ -166,7 +164,7 @@ export async function GET(_req: NextRequest) {
       return computeEntry(inst.pair, inst.label, inst.usdBase, history8, range52, inst, totalWeeks);
     }
 
-    // DB is empty for this instrument — this only happens before the seed runs
+    // DB is empty for this instrument
     return {
       pair:           inst.pair,
       label:          inst.label,

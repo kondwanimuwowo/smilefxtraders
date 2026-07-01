@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useStore } from "@/lib/store";
 import { Icon } from "@/components/ui";
+import { SearchModal } from "@/components/search/SearchModal";
 import type { PriceTick } from "@/app/api/prices/route";
 
 const FALLBACK: PriceTick[] = [
@@ -72,6 +74,18 @@ function useLivePrices() {
 export function Topbar() {
   const { user, unreadCount, setMobileSidebarOpen } = useStore();
   const { ticks, live } = useLivePrices();
+  const router = useRouter();
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const openSearch = useCallback(() => setSearchOpen(true), []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); openSearch(); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [openSearch]);
 
   return (
     <header
@@ -137,7 +151,8 @@ export function Topbar() {
         {/* Search */}
         <button
           type="button"
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors"
+          onClick={openSearch}
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-[var(--bg-hover)]"
           style={{ background: "var(--panel-2)", color: "var(--ink-mid)", border: "1px solid var(--line)" }}
         >
           <Icon name="search" size={16} />
@@ -149,6 +164,7 @@ export function Topbar() {
             ⌘K
           </kbd>
         </button>
+        {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
 
         <ThemeToggle />
 
@@ -159,6 +175,7 @@ export function Topbar() {
         {/* User chip */}
         <button
           type="button"
+          onClick={() => router.push("/profile")}
           className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 transition-colors hover:bg-[var(--hover)]"
           style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
         >

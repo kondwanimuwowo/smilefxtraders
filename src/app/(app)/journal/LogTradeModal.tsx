@@ -7,8 +7,8 @@ import { useAddTrade, useUpdateTrade } from "@/lib/hooks/useTrades";
 import { Modal, Button, Field, MonoInput, Textarea, Select, SegRow, Stars, ImageDrop } from "@/components/ui";
 import { MODELS, TAG_POOL, FIB_TAG_OPTIONS, type Framework } from "@/lib/frameworks";
 import confetti from "canvas-confetti";
+import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 
-const PAIRS    = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
 const SESSIONS = ["London", "New York", "Asia"];
 
 import { format } from "@/lib/date";
@@ -68,12 +68,14 @@ interface Props {
   open: boolean;
   onClose: () => void;
   edit?: Trade | null;
+  preset?: Partial<Trade> | null;
 }
 
-export function LogTradeModal({ open, onClose, edit }: Props) {
+export function LogTradeModal({ open, onClose, edit, preset }: Props) {
   const { toast, user } = useStore();
   const { mutate: addTrade } = useAddTrade();
   const { mutate: updateTrade } = useUpdateTrade();
+  const pairs = useInstrumentSymbols();
   const defaultFw = (user?.framework ?? "SMC") as Framework;
   const [f, setF] = useState<FormState>(makeBlank(defaultFw));
 
@@ -103,10 +105,28 @@ export function LogTradeModal({ open, onClose, edit }: Props) {
         note:       edit.note ?? "",
         chartUrl:   edit.chartUrl ?? "",
       });
+    } else if (preset) {
+      const fw = (preset.framework ?? defaultFw) as Framework;
+      const blank = makeBlank(fw);
+      setF({
+        ...blank,
+        framework:  fw,
+        pair:       preset.pair       ?? blank.pair,
+        dir:        preset.dir        ?? blank.dir,
+        model:      preset.model      ?? blank.model,
+        session:    preset.session    ?? blank.session,
+        rr:         preset.rr         != null ? String(preset.rr)         : blank.rr,
+        riskPct:    preset.riskPct    != null ? String(preset.riskPct)    : blank.riskPct,
+        entryPrice: preset.entryPrice != null ? String(preset.entryPrice) : blank.entryPrice,
+        stopLoss:   preset.stopLoss   != null ? String(preset.stopLoss)   : blank.stopLoss,
+        takeProfit: preset.takeProfit != null ? String(preset.takeProfit) : blank.takeProfit,
+        result:     preset.result     ?? blank.result,
+        discipline: preset.discipline != null ? (preset.discipline ? "yes" : "no") : blank.discipline,
+      });
     } else {
       setF(makeBlank(defaultFw));
     }
-  }, [open, edit, defaultFw]);
+  }, [open, edit, preset, defaultFw]);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setF((p) => ({ ...p, [k]: v }));
@@ -155,6 +175,7 @@ export function LogTradeModal({ open, onClose, edit }: Props) {
       updateTrade({ id: edit.id, patch: payload });
       toast("Trade updated", "teal", "edit");
     } else {
+      // handles both blank new trade and preset-filled trade from validator
       addTrade(payload);
       toast(`${f.pair} ${f.dir} logged`, "teal", "add_task");
       if (f.result === "win" && f.discipline === "yes") {
@@ -189,14 +210,14 @@ export function LogTradeModal({ open, onClose, edit }: Props) {
   const modalSub   = isSMC
     ? "Tag it to its SMC model — your future self will thank you."
     : "Tag it to its S&D setup — your future self will thank you.";
-  const isEditLock = !!edit;
+  const isEditLock = !!edit; // only lock framework when editing a saved trade, not when using a preset
   const isClosed   = f.result !== "open";
 
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title={edit ? "Edit trade" : "Log a trade"}
+      title={edit ? "Edit trade" : preset ? "Log this setup" : "Log a trade"}
       sub={modalSub}
       width={680}
       footer={
@@ -234,7 +255,7 @@ export function LogTradeModal({ open, onClose, edit }: Props) {
           <Select
             value={f.pair}
             onChange={(v) => set("pair", v)}
-            options={PAIRS}
+            options={pairs.length ? pairs : ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"]}
           />
         </Field>
         <Field label="Direction" half>

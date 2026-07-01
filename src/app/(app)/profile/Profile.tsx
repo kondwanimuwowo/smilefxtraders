@@ -105,8 +105,8 @@ export function Profile() {
   // badges driven from trade data
   const badges = computeBadges(trades, stats, plan);
 
-  // equity sparkline
-  const equityData = stats.equity.length > 1 ? stats.equity : [0, 0.5, 1.2, 0.8, 2.1, 1.6, 2.8];
+  // equity sparkline — null when no closed trades yet
+  const equityData = stats.equity.length > 1 ? stats.equity : null;
 
   // last 5 trades for recent history
   const recentTrades = trades.slice(0, 5);
@@ -210,15 +210,21 @@ export function Profile() {
           {/* Equity sparkline */}
           <Panel>
             <PanelHead title="Equity curve" icon="show_chart" sub="Cumulative R — all closed trades" />
-            <div style={{ height: 120, marginTop: 4 }}>
-              <Sparkline
-                data={equityData}
-                width={600}
-                height={120}
-                color={stats.netR >= 0 ? "var(--teal)" : "var(--coral)"}
-                fill
-              />
-            </div>
+            {equityData ? (
+              <div style={{ height: 120, marginTop: 4 }}>
+                <Sparkline
+                  data={equityData}
+                  width={600}
+                  height={120}
+                  color={stats.netR >= 0 ? "var(--teal)" : "var(--coral)"}
+                  fill
+                />
+              </div>
+            ) : (
+              <div className="py-6 text-center text-[13px]" style={{ color: "var(--ink-dim)" }}>
+                Log your first closed trade to see your equity curve.
+              </div>
+            )}
           </Panel>
 
           {/* Performance breakdown */}

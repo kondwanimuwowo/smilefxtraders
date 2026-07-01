@@ -224,7 +224,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
         <div>
           <div className="font-display font-bold text-[15px]" style={{ color: "var(--ink-strong)" }}>{entry.label}</div>
           <div className="text-[12px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
-            No COT data yet — seed the database to load historical positioning.
+            COT data not yet available — check back after the next Tuesday sync.
           </div>
         </div>
       </div>
@@ -524,7 +524,7 @@ export function CotReports() {
             CFTC Commitments of Traders data is available on the <strong style={{ color: "var(--ink-strong)" }}>Pro Trader</strong> and <strong style={{ color: "var(--ink-strong)" }}>Funded Track</strong> plans. Understand institutional positioning to align your bias with smart money.
           </p>
           <a
-            href="/pricing"
+            href="/membership"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-[13.5px]"
             style={{ background: "var(--gold)", color: "var(--navy-deep)" }}
           >

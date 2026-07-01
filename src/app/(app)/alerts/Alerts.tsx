@@ -6,6 +6,7 @@ import { useStore } from "@/lib/store";
 import { Panel, DirPill, Chip, Icon, Button, CandleChart, Select, Avatar } from "@/components/ui";
 import { useAddTrade } from "@/lib/hooks/useTrades";
 import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
+import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -207,7 +208,6 @@ function buildChart(alert: InstructorAlert): { candles: Candle[]; annotations: {
 
 // ── Post Alert Modal ──────────────────────────────────────────────────────────
 
-const PAIRS    = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
 const SESSIONS = ["London", "New York", "Asia"];
 const MODELS   = [
   "Liquidity Sweep → FVG", "OB + BOS", "Liquidity → CHoCH",
@@ -216,6 +216,7 @@ const MODELS   = [
 
 export function PostAlertModal({ onClose }: { onClose: () => void }) {
   const { mutate: postAlert, isPending } = usePostAlert();
+  const pairs = useInstrumentSymbols();
   const [form, setForm] = useState({
     pair: "XAUUSD", dir: "long" as "long" | "short",
     model: MODELS[0], session: "London",
@@ -262,7 +263,7 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Pair</label>
-              <Select value={form.pair} onChange={(v) => set("pair", v)} options={PAIRS} />
+              <Select value={form.pair} onChange={(v) => set("pair", v)} options={pairs.length ? pairs : ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"]} />
             </div>
             <div>
               <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Direction</label>
@@ -540,8 +541,6 @@ const STATUS_FILTERS = [
   { v: "closed", l: "Closed" },
 ] as const;
 
-const PAIR_FILTERS = ["All", "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
-
 // ── Alerts page ───────────────────────────────────────────────────────────────
 
 export function Alerts() {
@@ -549,6 +548,8 @@ export function Alerts() {
   const { mutate: addTrade } = useAddTrade();
   const { data: alerts = [], isLoading } = useAlerts();
   const [showPostModal, setShowPostModal] = useState(false);
+  const instrumentSymbols = useInstrumentSymbols();
+  const pairFilters = ["All", ...(instrumentSymbols.length ? instrumentSymbols : ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"])];
 
   const isInstructor = user?.role === "instructor";
 
@@ -590,6 +591,21 @@ export function Alerts() {
   return (
     <div className="view">
       {showPostModal && <PostAlertModal onClose={() => setShowPostModal(false)} />}
+
+      {/* Free-plan delay warning */}
+      {user?.plan === "free" && (
+        <div
+          className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4 text-[13px]"
+          style={{ background: "rgba(248,185,61,0.08)", border: "1px solid rgba(248,185,61,0.25)", color: "var(--gold)" }}
+        >
+          <Icon name="schedule" size={16} style={{ color: "var(--gold)", flexShrink: 0 }} />
+          <span>
+            <strong>Free plan</strong> — alerts are shown with a 4-hour delay.{" "}
+            <a href="/membership" className="underline font-semibold" style={{ color: "var(--gold)" }}>Upgrade to Pro</a>{" "}
+            for live calls.
+          </span>
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
@@ -664,7 +680,7 @@ export function Alerts() {
           ))}
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
-          {PAIR_FILTERS.map((p) => (
+          {pairFilters.map((p) => (
             <button
               key={p} type="button" onClick={() => setPairFilter(p)}
               className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all"
@@ -729,7 +745,7 @@ export function Alerts() {
           <Icon name="workspace_premium" size={17} fill style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }} />
           <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
             <strong style={{ color: "var(--ink-strong)" }}>Pro & Funded Track traders</strong> receive alerts in real time via this feed and push notifications. Free plan members see alerts with a 4-hour delay. Upgrade in{" "}
-            <a href="/pricing" style={{ color: "var(--gold)", textDecoration: "none" }}>Membership</a>.
+            <a href="/membership" style={{ color: "var(--gold)", textDecoration: "none" }}>Membership</a>.
           </p>
         </div>
       )}

@@ -341,6 +341,44 @@ model TrendMatrix {
   @@map("trend_matrix")
 }
 
+// ─── Instruments ─────────────────────────────────────────────────────────────
+
+model Instrument {
+  id           String   @id @default(cuid())
+  symbol       String   @unique          // "EURUSD"
+  label        String                    // "EUR/USD"
+  category     String                    // "forex" | "commodity" | "index"
+  pipSize      Float                     // 0.0001 / 0.01 / 1
+  pipValue     Float                     // USD value per pip per standard lot
+  tdSymbol     String?  @map("td_symbol")       // Twelve Data: "EUR/USD", "IXIC"
+  cotContract  String?  @map("cot_contract")     // CFTC label used in DB CotReport.pair (same as symbol)
+  cotCode      String?  @map("cot_code")         // CFTC Socrata API contract code (e.g. "099741")
+  cotMin52w    Float?   @map("cot_min52w")
+  cotMax52w    Float?   @map("cot_max52w")
+  cotMinC52w   Float?   @map("cot_min_c52w")
+  cotMaxC52w   Float?   @map("cot_max_c52w")
+  cotInverted  Boolean  @default(false) @map("cot_inverted") // true for USD-base pairs
+  fxoTracked   Boolean  @default(false) @map("fxo_tracked")  // in FX option expiries
+  active       Boolean  @default(true)
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("instruments")
+}
+
+// ─── Plan pricing config ─────────────────────────────────────────────────────
+
+model PlanConfig {
+  planId     String   @id @map("plan_id")  // "free" | "pro" | "funded"
+  monthlyZmw Int      @default(0)  @map("monthly_zmw")
+  annualZmw  Int      @default(0)  @map("annual_zmw")
+  monthlyUsd Int      @default(0)  @map("monthly_usd")
+  annualUsd  Int      @default(0)  @map("annual_usd")
+  updatedAt  DateTime @updatedAt   @map("updated_at")
+
+  @@map("plan_configs")
+}
+
 // ─── Badges ──────────────────────────────────────────────────────────────────
 
 model UserBadge {

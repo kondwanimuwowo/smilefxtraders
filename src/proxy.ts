@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/signup", "/onboarding", "/api"];
+const PUBLIC_PREFIXES = ["/login", "/signup", "/onboarding", "/api", "/features", "/pricing", "/about", "/learn", "/our-community", "/insights", "/contact", "/stories", "/resources"];
+const PUBLIC_EXACT    = ["/"]; // exact match only
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -35,7 +36,9 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getSession();
 
   const { pathname } = request.nextUrl;
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+  const isPublic =
+    PUBLIC_EXACT.includes(pathname) ||
+    PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
 
   if (!session && !isPublic) {
     const url = request.nextUrl.clone();
@@ -43,7 +46,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (session && isPublic && !pathname.startsWith("/api") && pathname !== "/onboarding") {
+  // Only redirect authenticated users away from auth pages — not marketing pages
+  const isAuthPage = ["/login", "/signup"].some((p) => pathname.startsWith(p));
+  if (session && isAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);

@@ -9,10 +9,10 @@ import {
   Button, DirPill, Chip, StatTile, Stars, Icon, EmptyState, Panel, Sparkline,
 } from "@/components/ui";
 import { LogTradeModal } from "./LogTradeModal";
+import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const PAIRS   = ["EURUSD", "GBPUSD", "NZDUSD", "XAUUSD", "NAS100"];
 const FILTERS = ["All", "Wins", "Losses", "Open"] as const;
 type Filter   = typeof FILTERS[number];
 
@@ -483,6 +483,7 @@ export function Journal() {
   const { toast } = useStore();
   const { trades, stats } = useTrades();
   const { mutate: deleteTrade } = useDeleteTrade();
+  const pairs = useInstrumentSymbols();
 
   const [filter, setFilter]     = useState<Filter>("All");
   const [pairFilter, setPair]   = useState<string | null>(null);
@@ -627,7 +628,7 @@ export function Journal() {
 
             {/* Pair chips */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              {PAIRS.map((pair) => (
+              {pairs.map((pair) => (
                 <button
                   key={pair}
                   type="button"

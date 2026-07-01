@@ -1,15 +1,24 @@
 import type { ReactNode } from "react";
 import { Avatar } from "@/components/ui";
+import { prisma } from "@/lib/prisma";
 
 const FEATURES = [
-  { icon: "menu_book", text: "Journal & analytics that find your edge" },
-  { icon: "checklist", text: "Rules Validator built on the ICT model" },
+  { icon: "menu_book",            text: "Journal & analytics that find your edge" },
+  { icon: "checklist",            text: "Rules Validator built on the SMC model" },
   { icon: "notifications_active", text: "Live setup alerts from your instructor" },
 ];
 
 const AVATAR_SEEDS = [11, 7, 2, 4];
 
-export function AuthShell({ children }: { children: ReactNode }) {
+export async function AuthShell({ children }: { children: ReactNode }) {
+  const memberCount = await prisma.user.count();
+
+  const memberLabel = memberCount === 0
+    ? "Be the first to join"
+    : memberCount < 10
+    ? `${memberCount} traders and growing`
+    : `${memberCount.toLocaleString()}+ traders growing across Africa`;
+
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-[1.05fr_1fr]">
       {/* ── Brand panel — full version, desktop+ only ── */}
@@ -40,7 +49,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
             Trade smart money.<br />Together.
           </h1>
           <p className="mt-4 leading-relaxed max-w-[380px]" style={{ fontSize: 15, color: "rgba(255,255,255,0.7)" }}>
-            Zambia&apos;s home for ICT &amp; Supply-and-Demand traders. Journal your edge, validate every setup, and follow live calls from Kondwani.
+            A professional desk for SMC &amp; Supply-and-Demand traders. Journal your edge, validate every setup, and follow live calls from Kondwani.
           </p>
 
           {/* Feature rows */}
@@ -61,7 +70,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        {/* Avatar stack */}
+        {/* Avatar stack + real count */}
         <div className="flex items-center gap-3">
           <div className="flex">
             {AVATAR_SEEDS.map((seed, i) => (
@@ -71,7 +80,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
             ))}
           </div>
           <span style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>
-            2,400+ traders growing across Africa
+            {memberLabel}
           </span>
         </div>
       </div>

@@ -8,6 +8,7 @@ import {
   MODELS, MODEL_INFO, validate, FIB_LEVELS,
   BLANK_SETUP, type Framework, type Setup, type Status, type RuleResult, type ValidationResult,
 } from "@/lib/frameworks";
+import { useInstruments } from "@/lib/hooks/useInstruments";
 
 // ── Grade display helpers ─────────────────────────────────────────────────────
 
@@ -163,10 +164,6 @@ function timeUntilOpen(session: string): string {
 
 // ── Position size helpers ─────────────────────────────────────────────────────
 
-const PIP_VALUE: Record<string, number> = {
-  EURUSD: 10, GBPUSD: 10, USDJPY: 9, USDCHF: 10, AUDUSD: 10, NZDUSD: 10, USDCAD: 10,
-  XAUUSD: 100, NAS100: 1,
-};
 
 function calcPipDist(pair: string, entry: number, sl: number): number {
   if (pair === "XAUUSD" || pair === "NAS100") return Math.abs(entry - sl);
@@ -226,6 +223,10 @@ function HistoryRow({ entry }: { entry: HistoryEntry }) {
 // ── Validator ─────────────────────────────────────────────────────────────────
 
 export function Validator() {
+  const { data: instruments = [] } = useInstruments();
+  const pairs = instruments.map((i) => i.symbol);
+  const pipValueMap = Object.fromEntries(instruments.map((i) => [i.symbol, i.pipValue]));
+
   const [setup,       setSetup]       = useState<Setup>(BLANK_SETUP("SMC"));
   const [history,     setHistory]     = useState<HistoryEntry[]>([]);
   const [logOpen,     setLogOpen]     = useState(false);
@@ -278,7 +279,7 @@ export function Validator() {
     const pipDist    = calcPipDist(setup.pair, entry, sl);
     if (pipDist === 0) return null;
     const dollarRisk   = (balance * risk) / 100;
-    const lots         = dollarRisk / (pipDist * (PIP_VALUE[setup.pair] ?? 10));
+    const lots         = dollarRisk / (pipDist * (pipValueMap[setup.pair] ?? 10));
     const isForex      = !["XAUUSD", "NAS100"].includes(setup.pair);
     const dollarProfit = rrRatio > 0 ? dollarRisk * rrRatio : null;
     let tp: number | null = null;
@@ -298,20 +299,20 @@ export function Validator() {
     ]);
   }
 
-  // Pre-fill LogTradeModal with prices from the calculator if available
+  // Pre-fill LogTradeModal with setup details and calculator values
   const tradePreset = {
     pair:       setup.pair,
-    dir:        setup.dir,
+    dir:        setup.dir as "long" | "short",
     model:      setup.model,
     framework:  setup.framework,
     session:    setup.session,
-    rr:         setup.rr,
-    result:     "open",
-    discipline: "yes",
+    rr:         parseFloat(setup.rr) || undefined,
+    result:     "open" as const,
+    discipline: true,
     entryPrice: calcEntry ? parseFloat(calcEntry) || undefined : undefined,
     stopLoss:   calcSl    ? parseFloat(calcSl)    || undefined : undefined,
     takeProfit: calcResult?.tp ?? undefined,
-  } as unknown as Trade;
+  };
 
   const isSMC      = setup.framework === "SMC";
   const modelLabel = isSMC ? "SMC Model" : "S&D Setup";
@@ -358,7 +359,7 @@ export function Validator() {
 
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Instrument" half>
-                  <Select value={setup.pair} onChange={(v) => set("pair", v)} options={["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"]} />
+                  <Select value={setup.pair} onChange={(v) => set("pair", v)} options={pairs.length ? pairs : ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"]} />
                 </Field>
                 <Field label="Direction" half>
                   <SegRow value={setup.dir} onChange={(v) => set("dir", v)} options={[{ v: "long", l: "Long" }, { v: "short", l: "Short" }]} />
@@ -695,7 +696,7 @@ export function Validator() {
       </div>
 
       {/* Pre-filled log modal */}
-      <LogTradeModal open={logOpen} onClose={() => setLogOpen(false)} edit={tradePreset} />
+      <LogTradeModal open={logOpen} onClose={() => setLogOpen(false)} preset={tradePreset} />
     </div>
   );
 }

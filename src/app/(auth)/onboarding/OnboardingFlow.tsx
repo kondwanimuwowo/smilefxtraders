@@ -4,13 +4,14 @@ import { useState, useTransition } from "react";
 import { Button, Icon } from "@/components/ui";
 import { saveOnboardingAction } from "../actions";
 import type { Framework } from "@/lib/frameworks";
+import { useInstruments } from "@/lib/hooks/useInstruments";
 
 const FRAMEWORKS: { key: Framework; label: string; sub: string; icon: string; accent: string }[] = [
   { key: "SMC",  label: "Smart Money Concepts (ICT)", sub: "Order blocks, FVGs, liquidity sweeps",  icon: "psychology",        accent: "var(--teal)" },
   { key: "SnD",  label: "Supply & Demand",            sub: "Fresh zones, impulsive origins, premium/discount", icon: "layers", accent: "var(--gold)" },
 ];
 
-const INSTRUMENTS = [
+const INSTRUMENTS_FALLBACK = [
   { key: "EURUSD", label: "EUR/USD" },
   { key: "GBPUSD", label: "GBP/USD" },
   { key: "NZDUSD", label: "NZD/USD" },
@@ -25,6 +26,10 @@ const EXPERIENCE_OPTIONS = [
 ];
 
 export function OnboardingFlow() {
+  const { data: dbInstruments = [] } = useInstruments();
+  const instrumentOptions = dbInstruments.length
+    ? dbInstruments.map((i) => ({ key: i.symbol, label: i.label }))
+    : INSTRUMENTS_FALLBACK;
   const [step, setStep] = useState(0);
   const [framework,   setFramework]   = useState<Framework>("SMC");
   const [instruments, setInstruments] = useState<string[]>(["EURUSD", "XAUUSD"]);
@@ -127,7 +132,7 @@ export function OnboardingFlow() {
             Pick the instruments you focus on — we&apos;ll tailor your watchlist and calendar.
           </p>
           <div className="grid grid-cols-2 gap-3">
-            {INSTRUMENTS.map(({ key, label }) => {
+            {instrumentOptions.map(({ key, label }) => {
               const selected = instruments.includes(key);
               return (
                 <button

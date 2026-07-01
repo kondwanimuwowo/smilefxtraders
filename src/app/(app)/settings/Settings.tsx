@@ -7,6 +7,88 @@ import { useTheme } from "next-themes";
 import { Panel, PanelHead, Button, Field, SegRow, MonoInput } from "@/components/ui";
 import { updateProfileAction, updateTradingAction } from "@/app/(auth)/actions";
 import type { NotifPrefs } from "@/app/api/user/notif-prefs/route";
+import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
+
+// ── Membership section ────────────────────────────────────────────────────────
+
+function MembershipSection() {
+  const { user, setUser, toast } = useStore();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [cancelling, startCancel] = useTransition();
+
+  if (!user || user.plan === "free") return null;
+
+  const PLAN_LABELS: Record<string, string> = { pro: "Pro Trader", PRO: "Pro Trader", funded: "Funded Track", FUNDED: "Funded Track" };
+  const planLabel = PLAN_LABELS[user.plan] ?? user.plan;
+
+  function handleCancel() {
+    if (!user) return;
+    const snapshot = user;
+    startCancel(async () => {
+      const res = await fetch("/api/checkout/cancel", { method: "POST" });
+      if (!res.ok) { toast("Cancellation failed — please contact support.", "coral", "error"); return; }
+      setUser({ ...snapshot, role: snapshot.role ?? "student", plan: "free" });
+      toast("Subscription cancelled. You keep access until end of billing period.", "gold", "schedule");
+      setConfirmOpen(false);
+    });
+  }
+
+  return (
+    <Panel>
+      <PanelHead title="Membership" icon="workspace_premium" />
+      <div className="flex items-center justify-between gap-4 py-2">
+        <div>
+          <div className="text-[13.5px] font-semibold" style={{ color: "var(--ink-strong)" }}>Current plan: {planLabel}</div>
+          <div className="text-[12px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+            Manage billing, upgrade, or cancel below.
+          </div>
+        </div>
+        <Button type="button" variant="ghost" icon="upgrade" onClick={() => window.location.href = "/membership"}>
+          Change plan
+        </Button>
+      </div>
+      <Divider />
+      <div>
+        <div className="text-[13px] font-medium mb-1" style={{ color: "var(--ink-strong)" }}>Cancel subscription</div>
+        <p className="text-[12px] leading-relaxed mb-3" style={{ color: "var(--ink-dim)" }}>
+          Your plan stays active until the end of the current billing period. No pro-rata refunds.
+        </p>
+        {confirmOpen ? (
+          <div
+            className="rounded-xl p-4 mb-2"
+            style={{ background: "rgba(234,82,61,0.06)", border: "1px solid rgba(234,82,61,0.2)" }}
+          >
+            <p className="text-[13px] font-semibold mb-3" style={{ color: "var(--coral)" }}>
+              Cancel {planLabel}? You&apos;ll lose live alerts, AI reviews, and full Academy access.
+            </p>
+            <div className="flex gap-3">
+              <Button type="button" variant="ghost" onClick={() => setConfirmOpen(false)} style={{ flex: 1 }}>Keep plan</Button>
+              <Button
+                type="button"
+                variant="ghost"
+                loading={cancelling}
+                onClick={handleCancel}
+                style={{ flex: 1, color: "var(--coral)", borderColor: "rgba(234,82,61,0.3)" }}
+              >
+                Confirm cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <Button
+            type="button"
+            variant="ghost"
+            icon="cancel"
+            onClick={() => setConfirmOpen(true)}
+            style={{ color: "var(--coral)", borderColor: "rgba(234,82,61,0.3)" }}
+          >
+            Cancel subscription
+          </Button>
+        )}
+      </div>
+    </Panel>
+  );
+}
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
 
@@ -52,6 +134,7 @@ function ToggleRow({ label, sub, checked, onChange }: {
 export function Settings() {
   const { user, setUser, toast } = useStore();
   const { theme, setTheme } = useTheme();
+  const pairs = useInstrumentSymbols();
   const [themeMounted, setThemeMounted] = useState(false);
   useEffect(() => setThemeMounted(true), []);
 
@@ -130,7 +213,7 @@ export function Settings() {
     } catch {}
   }, []);
 
-  const PAIRS = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
+  const PAIRS = pairs.length ? pairs : ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
 
   // ── Server action transitions ──────────────────────────────────────────────
 
@@ -431,6 +514,9 @@ export function Settings() {
               </Button>
             </div>
           </Section>
+
+          {/* Membership */}
+          <MembershipSection />
 
           {/* Danger zone */}
           <Panel style={{ border: "1px solid rgba(234,82,61,0.25)" }}>
