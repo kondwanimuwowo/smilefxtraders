@@ -243,6 +243,7 @@ export async function POST(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const dateParam = searchParams.get("date");
+    const force     = searchParams.get("force") === "1";
 
     const targetDate = dateParam
       ? new Date(`${dateParam}T12:00:00.000Z`)
@@ -285,6 +286,28 @@ export async function POST(req: NextRequest) {
     }
 
     console.log("[fx-orders/sync] Extracted image URL:", imageUrl);
+
+    // Short-circuit: InvestingLive image URLs are unique per post, so if any
+    // stored record already came from this exact image, the table hasn't
+    // changed since the last sync — skip the Claude Vision call entirely.
+    // A re-post with updated levels gets a new image URL and syncs normally.
+    // Bypass with ?force=1.
+    if (!force) {
+      const alreadySynced = await prisma.fxOptionExpiry.findFirst({
+        where:  { imageUrl },
+        select: { id: true },
+      });
+      if (alreadySynced) {
+        console.log("[fx-orders/sync] Image already synced — skipping Claude call.");
+        return NextResponse.json({
+          ok:      true,
+          skipped: true,
+          reason:  "This image has already been synced. Pass ?force=1 to re-extract.",
+          date:    targetDate.toISOString().slice(0, 10),
+          imageUrl,
+        });
+      }
+    }
 
     const extraction = await extractFromImage(tradingDays, { type: "url", url: imageUrl });
 

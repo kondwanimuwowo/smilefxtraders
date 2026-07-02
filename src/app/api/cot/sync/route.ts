@@ -2,8 +2,9 @@
  * /api/cot/sync
  *
  * Fetches the latest 8 weeks from the CFTC API and upserts into Supabase.
- * Called by a weekly cron job (cron-jobs.org or Vercel Cron) every Tuesday
- * at ~16:00 EST, after CFTC publishes new data at ~15:30 EST.
+ * Called by a daily cron job (cron-jobs.org) at 21:30 UTC. CFTC publishes
+ * new data on Fridays at ~15:30 ET but releases are sometimes delayed —
+ * running daily picks up late releases; unchanged days are a cheap no-op.
  *
  * Protected by a shared secret — set CRON_SECRET in .env.local and pass it
  * as the Authorization header: `Bearer <CRON_SECRET>`.
