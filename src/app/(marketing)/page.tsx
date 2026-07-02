@@ -59,13 +59,65 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Right: Hero image */}
+            {/* Right: Hero illustration */}
             <div className="reveal" data-delay="160" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
               <img
-                src="/Smile%20FX%20Traders%20Logo%20bg-W.png"
-                alt="Smile FX Traders"
-                style={{ width: "100%", maxWidth: 400, height: "auto", display: "block" }}
+                src="/hero-illustration.svg"
+                alt=""
+                aria-hidden="true"
+                style={{ width: "100%", maxWidth: 480, height: "auto", display: "block" }}
               />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FOCUS + FLOATING PAIRS (preview) ===== */}
+      <section className="section soft">
+        <style>{`
+          @keyframes fxfloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+          .fx-wrap { position: relative; }
+          .fx-chip {
+            position: absolute;
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 13px; border-radius: 999px;
+            background: #fff; border: 1px solid rgba(8,174,170,0.28);
+            box-shadow: 0 10px 26px rgba(11,66,93,0.14);
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-size: 13px; font-weight: 600; color: var(--navy, #0B425D);
+            white-space: nowrap; animation: fxfloat 4.5s ease-in-out infinite;
+          }
+          .fx-chip .dot { width: 8px; height: 8px; border-radius: 99px; background: var(--teal, #08AEAA); }
+          .fx-chip .up { color: var(--teal, #08AEAA); font-weight: 700; }
+          .fx-chip .down { color: var(--coral, #EA523D); font-weight: 700; }
+        `}</style>
+        <div className="container">
+          <div className="feature-row">
+            <div className="feature-text reveal">
+              <div className="eyebrow">Stay focused</div>
+              <h3>Tune out the noise. Trade your plan.</h3>
+              <p className="lead">The market throws a hundred pairs and a thousand opinions at you every day. Smile FX keeps you anchored to the setups that fit your edge — and nothing else.</p>
+              <Button href="/signup" size="lg" iconRight="arrow_forward">Start focused</Button>
+            </div>
+            <div className="feature-visual reveal" data-delay="120">
+              <div className="fx-wrap">
+                <img src="/focus-illustration.svg" alt="" aria-hidden="true" style={{ width: "100%", height: "auto", display: "block" }} />
+                <div className="fx-chip" style={{ top: "2%", left: "-2%", animationDelay: "0s" }}>
+                  <span className="dot" /> EUR/USD <span className="up">▲ 0.4%</span>
+                </div>
+                <div className="fx-chip" style={{ top: "10%", right: "-3%", animationDelay: "1.2s" }}>
+                  <span className="dot" /> GBP/USD <span className="down">▼ 0.2%</span>
+                </div>
+                <div className="fx-chip" style={{ top: "42%", left: "-6%", animationDelay: "0.6s" }}>
+                  <span className="dot" /> XAU/USD <span className="up">▲ 1.1%</span>
+                </div>
+                <div className="fx-chip" style={{ top: "46%", right: "-4%", animationDelay: "1.8s" }}>
+                  <span className="dot" /> NZD/USD <span className="up">▲ 0.3%</span>
+                </div>
+                <div className="fx-chip" style={{ bottom: "12%", left: "6%", animationDelay: "2.4s" }}>
+                  <span className="dot" /> NAS100 <span className="up">▲ 0.7%</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
