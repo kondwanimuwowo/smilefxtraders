@@ -4,9 +4,8 @@ import { Button } from "@/components/ui";
 import { ChartViz } from "@/components/marketing/ChartViz";
 import { CTACard } from "@/components/marketing/CTACard";
 import { MarketingPlanCard } from "@/components/pricing/MarketingPlanCard";
-import { PLAN_META, DEFAULT_PRICES } from "@/lib/plans";
-import type { PlanPrices } from "@/lib/plans";
-import { prisma } from "@/lib/prisma";
+import { PLAN_META } from "@/lib/plans";
+import { getPlanPrices } from "@/lib/server/getPlanPrices";
 
 export const metadata: Metadata = {
   title: "Smile FX Traders — Trade Smart Money, Together",
@@ -15,15 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const rows = await prisma.planConfig.findMany();
-  const byId = Object.fromEntries(rows.map((r) => [r.planId, r]));
-  const prices: PlanPrices[] = DEFAULT_PRICES.map((d) => ({
-    planId:     d.planId,
-    monthlyZmw: byId[d.planId]?.monthlyZmw ?? d.monthlyZmw,
-    annualZmw:  byId[d.planId]?.annualZmw  ?? d.annualZmw,
-    monthlyUsd: byId[d.planId]?.monthlyUsd ?? d.monthlyUsd,
-    annualUsd:  byId[d.planId]?.annualUsd  ?? d.annualUsd,
-  }));
+  const prices = await getPlanPrices();
   return (
     <main>
       {/* ===== HERO ===== */}
@@ -67,57 +58,6 @@ export default async function HomePage() {
                 aria-hidden="true"
                 style={{ width: "100%", maxWidth: 480, height: "auto", display: "block" }}
               />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== FOCUS + FLOATING PAIRS (preview) ===== */}
-      <section className="section soft">
-        <style>{`
-          @keyframes fxfloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
-          .fx-wrap { position: relative; }
-          .fx-chip {
-            position: absolute;
-            display: flex; align-items: center; gap: 8px;
-            padding: 8px 13px; border-radius: 999px;
-            background: #fff; border: 1px solid rgba(8,174,170,0.28);
-            box-shadow: 0 10px 26px rgba(11,66,93,0.14);
-            font-family: 'IBM Plex Mono', ui-monospace, monospace;
-            font-size: 13px; font-weight: 600; color: var(--navy, #0B425D);
-            white-space: nowrap; animation: fxfloat 4.5s ease-in-out infinite;
-          }
-          .fx-chip .dot { width: 8px; height: 8px; border-radius: 99px; background: var(--teal, #08AEAA); }
-          .fx-chip .up { color: var(--teal, #08AEAA); font-weight: 700; }
-          .fx-chip .down { color: var(--coral, #EA523D); font-weight: 700; }
-        `}</style>
-        <div className="container">
-          <div className="feature-row">
-            <div className="feature-text reveal">
-              <div className="eyebrow">Stay focused</div>
-              <h3>Tune out the noise. Trade your plan.</h3>
-              <p className="lead">The market throws a hundred pairs and a thousand opinions at you every day. Smile FX keeps you anchored to the setups that fit your edge — and nothing else.</p>
-              <Button href="/signup" size="lg" iconRight="arrow_forward">Start focused</Button>
-            </div>
-            <div className="feature-visual reveal" data-delay="120">
-              <div className="fx-wrap">
-                <img src="/focus-illustration.svg" alt="" aria-hidden="true" style={{ width: "100%", height: "auto", display: "block" }} />
-                <div className="fx-chip" style={{ top: "2%", left: "-2%", animationDelay: "0s" }}>
-                  <span className="dot" /> EUR/USD <span className="up">▲ 0.4%</span>
-                </div>
-                <div className="fx-chip" style={{ top: "10%", right: "-3%", animationDelay: "1.2s" }}>
-                  <span className="dot" /> GBP/USD <span className="down">▼ 0.2%</span>
-                </div>
-                <div className="fx-chip" style={{ top: "42%", left: "-6%", animationDelay: "0.6s" }}>
-                  <span className="dot" /> XAU/USD <span className="up">▲ 1.1%</span>
-                </div>
-                <div className="fx-chip" style={{ top: "46%", right: "-4%", animationDelay: "1.8s" }}>
-                  <span className="dot" /> NZD/USD <span className="up">▲ 0.3%</span>
-                </div>
-                <div className="fx-chip" style={{ bottom: "12%", left: "6%", animationDelay: "2.4s" }}>
-                  <span className="dot" /> NAS100 <span className="up">▲ 0.7%</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -224,6 +164,53 @@ export default async function HomePage() {
                       {t}
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FOCUS + FLOATING PAIRS ===== */}
+      <section className="section">
+        <style>{`
+          @keyframes fxfloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+          .fx-wrap { position: relative; }
+          .fx-float {
+            position: absolute;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-weight: 600; color: var(--navy, #0B425D);
+            font-feature-settings: "tnum";
+            white-space: nowrap; animation: fxfloat 5s ease-in-out infinite;
+          }
+          .fx-float .up { color: var(--teal, #08AEAA); font-weight: 700; }
+          .fx-float .down { color: var(--coral, #EA523D); font-weight: 700; }
+        `}</style>
+        <div className="container">
+          <div className="feature-row">
+            <div className="feature-text reveal">
+              <div className="eyebrow">Stay focused</div>
+              <h3>Tune out the noise. Trade your plan.</h3>
+              <p className="lead">The market throws a hundred pairs and a thousand opinions at you every day. Smile FX keeps you anchored to the setups that fit your edge — and nothing else.</p>
+              <Button href="/signup" size="lg" iconRight="arrow_forward">Start focused</Button>
+            </div>
+            <div className="feature-visual reveal" data-delay="120">
+              <div className="fx-wrap">
+                <img src="/focus-illustration.svg" alt="" aria-hidden="true" style={{ width: "100%", height: "auto", display: "block" }} />
+                <div className="fx-float" style={{ top: "4%", left: "4%", fontSize: 15, animationDelay: "0s" }}>
+                  EUR/USD <span className="up">▲ 0.4%</span>
+                </div>
+                <div className="fx-float" style={{ top: "12%", right: "2%", fontSize: 13, animationDelay: "1.2s" }}>
+                  GBP/USD <span className="down">▼ 0.2%</span>
+                </div>
+                <div className="fx-float" style={{ top: "40%", left: "0%", fontSize: 14, animationDelay: "0.6s" }}>
+                  XAU/USD <span className="up">▲ 1.1%</span>
+                </div>
+                <div className="fx-float" style={{ top: "48%", right: "0%", fontSize: 15, animationDelay: "1.8s" }}>
+                  NZD/USD <span className="up">▲ 0.3%</span>
+                </div>
+                <div className="fx-float" style={{ bottom: "14%", left: "8%", fontSize: 13, animationDelay: "2.4s" }}>
+                  NAS100 <span className="up">▲ 0.7%</span>
                 </div>
               </div>
             </div>
