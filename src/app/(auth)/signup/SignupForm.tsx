@@ -37,8 +37,7 @@ function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onC
 export function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [googleLoading,   setGoogleLoading]   = useState(false);
-  const [facebookLoading, setFacebookLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -65,8 +64,9 @@ export function SignupForm() {
     }
   }
 
-  const handleGoogle   = () => signInWithProvider("google",   setGoogleLoading);
-  const handleFacebook = () => signInWithProvider("facebook", setFacebookLoading);
+  const handleGoogle = () => signInWithProvider("google", setGoogleLoading);
+  // Facebook OAuth disabled until Meta business verification is complete —
+  // re-enable by restoring the SocialButton below.
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
@@ -80,8 +80,7 @@ export function SignupForm() {
 
       {/* Social */}
       <div className="flex flex-col gap-2.5">
-        <SocialButton loading={googleLoading}   onClick={handleGoogle}   icon="/google.svg"   label="Continue with Google"   />
-        <SocialButton loading={facebookLoading} onClick={handleFacebook} icon="/facebook.svg" label="Continue with Facebook" />
+        <SocialButton loading={googleLoading} onClick={handleGoogle} icon="/google.svg" label="Continue with Google" />
       </div>
 
       {/* Divider */}
