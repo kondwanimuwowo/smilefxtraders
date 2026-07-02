@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { createBrowserClient } from "@supabase/ssr";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui";
 
 const NAV = [
@@ -46,10 +46,7 @@ export function MarketingNav() {
 
   // Check auth state client-side
   useEffect(() => {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabase = createClient();
     supabase.auth.getSession().then(({ data }) => setAuthed(!!data.session));
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, s) => setAuthed(!!s));
     return () => subscription.unsubscribe();

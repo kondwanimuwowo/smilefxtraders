@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
   }
 
   const resend  = new Resend(process.env.RESEND_API_KEY);
-  const appUrl  = process.env.NEXT_PUBLIC_APP_URL ?? "https://smilefxtraders.com";
+  const appUrl  = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.smilefxtraders.com";
   const weekStart  = subDays(new Date(), 7);
 
   // Fetch all Pro/Funded users with weeklyReport enabled

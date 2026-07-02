@@ -1,17 +1,69 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { authCookieOptions } from "@/lib/supabase/cookie-options";
 
 const PUBLIC_PREFIXES = ["/login", "/signup", "/onboarding", "/forgot-password", "/reset-password", "/api", "/auth", "/features", "/pricing", "/about", "/learn", "/our-community", "/insights", "/contact", "/stories", "/resources"];
 // Note: /api is already public, so /api/checkout/webhook is covered — no extra entry needed.
 const PUBLIC_EXACT    = ["/"]; // exact match only
 
+// ── Host-based domain split ──────────────────────────────────────────
+// smilefxtraders.com      → marketing/public pages only
+// app.smilefxtraders.com  → the app (dashboard, auth, checkout, api)
+// Any other host (localhost, *.vercel.app previews) serves everything,
+// so local dev and preview deployments are unaffected.
+const MARKETING_HOST = process.env.NEXT_PUBLIC_MARKETING_HOST ?? "smilefxtraders.com";
+const APP_HOST       = process.env.NEXT_PUBLIC_APP_HOST       ?? "app.smilefxtraders.com";
+
+const MARKETING_PREFIXES = ["/features", "/pricing", "/about", "/learn", "/our-community"];
+
+function isMarketingPath(pathname: string) {
+  return (
+    pathname === "/" ||
+    MARKETING_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))
+  );
+}
+
+function crossHostRedirect(request: NextRequest, host: string, pathname?: string) {
+  const url = request.nextUrl.clone();
+  url.protocol = "https:";
+  url.host = host;
+  url.port = "";
+  if (pathname) url.pathname = pathname;
+  return NextResponse.redirect(url, 308);
+}
+
 export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const host = request.headers.get("host")?.split(":")[0] ?? "";
+
+  // Canonicalise www → apex
+  if (host === `www.${MARKETING_HOST}`) {
+    return crossHostRedirect(request, MARKETING_HOST);
+  }
+
+  // App/auth/api traffic on the marketing domain → send to the app subdomain
+  if (host === MARKETING_HOST && !isMarketingPath(pathname)) {
+    return crossHostRedirect(request, APP_HOST);
+  }
+
+  if (host === APP_HOST && isMarketingPath(pathname)) {
+    // app root goes to the dashboard (auth guard below bounces to /login if needed)
+    if (pathname === "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+    // marketing pages live on the apex
+    return crossHostRedirect(request, MARKETING_HOST);
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions: authCookieOptions,
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -36,7 +88,6 @@ export async function proxy(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  const { pathname } = request.nextUrl;
   const isPublic =
     PUBLIC_EXACT.includes(pathname) ||
     PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));

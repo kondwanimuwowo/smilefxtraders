@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createBrowserClient } from "@supabase/ssr";
+import { createClient } from "@/lib/supabase/client";
 import { Input, Field, Button } from "@/components/ui";
 
 type State = "idle" | "loading" | "success" | "error";
@@ -29,10 +29,7 @@ export function ResetPasswordForm() {
 
     setState("loading");
 
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabase = createClient();
 
     const { error: err } = await supabase.auth.updateUser({ password });
 
