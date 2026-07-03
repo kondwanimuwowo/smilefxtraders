@@ -11,7 +11,7 @@ import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 import { subDays } from "@/lib/date";
 
-const FROM = "Smile FX Traders <noreply@smilefxtraders.com>";
+const FROM = "Smile FX Traders <hello@smilefxtraders.com>";
 
 interface NotifPrefs {
   weeklyReport?: boolean;
