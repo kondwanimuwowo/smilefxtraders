@@ -38,6 +38,9 @@ export function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendLoading, setResendLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -46,7 +49,32 @@ export function SignupForm() {
     startTransition(async () => {
       const result = await signupAction(data);
       if (result?.error) setError(result.error);
+      else if (result && "pendingVerification" in result && result.pendingVerification) {
+        setPendingEmail(result.email);
+      }
     });
+  }
+
+  async function handleResend() {
+    if (!pendingEmail || resendCooldown > 0) return;
+    setResendLoading(true);
+    try {
+      const supabase = createClient();
+      await supabase.auth.resend({
+        type: "signup",
+        email: pendingEmail,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      });
+      setResendCooldown(60);
+      const timer = setInterval(() => {
+        setResendCooldown((s) => {
+          if (s <= 1) { clearInterval(timer); return 0; }
+          return s - 1;
+        });
+      }, 1000);
+    } finally {
+      setResendLoading(false);
+    }
   }
 
   async function signInWithProvider(provider: "google" | "facebook", setLoading: (v: boolean) => void) {
@@ -67,6 +95,50 @@ export function SignupForm() {
   const handleGoogle = () => signInWithProvider("google", setGoogleLoading);
   // Facebook OAuth disabled until Meta business verification is complete —
   // re-enable by restoring the SocialButton below.
+
+  // ── "Check your email" state (email confirmation required) ────────────────
+  if (pendingEmail) {
+    return (
+      <div className="flex flex-col items-center text-center py-6">
+        <div
+          className="size-14 rounded-2xl flex items-center justify-center mb-5"
+          style={{ background: "rgba(8,174,170,0.08)", border: "1px solid rgba(8,174,170,0.2)" }}
+        >
+          <span className="material-symbols-rounded" style={{ fontSize: 28, color: "var(--teal)" }}>
+            mark_email_unread
+          </span>
+        </div>
+        <h1 className="font-display font-semibold mb-2" style={{ fontSize: 24, color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
+          Check your email
+        </h1>
+        <p className="text-[14px] leading-relaxed mb-1" style={{ color: "var(--ink-mid)" }}>
+          We sent a confirmation link to
+        </p>
+        <p className="text-[14.5px] font-semibold mb-5" style={{ color: "var(--teal)" }}>
+          {pendingEmail}
+        </p>
+        <p className="text-[13px] leading-relaxed mb-6" style={{ color: "var(--ink-dim)", maxWidth: 320 }}>
+          Click the link in the email to activate your account. If you don&apos;t see it within a minute, check your spam folder.
+        </p>
+        <Button
+          type="button"
+          variant="ghost"
+          icon="refresh"
+          loading={resendLoading}
+          disabled={resendCooldown > 0}
+          onClick={handleResend}
+        >
+          {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend email"}
+        </Button>
+        <p className="text-center text-[13.5px] mt-6" style={{ color: "var(--ink-mid)" }}>
+          Already verified?{" "}
+          <Link href="/login" className="font-semibold hover:underline" style={{ color: "var(--teal)" }}>
+            Sign in
+          </Link>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { createNotification } from "@/lib/notifications";
+import { prefEnabled } from "@/lib/notif-prefs";
 
 // ── GET /api/academy/progress — completed lesson IDs for current user ─────────
 
@@ -38,6 +40,41 @@ export async function POST(req: NextRequest) {
     update: { completed, completedAt: completed ? new Date() : null },
     create: { userId: dbUser.id, lessonId, completed, completedAt: completed ? new Date() : null },
   });
+
+  // If this completion finished the course, celebrate (in-app only, once —
+  // dedupeKey blocks repeats)
+  if (completed && prefEnabled(dbUser.notifPrefs, "academyNotif")) {
+    void (async () => {
+      const lesson = await prisma.lesson.findUnique({
+        where:  { id: lessonId },
+        select: { courseId: true, course: { select: { title: true } } },
+      });
+      if (!lesson?.courseId) return;
+
+      const [totalLessons, completedLessons] = await Promise.all([
+        prisma.lesson.count({ where: { courseId: lesson.courseId, published: true } }),
+        prisma.lessonProgress.count({
+          where: {
+            userId:    dbUser.id,
+            completed: true,
+            lesson:    { courseId: lesson.courseId, published: true },
+          },
+        }),
+      ]);
+
+      if (totalLessons > 0 && completedLessons >= totalLessons) {
+        await createNotification(dbUser.id, {
+          type:      "COURSE_COMPLETED",
+          title:     "Course completed 🎉",
+          body:      `You finished ${lesson.course?.title ?? "a course"}. Well done!`,
+          icon:      "school",
+          tone:      "gold",
+          href:      "/academy",
+          dedupeKey: `course-completed:${lesson.courseId}`,
+        });
+      }
+    })().catch((e) => console.error("[academy/progress] notify failed:", e instanceof Error ? e.message : e));
+  }
 
   return NextResponse.json({ lessonId: progress.lessonId, completed: progress.completed });
 }

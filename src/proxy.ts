@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { authCookieOptions } from "@/lib/supabase/cookie-options";
 
 const PUBLIC_PREFIXES = ["/login", "/signup", "/onboarding", "/forgot-password", "/reset-password", "/api", "/auth", "/features", "/pricing", "/about", "/learn", "/our-community", "/insights", "/contact", "/stories", "/resources"];
-// Note: /api is already public, so /api/checkout/webhook is covered — no extra entry needed.
+// Note: /api is already public, so /api/webhooks/lenco is covered — no extra entry needed.
 const PUBLIC_EXACT    = ["/"]; // exact match only
 
 // ── Host-based domain split ──────────────────────────────────────────

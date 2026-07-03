@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { createNotifications } from "@/lib/notifications";
+import { prefEnabled } from "@/lib/notif-prefs";
 
 async function getInstructor() {
   const supabase = await createClient();
@@ -35,7 +37,32 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     icon: string; color: string; order: number; published: boolean;
   }>;
 
+  // Detect the unpublished → published transition before writing
+  const before = body.published === true
+    ? await prisma.course.findUnique({ where: { id }, select: { published: true } })
+    : null;
+
   const course = await prisma.course.update({ where: { id }, data: body });
+
+  // Fan out "new course" to everyone with academy notifications on (in-app
+  // only, once per course — dedupeKey blocks re-publish spam)
+  if (body.published === true && before && !before.published) {
+    void (async () => {
+      const users = await prisma.user.findMany({ select: { id: true, notifPrefs: true } });
+      const ids = users.filter((u) => prefEnabled(u.notifPrefs, "academyNotif")).map((u) => u.id);
+      const count = await createNotifications(ids, {
+        type:      "COURSE_PUBLISHED",
+        title:     "New course in the Academy",
+        body:      `${course.title} is now available.`,
+        icon:      "auto_stories",
+        tone:      "teal",
+        href:      "/academy",
+        dedupeKey: `course-published:${course.id}`,
+      });
+      console.info(`[academy] course-published fan-out: ${count} notifications`);
+    })().catch((e) => console.error("[academy] publish fan-out failed:", e instanceof Error ? e.message : e));
+  }
+
   return NextResponse.json(course);
 }
 

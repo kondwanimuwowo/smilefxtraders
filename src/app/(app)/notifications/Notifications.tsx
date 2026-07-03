@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useStore } from "@/lib/store";
+import { useMarkNotifsRead } from "@/lib/hooks/useNotifications";
 import { Icon } from "@/components/ui";
 
 const TONE_CONFIG: Record<string, { icon: string; color: string; bg: string }> = {
@@ -13,7 +15,8 @@ import { fmtRelative } from "@/lib/date";
 function timeAgo(iso: string): string { return fmtRelative(iso); }
 
 export function Notifications() {
-  const { notifs, markNotifsRead } = useStore();
+  const { notifs } = useStore();
+  const markRead = useMarkNotifsRead();
 
   const unread = notifs.filter((n) => n.unread);
   const read   = notifs.filter((n) => !n.unread);
@@ -36,7 +39,7 @@ export function Notifications() {
         {unread.length > 0 && (
           <button
             type="button"
-            onClick={markNotifsRead}
+            onClick={() => markRead.mutate({ all: true })}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold transition-colors hover:bg-[var(--hover)]"
             style={{ color: "var(--teal)", border: "1px solid rgba(8,174,170,0.3)" }}
           >
@@ -81,9 +84,11 @@ export function Notifications() {
                 {unread.map((n, i) => {
                   const cfg = TONE_CONFIG[n.tone] ?? TONE_CONFIG.teal;
                   return (
-                    <div
+                    <Link
                       key={n.id}
-                      className="flex items-start gap-3 px-4 py-3.5"
+                      href={n.href ?? "#"}
+                      onClick={() => markRead.mutate({ id: n.id })}
+                      className="flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-[var(--hover)]"
                       style={{
                         borderTop: i > 0 ? "1px solid var(--line)" : undefined,
                         background: "rgba(8,174,170,0.03)",
@@ -114,7 +119,7 @@ export function Notifications() {
                         </div>
                       </div>
                       <div className="size-2 rounded-full mt-2 shrink-0" style={{ background: "var(--teal)" }} />
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
@@ -136,9 +141,10 @@ export function Notifications() {
                 {read.map((n, i) => {
                   const cfg = TONE_CONFIG[n.tone] ?? TONE_CONFIG.teal;
                   return (
-                    <div
+                    <Link
                       key={n.id}
-                      className="flex items-start gap-3 px-4 py-3.5"
+                      href={n.href ?? "#"}
+                      className="flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-[var(--hover)]"
                       style={{ borderTop: i > 0 ? "1px solid var(--line)" : undefined, opacity: 0.65 }}
                     >
                       <div
@@ -165,7 +171,7 @@ export function Notifications() {
                           {timeAgo(n.time)}
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>

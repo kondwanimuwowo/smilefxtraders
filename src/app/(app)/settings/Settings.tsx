@@ -6,7 +6,7 @@ import { useStore } from "@/lib/store";
 import { useTheme } from "next-themes";
 import { Panel, PanelHead, Button, Field, SegRow, MonoInput } from "@/components/ui";
 import { updateProfileAction, updateTradingAction } from "@/app/(auth)/actions";
-import type { NotifPrefs } from "@/app/api/user/notif-prefs/route";
+import type { NotifPrefs } from "@/lib/notif-prefs";
 import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 
 // ── Membership section ────────────────────────────────────────────────────────
@@ -186,6 +186,7 @@ export function Settings() {
   const [communityNotif, setCommunityNotif] = useState(true);
   const [weeklyReport,   setWeeklyReport]   = useState(true);
   const [emailAlerts,    setEmailAlerts]    = useState(false);
+  const [academyNotif,   setAcademyNotif]   = useState(true);
 
   // Sync from server on load
   useEffect(() => {
@@ -194,6 +195,7 @@ export function Settings() {
       setCommunityNotif(savedPrefs.communityNotif);
       setWeeklyReport(savedPrefs.weeklyReport);
       setEmailAlerts(savedPrefs.emailAlerts);
+      setAcademyNotif(savedPrefs.academyNotif ?? true);
     }
   }, [savedPrefs]);
 
@@ -279,7 +281,7 @@ export function Settings() {
   }
 
   function saveNotifications() {
-    savePrefs({ alertNotif, communityNotif, weeklyReport, emailAlerts });
+    savePrefs({ alertNotif, communityNotif, weeklyReport, emailAlerts, academyNotif });
   }
 
   function handleDeleteAccount() {
@@ -515,6 +517,13 @@ export function Settings() {
               sub="Receive alert notifications by email as well"
               checked={emailAlerts}
               onChange={setEmailAlerts}
+            />
+            <Divider />
+            <ToggleRow
+              label="Academy updates"
+              sub="Course milestones and new course releases"
+              checked={academyNotif}
+              onChange={setAcademyNotif}
             />
             <div className="flex justify-end mt-4">
               <Button type="button" variant="primary" icon="save" loading={notifPending} onClick={saveNotifications}>

@@ -1,6 +1,7 @@
 import { Sidebar } from "@/components/shell/Sidebar";
 import { Topbar } from "@/components/shell/Topbar";
 import { StoreHydrator } from "@/components/shell/StoreHydrator";
+import { NotificationsPoller } from "@/components/shell/NotificationsPoller";
 import { ToastHost } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
@@ -135,6 +136,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <Providers>
       <div className="flex h-screen overflow-hidden" style={{ background: "var(--app-bg)" }}>
         <StoreHydrator user={appUser} trades={trades} />
+        <NotificationsPoller />
         <Sidebar />
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           <Topbar />

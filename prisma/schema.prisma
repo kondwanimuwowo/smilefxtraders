@@ -27,6 +27,7 @@ model User {
   notifPrefs    Json?     @map("notif_prefs")
   privacyPrefs  Json?     @map("privacy_prefs")
   planExpiresAt DateTime? @map("plan_expires_at")
+  welcomeEmailAt DateTime? @map("welcome_email_at")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
@@ -39,6 +40,7 @@ model User {
   postComments   PostComment[]
   subscriptions  Subscription[]
   alerts         Alert[]
+  notifications  Notification[]
 
   @@map("users")
 }
@@ -149,6 +151,43 @@ enum AlertStatus {
   SL
   CANCELLED
   CLOSED
+}
+
+// ─── Notifications ───────────────────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  icon      String           @default("notifications_active") // material symbol name
+  tone      String           @default("teal")                 // "teal" | "gold" | "coral"
+  href      String?                                           // deep link, e.g. "/alerts"
+  dedupeKey String?          @map("dedupe_key")               // idempotency key
+  visibleAt DateTime         @default(now()) @map("visible_at") // delayed delivery (FREE 4h alert gate)
+  readAt    DateTime?        @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@unique([userId, dedupeKey])
+  @@index([userId, visibleAt(sort: Desc)])
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  INSTRUCTOR_ALERT
+  POST_LIKE
+  POST_COMMENT
+  PAYMENT_CONFIRMED
+  PAYMENT_FAILED
+  PLAN_CANCELLED
+  PLAN_EXPIRING
+  PLAN_EXPIRED
+  COURSE_COMPLETED
+  COURSE_PUBLISHED
+  SYSTEM
 }
 
 // ─── Price Alerts ────────────────────────────────────────────────────────────

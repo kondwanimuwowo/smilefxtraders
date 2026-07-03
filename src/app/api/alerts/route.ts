@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { fanOutInstructorAlert } from "@/lib/notify-events";
 import type { Alert } from "@prisma/client";
 
 // ── Mapping helpers ──────────────────────────────────────────────────────────
@@ -122,6 +123,11 @@ export async function POST(req: NextRequest) {
       status:     "ACTIVE",
     },
   });
+
+  // Fan out in-app notifications + emails — don't block the 201
+  void fanOutInstructorAlert(alert).catch((e) =>
+    console.error("[alerts] fan-out failed:", e instanceof Error ? e.message : e)
+  );
 
   return NextResponse.json(dbToApi(alert), { status: 201 });
 }

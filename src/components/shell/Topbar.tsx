@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useStore } from "@/lib/store";
+import { useMarkNotifsRead } from "@/lib/hooks/useNotifications";
 import { Icon } from "@/components/ui";
 import { SearchModal } from "@/components/search/SearchModal";
 import type { PriceTick } from "@/app/api/prices/route";
@@ -211,7 +212,8 @@ import { fmtRelative } from "@/lib/date";
 function timeAgo(iso: string): string { return fmtRelative(iso); }
 
 function NotifBell() {
-  const { unreadCount, notifs, markNotifsRead } = useStore();
+  const { unreadCount, notifs } = useStore();
+  const markRead = useMarkNotifsRead();
   const [open, setOpen]     = useState(false);
   const [rect, setRect]     = useState<DOMRect | null>(null);
   const triggerRef          = useRef<HTMLButtonElement>(null);
@@ -295,7 +297,7 @@ function NotifBell() {
             {unreadCount > 0 && (
               <button
                 type="button"
-                onClick={markNotifsRead}
+                onClick={() => markRead.mutate({ all: true })}
                 className="text-[11.5px] font-semibold transition-colors hover:opacity-80"
                 style={{ color: "var(--teal)" }}
               >
@@ -317,9 +319,14 @@ function NotifBell() {
               {preview.map((n, i) => {
                 const cfg = TONE_CONFIG[n.tone] ?? TONE_CONFIG.teal;
                 return (
-                  <div
+                  <Link
                     key={n.id}
-                    className="flex items-start gap-3 px-4 py-3"
+                    href={n.href ?? "/notifications"}
+                    onClick={() => {
+                      setOpen(false);
+                      if (n.unread) markRead.mutate({ id: n.id });
+                    }}
+                    className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-[var(--hover)]"
                     style={{
                       borderTop: i > 0 ? "1px solid var(--line)" : undefined,
                       background: n.unread ? "rgba(8,174,170,0.03)" : undefined,
@@ -355,7 +362,7 @@ function NotifBell() {
                     {n.unread && (
                       <div className="size-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--teal)" }} />
                     )}
-                  </div>
+                  </Link>
                 );
               })}
             </div>

@@ -67,6 +67,7 @@ export interface Notif {
   body: string;
   time: string;
   unread: boolean;
+  href?: string; // deep link target
 }
 
 export interface PriceAlert {

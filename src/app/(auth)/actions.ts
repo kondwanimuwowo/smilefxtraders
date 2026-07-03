@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { sendEmail } from "@/lib/email/send";
+import { welcomeEmail } from "@/lib/email/templates/welcome";
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.smilefxtraders.com";
 
 export async function loginAction(formData: FormData) {
   const supabase = await createClient();
@@ -15,6 +19,9 @@ export async function loginAction(formData: FormData) {
     if (error) {
       if (error.message.toLowerCase().includes("invalid login")) {
         return { error: "Incorrect email or password." };
+      }
+      if (error.message.toLowerCase().includes("email not confirmed")) {
+        return { error: "Please verify your email first — check your inbox for the confirmation link (it may be in spam)." };
       }
       return { error: error.message };
     }
@@ -74,18 +81,45 @@ export async function signupAction(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${APP_URL}/auth/callback`,
+      data: { full_name: name, username },
+    },
+  });
   if (error) return { error: error.message };
   if (!data.user) return { error: "Signup failed — please try again." };
 
-  await prisma.user.create({
-    data: {
-      supabaseId: data.user.id,
-      name,
-      username,
-      email,
-    },
-  });
+  // Already-registered email: Supabase returns an obfuscated user with no
+  // identities. Show the same neutral "check your email" screen — don't
+  // reveal whether an account exists.
+  if (data.user.identities?.length === 0) {
+    return { pendingVerification: true, email };
+  }
+
+  try {
+    await prisma.user.create({
+      data: {
+        supabaseId: data.user.id,
+        name,
+        username,
+        email,
+      },
+    });
+  } catch (err: unknown) {
+    const e = err as { code?: string; meta?: { target?: string[] } };
+    if (e?.code === "P2002" && e.meta?.target?.includes("username")) {
+      return { error: "Username already taken — choose another." };
+    }
+    // Other P2002s (double-submit on email/supabaseId) mean the row exists — continue.
+  }
+
+  // Email confirmation enabled: no session until the link is clicked.
+  if (!data.session) {
+    return { pendingVerification: true, email };
+  }
 
   revalidatePath("/", "layout");
   redirect("/onboarding");
@@ -101,7 +135,7 @@ export async function saveOnboardingAction(formData: FormData) {
   const experience = formData.get("experience") as string;
   const framework = (formData.get("framework") as string) || "SMC";
 
-  await prisma.user.upsert({
+  const dbUser = await prisma.user.upsert({
     where: { supabaseId: user.id },
     update: {
       instruments,
@@ -120,6 +154,18 @@ export async function saveOnboardingAction(formData: FormData) {
       framework,
     },
   });
+
+  // Personal welcome from Kondwani, exactly once per user. Covers email
+  // signups, OAuth signups, and lazily-created users alike. The flag is set
+  // first (claim) so a double-submit can't double-send.
+  if (!dbUser.welcomeEmailAt && dbUser.email) {
+    await prisma.user.update({
+      where: { id: dbUser.id },
+      data:  { welcomeEmailAt: new Date() },
+    }).catch(() => null);
+    const { subject, html } = welcomeEmail({ name: dbUser.name });
+    await sendEmail({ from: "kondwani", to: dbUser.email, subject, html });
+  }
 
   revalidatePath("/", "layout");
   redirect("/dashboard");

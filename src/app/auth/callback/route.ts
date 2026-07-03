@@ -47,7 +47,7 @@ export async function GET(request: Request) {
   // Check if a Prisma user row already exists
   const existing = await prisma.user.findUnique({
     where: { supabaseId: sbUser.id },
-    select: { id: true },
+    select: { id: true, instruments: true },
   }).catch(() => null);
 
   if (!existing) {
@@ -69,6 +69,12 @@ export async function GET(request: Request) {
       },
     }).catch(() => null);
 
+    return NextResponse.redirect(`${origin}/onboarding`);
+  }
+
+  // Email-verification signups have a Prisma row (created at signup) but
+  // haven't onboarded yet — route by onboarding state, not row existence.
+  if (existing.instruments.length === 0) {
     return NextResponse.redirect(`${origin}/onboarding`);
   }
 
