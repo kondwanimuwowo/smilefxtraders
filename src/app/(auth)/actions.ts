@@ -198,6 +198,28 @@ export async function updateProfileAction(formData: FormData) {
   }
 }
 
+export async function changeEmailAction(newEmail: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const email = newEmail.trim().toLowerCase();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { error: "Enter a valid email address" };
+  }
+  if (email === user.email) {
+    return { error: "That's already your current email" };
+  }
+
+  const { error } = await supabase.auth.updateUser(
+    { email },
+    { emailRedirectTo: `${APP_URL}/auth/callback` },
+  );
+  if (error) return { error: error.message };
+
+  return { success: true };
+}
+
 export async function updateTradingAction(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

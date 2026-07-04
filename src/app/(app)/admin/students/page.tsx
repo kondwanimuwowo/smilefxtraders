@@ -1,6 +1,7 @@
 import { requireInstructor } from "@/lib/admin-guard";
 import { prisma } from "@/lib/prisma";
 import { fmtCompact } from "@/lib/date";
+import { InviteUserForm } from "./InviteUserForm";
 
 export default async function AdminStudentsPage() {
   await requireInstructor();
@@ -31,6 +32,8 @@ export default async function AdminStudentsPage() {
           {users.length} members registered on the platform.
         </p>
       </div>
+
+      <InviteUserForm />
 
       <div
         className="rounded-2xl overflow-hidden"

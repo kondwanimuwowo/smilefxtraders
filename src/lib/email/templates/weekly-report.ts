@@ -1,4 +1,4 @@
-import { emailShell, para, statGrid4, winLossBar, infoCard, APP } from "../layout";
+import { emailShell, para, statGrid4, winLossBar, infoCard } from "../layout";
 
 export interface WeeklyReportParams {
   name:         string;

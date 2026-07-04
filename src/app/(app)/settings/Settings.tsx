@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useStore } from "@/lib/store";
 import { useTheme } from "next-themes";
+import { createClient } from "@/lib/supabase/client";
 import { Panel, PanelHead, Button, Field, SegRow, MonoInput } from "@/components/ui";
-import { updateProfileAction, updateTradingAction } from "@/app/(auth)/actions";
+import { updateProfileAction, updateTradingAction, changeEmailAction } from "@/app/(auth)/actions";
 import type { NotifPrefs } from "@/lib/notif-prefs";
 import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 
@@ -132,6 +134,7 @@ function ToggleRow({ label, sub, checked, onChange }: {
 // ── Settings ──────────────────────────────────────────────────────────────────
 
 export function Settings() {
+  const router = useRouter();
   const { user, setUser, toast } = useStore();
   const { theme, setTheme } = useTheme();
   const pairs = useInstrumentSymbols();
@@ -224,6 +227,12 @@ export function Settings() {
 
   const [profilePending, startProfileTransition] = useTransition();
   const [tradingPending, startTradingTransition] = useTransition();
+  const [emailPending,   startEmailTransition]   = useTransition();
+
+  // Change password
+  const [newPassword,     setNewPassword]     = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordPending, setPasswordPending] = useState(false);
 
   function saveProfile() {
     const fd = new FormData();
@@ -240,6 +249,44 @@ export function Settings() {
         toast("Profile saved", "teal", "check_circle");
       }
     });
+  }
+
+  function saveEmail() {
+    const trimmed = email.trim();
+    if (!trimmed || trimmed.toLowerCase() === (user?.email ?? "").toLowerCase()) return;
+
+    startEmailTransition(async () => {
+      const result = await changeEmailAction(trimmed);
+      if (result?.error) {
+        toast(result.error, "coral", "error");
+      } else {
+        toast("Confirmation link sent — check your new inbox to complete the change.", "gold", "mail");
+      }
+    });
+  }
+
+  async function savePassword() {
+    if (newPassword.length < 8) {
+      toast("Password must be at least 8 characters", "coral", "error");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast("Passwords don't match", "coral", "error");
+      return;
+    }
+
+    setPasswordPending(true);
+    const supabase = createClient();
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setPasswordPending(false);
+
+    if (error) {
+      toast(error.message, "coral", "error");
+    } else {
+      setNewPassword("");
+      setConfirmPassword("");
+      toast("Password updated", "teal", "check_circle");
+    }
   }
 
   function savePrivacy() {
@@ -284,8 +331,27 @@ export function Settings() {
     savePrefs({ alertNotif, communityNotif, weeklyReport, emailAlerts, academyNotif });
   }
 
-  function handleDeleteAccount() {
-    toast("Contact support@smilefxtraders.com to delete your account", "gold", "info");
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteTyped,       setDeleteTyped]       = useState("");
+  const [deleting,          setDeleting]          = useState(false);
+
+  async function handleDeleteAccount() {
+    setDeleting(true);
+    try {
+      const res  = await fetch("/api/user/delete", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        toast(data.error ?? "Could not delete account", "coral", "error");
+        setDeleting(false);
+        return;
+      }
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push("/login");
+    } catch {
+      toast("Could not reach the server", "coral", "error");
+      setDeleting(false);
+    }
   }
 
   function toggleInstr(pair: string) {
@@ -333,15 +399,31 @@ export function Settings() {
                 </Field>
               </div>
               <Field label="Email address">
-                <div
-                  className="px-3 py-2.5 rounded-[9px] text-[13.5px] select-all"
-                  style={{ background: "var(--track)", border: "1px solid var(--line)", color: "var(--ink-dim)" }}
-                >
-                  {email || "—"}
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)]"
+                  style={{ background: "var(--panel-2)", borderColor: "var(--line)", color: "var(--ink-strong)" }}
+                />
+                <div className="flex items-center justify-between gap-3 mt-1.5">
+                  <span className="text-[11px]" style={{ color: "var(--ink-dim)" }}>
+                    Changing this sends a confirmation link to the new address.
+                  </span>
+                  {email.trim().toLowerCase() !== (user?.email ?? "").toLowerCase() && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      icon="mail"
+                      loading={emailPending}
+                      onClick={saveEmail}
+                      style={{ padding: "5px 12px", fontSize: 12, flexShrink: 0 }}
+                    >
+                      Confirm change
+                    </Button>
+                  )}
                 </div>
-                <span className="text-[11px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
-                  Managed by Supabase — contact support to change
-                </span>
               </Field>
               <Field label="Location">
                 <input
@@ -405,6 +487,46 @@ export function Settings() {
               <Button type="button" variant="primary" icon="save" onClick={savePrivacy}>
                 Save privacy
               </Button>
+            </div>
+          </Section>
+
+          {/* Security */}
+          <Section title="Security" icon="lock">
+            <div className="flex flex-col gap-4">
+              <Field label="New password" hint="At least 8 characters">
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="new-password"
+                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)]"
+                  style={{ background: "var(--panel-2)", borderColor: "var(--line)", color: "var(--ink-strong)" }}
+                />
+              </Field>
+              <Field label="Confirm new password">
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="new-password"
+                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)]"
+                  style={{ background: "var(--panel-2)", borderColor: "var(--line)", color: "var(--ink-strong)" }}
+                />
+              </Field>
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  variant="primary"
+                  icon="lock_reset"
+                  loading={passwordPending}
+                  disabled={!newPassword || !confirmPassword}
+                  onClick={savePassword}
+                >
+                  Update password
+                </Button>
+              </div>
             </div>
           </Section>
         </div>
@@ -539,17 +661,56 @@ export function Settings() {
           <Panel style={{ border: "1px solid rgba(234,82,61,0.25)" }}>
             <PanelHead title="Danger zone" icon="warning" style={{ color: "var(--coral)" }} />
             <p className="text-[13px] leading-relaxed mb-4" style={{ color: "var(--ink-dim)" }}>
-              Deleting your account will permanently remove all your trades, journal entries, and settings. This cannot be undone.
+              Deleting your account will permanently remove all your trades, journal entries, community posts, and settings. This cannot be undone, and your email address can&apos;t be used to create another account afterward.
             </p>
-            <Button
-              type="button"
-              variant="ghost"
-              icon="delete_forever"
-              onClick={handleDeleteAccount}
-              style={{ color: "var(--coral)", borderColor: "rgba(234,82,61,0.3)" }}
-            >
-              Delete account
-            </Button>
+            {deleteConfirmOpen ? (
+              <div
+                className="rounded-xl p-4"
+                style={{ background: "rgba(234,82,61,0.06)", border: "1px solid rgba(234,82,61,0.2)" }}
+              >
+                <p className="text-[13px] font-semibold mb-3" style={{ color: "var(--coral)" }}>
+                  Type your username (@{handle || "…"}) to confirm.
+                </p>
+                <input
+                  type="text"
+                  value={deleteTyped}
+                  onChange={(e) => setDeleteTyped(e.target.value)}
+                  placeholder={handle}
+                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none mb-3"
+                  style={{ background: "var(--panel-2)", borderColor: "var(--line)", color: "var(--ink-strong)" }}
+                />
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => { setDeleteConfirmOpen(false); setDeleteTyped(""); }}
+                    style={{ flex: 1 }}
+                  >
+                    Keep account
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    loading={deleting}
+                    disabled={deleteTyped.trim().toLowerCase() !== handle.trim().toLowerCase() || !handle}
+                    onClick={handleDeleteAccount}
+                    style={{ flex: 1, color: "var(--coral)", borderColor: "rgba(234,82,61,0.3)" }}
+                  >
+                    Permanently delete
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="ghost"
+                icon="delete_forever"
+                onClick={() => setDeleteConfirmOpen(true)}
+                style={{ color: "var(--coral)", borderColor: "rgba(234,82,61,0.3)" }}
+              >
+                Delete account
+              </Button>
+            )}
           </Panel>
         </div>
       </div>

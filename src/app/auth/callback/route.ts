@@ -47,7 +47,7 @@ export async function GET(request: Request) {
   // Check if a Prisma user row already exists
   const existing = await prisma.user.findUnique({
     where: { supabaseId: sbUser.id },
-    select: { id: true, instruments: true },
+    select: { id: true, instruments: true, email: true },
   }).catch(() => null);
 
   if (!existing) {
@@ -70,6 +70,16 @@ export async function GET(request: Request) {
     }).catch(() => null);
 
     return NextResponse.redirect(`${origin}/onboarding`);
+  }
+
+  // Confirmed email change — Supabase already updated auth.users; mirror it
+  // into Prisma so the rest of the app (Settings, admin student list, etc.)
+  // reflects the new address.
+  if (sbUser.email && existing.email !== sbUser.email) {
+    await prisma.user.update({
+      where: { id: existing.id },
+      data:  { email: sbUser.email },
+    }).catch(() => null);
   }
 
   // Email-verification signups have a Prisma row (created at signup) but
