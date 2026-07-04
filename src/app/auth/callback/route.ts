@@ -6,10 +6,12 @@ import { authCookieOptions } from "@/lib/supabase/cookie-options";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get("code");
-  const next = searchParams.get("next"); // e.g. /reset-password (from forgot-password flow)
+  const code       = searchParams.get("code");
+  const next       = searchParams.get("next"); // e.g. /reset-password (from forgot-password flow)
+  const token_hash = searchParams.get("token_hash");
+  const type       = searchParams.get("type"); // "invite" — from our custom invite-user.html link
 
-  if (!code) {
+  if (!code && !token_hash) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);
   }
 
@@ -31,6 +33,23 @@ export async function GET(request: Request) {
       },
     }
   );
+
+  // Invite links carry token_hash+type instead of a PKCE code (see
+  // invite-user.html) — verifying establishes the session same as
+  // exchangeCodeForSession does, but preserves the "this is an invite, not a
+  // silent login" signal so we can route to the set-password screen instead
+  // of straight into onboarding with no password ever set.
+  if (token_hash && type === "invite") {
+    const { error } = await supabase.auth.verifyOtp({ token_hash, type: "invite" });
+    if (error) {
+      return NextResponse.redirect(`${origin}/login?error=auth_failed`);
+    }
+    return NextResponse.redirect(`${origin}/reset-password?type=invite`);
+  }
+
+  if (!code) {
+    return NextResponse.redirect(`${origin}/login?error=missing_code`);
+  }
 
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
   if (error || !data.user) {

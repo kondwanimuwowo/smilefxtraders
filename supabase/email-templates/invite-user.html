@@ -1,7 +1,11 @@
 <!--
   Supabase Auth → Authentication → Email Templates → "Invite user"
   Paste the body below into the template editor.
-  Keep {{ .SiteURL }} and {{ .ConfirmationURL }} — Supabase fills these in.
+  Uses {{ .SiteURL }} + {{ .TokenHash }} (not {{ .ConfirmationURL }}) so the
+  link carries an explicit type=invite marker all the way to our own
+  /auth/callback route — that's what lets us route the user to a dedicated
+  "set your password" screen instead of silently logging them in with no
+  password ever set. Keep both variables intact.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -45,12 +49,12 @@ img{border:0;line-height:100%;}
 
         <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:8px;"><tr>
           <td style="border-radius:9px;background-color:#08AEAA;">
-            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:13px 28px;font-family:Inter,Arial,'Helvetica Neue',sans-serif;font-size:15px;font-weight:600;color:#FFFFFF;text-decoration:none;border-radius:9px;">Accept the invite →</a>
+            <a href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&amp;type=invite" style="display:inline-block;padding:13px 28px;font-family:Inter,Arial,'Helvetica Neue',sans-serif;font-size:15px;font-weight:600;color:#FFFFFF;text-decoration:none;border-radius:9px;">Accept the invite →</a>
           </td>
         </tr></table>
 
         <p style="margin:22px 0 0;font-family:Inter,Arial,'Helvetica Neue',sans-serif;font-size:12.5px;line-height:1.6;color:#8A969C;">If the button doesn't work, copy and paste this link into your browser:<br>
-          <a href="{{ .ConfirmationURL }}" style="color:#1B807B;word-break:break-all;">{{ .ConfirmationURL }}</a>
+          <a href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&amp;type=invite" style="color:#1B807B;word-break:break-all;">{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&amp;type=invite</a>
         </p>
       </td></tr>
     </table>

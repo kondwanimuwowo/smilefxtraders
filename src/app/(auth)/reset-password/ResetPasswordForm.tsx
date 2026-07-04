@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Input, Field, Button } from "@/components/ui";
 
@@ -9,6 +9,8 @@ type State = "idle" | "loading" | "success" | "error";
 
 export function ResetPasswordForm() {
   const router  = useRouter();
+  const searchParams = useSearchParams();
+  const isInvite = searchParams.get("type") === "invite";
   const [password,  setPassword]  = useState("");
   const [confirm,   setConfirm]   = useState("");
   const [state,     setState]     = useState<State>("idle");
@@ -38,8 +40,9 @@ export function ResetPasswordForm() {
       setState("error");
     } else {
       setState("success");
-      // Brief pause so the user sees the success state, then go to dashboard
-      setTimeout(() => router.push("/dashboard"), 1800);
+      // Brief pause so the user sees the success state, then continue —
+      // invited users haven't onboarded yet, everyone else goes to dashboard
+      setTimeout(() => router.push(isInvite ? "/onboarding" : "/dashboard"), 1800);
     }
   }
 
@@ -54,10 +57,10 @@ export function ResetPasswordForm() {
         </div>
         <div>
           <h1 className="font-display font-semibold mb-2" style={{ fontSize: 24, color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
-            Password updated
+            Password set
           </h1>
           <p style={{ fontSize: 14.5, color: "var(--ink-mid)" }}>
-            Taking you to your dashboard…
+            {isInvite ? "Taking you to onboarding…" : "Taking you to your dashboard…"}
           </p>
         </div>
       </div>
@@ -67,11 +70,11 @@ export function ResetPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
       <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2" style={{ color: "var(--teal)" }}>
-        New password
+        {isInvite ? "Welcome" : "New password"}
       </div>
 
       <h1 className="font-display font-semibold mb-6" style={{ fontSize: 26, color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
-        Set a new password
+        {isInvite ? "Set your password" : "Set a new password"}
       </h1>
 
       <div className="grid gap-4 mb-5">
@@ -105,7 +108,7 @@ export function ResetPasswordForm() {
       )}
 
       <Button type="submit" variant="primary" fullWidth size="lg" loading={state === "loading"} iconRight="lock">
-        Update password
+        {isInvite ? "Set password" : "Update password"}
       </Button>
     </form>
   );
