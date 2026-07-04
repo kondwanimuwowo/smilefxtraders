@@ -9,7 +9,14 @@ export async function GET(request: Request) {
   const code       = searchParams.get("code");
   const next       = searchParams.get("next"); // e.g. /reset-password (from forgot-password flow)
   const token_hash = searchParams.get("token_hash");
-  const type       = searchParams.get("type"); // "invite" — from our custom invite-user.html link
+  const type       = searchParams.get("type"); // "invite" | "recovery" — from our custom email template links
+
+  // Supabase's hosted /verify endpoint reports failures (expired or
+  // already-consumed links) via error params on the redirect, not a code —
+  // surface those as "link expired" rather than the generic missing-code copy.
+  if (searchParams.get("error_code") || searchParams.get("error_description")) {
+    return NextResponse.redirect(`${origin}/login?error=auth_failed`);
+  }
 
   if (!code && !token_hash) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);

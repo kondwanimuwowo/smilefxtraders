@@ -2,10 +2,19 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Input, Field, Button } from "@/components/ui";
 import { loginAction, demoLoginAction } from "../actions";
+
+// Friendly copy for the ?error= codes /auth/callback redirects here with —
+// without this, someone clicking an expired/consumed email link lands on a
+// bare login page with no explanation of what happened.
+const CALLBACK_ERRORS: Record<string, string> = {
+  missing_code: "That link was invalid or already used. If you were confirming your email, it may already be confirmed — try signing in below.",
+  auth_failed:  "That link has expired or was already used. Request a new one and try again.",
+  oauth_failed: "Sign-in didn't complete — please try again.",
+};
 
 function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onClick: () => void; icon: string; label: string }) {
   return (
@@ -37,7 +46,11 @@ function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onC
 
 export function LoginForm() {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const [error, setError] = useState<string | null>(() => {
+    const code = searchParams.get("error");
+    return code ? CALLBACK_ERRORS[code] ?? "Something went wrong signing you in — please try again." : null;
+  });
   const [isPending, startTransition] = useTransition();
   const [isDemo, setIsDemo] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);

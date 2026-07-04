@@ -100,6 +100,19 @@ async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }>
         if (expired) db = expired;
       }
 
+      // Mirror a confirmed email change from auth.users into Prisma. The
+      // /auth/callback mirror only covers clicks that land there — if an
+      // email scanner consumed the change-email confirmation link (change
+      // applied in auth, but the user's own click errored out), this heals
+      // the mismatch on their next page load instead of leaving it stale.
+      if (user.email && db.email !== user.email) {
+        const synced = await prisma.user.update({
+          where: { id: db.id },
+          data:  { email: user.email },
+        }).catch(() => null);
+        if (synced) db = synced;
+      }
+
       const dbTrades = await prisma.trade.findMany({
         where: { userId: db.id },
         orderBy: { date: "desc" },
