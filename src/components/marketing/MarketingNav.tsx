@@ -146,7 +146,7 @@ export function MarketingNav() {
             <div style={{ flex: 1 }} />
 
             {/* Desktop nav — sits between spacer and CTA */}
-            <nav style={{ display: "flex", alignItems: "center", gap: 2, marginRight: 20 }} className="hidden lg:flex">
+            <nav style={{ alignItems: "center", gap: 2, marginRight: 20 }} className="hidden lg:flex">
               {NAV.map((n) => (
                 <Link
                   key={n.href}
@@ -203,7 +203,7 @@ export function MarketingNav() {
             {/* Mobile hamburger — inline SVG, no web-font dependency */}
             <button
               type="button"
-              className="lg:hidden tap-target"
+              className="flex lg:hidden tap-target"
               style={{
                 marginLeft: 12,
                 padding: 6,
@@ -211,7 +211,6 @@ export function MarketingNav() {
                 background: "none",
                 border: "none",
                 cursor: "pointer",
-                display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 position: "relative",
