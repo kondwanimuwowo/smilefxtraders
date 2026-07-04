@@ -34,17 +34,17 @@ export async function GET(request: Request) {
     }
   );
 
-  // Invite links carry token_hash+type instead of a PKCE code (see
-  // invite-user.html) — verifying establishes the session same as
-  // exchangeCodeForSession does, but preserves the "this is an invite, not a
-  // silent login" signal so we can route to the set-password screen instead
-  // of straight into onboarding with no password ever set.
-  if (token_hash && type === "invite") {
-    const { error } = await supabase.auth.verifyOtp({ token_hash, type: "invite" });
-    if (error) {
-      return NextResponse.redirect(`${origin}/login?error=auth_failed`);
-    }
-    return NextResponse.redirect(`${origin}/reset-password?type=invite`);
+  // Invite/recovery links carry token_hash+type instead of a PKCE code (see
+  // supabase/email-templates/*.html). Forward the token to the set-password
+  // page UNCONSUMED — the page verifies it client-side in JS. Verifying here
+  // (server-side) would let an email link-scanner's prefetch GET burn the
+  // one-time token before the user ever clicks; scanners fetch URLs but
+  // don't execute scripts, so client-side verification survives them.
+  if (token_hash && (type === "invite" || type === "recovery")) {
+    const url = new URL("/reset-password", origin);
+    url.searchParams.set("token_hash", token_hash);
+    url.searchParams.set("type", type);
+    return NextResponse.redirect(url);
   }
 
   if (!code) {
