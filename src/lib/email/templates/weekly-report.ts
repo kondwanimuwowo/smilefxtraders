@@ -1,4 +1,4 @@
-import { emailLayout, statCard, statGrid, noteCard } from "../layout";
+import { emailShell, para, statGrid4, winLossBar, infoCard, APP } from "../layout";
 
 export interface WeeklyReportParams {
   name:         string;
@@ -14,37 +14,34 @@ export interface WeeklyReportParams {
 
 export function weeklyReportEmail(p: WeeklyReportParams): { subject: string; html: string } {
   const isPositive = !p.netR.startsWith("-");
-  const netRColor  = isPositive ? "#08AEAA" : "#EA523D";
+  const netRColor  = isPositive ? "#1B807B" : "#EA523D";
+  const settingsUrl = p.dashboardUrl.replace("/dashboard", "/settings");
 
-  const bodyHtml = `
-    ${statGrid([
-      statCard("Trades",   String(p.trades)),
-      statCard("Win rate", `${p.winRate}%`, p.winRate >= 50 ? "#08AEAA" : "#EA523D"),
-      statCard("Net R",    (isPositive ? "+" : "") + p.netR, netRColor),
-      statCard("Streak",   `${p.streak} 🔥`, "#F8B93D"),
-    ])}
-
-    <!-- Win / loss bar -->
-    <div style="background:#0D2030;border:1px solid #1A4A65;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:#7EB8D4;margin-bottom:10px;">
-        <span>${p.wins} wins</span>
-        <span>${p.losses} losses</span>
-      </div>
-      <div style="height:8px;border-radius:4px;background:#1A4A65;overflow:hidden;">
-        <div style="height:100%;width:${p.trades > 0 ? Math.round((p.wins / p.trades) * 100) : 0}%;background:#08AEAA;border-radius:4px;"></div>
-      </div>
-    </div>
-
-    ${p.bestModel ? noteCard("Best model this week", p.bestModel, "rgba(248,185,61,0.2)", "#F8B93D") : ""}`;
+  const bodyHtml = [
+    para(`Hey ${p.name.split(" ")[0]}, here's your journal summary for the week:`),
+    statGrid4([
+      { label: "Trades",   value: String(p.trades) },
+      { label: "Win rate", value: `${p.winRate}%` },
+      { label: "Net",      value: (isPositive ? "+" : "") + p.netR, valueColor: netRColor },
+      { label: "Streak",   value: `${p.streak} 🔥` },
+    ]),
+    winLossBar(p.wins, p.losses, p.trades),
+    p.bestModel ? infoCard("Best model this week", p.bestModel) : "",
+    para(`Keep the streak alive — review this week's trades and tag what worked.`),
+    `<div style="height:16px;line-height:16px;font-size:0;">&nbsp;</div>`,
+  ].join("");
 
   return {
     subject: `Your week in trading — ${p.wins}W ${p.losses}L ${isPositive ? "+" : ""}${p.netR}`,
-    html: emailLayout({
-      heading:    `Your weekly report, ${p.name.split(" ")[0]}`,
-      sub:        "Here's how your trading looked this week.",
+    html: emailShell({
+      preheader:  `${p.trades} trades, ${p.winRate}% win rate, ${isPositive ? "+" : ""}${p.netR} this week.`,
+      eyebrow:    "Weekly report",
+      heading:    "Your week in the journal",
+      sub:        "Here's how your trading week went.",
       bodyHtml,
-      cta:        { label: "View full journal →", href: p.dashboardUrl },
-      footerNote: `You're receiving this because you have weekly reports enabled in your <a href="${p.dashboardUrl.replace("/dashboard", "/settings")}" style="color:#08AEAA;">Settings</a>.`,
+      ctaLabel:   "View full journal →",
+      ctaHref:    p.dashboardUrl,
+      footerNote: `You're receiving this because you have weekly reports enabled in your <a href="${settingsUrl}" style="color:#1B807B;">Settings</a>.`,
     }),
   };
 }
