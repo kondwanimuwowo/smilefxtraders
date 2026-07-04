@@ -25,7 +25,7 @@ export function CTACard({
       style={{
         background: "linear-gradient(155deg, #0C4E6B 0%, #082A3B 60%)",
         borderRadius: 32,
-        padding: "64px 48px",
+        padding: "clamp(32px, 8vw, 64px) clamp(20px, 6vw, 48px)",
         textAlign: "center",
         position: "relative",
         overflow: "hidden",

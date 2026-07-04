@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
@@ -27,6 +27,15 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Smile FX Traders",
   description: "Trade smart money. Together.",
+};
+
+// Explicit instead of relying on Next's implicit default — guarantees pinch-zoom
+// is never accidentally disabled, and viewport-fit=cover enables the safe-area-inset-*
+// env() vars used by the mobile bottom tab bar / Modal / Drawer.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

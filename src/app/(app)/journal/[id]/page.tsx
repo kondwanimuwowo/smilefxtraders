@@ -369,7 +369,7 @@ export default function TradeDetailPage() {
               <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--ink-dim)" }}>
                 Price levels
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {t.entryPrice != null && (
                   <div>
                     <div className="text-[11px] mb-0.5" style={{ color: "var(--ink-dim)" }}>Entry</div>
@@ -418,7 +418,7 @@ export default function TradeDetailPage() {
               <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--ink-dim)" }}>
                 Timing
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {t.openedAt && (
                   <div>
                     <div className="text-[11px] mb-0.5" style={{ color: "var(--ink-dim)" }}>Opened</div>
@@ -448,7 +448,7 @@ export default function TradeDetailPage() {
           )}
 
           {/* Meta grid */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <MetaBox label="Planned R:R" value={t.rr ? `1:${t.rr}` : "—"} />
             <MetaBox label="Risk"         value={t.riskPct ? `${t.riskPct}%` : "—"} />
             <MetaBox label="Session"      value={t.session ?? "—"} />

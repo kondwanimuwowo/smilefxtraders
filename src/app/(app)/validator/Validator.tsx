@@ -357,7 +357,7 @@ export function Validator() {
                 />
               </Field>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Instrument" half>
                   <Select value={setup.pair} onChange={(v) => set("pair", v)} options={pairs.length ? pairs : ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"]} />
                 </Field>
@@ -388,7 +388,7 @@ export function Validator() {
                 />
               </Field>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Entry TF" half>
                   <SegRow value={setup.entryTf} onChange={(v) => set("entryTf", v)} options={["M15", "H1", "H4"].map((t) => ({ v: t, l: t }))} />
                 </Field>
@@ -503,7 +503,7 @@ export function Validator() {
 
                 {calcOpen && (
                   <div className="flex flex-col gap-3">
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Field label="Account balance" half>
                         <MonoInput
                           value={calcBalance}
@@ -515,7 +515,7 @@ export function Validator() {
                         <MonoInput value={calcRisk} onChange={(e) => setCalcRisk(e.target.value)} placeholder="1" />
                       </Field>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Field label="Entry price" half>
                         <MonoInput
                           value={calcEntry}
@@ -534,7 +534,7 @@ export function Validator() {
 
                     {calcResult && (
                       <div className="rounded-xl p-4" style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}>
-                        <div className="grid grid-cols-2 gap-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4">
                           <div>
                             <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>
                               {calcResult.isForex ? "Pip distance" : setup.pair === "XAUUSD" ? "$ distance" : "Points"}

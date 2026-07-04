@@ -9,6 +9,7 @@ import { useStore } from "@/lib/store";
 import { useMarkNotifsRead } from "@/lib/hooks/useNotifications";
 import { Icon } from "@/components/ui";
 import { SearchModal } from "@/components/search/SearchModal";
+import { clampPosition } from "@/lib/hooks/useClampedPosition";
 import type { PriceTick } from "@/app/api/prices/route";
 
 const FALLBACK: PriceTick[] = [
@@ -73,7 +74,7 @@ function useLivePrices() {
 }
 
 export function Topbar() {
-  const { user, unreadCount, setMobileSidebarOpen } = useStore();
+  const { user, unreadCount } = useStore();
   const { ticks, live } = useLivePrices();
   const router = useRouter();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -98,18 +99,6 @@ export function Topbar() {
         WebkitBackdropFilter: "blur(8px)",
       }}
     >
-      {/* Hamburger — mobile only */}
-      <button
-        type="button"
-        className="md:hidden shrink-0 p-1.5 rounded-lg transition-colors hover:bg-[var(--hover)]"
-        style={{ color: "var(--ink-mid)" }}
-        onClick={() => setMobileSidebarOpen(true)}
-        aria-label="Open menu"
-      >
-        <Icon name="menu" size={22} />
-      </button>
-      <div className="md:hidden w-px h-5 shrink-0" style={{ background: "var(--line)" }} />
-
       {/* Live price ticker */}
       <div className="flex-1 min-w-0 overflow-hidden relative">
         {/* Fade masks */}
@@ -153,7 +142,7 @@ export function Topbar() {
         <button
           type="button"
           onClick={openSearch}
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-[var(--bg-hover)]"
+          className="tap-target flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-[var(--bg-hover)]"
           style={{ background: "var(--panel-2)", color: "var(--ink-mid)", border: "1px solid var(--line)" }}
         >
           <Icon name="search" size={16} />
@@ -249,7 +238,7 @@ function NotifBell() {
         ref={triggerRef}
         type="button"
         onClick={toggle}
-        className="relative p-1.5 rounded-lg transition-colors hover:bg-[var(--hover)]"
+        className="tap-target relative p-1.5 rounded-lg transition-colors hover:bg-[var(--hover)] flex items-center justify-center"
         style={{ color: open ? "var(--ink-strong)" : "var(--ink-mid)", background: open ? "var(--hover)" : undefined }}
         aria-label="Notifications"
         aria-expanded={open}
@@ -269,9 +258,9 @@ function NotifBell() {
           className="rounded-2xl overflow-hidden"
           style={{
             position: "fixed",
-            top: rect.bottom + 8,
-            right: window.innerWidth - rect.right,
+            ...clampPosition({ triggerRect: rect, width: 340, estimatedHeight: 420, align: "right" }),
             width: 340,
+            maxWidth: "calc(100vw - 16px)",
             background: "var(--panel)",
             border: "1px solid var(--line)",
             boxShadow: "0 12px 40px rgba(0,0,0,0.25)",
@@ -400,7 +389,7 @@ function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="p-1.5 rounded-lg transition-colors hover:bg-[var(--hover)]"
+      className="tap-target p-1.5 rounded-lg transition-colors hover:bg-[var(--hover)] flex items-center justify-center"
       style={{ color: "var(--ink-mid)" }}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >

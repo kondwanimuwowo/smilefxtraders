@@ -197,19 +197,19 @@ export default async function HomePage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="fx-wrap">
                 <img src="/focus-illustration.svg" alt="" aria-hidden="true" style={{ width: "100%", height: "auto", display: "block" }} />
-                <div className="fx-float" style={{ top: "4%", left: "4%", fontSize: 15, animationDelay: "0s" }}>
+                <div className="fx-float hidden sm:block" style={{ top: "4%", left: "4%", fontSize: 15, animationDelay: "0s" }}>
                   EUR/USD <span className="up">▲ 0.4%</span>
                 </div>
-                <div className="fx-float" style={{ top: "12%", right: "2%", fontSize: 13, animationDelay: "1.2s" }}>
+                <div className="fx-float hidden sm:block" style={{ top: "12%", right: "2%", fontSize: 13, animationDelay: "1.2s" }}>
                   GBP/USD <span className="down">▼ 0.2%</span>
                 </div>
-                <div className="fx-float" style={{ top: "40%", left: "0%", fontSize: 14, animationDelay: "0.6s" }}>
+                <div className="fx-float hidden sm:block" style={{ top: "40%", left: "0%", fontSize: 14, animationDelay: "0.6s" }}>
                   XAU/USD <span className="up">▲ 1.1%</span>
                 </div>
-                <div className="fx-float" style={{ top: "48%", right: "0%", fontSize: 15, animationDelay: "1.8s" }}>
+                <div className="fx-float hidden sm:block" style={{ top: "48%", right: "0%", fontSize: 15, animationDelay: "1.8s" }}>
                   NZD/USD <span className="up">▲ 0.3%</span>
                 </div>
-                <div className="fx-float" style={{ bottom: "14%", left: "8%", fontSize: 13, animationDelay: "2.4s" }}>
+                <div className="fx-float hidden sm:block" style={{ bottom: "14%", left: "8%", fontSize: 13, animationDelay: "2.4s" }}>
                   NAS100 <span className="up">▲ 0.7%</span>
                 </div>
               </div>

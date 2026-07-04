@@ -4,6 +4,7 @@ import type { InputHTMLAttributes, TextareaHTMLAttributes, ReactNode, CSSPropert
 import { useRef, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "./Icon";
+import { clampPosition } from "@/lib/hooks/useClampedPosition";
 
 // ─── Field wrapper ─────────────────────────────────────────────────────────────
 
@@ -36,8 +37,11 @@ export function Field({ label, hint, half, children, style }: FieldProps) {
 
 // ─── Input ─────────────────────────────────────────────────────────────────────
 
+// text-base (16px) on the actual <input>/<textarea> elements — anything smaller
+// triggers iOS Safari's auto-zoom-on-focus, a real mobile UX bug. Buttons/labels
+// elsewhere in this file are unaffected since only focusable text fields zoom.
 const inputCls =
-  "w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none transition-colors placeholder:text-[var(--ink-dim)] focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)]";
+  "w-full rounded-[9px] border px-3 py-2.5 text-base sm:text-[13.5px] outline-none transition-colors placeholder:text-[var(--ink-dim)] focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)]";
 
 const inputStyle = {
   background: "var(--panel-2)",
@@ -162,14 +166,13 @@ export function Select({ value, onChange, options, disabled, compact, borderless
         </span>
       </button>
 
-      {open && typeof window !== "undefined" &&
+      {open && rect && typeof window !== "undefined" &&
         createPortal(
           <div
             ref={listRef}
             style={{
               position:     "fixed",
-              top:          (rect?.bottom ?? 0) + 5,
-              left:         rect?.left ?? 0,
+              ...clampPosition({ triggerRect: rect, width: compact ? 160 : (rect.width ?? 200), estimatedHeight: 300 }),
               minWidth:     compact ? 160 : (rect?.width ?? 200),
               zIndex:       9999,
               background:   "var(--panel)",

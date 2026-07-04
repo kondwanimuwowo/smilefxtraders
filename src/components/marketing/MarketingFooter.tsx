@@ -10,10 +10,7 @@ export function MarketingFooter() {
     >
       <div className="mx-auto px-7" style={{ maxWidth: "1200px" }}>
         {/* Grid */}
-        <div
-          className="grid gap-10"
-          style={{ gridTemplateColumns: "1.6fr 1fr 1fr" }}
-        >
+        <div className="footer-grid">
           {/* Brand col */}
           <div>
             <Link href="/" className="flex items-center gap-3">

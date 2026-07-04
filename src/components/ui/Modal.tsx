@@ -68,7 +68,10 @@ export function Modal({ open, onClose, title, sub, width = 560, footer, children
 
         {/* Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: "var(--line)" }}>
+          <div
+            className="flex items-center justify-end gap-3 px-6 pt-4 border-t"
+            style={{ borderColor: "var(--line)", paddingBottom: "calc(1rem + var(--safe-bottom))" }}
+          >
             {footer}
           </div>
         )}

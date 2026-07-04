@@ -199,7 +199,7 @@ html:not(.lenis-smooth) {
 /* ---------- page-specific grids ---------- */
 .instr-grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 56px; align-items: center; }
 .comm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
-.footer-grid { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 40px; }
+.footer-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 40px; }
 @media (max-width: 900px) {
   .instr-grid, .comm-grid { grid-template-columns: 1fr; }
 }

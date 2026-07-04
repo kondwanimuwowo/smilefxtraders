@@ -56,8 +56,8 @@ export function PricingContent({ prices }: Props) {
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="container">
           <div
-            className="reveal"
-            style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20, alignItems: "start", marginTop: -24 }}
+            className="reveal price-grid"
+            style={{ marginTop: -24 }}
           >
             {PLAN_META.map((meta) => (
               <MarketingPlanCard

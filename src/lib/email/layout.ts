@@ -51,7 +51,19 @@ export function emailShell(opts: EmailShellOptions): string {
 ${FONT_IMPORT}
 body,table,td{margin:0;padding:0;}
 img{border:0;line-height:100%;}
-@media only screen and (max-width:620px){.container{width:100%!important;}.inner{padding:28px 22px 32px!important;}}
+@media only screen and (max-width:620px){
+  .container{width:100%!important;}
+  .inner{padding:28px 22px 32px!important;}
+  /* Stack the 4-col stat/trade-detail tables (statGrid4, tradeCard) instead of
+     squeezing 4 columns into ~85px each on a phone. Kept as classes (not
+     td[width] attribute selectors) since some webmail clients strip
+     attribute selectors from <style> blocks. NOTE: this same rule must be
+     mirrored by hand into supabase/email-templates/*.html — those are
+     static files pasted into the Supabase dashboard, not generated from
+     this shared shell, so there's no build step keeping them in sync. */
+  .sg-cell{display:block!important;width:100%!important;padding:0 0 8px!important;}
+  .tc-cell{display:block!important;width:100%!important;padding:8px 0 0!important;}
+}
 </style>
 </head>
 <body style="margin:0;padding:0;background-color:#F4F4F4;">
@@ -143,8 +155,8 @@ export function receiptTable(rows: { label: string; value: string; valueColor?: 
     .map(
       (row, i) => `
     <tr>
-      <td style="padding:13px 0;font-family:Inter,Arial,'Helvetica Neue',sans-serif;font-size:13px;color:#5C6B73;${i > 0 ? "border-top:1px solid #E3E8EA;" : ""}">${row.label}</td>
-      <td align="right" style="padding:13px 0;font-family:'IBM Plex Mono','Courier New',monospace;font-size:14px;font-weight:600;color:${row.valueColor ?? "#082A3B"};${i > 0 ? "border-top:1px solid #E3E8EA;" : ""}">${row.value}</td>
+      <td style="padding:13px 0;font-family:Inter,Arial,'Helvetica Neue',sans-serif;font-size:13px;color:#5C6B73;word-break:break-word;${i > 0 ? "border-top:1px solid #E3E8EA;" : ""}">${row.label}</td>
+      <td align="right" style="padding:13px 0 13px 12px;font-family:'IBM Plex Mono','Courier New',monospace;font-size:14px;font-weight:600;color:${row.valueColor ?? "#082A3B"};word-break:break-word;${i > 0 ? "border-top:1px solid #E3E8EA;" : ""}">${row.value}</td>
     </tr>`,
     )
     .join("");
@@ -170,7 +182,7 @@ export function statGrid4(cards: { label: string; value: string; valueColor?: st
   const cells = cards
     .map(
       (c) => `
-    <td width="25%" style="padding:0 4px;">
+    <td width="25%" class="sg-cell" style="padding:0 4px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F2F6F7;border-radius:10px;">
         <tr><td align="center" style="padding:16px 4px;">
           <div style="font-family:Inter,Arial,'Helvetica Neue',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#5C6B73;padding-bottom:6px;">${c.label}</div>
@@ -241,7 +253,7 @@ export function tradeCard(p: {
         ["R:R",   p.rr],
       ]
         .map(
-          ([lbl, val]) => `<td width="25%" style="padding:14px 6px 0 0;">
+          ([lbl, val]) => `<td width="25%" class="tc-cell" style="padding:14px 6px 0 0;">
         <div style="font-family:Inter,Arial,'Helvetica Neue',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.45);padding-bottom:5px;">${lbl}</div>
         <div style="font-family:'IBM Plex Mono','Courier New',monospace;font-size:15px;font-weight:600;color:#FFFFFF;">${val}</div>
       </td>`,

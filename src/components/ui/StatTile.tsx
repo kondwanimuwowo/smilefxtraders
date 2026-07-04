@@ -37,8 +37,8 @@ export function StatTile({ label, value, sub, tone = "neutral", icon }: StatTile
         {icon && <Icon name={icon} size={17} style={{ color: "var(--ink-dim)" }} />}
       </div>
       <div
-        className="font-display text-[26px] font-bold mt-2"
-        style={{ color: TONE_COLORS[tone], letterSpacing: "-0.02em" }}
+        className="font-display font-bold mt-2"
+        style={{ color: TONE_COLORS[tone], letterSpacing: "-0.02em", fontSize: "clamp(20px, 4vw, 26px)" }}
       >
         {value}
       </div>

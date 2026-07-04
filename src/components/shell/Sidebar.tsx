@@ -8,6 +8,8 @@ import { useTransition } from "react";
 import { useStore } from "@/lib/store";
 import type { AppUser } from "@/lib/store";
 import { signoutAction } from "@/app/(auth)/actions";
+import { navActiveRowStyle, navActiveIconStyle } from "@/lib/nav-active-style";
+import { clampPosition } from "@/lib/hooks/useClampedPosition";
 
 interface NavItem {
   href: string;
@@ -389,8 +391,7 @@ function ProfileButton({
           className="rounded-xl overflow-hidden"
           style={{
             position: "fixed",
-            bottom: window.innerHeight - menuRect.top + 8,
-            left: menuRect.left,
+            ...clampPosition({ triggerRect: menuRect, width: menuWidth, estimatedHeight: 260, direction: "up" }),
             width: menuWidth,
             background: "var(--panel)",
             border: "1px solid var(--line)",
@@ -476,23 +477,10 @@ function NavLink({
           justifyContent: collapsed ? "center" : "flex-start",
           gap: collapsed ? 0 : 10,
           transition: "padding 260ms var(--ease-app), background 150ms, box-shadow 150ms",
-          ...(active
-            ? {
-                background: "linear-gradient(135deg, rgba(8,174,170,0.22), rgba(8,174,170,0.08))",
-                color: "var(--ink-strong)",
-                boxShadow: "inset 0 0 0 1px rgba(8,174,170,0.3)",
-              }
-            : { color: "var(--ink-mid)" }),
+          ...navActiveRowStyle(active),
         }}
       >
-        <span
-          className="material-symbols-rounded shrink-0"
-          style={{
-            fontSize: 20,
-            fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0",
-            color: active ? "var(--teal)" : "inherit",
-          }}
-        >
+        <span className="material-symbols-rounded shrink-0" style={navActiveIconStyle(active, 20)}>
           {item.icon}
         </span>
         <span

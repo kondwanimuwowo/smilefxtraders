@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/shell/Sidebar";
 import { Topbar } from "@/components/shell/Topbar";
+import { BottomTabBar } from "@/components/shell/BottomTabBar";
 import { StoreHydrator } from "@/components/shell/StoreHydrator";
 import { NotificationsPoller } from "@/components/shell/NotificationsPoller";
 import { ToastHost } from "@/components/ui";
@@ -141,11 +142,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           <Topbar />
           <main className="flex-1 overflow-y-auto overflow-x-hidden">
-            <div className="mx-auto w-full px-4 sm:px-6 pt-5 pb-12" style={{ maxWidth: 1320 }}>
+            <div
+              className="mx-auto w-full px-4 sm:px-6 pt-5 pb-24 md:pb-12"
+              style={{ maxWidth: 1320 }}
+            >
               {children}
             </div>
           </main>
         </div>
+        <BottomTabBar />
         <ToastHost />
       </div>
     </Providers>

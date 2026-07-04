@@ -72,7 +72,12 @@ export default function FeaturesPage() {
                       <div key={pair} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 13px", borderBottom: i < 2 ? "1px solid var(--line)" : undefined }}>
                         <span className="mono" style={{ fontWeight: 600, fontSize: 13 }}>{pair}</span>
                         <span className={`chip ${dir === "Short" ? "badge-short" : "badge-long"}`} style={{ fontSize: 10 }}>{dir}</span>
-                        <span style={{ fontSize: 12, color: "var(--ink-mid)", flex: 1 }}>{model}</span>
+                        <span
+                          className="truncate"
+                          style={{ fontSize: 12, color: "var(--ink-mid)", flex: 1, minWidth: 0 }}
+                        >
+                          {model}
+                        </span>
                         <span className="mono" style={{ color: col, fontWeight: 700, fontSize: 13 }}>{pnl}</span>
                       </div>
                     ))}

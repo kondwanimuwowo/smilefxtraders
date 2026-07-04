@@ -184,8 +184,12 @@ export function MarketingNav() {
       {/* Mobile full-screen nav */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-[60] flex flex-col p-6"
-          style={{ background: "var(--navy-deep, #082A3B)" }}
+          className="fixed inset-0 z-[60] flex flex-col px-6 overflow-y-auto"
+          style={{
+            background: "var(--navy-deep, #082A3B)",
+            paddingTop: "calc(1.5rem + var(--safe-top))",
+            paddingBottom: "calc(1.5rem + var(--safe-bottom))",
+          }}
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
             <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }} onClick={() => setMobileOpen(false)}>

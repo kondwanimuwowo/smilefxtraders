@@ -7,7 +7,7 @@ export function ToastHost() {
   const toasts = useStore((s) => s.toasts);
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-2 pointer-events-none">
+    <div className="fixed bottom-[calc(4.5rem+var(--safe-bottom))] md:bottom-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-2 pointer-events-none">
       {toasts.map((t) => (
         <div
           key={t.id}

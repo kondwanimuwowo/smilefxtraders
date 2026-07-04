@@ -1,5 +1,42 @@
 @import "tailwindcss";
 
+/* ─── Breakpoint convention ──────────────────────────────────────────────────
+   Tailwind's default scale (sm=640 md=768 lg=1024 xl=1280 — no --breakpoint-*
+   overrides in the @theme block below) is the single source of truth for
+   component-level chrome: nav, footer, dashboard shell, grids in (app)/.
+   The marketing.css file below intentionally runs its OWN ad-hoc breakpoints
+   (900px / 560px) for content-reflow — those are tuned to marketing prose
+   line-length, not device width, and are a deliberate second system. Do not
+   "fix" them to match Tailwind's scale. */
+
+/* ─── Safe-area support (notch / home-indicator devices) ─────────────────────
+   Consumed by the mobile bottom tab bar and by Modal/Drawer bottom padding.
+   Falls back to 0px on devices without safe-area insets.
+
+   --safe-* vars can be composed into any padding via calc(), e.g.
+   style={{ paddingBottom: "calc(1rem + var(--safe-bottom))" }} — use this
+   form whenever the element ALSO needs a Tailwind vertical-padding utility
+   (py, pt, pb), since .pt-safe/.pb-safe below only set padding-top/bottom
+   outright and will silently override (not add to) that utility's value
+   at the same specificity. Only use the bare classes on elements with no
+   other vertical-padding utility (e.g. BottomTabBar's outer nav). */
+:root {
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+}
+.pt-safe { padding-top: var(--safe-top); }
+.pb-safe { padding-bottom: var(--safe-bottom); }
+
+/* ─── Touch targets ────────────────────────────────────────────────────────── *
+   Wraps the tappable hit area, not necessarily the visible icon — icon can
+   stay visually small, padding brings the tap box to 44px. Only applied on
+   coarse pointers (touch) so desktop mouse UIs don't get needlessly enlarged. */
+@media (pointer: coarse) {
+  .tap-target { min-height: 44px; min-width: 44px; }
+}
+
 /* ─── Brand + semantic palette ──────────────────────────────────────────────── */
 :root {
   --teal:         #08AEAA;
@@ -333,7 +370,7 @@ html.lenis, html.lenis body {
 
 /* Stats */
 .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
-.stat .num { font-family: var(--font-display); font-weight: 700; font-size: 44px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
+.stat .num { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 5vw, 44px); line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
 .dark .stat .num { color: #fff; }
 .stat .num .suf { color: var(--coral); }
 .dark .stat .num .suf { color: #F8B93D; }
@@ -388,5 +425,4 @@ main p { margin: 0; }
   .container { padding: 0 18px; }
   .g3, .g4, .g2 { grid-template-columns: 1fr; }
   .stat-row { grid-template-columns: 1fr 1fr; gap: 18px; }
-  .stat .num { font-size: 34px; }
 }

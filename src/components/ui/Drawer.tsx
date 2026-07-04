@@ -38,9 +38,9 @@ export function Drawer({ open, onClose, title, width = 460, footer, children }: 
       onMouseDown={onClose}
     >
       <div
-        className="flex flex-col h-full"
+        className="flex flex-col h-full w-full"
         style={{
-          width,
+          maxWidth: width,
           background: "var(--panel)",
           boxShadow: "-16px 0 50px rgba(0,0,0,0.3)",
           borderLeft: "1px solid var(--line)",
@@ -50,7 +50,7 @@ export function Drawer({ open, onClose, title, width = 460, footer, children }: 
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between gap-4 px-6 py-4 border-b shrink-0" style={{ borderColor: "var(--line)" }}>
+        <div className="flex items-center justify-between gap-4 px-6 pb-4 border-b shrink-0" style={{ borderColor: "var(--line)", paddingTop: "calc(1rem + var(--safe-top))" }}>
           <div className="font-display text-[18px] font-semibold" style={{ color: "var(--ink-strong)" }}>
             {title}
           </div>
@@ -65,13 +65,19 @@ export function Drawer({ open, onClose, title, width = 460, footer, children }: 
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div
+          className="flex-1 overflow-y-auto px-6 pt-5"
+          style={!footer ? { paddingBottom: "calc(1.25rem + var(--safe-bottom))" } : { paddingBottom: "1.25rem" }}
+        >
           {open && children}
         </div>
 
         {/* Footer */}
         {footer && open && (
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t shrink-0" style={{ borderColor: "var(--line)" }}>
+          <div
+            className="flex items-center justify-end gap-3 px-6 pt-4 border-t shrink-0"
+            style={{ borderColor: "var(--line)", paddingBottom: "calc(1rem + var(--safe-bottom))" }}
+          >
             {footer}
           </div>
         )}

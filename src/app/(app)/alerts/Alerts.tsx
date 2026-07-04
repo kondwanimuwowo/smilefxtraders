@@ -260,7 +260,7 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
 
         <form onSubmit={submit} className="space-y-4">
           {/* Pair + Direction */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Pair</label>
               <Select value={form.pair} onChange={(v) => set("pair", v)} options={pairs.length ? pairs : ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"]} />
@@ -285,7 +285,7 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* Model + Session */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Model</label>
               <Select value={form.model} onChange={(v) => set("model", v)} options={MODELS} />
@@ -297,7 +297,7 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* Entry / SL / TP1 / TP2 / RR */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[
               { label: "Entry", key: "entry" }, { label: "Stop Loss", key: "sl" },
               { label: "TP1",   key: "tp1" },   { label: "TP2 (opt)", key: "tp2" },
@@ -642,7 +642,7 @@ export function Alerts() {
 
       {/* Stats strip */}
       {alerts.length > 0 && (
-        <div className="grid grid-cols-4 gap-3 mb-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
           {[
             { label: "Total alerts", value: alerts.length,  icon: "notifications",        color: "var(--ink-strong)" },
             { label: "Active",       value: activeCount,    icon: "radio_button_checked", color: "var(--teal)"       },
