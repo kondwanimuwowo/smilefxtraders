@@ -126,14 +126,12 @@ function BrandMarkAuth({ size = 48 }: { size?: number }) {
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/Smile%20FX%20Traders%20Logo%20bg-W.png"
+        src="/smile-fx-logo-wht.png"
         alt=""
         style={{
           width: "100%",
           height: "100%",
           objectFit: "contain",
-          filter: "invert(1)",
-          mixBlendMode: "screen",
         }}
       />
     </div>

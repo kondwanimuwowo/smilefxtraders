@@ -3,7 +3,7 @@
 // Palette: white card on #F4F4F4 bg, teal #08AEAA, coral #EA523D, gold #F8B93D.
 
 const APP_URL  = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.smilefxtraders.com";
-const LOGO_URL = `${APP_URL}/smile-logo.png`;
+const LOGO_URL = `${APP_URL}/smile-fx-logo-wht-navy-bg.png`;
 
 const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');`;
 

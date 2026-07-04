@@ -16,7 +16,7 @@ export function MarketingFooter() {
             <Link href="/" className="flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/Smile%20FX%20Traders%20Logo%20bg-W.png"
+                src="/smile-fx-logo-wht.png"
                 alt="Smile FX Traders"
                 width={38}
                 height={38}

@@ -506,7 +506,7 @@ function BrandMark() {
     <div style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 8, overflow: "hidden" }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/Smile-FX-Traders-Logo-bg-G%20(2).png"
+        src="/smile-fx-logo-wht-navy-bg.png"
         alt="Smile FX Traders"
         style={{ width: "100%", height: "100%", objectFit: "contain" }}
       />

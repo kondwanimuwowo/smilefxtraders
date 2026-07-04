@@ -18,7 +18,7 @@ function BrandLogo({ scrolled }: { scrolled: boolean }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={scrolled ? "/smile-logo.png" : "/Smile%20FX%20Traders%20Logo%20bg-W.png"}
+      src={scrolled ? "/smile-fx-logo-wht-navy-bg.png" : "/smile-fx-logo-wht.png"}
       alt="Smile FX Traders"
       width={38}
       height={38}
