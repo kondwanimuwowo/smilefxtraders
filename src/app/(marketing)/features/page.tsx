@@ -5,8 +5,8 @@ import { ChartViz } from "@/components/marketing/ChartViz";
 import { CTACard } from "@/components/marketing/CTACard";
 
 export const metadata: Metadata = {
-  title: "Features — Smile FX Traders",
-  description: "Every tool a disciplined trader needs — journal, rules validator, live alerts, COT reports, Gavo AI review, the Academy, and FX option expiries.",
+  title: "Features | Smile FX Traders",
+  description: "Every tool a disciplined trader needs: journal, rules validator, live alerts, COT reports, Gavo AI review, the Academy, and FX option expiries.",
 };
 
 export default function FeaturesPage() {
@@ -17,7 +17,7 @@ export default function FeaturesPage() {
         <div className="container">
           <div className="sec-head reveal">
             <h2 style={{ fontSize: "clamp(28px,3.8vw,46px)", fontWeight: 800, letterSpacing: "-0.01em", lineHeight: 1.18, margin: 0 }}>Every tool a disciplined trader needs</h2>
-            <p className="lead">Smile FX is built specifically for SMC and Supply &amp; Demand traders. One platform — journal, validate, follow, analyse, and learn.</p>
+            <p className="lead">Smile FX is built specifically for SMC and Supply &amp; Demand traders. One platform to journal, validate, follow, analyse, and learn.</p>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 28 }}>
             {[["#journal","Journal"],["#validator","Rules Validator"],["#alerts","Live Alerts"],["#cot","COT Reports"],["#gavo","Gavo AI"],["#academy","Academy"],["#expiries","FX Expiries"]].map(([href, label]) => (
@@ -38,14 +38,14 @@ export default function FeaturesPage() {
                 <span className="chip" style={{ fontSize: 11 }}>Core tool</span>
               </div>
               <h3>Trade Journal</h3>
-              <p className="lead">Log every trade with full context. Know your real edge — which pairs, sessions, and models actually make you money.</p>
+              <p className="lead">Log every trade with full context. Know your real edge: which pairs, sessions, and models actually make you money.</p>
               <ul className="feature-list">
                 {[
                   "Log entry, SL, TP, close price, model, session, and R:R",
                   "Win rate by session (London, New York, Asia)",
                   "Win rate by SMC model (OB+BOS, FVG sweep, SMT divergence…)",
-                  "Discipline score — tracks how often you followed all 8 rules",
-                  "AI review from Gavo — structured debrief on any trade",
+                  "Discipline score that tracks how often you followed all 8 rules",
+                  "AI review from Gavo: a structured debrief on any trade",
                   "Equity curve built automatically from your closed trades",
                 ].map(f => <li key={f}><span className="material-symbols-rounded">check_circle</span>{f}</li>)}
               </ul>
@@ -101,7 +101,7 @@ export default function FeaturesPage() {
                   "SMC and Supply & Demand frameworks",
                   "8 pre-trade questions: HTF bias, POI confluence, BOS, session, risk",
                   "Pip calculator auto-fills from your account size and risk %",
-                  "One-click export to journal — pre-fills pair, direction, model, R:R",
+                  "One-click export to journal, pre-filled with pair, direction, model, R:R",
                   "Grade-based result (A+ to D) with a pass/fail badge",
                 ].map(f => <li key={f}><span className="material-symbols-rounded">check_circle</span>{f}</li>)}
               </ul>
@@ -152,7 +152,7 @@ export default function FeaturesPage() {
                   "All alerts validated against the SMC rulebook before posting",
                   "Tap 'Copy to journal' to log any alert as your own trade",
                   "Filter by pair or model",
-                  "Free plan shows a 4-hour delay — Pro subscribers see alerts live",
+                  "Free plan shows a 4-hour delay; Pro subscribers see alerts live",
                 ].map(f => <li key={f}><span className="material-symbols-rounded">check_circle</span>{f}</li>)}
               </ul>
             </div>
@@ -192,12 +192,12 @@ export default function FeaturesPage() {
                 <span className="chip" style={{ fontSize: 11 }}>Institutional data</span>
               </div>
               <h3>COT Reports</h3>
-              <p className="lead">See what large speculators and commercials are doing in the futures market — straight from the CFTC's Commitment of Traders report.</p>
+              <p className="lead">See what large speculators and commercials are doing in the futures market, straight from the CFTC's Commitment of Traders report.</p>
               <ul className="feature-list">
                 {[
                   "Updated every Tuesday after the CFTC release",
                   "Net positioning gauge for EURUSD, GBPUSD, XAUUSD, USDJPY, and more",
-                  "52-week range bar — know if specs are near historical extremes",
+                  "52-week range bar to show when specs are near historical extremes",
                   "Bullish / bearish / neutral signal per instrument",
                   "Inverted pairs (USDJPY, USDCHF) handled correctly",
                 ].map(f => <li key={f}><span className="material-symbols-rounded">check_circle</span>{f}</li>)}
@@ -236,14 +236,14 @@ export default function FeaturesPage() {
                 <span className="chip gold" style={{ fontSize: 11 }}>AI coaching</span>
               </div>
               <h3>Gavo AI Trade Review</h3>
-              <p className="lead">Your always-on trading coach. Grade any trade from your journal — Gavo checks it against the full SMC rulebook and gives you a structured debrief.</p>
+              <p className="lead">Your always-on trading coach. Grade any trade from your journal. Gavo checks it against the full SMC rulebook and gives you a structured debrief.</p>
               <ul className="feature-list">
                 {[
                   "Grades A+, A, B, C, or D against 8 SMC rules",
-                  "Verdict sentence — what made or broke this trade",
+                  "Verdict sentence: what made or broke this trade",
                   "What you did well vs what to improve",
                   "One actionable tip per review",
-                  "Re-runnable — run on any closed trade at any time",
+                  "Re-runnable on any closed trade at any time",
                 ].map(f => <li key={f}><span className="material-symbols-rounded">check_circle</span>{f}</li>)}
               </ul>
             </div>
@@ -260,7 +260,7 @@ export default function FeaturesPage() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
                   <div style={{ width: 46, height: 46, borderRadius: 12, background: "var(--teal)", color: "#fff", display: "grid", placeItems: "center", fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700 }}>A</div>
-                  <div style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.4 }}>&quot;Clean liquidity sweep into a discount FVG — textbook patience.&quot;</div>
+                  <div style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.4 }}>&quot;Clean liquidity sweep into a discount FVG. Textbook patience.&quot;</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <div style={{ background: "#fff", borderRadius: 11, padding: 12 }}>
@@ -339,7 +339,7 @@ export default function FeaturesPage() {
                 <span className="chip" style={{ fontSize: 11 }}>Market intelligence</span>
               </div>
               <h3>FX Option Expiries</h3>
-              <p className="lead">Large FX option expiries create price magnetism — knowing where they sit helps you anticipate sticky price levels and avoid fakeouts.</p>
+              <p className="lead">Large FX option expiries create price magnetism. Knowing where they sit helps you anticipate sticky price levels and avoid fakeouts.</p>
               <ul className="feature-list">
                 {[
                   "Daily expiry levels for EURUSD, GBPUSD, USDJPY, and USDCHF",

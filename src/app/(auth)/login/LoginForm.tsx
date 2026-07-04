@@ -11,9 +11,9 @@ import { loginAction, demoLoginAction } from "../actions";
 // without this, someone clicking an expired/consumed email link lands on a
 // bare login page with no explanation of what happened.
 const CALLBACK_ERRORS: Record<string, string> = {
-  missing_code: "That link was invalid or already used. If you were confirming your email, it may already be confirmed — try signing in below.",
+  missing_code: "That link was invalid or already used. If you were confirming your email, it may already be confirmed, so try signing in below.",
   auth_failed:  "That link has expired or was already used. Request a new one and try again.",
-  oauth_failed: "Sign-in didn't complete — please try again.",
+  oauth_failed: "Sign-in didn't complete. Please try again.",
 };
 
 function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onClick: () => void; icon: string; label: string }) {
@@ -49,7 +49,7 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(() => {
     const code = searchParams.get("error");
-    return code ? CALLBACK_ERRORS[code] ?? "Something went wrong signing you in — please try again." : null;
+    return code ? CALLBACK_ERRORS[code] ?? "Something went wrong signing you in. Please try again." : null;
   });
   const [isPending, startTransition] = useTransition();
   const [isDemo, setIsDemo] = useState(false);

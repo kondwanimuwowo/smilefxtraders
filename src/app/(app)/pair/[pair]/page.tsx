@@ -93,9 +93,9 @@ function computeVerdict(
   const total = cot + htf + dxy;
 
   if (total >= 2)  return { tone: "confirmed_bull", label: "Confirmed Bullish", desc: "All three factors confirm bullish institutional bias. Trade longs with full confluence.", color: "var(--teal-bright)",  bg: "rgba(48,232,223,0.07)", border: "rgba(48,232,223,0.22)", icon: "trending_up",   cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  if (total === 1) return { tone: "lean_bull",       label: "Bullish Lean",      desc: "Two of three factors lean bullish. Good directional edge — seek HTF structure confirmation.", color: "var(--teal)",         bg: "rgba(8,174,170,0.06)",  border: "rgba(8,174,170,0.18)",  icon: "arrow_upward",  cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total === 1) return { tone: "lean_bull",       label: "Bullish Lean",      desc: "Two of three factors lean bullish. Good directional edge. Seek HTF structure confirmation.", color: "var(--teal)",         bg: "rgba(8,174,170,0.06)",  border: "rgba(8,174,170,0.18)",  icon: "arrow_upward",  cotScore: cot, htfScore: htf, dxyScore: dxy, total };
   if (total === 0) return { tone: "mixed",           label: "No Clear Bias",     desc: "Factors are divided. No statistical edge from COT or trend alignment this week. Wait for clarity.", color: "var(--gold)",         bg: "rgba(248,185,61,0.06)", border: "rgba(248,185,61,0.18)", icon: "remove",        cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  if (total === -1)return { tone: "lean_bear",       label: "Bearish Lean",      desc: "Two of three factors lean bearish. Good directional edge — wait for structure shift on HTF.", color: "var(--coral)",        bg: "rgba(234,82,61,0.06)",  border: "rgba(234,82,61,0.18)",  icon: "arrow_downward",cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total === -1)return { tone: "lean_bear",       label: "Bearish Lean",      desc: "Two of three factors lean bearish. Good directional edge. Wait for a structure shift on HTF.", color: "var(--coral)",        bg: "rgba(234,82,61,0.06)",  border: "rgba(234,82,61,0.18)",  icon: "arrow_downward",cotScore: cot, htfScore: htf, dxyScore: dxy, total };
   return               { tone: "confirmed_bear",  label: "Confirmed Bearish", desc: "All three factors confirm bearish institutional bias. Trade shorts with full confluence.", color: "var(--coral-bright)", bg: "rgba(255,89,66,0.07)",  border: "rgba(255,89,66,0.22)",  icon: "trending_down", cotScore: cot, htfScore: htf, dxyScore: dxy, total };
 }
 
@@ -726,7 +726,7 @@ export default function PairOverviewPage() {
               style={{ background: "rgba(248,185,61,0.05)", border: "1px solid rgba(248,185,61,0.15)", color: "var(--gold)" }}
             >
               <Icon name="construction" size={13} />
-              Manual entry or journal integration — coming soon
+              Manual entry or journal integration coming soon
             </div>
           </Panel>
 

@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
   const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } });
   if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
   if (dbUser.role !== "INSTRUCTOR") {
-    return NextResponse.json({ error: "Forbidden — instructor only" }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden: instructor only" }, { status: 403 });
   }
 
   const body = await req.json() as {

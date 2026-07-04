@@ -28,7 +28,7 @@ function MembershipSection() {
     const snapshot = user;
     startCancel(async () => {
       const res = await fetch("/api/checkout/cancel", { method: "POST" });
-      if (!res.ok) { toast("Cancellation failed — please contact support.", "coral", "error"); return; }
+      if (!res.ok) { toast("Cancellation failed. Please contact support.", "coral", "error"); return; }
       setUser({ ...snapshot, role: snapshot.role ?? "student", plan: "free" });
       toast("Subscription cancelled. You keep access until end of billing period.", "gold", "schedule");
       setConfirmOpen(false);
@@ -260,7 +260,7 @@ export function Settings() {
       if (result?.error) {
         toast(result.error, "coral", "error");
       } else {
-        toast("Confirmation link sent — check your new inbox to complete the change.", "gold", "mail");
+        toast("Confirmation link sent. Check your new inbox to complete the change.", "gold", "mail");
       }
     });
   }

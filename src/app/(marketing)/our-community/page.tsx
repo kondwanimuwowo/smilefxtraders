@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Community — Smile FX Traders",
+  title: "Community | Smile FX Traders",
   description: "Trade alongside a community of disciplined smart-money traders across Africa. Leaderboard, shared setups, streaks, and accountability.",
 };
 
@@ -25,7 +25,7 @@ export default function OurCommunityPage() {
         <div className="container">
           <div className="grid g3 reveal">
             {[
-              { icon: "leaderboard",       title: "Monthly leaderboard", body: "Ranked by net R on a shared risk model — so it rewards discipline, not gambling." },
+              { icon: "leaderboard",       title: "Monthly leaderboard", body: "Ranked by net R on a shared risk model, so it rewards discipline, not gambling." },
               { icon: "local_fire_department", title: "Streaks & accountability", body: "Keep your journaling streak alive. Discipline scores keep everyone honest, gently." },
               { icon: "diversity_3",       title: "Share & learn",         body: "Post your setups, get feedback, and learn from how others read the same chart." },
             ].map(({ icon, title, body }) => (
@@ -46,7 +46,7 @@ export default function OurCommunityPage() {
             <div className="eyebrow">How it looks inside</div>
             <h2>Your community desk</h2>
             <div className="rule" style={{ marginLeft: "auto", marginRight: "auto" }} />
-            <p className="lead" style={{ fontSize: 14.5, color: "var(--ink-dim)" }}>Illustrative preview — sign up to see real members and live activity.</p>
+            <p className="lead" style={{ fontSize: 14.5, color: "var(--ink-dim)" }}>Illustrative preview. Sign up to see real members and live activity.</p>
           </div>
           <div className="comm-grid">
             {/* Leaderboard mockup */}
@@ -83,9 +83,9 @@ export default function OurCommunityPage() {
             <div className="reveal" data-delay="100">
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {[
-                  { pair: "XAUUSD", dir: "long",  text: "London open FVG fill — TP1 hit, runners on. Patience pays." },
+                  { pair: "XAUUSD", dir: "long",  text: "London open FVG fill. TP1 hit, runners on. Patience pays." },
                   { pair: "GBPUSD", dir: "short", text: "BOS on the 15m after Asian sweep. Textbook. Journal updated." },
-                  { pair: "EURUSD", dir: "short", text: "Missed the entry waiting for confirmation. No FOMO — next setup." },
+                  { pair: "EURUSD", dir: "short", text: "Missed the entry waiting for confirmation. No FOMO, next setup." },
                 ].map((f, i) => (
                   <div key={i} className="card" style={{ padding: 18 }}>
                     <div style={{ display: "flex", gap: 11 }}>

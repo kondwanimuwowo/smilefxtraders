@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Academy — Smile FX Traders",
+  title: "Academy | Smile FX Traders",
   description: "A structured smart-money curriculum: six levels from market-structure foundations to a funded account, taught in order by Kondwani.",
 };
 
@@ -11,7 +11,7 @@ const LEVELS = [
   { num: "01", title: "Foundations", desc: "Market structure, candles, and risk basics. The bedrock everything else stands on.", state: "done" as const, lessons: 8 },
   { num: "02", title: "Liquidity & Structure", desc: "BOS, CHoCH, liquidity pools, and how price hunts stops with sweeps.", state: "done" as const, lessons: 10 },
   { num: "03", title: "POIs: FVG & Order Blocks", desc: "Identifying and grading the points of interest you actually enter from.", state: "current" as const, lessons: 12 },
-  { num: "04", title: "Premium / Discount & PD Arrays", desc: "Dealing ranges, OTE, and equilibrium — where in the range to engage.", state: "locked" as const, lessons: 9 },
+  { num: "04", title: "Premium / Discount & PD Arrays", desc: "Dealing ranges, OTE, and equilibrium: where in the range to engage.", state: "locked" as const, lessons: 9 },
   { num: "05", title: "Multi-TF Execution", desc: "Top-down analysis and trading the London & New York killzones.", state: "locked" as const, lessons: 11 },
   { num: "06", title: "Mastery & Funding", desc: "Prop-firm rules, trading psychology, and scaling a funded account.", state: "locked" as const, lessons: 14 },
 ];
@@ -24,7 +24,7 @@ export default function LearnPage() {
         <div className="container">
           <div className="sec-head reveal">
             <h2 style={{ fontSize: "clamp(28px,3.8vw,46px)", fontWeight: 800, letterSpacing: "-0.01em", lineHeight: 1.18, margin: 0 }}>From your first candle to a funded account</h2>
-            <p className="lead" style={{ marginTop: 18 }}>Six levels, taught in order. Master each before the next unlocks — so nothing is skipped, and nothing is rushed. This is the same path Kondwani walks every new trader through.</p>
+            <p className="lead" style={{ marginTop: 18 }}>Six levels, taught in order. Master each before the next unlocks, so nothing is skipped and nothing is rushed. This is the same path Kondwani walks every new trader through.</p>
           </div>
           <div style={{ display: "flex", gap: 28, marginTop: 34, flexWrap: "wrap" }}>
             <div>
@@ -91,10 +91,10 @@ export default function LearnPage() {
             <div className="feature-text reveal">
               <div className="eyebrow">Inside a lesson</div>
               <h3>Learn the why, not just the what</h3>
-              <p className="lead">Every lesson pairs a focused video with a written summary and the key points — so you can revise fast before London opens, and the concept actually sticks.</p>
+              <p className="lead">Every lesson pairs a focused video with a written summary and the key points, so you can revise fast before London opens, and the concept actually sticks.</p>
               <ul className="feature-list">
                 {[
-                  "Short, focused videos — most under 15 minutes",
+                  "Short, focused videos, most under 15 minutes",
                   "Written summary & numbered key takeaways",
                   "Live markups on real XAUUSD & EURUSD setups",
                   "Mark complete to unlock the next lesson",
@@ -146,7 +146,7 @@ export default function LearnPage() {
             <div className="card" style={{ padding: 28 }}>
               <div className="icon-chip"><span className="material-symbols-rounded">reviews</span></div>
               <h3 style={{ fontSize: 19, margin: "16px 0 8px" }}>1-on-1 journal reviews</h3>
-              <p style={{ fontSize: 14.5, color: "var(--ink-mid)", lineHeight: 1.6 }}>Send your journal for a personal teardown — find the leaks faster with a mentor&apos;s eye.</p>
+              <p style={{ fontSize: 14.5, color: "var(--ink-mid)", lineHeight: 1.6 }}>Send your journal for a personal teardown and find the leaks faster with a mentor&apos;s eye.</p>
             </div>
             <div className="card" style={{ padding: 28 }}>
               <div className="icon-chip"><span className="material-symbols-rounded">workspace_premium</span></div>

@@ -21,7 +21,7 @@ export async function loginAction(formData: FormData) {
         return { error: "Incorrect email or password." };
       }
       if (error.message.toLowerCase().includes("email not confirmed")) {
-        return { error: "Please verify your email first — check your inbox for the confirmation link (it may be in spam)." };
+        return { error: "Please verify your email first. Check your inbox for the confirmation link (it may be in spam)." };
       }
       return { error: error.message };
     }
@@ -90,7 +90,7 @@ export async function signupAction(formData: FormData) {
     },
   });
   if (error) return { error: error.message };
-  if (!data.user) return { error: "Signup failed — please try again." };
+  if (!data.user) return { error: "Signup failed. Please try again." };
 
   // Already-registered email: Supabase returns an obfuscated user with no
   // identities. Show the same neutral "check your email" screen — don't
@@ -113,7 +113,7 @@ export async function signupAction(formData: FormData) {
   } catch (err: unknown) {
     const e = err as { code?: string; meta?: { target?: string[] } };
     if (e?.code === "P2002" && e.meta?.target?.includes("username")) {
-      return { error: "Username already taken — choose another." };
+      return { error: "Username already taken. Choose another." };
     }
     // Other P2002s (double-submit on email/supabaseId) mean the row exists — continue.
   }
@@ -194,7 +194,7 @@ export async function updateProfileAction(formData: FormData) {
     return { success: true, name, username, location };
   } catch (err: unknown) {
     const msg = (err as { code?: string })?.code === "P2002"
-      ? "Username already taken — choose another"
+      ? "Username already taken. Choose another"
       : "Could not save profile";
     return { error: msg };
   }

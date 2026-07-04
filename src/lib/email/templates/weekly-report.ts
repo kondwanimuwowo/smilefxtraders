@@ -27,12 +27,12 @@ export function weeklyReportEmail(p: WeeklyReportParams): { subject: string; htm
     ]),
     winLossBar(p.wins, p.losses, p.trades),
     p.bestModel ? infoCard("Best model this week", p.bestModel) : "",
-    para(`Keep the streak alive — review this week's trades and tag what worked.`),
+    para(`Keep the streak alive. Review this week's trades and tag what worked.`),
     `<div style="height:16px;line-height:16px;font-size:0;">&nbsp;</div>`,
   ].join("");
 
   return {
-    subject: `Your week in trading — ${p.wins}W ${p.losses}L ${isPositive ? "+" : ""}${p.netR}`,
+    subject: `Your week in trading: ${p.wins}W ${p.losses}L ${isPositive ? "+" : ""}${p.netR}`,
     html: emailShell({
       preheader:  `${p.trades} trades, ${p.winRate}% win rate, ${isPositive ? "+" : ""}${p.netR} this week.`,
       eyebrow:    "Weekly report",

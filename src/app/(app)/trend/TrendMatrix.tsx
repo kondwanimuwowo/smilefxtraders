@@ -29,15 +29,15 @@ const DEFAULT: Matrix = {
 };
 
 const DEFAULT_NOTES: Notes = {
-  EURUSD: "DXY at HTF supply — watch for continuation short on DXY = long EURUSD.",
+  EURUSD: "DXY at HTF supply. Watch for continuation short on DXY = long EURUSD.",
   GBPUSD: "Mixed structure. Waiting for D1 close above 1.2780 for long bias.",
-  USDJPY: "Strong HTF bullish. BOJ intervention risk on H1/H4 — size down.",
+  USDJPY: "Strong HTF bullish. BOJ intervention risk on H1/H4, so size down.",
   USDCHF: "Inversely correlated to EURUSD. HTF bearish USD → CHF strength.",
   AUDUSD: "Risk-off pressure. China data weighing on AUD. Bias short.",
   NZDUSD: "Strong HTF bearish. RBNZ dovish. Only looking for shorts.",
   USDCAD: "Oil correlated. Monitor CAD strength on oil rallies.",
   XAUUSD: "Bullish across all TFs. Geopolitical premium still in play.",
-  NAS100: "Earnings season — choppy H1/H4. HTF structure still bullish.",
+  NAS100: "Earnings season: choppy H1/H4. HTF structure still bullish.",
 };
 
 // ── Bias config ───────────────────────────────────────────────────────────────
@@ -67,7 +67,7 @@ function getConfluence(row: Record<string, Bias>): Confluence {
   const strength = dominant ? counts[dominant] : 0;
 
   if (!dominant || strength <= 2) {
-    return { bias: "mixed", strength: 0, label: "Mixed — no clear bias", color: "var(--ink-dim)" };
+    return { bias: "mixed", strength: 0, label: "Mixed: no clear bias", color: "var(--ink-dim)" };
   }
 
   const cfg = BIAS_CONFIG[dominant];
@@ -87,7 +87,7 @@ function BiasCell({ bias, onClick, readonly }: { bias: Bias; onClick: () => void
     <button
       type="button"
       onClick={readonly ? undefined : onClick}
-      title={readonly ? bias : `${bias} — click to change`}
+      title={readonly ? bias : `${bias} (click to change)`}
       disabled={readonly}
       className="flex items-center justify-center rounded-xl transition-all"
       style={{
@@ -460,7 +460,7 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
         <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
           {isInstructor
             ? "Update this matrix every Sunday after your weekly chart review, then hit Publish. Students will immediately see your updated bias across all pairs and timeframes."
-            : "This matrix is updated every Sunday by Kondwani after his weekly chart review. Use the bias alignment to confirm your trade direction before entering. Only trade models where the HTF bias matches — validate in the Rules Validator first."}
+            : "This matrix is updated every Sunday by Kondwani after his weekly chart review. Use the bias alignment to confirm your trade direction before entering. Only trade models where the HTF bias matches, and validate in the Rules Validator first."}
         </p>
       </div>
     </div>

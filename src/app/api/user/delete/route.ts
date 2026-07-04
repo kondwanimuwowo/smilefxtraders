@@ -34,7 +34,7 @@ export async function POST() {
 
   if (dbUser.role === "INSTRUCTOR") {
     return NextResponse.json(
-      { error: "Instructor accounts can't be self-deleted — contact support@smilefxtraders.com." },
+      { error: "Instructor accounts can't be self-deleted. Contact support@smilefxtraders.com." },
       { status: 403 },
     );
   }

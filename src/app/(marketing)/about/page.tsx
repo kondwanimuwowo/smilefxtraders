@@ -4,7 +4,7 @@ import { Button } from "@/components/ui";
 import { CTACard } from "@/components/marketing/CTACard";
 
 export const metadata: Metadata = {
-  title: "About — Smile FX Traders",
+  title: "About | Smile FX Traders",
   description: "The story behind Smile FX Traders and Kondwani's mission to give African traders real tools, an honest method, and a community built on discipline.",
 };
 
@@ -38,10 +38,10 @@ export default function AboutPage() {
               <h2 className="reveal" data-delay="60" style={{ fontSize: "clamp(28px,3.4vw,40px)", marginTop: 14 }}>Kondwani</h2>
               <div className="rule reveal" data-delay="80" />
               <p className="reveal" data-delay="120" style={{ fontSize: 15, color: "var(--ink-mid)", marginTop: 22, lineHeight: 1.75 }}>
-                Kondwani learned to trade the hard way — through blown accounts, recycled YouTube &quot;strategies,&quot; and signal groups that taught him nothing. The turning point was smart money: liquidity, fair-value gaps, order blocks, premium and discount. Not magic — structure. A way to read what price was actually doing.
+                Kondwani learned to trade the hard way: through blown accounts, recycled YouTube &quot;strategies,&quot; and signal groups that taught him nothing. The turning point was smart money: liquidity, fair-value gaps, order blocks, premium and discount. Not magic. Structure. A way to read what price was actually doing.
               </p>
               <p className="reveal" data-delay="160" style={{ fontSize: 15, color: "var(--ink-mid)", marginTop: 16, lineHeight: 1.75 }}>
-                As a community of traders gathered around him in Zambia, he kept hearing the same gaps: no proper journal, no way to check a setup against a rulebook, no honest accountability. So he built Smile FX Traders to be the desk he wished he&apos;d had — and to teach the method, patiently, from first principles.
+                As a community of traders gathered around him in Zambia, he kept hearing the same gaps: no proper journal, no way to check a setup against a rulebook, no honest accountability. So he built Smile FX Traders to be the desk he wished he&apos;d had, and to teach the method, patiently, from first principles.
               </p>
               <blockquote className="reveal" data-delay="200" style={{ margin: "24px 0 0", padding: "18px 22px", background: "var(--bg-soft)", borderRadius: 14, display: "flex", gap: 13 }}>
                 <span style={{ width: 8, borderRadius: 99, background: "var(--coral)", flexShrink: 0 }} />
@@ -59,7 +59,7 @@ export default function AboutPage() {
             <div className="eyebrow">Our mission</div>
             <h2>Raise a generation of disciplined African traders</h2>
             <div className="rule" style={{ background: "var(--gold)", marginLeft: "auto", marginRight: "auto" }} />
-            <p className="lead">We believe trading, done right, is a skill — not a lottery. Our job is to make the right way the easy way: clear tools, honest teaching, and a community that celebrates discipline over wins.</p>
+            <p className="lead">We believe trading, done right, is a skill, not a lottery. Our job is to make the right way the easy way: clear tools, honest teaching, and a community that celebrates discipline over wins.</p>
           </div>
         </div>
       </section>
@@ -74,8 +74,8 @@ export default function AboutPage() {
           </div>
           <div className="grid g2" style={{ marginTop: 48 }}>
             {[
-              { icon: "balance", title: "Discipline over hype", delay: 0, body: "No Lambos, no get-rich-quick. We measure success in rules followed and risk respected — because that's what survives." },
-              { icon: "school", title: "Teach, don't spoon-feed", delay: 80, body: "Every signal comes with its reasoning. The goal is your independence — a trader who can read the chart alone." },
+              { icon: "balance", title: "Discipline over hype", delay: 0, body: "No Lambos, no get-rich-quick. We measure success in rules followed and risk respected, because that's what survives." },
+              { icon: "school", title: "Teach, don't spoon-feed", delay: 80, body: "Every signal comes with its reasoning. The goal is your independence: a trader who can read the chart alone." },
               { icon: "handshake", title: "Honesty about risk", delay: 0, body: "We tell the truth: most who gamble lose. We're here for the ones willing to do the work properly." },
               { icon: "public", title: "Built in Africa, for Africa", delay: 80, body: "Kwacha pricing, local payment methods, and a community that understands where our traders are coming from." },
             ].map(({ icon, title, body, delay }) => (
@@ -103,7 +103,7 @@ export default function AboutPage() {
             {[
               { year: "2023", yearCol: "var(--teal-dark)", dot: "var(--teal)", title: "A WhatsApp group", body: "A handful of Lusaka traders sharing setups and learning smart money together.", last: false },
               { year: "2024", yearCol: "var(--teal-dark)", dot: "var(--teal)", title: "The Academy takes shape", body: "Kondwani structures the method into a six-level curriculum, taught in order.", last: false },
-              { year: "2025 — today", yearCol: "var(--gold-dark)", dot: "var(--gold)", title: "The full platform", body: "Tools, teaching, and community brought together in one desk. Growing across Zambia and the continent.", last: true },
+              { year: "2025 to today", yearCol: "var(--gold-dark)", dot: "var(--gold)", title: "The full platform", body: "Tools, teaching, and community brought together in one desk. Growing across Zambia and the continent.", last: true },
             ].map(({ year, yearCol, dot, title, body, last }) => (
               <div key={year} style={{ display: "flex", gap: 20 }}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -125,7 +125,7 @@ export default function AboutPage() {
       <section className="section">
         <div className="container">
           <CTACard
-            heading="Trade with people who want you to win — the right way"
+            heading="Trade with people who want you to win, the right way"
             sub="Join free and see what a disciplined desk feels like."
             primaryLabel="Start free"
             primaryHref="/signup"

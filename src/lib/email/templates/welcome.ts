@@ -5,14 +5,14 @@ export function welcomeEmail(p: { name: string }): { subject: string; html: stri
 
   const bodyHtml = [
     para(`Hey ${first},`),
-    para(`Kondwani here — welcome to Smile FX Traders. Really glad you joined us.`),
+    para(`Kondwani here. Welcome to Smile FX Traders, really glad you joined us.`),
     para(`This community is built around one idea: trading with a plan, reviewing every trade, and getting better week after week. Here's where I'd start:`),
     bulletList([
-      `Log your first trade in the journal — even a past one. The stats start working immediately.`,
+      `Log your first trade in the journal, even a past one. The stats start working immediately.`,
       `Start the Foundations course in the Academy if you're new to Smart Money Concepts.`,
-      `Introduce yourself in the community feed — tell us what you trade.`,
+      `Introduce yourself in the community feed and tell us what you trade.`,
     ]),
-    para(`If you ever get stuck or have a question, just reply to this email — it comes straight to me.`),
+    para(`If you ever get stuck or have a question, just reply to this email. It comes straight to me.`),
     para(`See you inside,`),
     kondwaniSig(),
   ].join("");
@@ -20,7 +20,7 @@ export function welcomeEmail(p: { name: string }): { subject: string; html: stri
   return {
     subject: `Welcome to Smile FX Traders, ${first} 👋`,
     html: emailShell({
-      preheader:  "A quick note from your instructor — here's where to start.",
+      preheader:  "A quick note from your instructor on where to start.",
       eyebrow:    "Welcome aboard",
       heading:    `Welcome, ${first}!`,
       sub:        "A quick note from your instructor.",

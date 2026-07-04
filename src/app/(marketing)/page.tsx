@@ -8,7 +8,7 @@ import { PLAN_META } from "@/lib/plans";
 import { getPlanPrices } from "@/lib/server/getPlanPrices";
 
 export const metadata: Metadata = {
-  title: "Smile FX Traders — Trade Smart Money, Together",
+  title: "Smile FX Traders | Trade Smart Money, Together",
   description:
     "A professional trading desk for SMC and Supply & Demand traders. Journal your edge, validate every setup, and follow live calls from Kondwani.",
 };
@@ -73,10 +73,10 @@ export default async function HomePage() {
           </div>
           <div className="grid g3" style={{ marginTop: 56 }}>
             {[
-              { icon: "menu_book",            title: "Trade Journal",       desc: "Log every trade with full context — entry, SL, TP, model, session, R:R. Find your edge through session analytics and model win-rates.", href: "/features#journal" },
+              { icon: "menu_book",            title: "Trade Journal",       desc: "Log every trade with full context: entry, SL, TP, model, session, R:R. Find your edge through session analytics and model win-rates.", href: "/features#journal" },
               { icon: "rule",                 title: "Rules Validator",     desc: "Walk any idea through the SMC checklist before you click. Get a clear A+ / Wait / No-Trade verdict.", href: "/features#validator" },
               { icon: "notifications_active", title: "Live Alerts",         desc: "Kondwani posts validated setups in real time, with the full reasoning. Copy any alert straight to your journal.", href: "/features#alerts" },
-              { icon: "bar_chart",            title: "COT Reports",         desc: "Weekly institutional positioning from the CFTC Commitments of Traders report — large specs, commercials, and net positioning.", href: "/features#cot" },
+              { icon: "bar_chart",            title: "COT Reports",         desc: "Weekly institutional positioning from the CFTC Commitments of Traders report: large specs, commercials, and net positioning.", href: "/features#cot" },
               { icon: "auto_awesome",         title: "Gavo AI Review",      desc: "Your AI trading coach grades every trade against the SMC rulebook with a structured verdict: what was good, what to improve.", href: "/features#gavo" },
               { icon: "school",               title: "Academy",             desc: "A six-level SMC curriculum taught in order, from market structure foundations to prop-firm readiness.", href: "/learn" },
             ].map((tool, i) => (
@@ -103,7 +103,7 @@ export default async function HomePage() {
             <div className="feature-text reveal">
               <div className="eyebrow">Journal</div>
               <h3>Journal every trade. Find your edge.</h3>
-              <p className="lead">Stop guessing what works. Tag each entry to its model, session, and confluences — then let the analytics show you which setups actually pay, and which mistakes keep costing you.</p>
+              <p className="lead">Stop guessing what works. Tag each entry to its model, session, and confluences, then let the analytics show you which setups actually pay, and which mistakes keep costing you.</p>
               <ul className="feature-list">
                 <li><span className="material-symbols-rounded">check_circle</span> Win-rate and expectancy by SMC model</li>
                 <li><span className="material-symbols-rounded">check_circle</span> Discipline score that holds you accountable</li>
@@ -134,7 +134,7 @@ export default async function HomePage() {
             <div className="feature-text reveal">
               <div className="eyebrow">Rules Validator</div>
               <h3>Validate before you risk.</h3>
-              <p className="lead">Discipline beats prediction. Walk your idea through the SMC checklist — HTF bias, liquidity, structure shift, POI, risk — and get an honest verdict. No confluence, no trade.</p>
+              <p className="lead">Discipline beats prediction. Walk your idea through the SMC checklist (HTF bias, liquidity, structure shift, POI, risk) and get an honest verdict. No confluence, no trade.</p>
               <ul className="feature-list">
                 <li><span className="material-symbols-rounded">check_circle</span> Built on liquidity → FVG / OB → CHoCH logic</li>
                 <li><span className="material-symbols-rounded">check_circle</span> Confluence score and clear A+ / Wait / No-Trade call</li>
@@ -154,7 +154,7 @@ export default async function HomePage() {
                   <div style={{ display: "flex", alignItems: "center", gap: 11, padding: 13, background: "rgba(8,174,170,0.1)", border: "1px solid rgba(8,174,170,0.4)", borderRadius: 12 }}>
                     <span className="material-symbols-rounded ic-fill" style={{ color: "var(--teal)", fontSize: 32 }}>verified</span>
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: 17 }}>A+ Setup — Take it</div>
+                      <div style={{ fontWeight: 700, fontSize: 17 }}>A+ Setup: Take it</div>
                       <div style={{ fontSize: 12.5, color: "var(--ink-mid)" }}>XAUUSD · Long · all rules met</div>
                     </div>
                   </div>
@@ -191,7 +191,7 @@ export default async function HomePage() {
             <div className="feature-text reveal">
               <div className="eyebrow">Stay focused</div>
               <h3>Tune out the noise. Trade your plan.</h3>
-              <p className="lead">The market throws a hundred pairs and a thousand opinions at you every day. Smile FX keeps you anchored to the setups that fit your edge — and nothing else.</p>
+              <p className="lead">The market throws a hundred pairs and a thousand opinions at you every day. Smile FX keeps you anchored to the setups that fit your edge, and nothing else.</p>
               <Button href="/signup" size="lg" iconRight="arrow_forward">Start focused</Button>
             </div>
             <div className="feature-visual reveal" data-delay="120">
@@ -234,7 +234,7 @@ export default async function HomePage() {
               <h2 className="reveal" data-delay="60" style={{ fontSize: "clamp(28px,3.4vw,40px)", marginTop: 16 }}>Kondwani</h2>
               <div className="reveal" data-delay="80" style={{ width: 56, height: 4, borderRadius: 99, background: "var(--coral)", marginTop: 18 }} />
               <p className="reveal" data-delay="120" style={{ fontSize: 17, color: "var(--ink-mid)", marginTop: 22, lineHeight: 1.7 }}>
-                Live calls posted every trading day. Every alert is validated against the SMC rulebook before posting — so you know exactly why the setup qualifies. Kondwani teaches pure smart money: liquidity, fair-value gaps, order blocks, premium and discount, from first principles.
+                Live calls posted every trading day. Every alert is validated against the SMC rulebook before posting, so you know exactly why the setup qualifies. Kondwani teaches pure smart money: liquidity, fair-value gaps, order blocks, premium and discount, from first principles.
               </p>
               <blockquote className="reveal" data-delay="160" style={{ margin: "24px 0 0", padding: "18px 22px", background: "var(--bg-soft)", borderRadius: 14, display: "flex", gap: 13 }}>
                 <span style={{ width: 8, borderRadius: 99, background: "var(--coral)", flexShrink: 0 }} />

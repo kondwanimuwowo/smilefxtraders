@@ -6,7 +6,7 @@ import { Resend } from "resend";
 export const SENDERS = {
   accounts: "Smile FX Traders <accounts@smilefxtraders.com>",
   hello:    "Smile FX Traders <hello@smilefxtraders.com>",
-  kondwani: "Kondwani — Smile FX Traders <kondwani@smilefxtraders.com>",
+  kondwani: "Kondwani from Smile FX Traders <kondwani@smilefxtraders.com>",
   support:  "Smile FX Traders Support <support@smilefxtraders.com>",
 } as const;
 

@@ -298,7 +298,7 @@ export function CheckoutModal({
                       Card payments coming soon
                     </div>
                     <p className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
-                      Use Mobile Money to pay now — Airtel, MTN, and Zamtel are all supported.
+                      Use Mobile Money to pay now: Airtel, MTN, and Zamtel are all supported.
                     </p>
                   </div>
                   <button

@@ -74,7 +74,7 @@ function usePosts() {
       try {
         res = await fetch(url);
       } catch {
-        throw new Error("Can't reach the server — check your internet connection.");
+        throw new Error("Can't reach the server. Check your internet connection.");
       }
       if (!res.ok) {
         const body = await res.json().catch(() => ({})) as { error?: string };
@@ -158,7 +158,7 @@ function useCreatePost() {
           body:    JSON.stringify(body),
         });
       } catch {
-        throw new Error("Can't reach the server — check your internet connection.");
+        throw new Error("Can't reach the server. Check your internet connection.");
       }
       const data = await res.json().catch(() => ({}) as Record<string, unknown>);
       if (!res.ok) throw new Error((data as { error?: string }).error ?? `Server error (${res.status})`);
@@ -607,7 +607,7 @@ export function Community() {
             Community
           </h1>
           <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
-            Zambia&apos;s SMC trading community — share trades, analysis, and lessons.
+            Zambia&apos;s SMC trading community: share trades, analysis, and lessons.
           </p>
         </div>
       </div>
@@ -684,7 +684,7 @@ export function Community() {
             <PanelHead title="Community guidelines" icon="gavel" />
             <ul className="flex flex-col gap-2 text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
               {[
-                "Post both wins AND losses — accountability drives improvement.",
+                "Post both wins AND losses. Accountability drives improvement.",
                 "Explain your reasoning, not just the direction.",
                 "No signal selling or external promotions.",
                 "Respect every level of experience.",

@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
     const created = await createNotification(u.id, {
       type:      "PLAN_EXPIRED",
       title:     "Your plan has ended",
-      body:      "Your cancellation grace period is over — you're on the free Starter plan now.",
+      body:      "Your cancellation grace period is over. You're on the free Starter plan now.",
       icon:      "hourglass_disabled",
       tone:      "coral",
       href:      "/pricing",

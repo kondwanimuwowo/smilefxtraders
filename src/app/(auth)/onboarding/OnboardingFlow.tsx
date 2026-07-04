@@ -20,7 +20,7 @@ const INSTRUMENTS_FALLBACK = [
 ];
 
 const EXPERIENCE_OPTIONS = [
-  { value: "Beginner",     desc: "New to trading — start at Foundations" },
+  { value: "Beginner",     desc: "New to trading: start at Foundations" },
   { value: "Intermediate", desc: "Know structure & liquidity, refining entries" },
   { value: "Advanced",     desc: "Consistent, working toward funding" },
 ];
@@ -137,7 +137,7 @@ export function OnboardingFlow() {
             What do you trade?
           </h1>
           <p className="text-[13.5px] mb-5 leading-relaxed" style={{ color: "var(--ink-mid)" }}>
-            Pick the instruments you focus on — we&apos;ll tailor your watchlist and calendar.
+            Pick the instruments you focus on. We&apos;ll tailor your watchlist and calendar.
           </p>
           <div className="grid grid-cols-2 gap-3">
             {instrumentOptions.map(({ key, label }) => {

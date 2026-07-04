@@ -7,12 +7,12 @@ import { PLAN_META } from "@/lib/plans";
 import type { PlanPrices } from "@/lib/plans";
 
 const FAQ_ITEMS = [
-  { q: "Can I pay in Kwacha?", a: "Yes — all prices have a ZMW equivalent. Payments are processed via Airtel Money, MTN MoMo, Zamtel Kwacha, or card." },
+  { q: "Can I pay in Kwacha?", a: "Yes, all prices have a ZMW equivalent. Payments are processed via Airtel Money, MTN MoMo, Zamtel Kwacha, or card." },
   { q: "Is there a free trial for Pro?", a: "Not currently. The Starter plan is free forever and gives you access to all the core tools. Upgrade when the limits become a constraint." },
-  { q: "What frameworks does the platform support?", a: "SMC (Smart Money Concepts) and Supply & Demand. You choose your framework during onboarding and all tools — the validator, alerts, and journal — reflect your choice." },
+  { q: "What frameworks does the platform support?", a: "SMC (Smart Money Concepts) and Supply & Demand. You choose your framework during onboarding, and all tools (the validator, alerts, and journal) reflect your choice." },
   { q: "Can I cancel at any time?", a: "Yes. No contracts, no lock-ins. Cancel from your account settings and you keep access until the end of your billing period." },
   { q: "What is the 1-on-1 mentorship?", a: "Funded Track members get monthly private sessions with Kondwani. He reviews your journal, identifies patterns, and gives you a personalised improvement plan." },
-  { q: "Do annual plans cost less?", a: "Yes — annual billing saves 20% on all paid plans." },
+  { q: "Do annual plans cost less?", a: "Yes, annual billing saves 20% on all paid plans." },
 ];
 
 interface Props {
@@ -74,7 +74,7 @@ export function PricingContent({ prices }: Props) {
             <span className="material-symbols-rounded ic-fill" style={{ color: "var(--teal)", fontSize: 28, flexShrink: 0 }}>verified_user</span>
             <div>
               <div style={{ fontWeight: 700, fontSize: 15, color: "var(--ink-strong)" }}>7-day money-back guarantee</div>
-              <p style={{ fontSize: 13, color: "var(--ink-dim)", marginTop: 3 }}>Not satisfied in your first 7 days? Email us and we&apos;ll refund in full — no questions asked.</p>
+              <p style={{ fontSize: 13, color: "var(--ink-dim)", marginTop: 3 }}>Not satisfied in your first 7 days? Email us and we&apos;ll refund in full, no questions asked.</p>
             </div>
           </div>
           <p className="reveal" style={{ textAlign: "center", fontSize: 12.5, color: "var(--ink-dim)", marginTop: 20 }}>
@@ -114,7 +114,7 @@ export function PricingContent({ prices }: Props) {
       <section className="section">
         <div className="container">
           <div className="reveal" style={{ textAlign: "center", maxWidth: 560, margin: "0 auto" }}>
-            <h2 style={{ fontSize: "clamp(26px,3.6vw,38px)" }}>Start free — upgrade when it pays off</h2>
+            <h2 style={{ fontSize: "clamp(26px,3.6vw,38px)" }}>Start free, upgrade when it pays off</h2>
             <p className="lead" style={{ marginTop: 12 }}>No card required to begin. Build the habit first.</p>
             <div style={{ marginTop: 24 }}>
               <Button href="/signup" size="lg" iconRight="arrow_forward">Create your free account</Button>

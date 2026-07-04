@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     select: { id: true, role: true },
   });
   if (!dbUser || dbUser.role !== "INSTRUCTOR") {
-    return NextResponse.json({ error: "Forbidden — instructor only" }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden: instructor only" }, { status: 403 });
   }
 
   const body = await req.json() as { matrix: unknown; notes: unknown };

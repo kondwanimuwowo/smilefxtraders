@@ -222,7 +222,7 @@ function LessonBody({ body }: { body: string | null }) {
       >
         <Icon name="play_circle" size={44} fill style={{ color: "var(--teal)" }} />
         <span className="text-[13px] font-medium" style={{ color: "var(--ink-dim)" }}>
-          Video coming soon — instructor will upload
+          Video coming soon, instructor will upload
         </span>
       </div>
     );

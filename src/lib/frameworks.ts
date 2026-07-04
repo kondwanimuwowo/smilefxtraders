@@ -43,12 +43,12 @@ export const MODEL_INFO: Record<Framework, Record<string, { need: string[]; tip:
     "BOS + retrace":          { need: ["BOS confirmed", "OB or FVG as retest zone"],  tip: "After a BOS, price retraces into the origin OB or FVG before continuing." },
   },
   SnD: {
-    "Fresh Demand Zone":      { need: ["Zone untested", "Strong impulse origin", "In discount"],          tip: "A fresh demand zone has never been revisited. Price must have left with a strong, impulsive move — weak origin = weak zone." },
+    "Fresh Demand Zone":      { need: ["Zone untested", "Strong impulse origin", "In discount"],          tip: "A fresh demand zone has never been revisited. Price must have left with a strong, impulsive move. Weak origin = weak zone." },
     "Fresh Supply Zone":      { need: ["Zone untested", "Strong impulse origin", "In premium"],           tip: "A fresh supply zone has never been revisited. Look for a strong, fast impulsive move that created the zone." },
     "Drop-Base-Rally (DBR)":  { need: ["Drop identified", "Base formed", "Rally from base"],              tip: "Price drops sharply, consolidates (base), then rallies through. Enter on the return to the base." },
     "Rally-Base-Drop (RBD)":  { need: ["Rally identified", "Base formed", "Drop from base"],              tip: "Price rallies sharply, consolidates (base), then drops through. Enter on the return to the base." },
-    "Drop-Base-Drop (DBD)":   { need: ["Zone on drop", "Base consolidation", "Continuation drop"],       tip: "Bearish continuation — price drops, bases, then continues dropping. Enter on the return to the base." },
-    "Rally-Base-Rally (RBR)": { need: ["Zone on rally", "Base consolidation", "Continuation rally"],     tip: "Bullish continuation — price rallies, bases, then continues rallying. Enter on the return to the base." },
+    "Drop-Base-Drop (DBD)":   { need: ["Zone on drop", "Base consolidation", "Continuation drop"],       tip: "Bearish continuation: price drops, bases, then continues dropping. Enter on the return to the base." },
+    "Rally-Base-Rally (RBR)": { need: ["Zone on rally", "Base consolidation", "Continuation rally"],     tip: "Bullish continuation: price rallies, bases, then continues rallying. Enter on the return to the base." },
   },
 };
 
@@ -67,8 +67,8 @@ export const MODEL_BRIEF: Record<Framework, Record<string, string>> = {
   SnD: {
     "Fresh Demand Zone":      "Untested demand zone formed by a strong bullish impulse.",
     "Fresh Supply Zone":      "Untested supply zone formed by a strong bearish impulse.",
-    "Drop-Base-Rally (DBR)":  "Price drops, consolidates (base), then rallies — entry on the return to base.",
-    "Rally-Base-Drop (RBD)":  "Price rallies, consolidates (base), then drops — entry on the return to base.",
+    "Drop-Base-Rally (DBR)":  "Price drops, consolidates (base), then rallies. Enter on the return to the base.",
+    "Rally-Base-Drop (RBD)":  "Price rallies, consolidates (base), then drops. Enter on the return to the base.",
     "Drop-Base-Drop (DBD)":   "Bearish continuation: drop, base, then further drop from the same zone.",
     "Rally-Base-Rally (RBR)": "Bullish continuation: rally, base, then further rally from the same zone.",
   },
@@ -186,7 +186,7 @@ export function validateSMC(s: Setup): RuleResult[] {
     id: "htf", label: "HTF bias aligns with direction",
     status: biasRanging ? "warn" : biasMatch ? "pass" : "fail",
     why: biasRanging
-      ? "HTF is ranging — directional trades in choppy markets are low-probability."
+      ? "HTF is ranging, and directional trades in choppy markets are low-probability."
       : biasMatch
         ? "Trade direction agrees with higher timeframe structure."
         : "Trade direction opposes HTF bias. You are fighting the trend.",
@@ -201,7 +201,7 @@ export function validateSMC(s: Setup): RuleResult[] {
     why: !structureOk
       ? "No BOS or CHoCH confirmed. There is no structural permission to trade this direction yet."
       : chochOnly
-        ? "CHoCH only — structure has shifted but no BOS yet. Proceed with reduced size."
+        ? "CHoCH only: structure has shifted but no BOS yet. Proceed with reduced size."
         : "Break of Structure confirmed. You have structural permission.",
   });
 
@@ -215,10 +215,10 @@ export function validateSMC(s: Setup): RuleResult[] {
       : (s.liqSwept ? "pass" : "warn"),
     why: needsSweep
       ? s.liqSwept
-        ? "Liquidity has been taken. Smart money has hunted stops — reversal condition met."
+        ? "Liquidity has been taken. Smart money has hunted stops, so the reversal condition is met."
         : `${s.model} requires a liquidity sweep before entry. No sweep = no trade.`
       : s.liqSwept
-        ? "Liquidity taken — adds confluence even though this model does not strictly require it."
+        ? "Liquidity taken, which adds confluence even though this model does not strictly require it."
         : "Sweep not confirmed. Not required for this model, but extra confluence would strengthen the setup.",
   });
 
@@ -254,7 +254,7 @@ export function validateSMC(s: Setup): RuleResult[] {
       id: "smt", label: "SMT divergence confirmed",
       status: s.smtDiv ? "pass" : "fail",
       why: s.smtDiv
-        ? "Correlated pair divergence confirmed — smart money footprint is visible."
+        ? "Correlated pair divergence confirmed. The smart money footprint is visible."
         : "SMT + OB requires divergence between two correlated pairs (e.g. EURUSD vs GBPUSD). Confirm this before entering.",
     });
   }
@@ -271,7 +271,7 @@ export function validateSMC(s: Setup): RuleResult[] {
         ? `${rrVal}:1 is below the minimum 2:1. This trade does not pay enough to justify the risk.`
         : rrVal < 3
           ? `${rrVal}:1 meets minimum criteria. A 3:1 or better setup gives you more room to be wrong.`
-          : `${rrVal}:1 — excellent reward for the risk taken.`,
+          : `${rrVal}:1, excellent reward for the risk taken.`,
   });
 
   // 7 — Killzone
@@ -311,7 +311,7 @@ export function validateSnD(s: Setup): RuleResult[] {
     id: "htf", label: "HTF bias aligns with direction",
     status: biasRanging ? "warn" : biasMatch ? "pass" : "fail",
     why: biasRanging
-      ? "HTF is ranging — directional trades in choppy markets are low-probability."
+      ? "HTF is ranging, and directional trades in choppy markets are low-probability."
       : biasMatch
         ? "Trade direction agrees with higher timeframe structure."
         : "Trade direction opposes HTF bias. You are trading against the trend.",
@@ -322,7 +322,7 @@ export function validateSnD(s: Setup): RuleResult[] {
     id: "zone-fresh", label: "Zone is fresh (untested)",
     status: s.zoneIsFresh ? "pass" : "fail",
     why: s.zoneIsFresh
-      ? "This zone has never been revisited — maximum strength and probability."
+      ? "This zone has never been revisited: maximum strength and probability."
       : "Zones lose potency each time they are touched. A retested zone is a weak zone. Do not enter.",
   });
 
@@ -331,7 +331,7 @@ export function validateSnD(s: Setup): RuleResult[] {
     id: "origin", label: "Strong impulsive origin move",
     status: s.strongOrigin ? "pass" : "fail",
     why: s.strongOrigin
-      ? "The zone was created by a strong, fast impulse — high-quality supply/demand imbalance."
+      ? "The zone was created by a strong, fast impulse: a high-quality supply/demand imbalance."
       : "Weak origin moves produce weak zones. The impulse that created this zone was not convincing.",
   });
 
@@ -349,7 +349,7 @@ export function validateSnD(s: Setup): RuleResult[] {
     id: "premium-discount", label: isSupply ? "Zone sits in premium area" : "Zone sits in discount area",
     status: s.inPremiumDiscount ? "pass" : "warn",
     why: s.inPremiumDiscount
-      ? `Zone is in ${isSupply ? "premium" : "discount"} — best probability for a ${s.dir}.`
+      ? `Zone is in ${isSupply ? "premium" : "discount"}, the best probability for a ${s.dir}.`
       : `Zone is not clearly in ${isSupply ? "premium" : "discount"}. Near equilibrium reduces the probability edge.`,
   });
 
@@ -365,7 +365,7 @@ export function validateSnD(s: Setup): RuleResult[] {
         ? `${rrVal}:1 is below the minimum 2:1. This trade does not pay enough to justify the risk.`
         : rrVal < 3
           ? `${rrVal}:1 meets minimum criteria. A 3:1 or better setup gives you more room to be wrong.`
-          : `${rrVal}:1 — excellent reward for the risk taken.`,
+          : `${rrVal}:1, excellent reward for the risk taken.`,
   });
 
   // 7 — Killzone
@@ -418,11 +418,11 @@ function gradeRules(rules: RuleResult[], framework: Framework, fib: boolean, fib
         return `One caution, but Fibonacci ${fibLevel} confluence at the POI compensates. Execute with full conviction.`;
       if (fib)
         return framework === "SMC"
-          ? `Textbook setup. Fibonacci ${fibLevel} at the POI — maximum confluence. Execute with full conviction.`
-          : `Textbook zone. Fibonacci ${fibLevel} confirms the level — maximum confluence. Execute with full conviction.`;
+          ? `Textbook setup. Fibonacci ${fibLevel} at the POI gives maximum confluence. Execute with full conviction.`
+          : `Textbook zone. Fibonacci ${fibLevel} confirms the level for maximum confluence. Execute with full conviction.`;
       return framework === "SMC"
-        ? "Textbook setup — all criteria met. Execute with full conviction."
-        : "Textbook zone setup — all criteria met. Execute with full conviction.";
+        ? "Textbook setup, all criteria met. Execute with full conviction."
+        : "Textbook zone setup, all criteria met. Execute with full conviction.";
     }
     if (g === "A")
       return framework === "SMC"
@@ -430,8 +430,8 @@ function gradeRules(rules: RuleResult[], framework: Framework, fib: boolean, fib
         : "Strong zone with a minor caution. Execute at standard size.";
     if (g === "B")
       return fib
-        ? `One rule flagged. Fibonacci ${fibLevel} adds partial confidence — proceed with half size only.`
-        : "Proceed carefully — one rule flagged. Consider halving your risk.";
+        ? `One rule flagged. Fibonacci ${fibLevel} adds partial confidence, so proceed with half size only.`
+        : "Proceed carefully, one rule flagged. Consider halving your risk.";
     if (g === "C")
       return "High-risk entry. Resolve the failed rules before pressing the button.";
     return framework === "SMC"

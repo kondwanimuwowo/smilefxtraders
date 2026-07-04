@@ -372,7 +372,7 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
               className="w-full py-3.5 rounded-xl font-semibold text-[14px] transition-all active:scale-98"
               style={{ background: plan.color, color: planId === "funded" ? "var(--navy-deep)" : "#fff" }}
             >
-              Pay {symbol}{price.toLocaleString()} — Activate {plan.name}
+              Pay {symbol}{price.toLocaleString()} · Activate {plan.name}
             </button>
 
             <p className="text-[11.5px] text-center" style={{ color: "var(--ink-dim)" }}>

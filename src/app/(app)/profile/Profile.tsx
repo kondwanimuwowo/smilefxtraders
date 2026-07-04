@@ -209,7 +209,7 @@ export function Profile() {
 
           {/* Equity sparkline */}
           <Panel>
-            <PanelHead title="Equity curve" icon="show_chart" sub="Cumulative R — all closed trades" />
+            <PanelHead title="Equity curve" icon="show_chart" sub="Cumulative R across all closed trades" />
             {equityData ? (
               <div style={{ height: 120, marginTop: 4 }}>
                 <Sparkline

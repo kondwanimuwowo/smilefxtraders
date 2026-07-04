@@ -37,7 +37,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } });
   if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
   if (dbUser.role !== "INSTRUCTOR") {
-    return NextResponse.json({ error: "Forbidden — instructor only" }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden: instructor only" }, { status: 403 });
   }
 
   const { id } = await params;
@@ -84,7 +84,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } });
   if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
   if (dbUser.role !== "INSTRUCTOR") {
-    return NextResponse.json({ error: "Forbidden — instructor only" }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden: instructor only" }, { status: 403 });
   }
 
   const { id } = await params;

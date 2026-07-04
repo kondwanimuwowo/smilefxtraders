@@ -703,7 +703,7 @@ export default function CotPairPage() {
             >
               <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
                 Showing {rows.length} of {total.toLocaleString()} weeks ·{" "}
-                {fmtDateShort(rows[rows.length - 1].date)} — {fmtDateShort(rows[0].date)}
+                {fmtDateShort(rows[rows.length - 1].date)} – {fmtDateShort(rows[0].date)}
               </span>
               <button
                 type="button"
@@ -729,7 +729,7 @@ export default function CotPairPage() {
               style={{ borderTop: "1px solid var(--line)", color: "var(--ink-dim)" }}
             >
               All {total.toLocaleString()} weeks shown ·{" "}
-              {fmtDateShort(rows[rows.length - 1].date)} — {fmtDateShort(rows[0].date)}
+              {fmtDateShort(rows[rows.length - 1].date)} – {fmtDateShort(rows[0].date)}
             </div>
           )}
         </div>

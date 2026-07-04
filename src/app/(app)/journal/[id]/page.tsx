@@ -549,7 +549,7 @@ export default function TradeDetailPage() {
                   {t.mistake ? "Rule broken" : "Discipline breach recorded"}
                 </div>
                 <div className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
-                  {t.mistake ?? "This trade broke your rules. Review your mistake log to find patterns — recurring breaches are usually the same emotional trigger."}
+                  {t.mistake ?? "This trade broke your rules. Review your mistake log to find patterns. Recurring breaches are usually the same emotional trigger."}
                 </div>
               </div>
             </div>

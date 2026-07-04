@@ -32,13 +32,13 @@ export function instructorAlertEmail(p: {
       tp1:        String(p.tp1),
       rr:         p.rr,
     }),
-    para(`Full context, tags, and any updates are in the Alerts feed. Manage your risk — never take a setup you haven't validated yourself.`),
+    para(`Full context, tags, and any updates are in the Alerts feed. Manage your risk, and never take a setup you haven't validated yourself.`),
   ].join("");
 
   return {
-    subject: `New alert: ${p.pair} ${p.direction} — from Kondwani`,
+    subject: `New alert from Kondwani: ${p.pair} ${p.direction}`,
     html: emailShell({
-      preheader:   `${p.title} — ${p.model} · ${p.rr}`,
+      preheader:   `${p.title} · ${p.model} · ${p.rr}`,
       accentColor,
       eyebrow:     "New trade alert",
       heading:     `${p.pair} ${p.direction}`,

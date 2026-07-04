@@ -86,16 +86,16 @@ function DivergencePanel({ entry }: { entry: CotEntry }) {
   function alignedBody(): string {
     if (lsBull) {
       if (structurallyBull) {
-        return `Large specs added ${fmt(Math.abs(lsChange))} longs while commercials increased hedging — both groups confirming ${entry.pair} upside. COT Index at ${cotIndex} confirms structural bullish bias.`;
+        return `Large specs added ${fmt(Math.abs(lsChange))} longs while commercials increased hedging, with both groups confirming ${entry.pair} upside. COT Index at ${cotIndex} confirms structural bullish bias.`;
       }
       // Adding longs but still historically underweight
-      return `Large specs added ${fmt(Math.abs(lsChange))} longs this week (COT Index ${cotIndex} — still historically underweight). This may signal early accumulation, but wait for the COT Index to break above 50 before calling a sustained bullish shift.`;
+      return `Large specs added ${fmt(Math.abs(lsChange))} longs this week (COT Index ${cotIndex}, still historically underweight). This may signal early accumulation, but wait for the COT Index to break above 50 before calling a sustained bullish shift.`;
     } else {
       if (!structurallyBull) {
-        return `Large specs added ${fmt(Math.abs(lsChange))} shorts while commercials reduced hedges — both confirming ${entry.pair} downside. COT Index at ${cotIndex} confirms structural bearish bias.`;
+        return `Large specs added ${fmt(Math.abs(lsChange))} shorts while commercials reduced hedges, with both confirming ${entry.pair} downside. COT Index at ${cotIndex} confirms structural bearish bias.`;
       }
       // Reducing longs but still historically overweight
-      return `Large specs trimmed ${fmt(Math.abs(lsChange))} longs this week (COT Index ${cotIndex} — still historically elevated). Early signs of distribution — monitor for sustained liquidation before shifting bias bearish.`;
+      return `Large specs trimmed ${fmt(Math.abs(lsChange))} longs this week (COT Index ${cotIndex}, still historically elevated). Early signs of distribution. Monitor for sustained liquidation before shifting bias bearish.`;
     }
   }
 
@@ -105,7 +105,7 @@ function DivergencePanel({ entry }: { entry: CotEntry }) {
       bg:     lsBull ? (flowMatchesStructure ? "rgba(8,174,170,0.06)" : "rgba(248,185,61,0.06)") : (flowMatchesStructure ? "rgba(234,82,61,0.06)" : "rgba(248,185,61,0.06)"),
       border: lsBull ? (flowMatchesStructure ? "rgba(8,174,170,0.2)" : "rgba(248,185,61,0.2)") : (flowMatchesStructure ? "rgba(234,82,61,0.2)" : "rgba(248,185,61,0.2)"),
       icon:   flowMatchesStructure ? "bolt" : "trending_flat",
-      title:  flowMatchesStructure ? "Groups Aligned — High Conviction" : "Weekly Flow vs Structure — Watch Carefully",
+      title:  flowMatchesStructure ? "Groups Aligned: High Conviction" : "Weekly Flow vs Structure: Watch Carefully",
       body:   alignedBody(),
     },
     mixed: {
@@ -113,15 +113,15 @@ function DivergencePanel({ entry }: { entry: CotEntry }) {
       bg:     "rgba(248,185,61,0.06)",
       border: "rgba(248,185,61,0.2)",
       icon:   "warning_amber",
-      title:  "Mixed — Consolidation or Transition",
-      body:   `Position change this week (${fmt(wowChange)}) is small — market may be consolidating. COT Index at ${cotIndex}. Wait for clearer directional conviction before placing higher-timeframe bias.`,
+      title:  "Mixed: Consolidation or Transition",
+      body:   `Position change this week (${fmt(wowChange)}) is small, so the market may be consolidating. COT Index at ${cotIndex}. Wait for clearer directional conviction before placing higher-timeframe bias.`,
     },
     counter: {
       color:  "var(--gold)",
       bg:     "rgba(248,185,61,0.06)",
       border: "rgba(248,185,61,0.2)",
       icon:   "sync_alt",
-      title:  "Counter-Movement — Watch for Reversal",
+      title:  "Counter-Movement: Watch for Reversal",
       body:   `Large specs and commercials moving in opposite directions (LS: ${fmt(lsChange)}, C: ${fmt(cChange)}). COT Index at ${cotIndex}. Counter-divergence often precedes a structure shift — stay patient, wait for CHoCH confirmation.`,
     },
   };
@@ -224,7 +224,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
         <div>
           <div className="font-display font-bold text-[15px]" style={{ color: "var(--ink-strong)" }}>{entry.label}</div>
           <div className="text-[12px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
-            COT data not yet available — check back after the next Tuesday sync.
+            COT data not yet available. Check back after the next Tuesday sync.
           </div>
         </div>
       </div>
@@ -330,9 +330,9 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
         {/* Position breakdown */}
         <div className="flex flex-col justify-center gap-3.5">
           {[
-            { label: "Large Speculators", sub: "Smart Money — institutions", value: cur.largeSpecNet,  prev: prev.largeSpecNet,  color: cur.largeSpecNet  >= 0 ? "var(--teal)" : "var(--coral)" },
-            { label: "Commercials",       sub: "Hedgers — contrarian signal", value: cur.commercialNet, prev: prev.commercialNet, color: cur.commercialNet >= 0 ? "var(--teal)" : "var(--coral)" },
-            { label: "Small Speculators", sub: "Retail — fade at extremes",   value: cur.smallSpecNet,  prev: prev.smallSpecNet,  color: "var(--ink-dim)" },
+            { label: "Large Speculators", sub: "Smart Money: institutions", value: cur.largeSpecNet,  prev: prev.largeSpecNet,  color: cur.largeSpecNet  >= 0 ? "var(--teal)" : "var(--coral)" },
+            { label: "Commercials",       sub: "Hedgers: contrarian signal", value: cur.commercialNet, prev: prev.commercialNet, color: cur.commercialNet >= 0 ? "var(--teal)" : "var(--coral)" },
+            { label: "Small Speculators", sub: "Retail: fade at extremes",   value: cur.smallSpecNet,  prev: prev.smallSpecNet,  color: "var(--ink-dim)" },
           ].map(({ label, sub, value, prev: p, color }) => {
             const chg = value - p;
             return (
@@ -597,7 +597,7 @@ export function CotReports() {
         <Icon name="school" size={15} fill style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }} />
         <span>
           <strong style={{ color: "var(--ink-strong)" }}>Signal</strong> is driven by the Large Spec net position: net long = bullish bias, net short = bearish bias, confirmed by weekly momentum direction.{" "}
-          <strong style={{ color: "var(--ink-strong)" }}>COT Index (0–100)</strong> shows where that positioning sits within its own 52-week range — think of it as a cycle gauge, not the direction itself. Near 100 = historically max long (watch for exhaustion). Near 0 = historically max short (watch for reversal).{" "}
+          <strong style={{ color: "var(--ink-strong)" }}>COT Index (0–100)</strong> shows where that positioning sits within its own 52-week range. Think of it as a cycle gauge, not the direction itself. Near 100 = historically max long (watch for exhaustion). Near 0 = historically max short (watch for reversal).{" "}
           <strong style={{ color: "var(--ink-strong)" }}>Divergence</strong> between large specs and commercials adds conviction: when both groups confirm the same direction, that&apos;s your SMC HTF bias.
         </span>
       </div>
@@ -647,7 +647,7 @@ export function CotReports() {
                 style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)" }}>1</div>
               <span className="font-semibold" style={{ color: "var(--ink-strong)" }}>Identify the Bias</span>
             </div>
-            Check whether Large Speculators are <strong>net long</strong> (positive net = bullish bias) or <strong>net short</strong> (negative net = bearish bias). Then check the WoW direction — are they adding or reducing? Adding to a net long position is the strongest bullish confirmation. The COT Index shows how extreme that positioning is within the past 52 weeks.
+            Check whether Large Speculators are <strong>net long</strong> (positive net = bullish bias) or <strong>net short</strong> (negative net = bearish bias). Then check the WoW direction: are they adding or reducing? Adding to a net long position is the strongest bullish confirmation. The COT Index shows how extreme that positioning is within the past 52 weeks.
           </div>
           <div>
             <div className="flex items-center gap-1.5 mb-2">
@@ -655,7 +655,7 @@ export function CotReports() {
                 style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)" }}>2</div>
               <span className="font-semibold" style={{ color: "var(--ink-strong)" }}>Check Divergence</span>
             </div>
-            The most powerful signal is when large specs and commercials are both aligned. Commercials hedge the opposite side — when they are heavily short while large specs go long, that&apos;s institutional conviction you want to trade with.
+            The most powerful signal is when large specs and commercials are both aligned. Commercials hedge the opposite side, so when they are heavily short while large specs go long, that&apos;s institutional conviction you want to trade with.
           </div>
           <div>
             <div className="flex items-center gap-1.5 mb-2">
@@ -663,7 +663,7 @@ export function CotReports() {
                 style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)" }}>3</div>
               <span className="font-semibold" style={{ color: "var(--ink-strong)" }}>Confirm with Price</span>
             </div>
-            COT alone does not give you an entry — it gives you a directional filter. Combine a bullish COT signal with a swept liquidity pool, a valid OB or FVG on HTF, and a killzone entry window. All three together = high-probability SMC setup.
+            COT alone does not give you an entry; it gives you a directional filter. Combine a bullish COT signal with a swept liquidity pool, a valid OB or FVG on HTF, and a killzone entry window. All three together = high-probability SMC setup.
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
@@ -671,15 +671,15 @@ export function CotReports() {
             className="rounded-xl px-4 py-3"
             style={{ background: "rgba(8,174,170,0.05)", border: "1px solid rgba(8,174,170,0.15)" }}
           >
-            <div className="font-semibold mb-1" style={{ color: "var(--teal)" }}>Extreme readings — reversal or continuation?</div>
-            At COT Index &gt; 80, large specs are near their most bullish in a year. This can mean two things: price has already moved significantly (late to the party), OR the trend is strong and still has room (early in a cycle). Always check price structure — if price has NOT yet moved proportionally, COT is leading. If price has already run hard, the extreme may signal a top.
+            <div className="font-semibold mb-1" style={{ color: "var(--teal)" }}>Extreme readings: reversal or continuation?</div>
+            At COT Index &gt; 80, large specs are near their most bullish in a year. This can mean two things: price has already moved significantly (late to the party), OR the trend is strong and still has room (early in a cycle). Always check price structure: if price has NOT yet moved proportionally, COT is leading. If price has already run hard, the extreme may signal a top.
           </div>
           <div
             className="rounded-xl px-4 py-3"
             style={{ background: "rgba(248,185,61,0.05)", border: "1px solid rgba(248,185,61,0.15)" }}
           >
             <div className="font-semibold mb-1" style={{ color: "var(--gold)" }}>DXY is your master bias</div>
-            When the USD Index (DXY) COT Index is low (large specs bearish on USD), that is a tailwind for EURUSD, GBPUSD, NZDUSD, AUDUSD, and XAUUSD longs simultaneously. Cross-reference DXY with your pairs — if DXY is bearish COT and EURUSD is bullish COT, that is the strongest possible EUR setup. Maximum confluence.
+            When the USD Index (DXY) COT Index is low (large specs bearish on USD), that is a tailwind for EURUSD, GBPUSD, NZDUSD, AUDUSD, and XAUUSD longs simultaneously. Cross-reference DXY with your pairs: if DXY is bearish COT and EURUSD is bullish COT, that is the strongest possible EUR setup. Maximum confluence.
           </div>
         </div>
 
@@ -690,7 +690,7 @@ export function CotReports() {
         >
           <strong style={{ color: "var(--ink-strong)" }}>Data source:</strong>{" "}
           {hasData
-            ? `Supabase DB — seeded from CFTC Legacy Futures-Only report (publicreporting.cftc.gov/resource/6dca-aqww.json). ${totalHistory.toLocaleString()} total weeks across ${entries.length} instruments. Synced weekly via /api/cot/sync after CFTC publishes Tuesdays ~15:30 EST. No API key required.`
+            ? `Supabase DB, seeded from CFTC Legacy Futures-Only report (publicreporting.cftc.gov/resource/6dca-aqww.json). ${totalHistory.toLocaleString()} total weeks across ${entries.length} instruments. Synced weekly via /api/cot/sync after CFTC publishes Tuesdays ~15:30 EST. No API key required.`
             : "No data in DB yet. Run: npx tsx prisma/seed-cot.ts"}
         </div>
       </Panel>

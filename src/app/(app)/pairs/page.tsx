@@ -6,7 +6,7 @@ import { Icon } from "@/components/ui";
 const GROUPS = [
   {
     label: "FX Majors",
-    description: "The most liquid currency pairs — traded during London and New York sessions",
+    description: "The most liquid currency pairs, traded during the London and New York sessions",
     pairs: [
       { pair: "EURUSD", label: "Euro / US Dollar",        base: "EUR", quote: "USD" },
       { pair: "GBPUSD", label: "British Pound / US Dollar", base: "GBP", quote: "USD" },
@@ -19,7 +19,7 @@ const GROUPS = [
   },
   {
     label: "Commodities & Indices",
-    description: "Risk-sentiment instruments — strong correlation with USD flows",
+    description: "Risk-sentiment instruments with a strong correlation to USD flows",
     pairs: [
       { pair: "XAUUSD", label: "Gold / US Dollar",   base: "XAU", quote: "USD" },
       { pair: "NAS100", label: "NASDAQ 100 E-mini",  base: "NAS", quote: "USD" },
@@ -27,7 +27,7 @@ const GROUPS = [
   },
   {
     label: "Dollar Index",
-    description: "The master bias — DXY direction sets the tone for all USD pairs simultaneously",
+    description: "The master bias: DXY direction sets the tone for all USD pairs simultaneously",
     pairs: [
       { pair: "DXY", label: "US Dollar Index", base: "USD", quote: "" },
     ],

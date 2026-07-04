@@ -32,7 +32,7 @@ export function Calendar() {
           Economic Calendar
         </h1>
         <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
-          High-impact events that move the pairs — USD, EUR, GBP, NZD. All times UTC.
+          High-impact events that move the pairs: USD, EUR, GBP, NZD. All times UTC.
         </p>
       </div>
 

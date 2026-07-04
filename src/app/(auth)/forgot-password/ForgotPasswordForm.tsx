@@ -47,7 +47,7 @@ export function ForgotPasswordForm() {
           </h1>
           <p style={{ fontSize: 14.5, color: "var(--ink-mid)", lineHeight: 1.6 }}>
             We sent a reset link to <strong style={{ color: "var(--ink)" }}>{email}</strong>.
-            It expires in 1 hour — check your spam folder if you don&apos;t see it.
+            It expires in 1 hour. Check your spam folder if you don&apos;t see it.
           </p>
         </div>
         <Link

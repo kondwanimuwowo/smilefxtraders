@@ -169,7 +169,7 @@ export function LogTradeModal({ open, onClose, edit, preset }: Props) {
 
     if (edit) {
       if (!edit.id || edit.id.startsWith("temp_")) {
-        toast("Trade still syncing — please wait a moment and try again.", "gold", "sync");
+        toast("Trade still syncing. Please wait a moment and try again.", "gold", "sync");
         return;
       }
       updateTrade({ id: edit.id, patch: payload });
@@ -208,8 +208,8 @@ export function LogTradeModal({ open, onClose, edit, preset }: Props) {
   const isSMC      = f.framework === "SMC";
   const modelLabel = isSMC ? "SMC Model" : "S&D Setup";
   const modalSub   = isSMC
-    ? "Tag it to its SMC model — your future self will thank you."
-    : "Tag it to its S&D setup — your future self will thank you.";
+    ? "Tag it to its SMC model. Your future self will thank you."
+    : "Tag it to its S&D setup. Your future self will thank you.";
   const isEditLock = !!edit; // only lock framework when editing a saved trade, not when using a preset
   const isClosed   = f.result !== "open";
 
@@ -395,7 +395,7 @@ export function LogTradeModal({ open, onClose, edit, preset }: Props) {
           <SegRow
             value={f.discipline}
             onChange={(v) => set("discipline", v)}
-            options={[{ v: "yes", l: "Yes — clean execution" }, { v: "no", l: "No — rule broken" }]}
+            options={[{ v: "yes", l: "Yes, clean execution" }, { v: "no", l: "No, rule broken" }]}
           />
         </Field>
 
@@ -442,7 +442,7 @@ export function LogTradeModal({ open, onClose, edit, preset }: Props) {
             </div>
             {f.fibTags.length > 0 && (
               <span className="text-[11px] mt-1 block" style={{ color: "var(--ink-dim)" }}>
-                Fib level recorded as confluence — shown on trade detail page.
+                Fib level recorded as confluence, shown on the trade detail page.
               </span>
             )}
           </Field>

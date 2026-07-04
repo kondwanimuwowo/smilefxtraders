@@ -462,11 +462,11 @@ export function Validator() {
                       <SegRow value={setup.fibLevel} onChange={(v) => set("fibLevel", v)} options={FIB_LEVELS.map((l) => ({ v: l, l: l }))} />
                       <p className="text-[11px] mt-2 leading-relaxed" style={{ color: "var(--ink-dim)" }}>
                         {setup.fibLevel === "OTE (62–79%)"
-                          ? "Optimal Trade Entry — the highest-probability Fibonacci zone. Price retracing into an OB or FVG that also sits in the 62–79% retracement is the strongest possible confluence."
+                          ? "Optimal Trade Entry: the highest-probability Fibonacci zone. Price retracing into an OB or FVG that also sits in the 62–79% retracement is the strongest possible confluence."
                           : setup.fibLevel === "61.8%"
                           ? "The 'golden ratio' retracement. A POI sitting exactly at 61.8% is a classical reversal magnet for both retail and institutional participants."
                           : setup.fibLevel === "78.6%"
-                          ? "Deep retracement level — often the final pullback before continuation. Pairs well with order blocks that form at the extreme of a move."
+                          ? "Deep retracement level, often the final pullback before continuation. Pairs well with order blocks that form at the extreme of a move."
                           : "The midpoint. Weaker than 61.8 or OTE but valid as a secondary confluence when the POI aligns with it."}
                       </p>
                     </div>
@@ -477,7 +477,7 @@ export function Validator() {
                   <div className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5" style={{ background: "rgba(248,185,61,0.06)", border: "1px solid rgba(248,185,61,0.18)" }}>
                     <Icon name="bolt" size={13} fill style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }} />
                     <p className="text-[11.5px] leading-relaxed" style={{ color: "var(--ink-dim)" }}>
-                      Fibonacci confluence is active — if all main rules pass, this{" "}
+                      Fibonacci confluence is active. If all main rules pass, this{" "}
                       <span style={{ color: "var(--gold)", fontWeight: 600 }}>boosts an A grade to A+</span>.
                       It does not fix a failing rule.
                     </p>

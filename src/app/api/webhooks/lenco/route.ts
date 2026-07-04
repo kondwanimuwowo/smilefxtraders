@@ -177,7 +177,7 @@ async function notifyPaymentFailed(sub: SubWithUser) {
   const created = await createNotification(sub.userId, {
     type:      "PAYMENT_FAILED",
     title:     "Payment didn't go through",
-    body:      "No charge was made — you can retry from the pricing page.",
+    body:      "No charge was made. You can retry from the pricing page.",
     icon:      "error",
     tone:      "coral",
     href:      "/pricing",

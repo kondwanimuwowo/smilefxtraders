@@ -73,16 +73,16 @@ function interpretation(index3yr: number, index52w: number, signal: CotSignal, p
   const diverge = Math.abs(index3yr - index52w) > 25;
 
   if (allLow && (signal === "bear" || signal === "strong_bear"))
-    return `Positioning near a multi-year extreme low — large specs have aggressively unwound ${pair} longs. Historically precedes either a sustained reversal or continued liquidation. Watch for WoW Δ to turn positive as first confirmation.`;
+    return `Positioning near a multi-year extreme low: large specs have aggressively unwound ${pair} longs. Historically precedes either a sustained reversal or continued liquidation. Watch for WoW Δ to turn positive as first confirmation.`;
   if (allLow && signal === "neutral")
-    return `Large specs are at historically low positioning but trimming has slowed. Accumulation may be beginning — COT Index needs to recover above 30 before calling a structural shift.`;
+    return `Large specs are at historically low positioning but trimming has slowed. Accumulation may be beginning, but the COT Index needs to recover above 30 before calling a structural shift.`;
   if (allHigh && (signal === "bull" || signal === "strong_bull"))
-    return `Positioning near a multi-year extreme high — large specs are maximally long ${pair}. Watch for exhaustion: if price fails to make new highs while COT Index stalls, distribution may be underway.`;
+    return `Positioning near a multi-year extreme high: large specs are maximally long ${pair}. Watch for exhaustion: if price fails to make new highs while COT Index stalls, distribution may be underway.`;
   if (diverge && index52w < 20 && index3yr > 40)
-    return `Low on a 1-year basis but moderate on a 3-year view — a recent pullback within a longer bullish structure, not a structural extreme.`;
+    return `Low on a 1-year basis but moderate on a 3-year view: a recent pullback within a longer bullish structure, not a structural extreme.`;
   if (diverge && index52w > 80 && index3yr < 50)
-    return `High on a 1-year basis but below the 3-year midpoint — specs have recovered from a deeper trough. Momentum improving but structure is not yet bullish on the longer view.`;
-  return `Positioning is in the middle of its historical range. No extreme signal — COT is not the primary edge here. Focus on price structure and liquidity.`;
+    return `High on a 1-year basis but below the 3-year midpoint: specs have recovered from a deeper trough. Momentum improving but structure is not yet bullish on the longer view.`;
+  return `Positioning is in the middle of its historical range. No extreme signal, so COT is not the primary edge here. Focus on price structure and liquidity.`;
 }
 
 // ── Range track ───────────────────────────────────────────────────────────────

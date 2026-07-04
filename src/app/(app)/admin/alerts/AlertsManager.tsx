@@ -34,9 +34,9 @@ function useAlerts() {
       try {
         res = await fetch("/api/alerts");
       } catch {
-        throw new Error("Can't reach the server — check your internet connection.");
+        throw new Error("Can't reach the server. Check your internet connection.");
       }
-      if (res.status === 401) throw new Error("Session expired — please sign in again.");
+      if (res.status === 401) throw new Error("Session expired. Please sign in again.");
       if (!res.ok) {
         const body = await res.json().catch(() => ({})) as { error?: string };
         throw new Error(body.error ?? `Server error (${res.status})`);

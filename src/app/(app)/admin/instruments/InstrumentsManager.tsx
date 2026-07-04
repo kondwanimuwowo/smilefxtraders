@@ -106,7 +106,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-        if (!res.ok) { setError("Create failed — symbol may already exist."); return; }
+        if (!res.ok) { setError("Create failed. The symbol may already exist."); return; }
         const created: Instrument = await res.json();
         setInstruments((prev) => [...prev, created]);
       }
@@ -170,7 +170,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
             Instruments
           </h1>
           <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
-            Manage tradeable pairs — changes propagate to all dropdowns instantly.
+            Manage tradeable pairs. Changes propagate to all dropdowns instantly.
           </p>
         </div>
         <button
@@ -204,7 +204,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
 
         {sorted.length === 0 && (
           <div className="px-5 py-12 text-center text-[13px]" style={{ color: "var(--ink-dim)" }}>
-            No instruments yet — click &quot;Add instrument&quot; to create one.
+            No instruments yet. Click &quot;Add instrument&quot; to create one.
           </div>
         )}
 
@@ -409,7 +409,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
                   placeholder="099741" value={form.cotCode}
                   onChange={field("cotCode")}
                 />
-                <p className="text-[11px] mt-1" style={{ color: "var(--ink-dim)" }}>6-digit CFTC Socrata code — leave blank to exclude from COT reports</p>
+                <p className="text-[11px] mt-1" style={{ color: "var(--ink-dim)" }}>6-digit CFTC Socrata code. Leave blank to exclude from COT reports.</p>
               </div>
 
               {/* Toggles */}

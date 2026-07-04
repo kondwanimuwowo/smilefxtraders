@@ -79,7 +79,7 @@ export function PricingAdmin({ initial }: Props) {
               </div>
 
               {isFree ? (
-                <p className="text-[13px]" style={{ color: "var(--ink-dim)" }}>Free plan — no pricing to configure.</p>
+                <p className="text-[13px]" style={{ color: "var(--ink-dim)" }}>Free plan: no pricing to configure.</p>
               ) : (
                 <div className="grid grid-cols-2 gap-4">
                   {(["monthlyZmw", "annualZmw", "monthlyUsd", "annualUsd"] as const).map((field) => {

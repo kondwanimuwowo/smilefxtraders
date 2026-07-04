@@ -42,9 +42,9 @@ function useAlerts() {
       try {
         res = await fetch("/api/alerts");
       } catch {
-        throw new Error("Can't reach the server — check your internet connection.");
+        throw new Error("Can't reach the server. Check your internet connection.");
       }
-      if (res.status === 401) throw new Error("Session expired — please sign in again.");
+      if (res.status === 401) throw new Error("Session expired. Please sign in again.");
       if (!res.ok) {
         const body = await res.json().catch(() => ({})) as { error?: string };
         throw new Error(body.error ?? `Server error (${res.status})`);
@@ -600,7 +600,7 @@ export function Alerts() {
         >
           <Icon name="schedule" size={16} style={{ color: "var(--gold)", flexShrink: 0 }} />
           <span>
-            <strong>Free plan</strong> — alerts are shown with a 4-hour delay.{" "}
+            <strong>Free plan</strong>: alerts are shown with a 4-hour delay.{" "}
             <a href="/membership" className="underline font-semibold" style={{ color: "var(--gold)" }}>Upgrade to Pro</a>{" "}
             for live calls.
           </span>
@@ -614,7 +614,7 @@ export function Alerts() {
             Setup Alerts
           </h1>
           <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
-            Live calls from Kondwani — reviewed against the SMC rulebook before posting.
+            Live calls from Kondwani, reviewed against the SMC rulebook before posting.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -717,7 +717,7 @@ export function Alerts() {
               {alerts.length === 0
                 ? isInstructor
                   ? "Post your first trade setup using the button above."
-                  : "Kondwani hasn't posted any alerts yet — check back soon."
+                  : "Kondwani hasn't posted any alerts yet. Check back soon."
                 : "Try a different pair or status filter."}
             </div>
           </div>

@@ -30,7 +30,7 @@ export function MarketingFooter() {
               className="text-sm leading-relaxed mt-3.5"
               style={{ maxWidth: 280, color: "rgba(255,255,255,0.7)" }}
             >
-              Trade smart money. Together. · Zambia &amp; Africa. A professional desk for SMC &amp; Supply-and-Demand traders — journal your edge, validate every setup, and follow live calls from Kondwani.
+              Trade smart money. Together. · Zambia &amp; Africa. A professional desk for SMC &amp; Supply-and-Demand traders: journal your edge, validate every setup, and follow live calls from Kondwani.
             </p>
             {/* Social */}
             <div className="flex gap-2.5 mt-5">
@@ -118,7 +118,7 @@ export function MarketingFooter() {
         >
           <span>© {year} Smile FX Traders · Lusaka, Zambia</span>
           <span className="max-w-[500px]">
-            Trading involves substantial risk. Educational content only — not financial advice. Never risk money you can&apos;t afford to lose.
+            Trading involves substantial risk. Educational content only, not financial advice. Never risk money you can&apos;t afford to lose.
           </span>
         </div>
       </div>

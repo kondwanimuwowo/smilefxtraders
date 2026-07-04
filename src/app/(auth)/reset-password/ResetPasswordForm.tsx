@@ -127,7 +127,7 @@ export function ResetPasswordForm() {
           <p style={{ fontSize: 14.5, color: "var(--ink-mid)", lineHeight: 1.6 }}>
             {isInvite
               ? "This invite link is no longer valid. Ask Kondwani to send you a fresh invite."
-              : "This reset link is no longer valid — links expire after one use or one hour."}
+              : "This reset link is no longer valid. Links expire after one use or one hour."}
           </p>
         </div>
         {!isInvite && (

@@ -37,15 +37,15 @@ export function paymentConfirmedEmail(p: {
   ];
 
   const bodyHtml = [
-    para(`Hey ${first}, your payment went through — your ${label} plan is now active. 🎉`),
+    para(`Hey ${first}, your payment went through and your ${label} plan is now active. 🎉`),
     receiptTable(rows),
-    para(`Everything in your plan is unlocked now — live alerts, the full Academy, AI trade reviews, and more.`),
+    para(`Everything in your plan is unlocked now: live alerts, the full Academy, AI trade reviews, and more.`),
   ].join("");
 
   return {
-    subject: `Your ${label} plan is active — receipt inside`,
+    subject: `Your ${label} plan is active, receipt inside`,
     html: emailShell({
-      preheader:  `Payment confirmed — ${label} is live on your account.`,
+      preheader:  `Payment confirmed. ${label} is live on your account.`,
       eyebrow:    "Payment confirmed",
       heading:    `You're on ${label} now`,
       sub:        "Thanks for supporting the community.",
@@ -64,13 +64,13 @@ export function paymentFailedEmail(p: { name: string; plan: string }): { subject
 
   const bodyHtml = [
     para(`Hey ${first}, we couldn't process your payment for the ${label} plan.`),
-    para(`No charge was made. This usually happens when the mobile-money prompt times out or there's insufficient balance — you can retry in a minute.`),
+    para(`No charge was made. This usually happens when the mobile-money prompt times out or there's insufficient balance, so you can retry in a minute.`),
   ].join("");
 
   return {
     subject: `Payment issue with your ${label} plan`,
     html: emailShell({
-      preheader:   "Your payment didn't go through — no charge was made.",
+      preheader:   "Your payment didn't go through. No charge was made.",
       accentColor: "#EA523D",
       eyebrow:     "Payment issue",
       heading:     "That payment didn't go through",
@@ -94,14 +94,14 @@ export function cancellationEmail(p: {
   const until = p.accessUntil ? fmtDate(p.accessUntil) : "the end of your billing period";
 
   const bodyHtml = [
-    para(`Hey ${first}, your ${label} subscription has been cancelled — sorry to see you go.`),
+    para(`Hey ${first}, your ${label} subscription has been cancelled. Sorry to see you go.`),
     centeredCard("Access until", until),
-    para(`You keep full ${label} access until then. After that your account moves to the free Starter plan — your journal and progress stay safe.`),
+    para(`You keep full ${label} access until then. After that your account moves to the free Starter plan, and your journal and progress stay safe.`),
     para(`Changed your mind? You can resubscribe any time and pick up right where you left off.`),
   ].join("");
 
   return {
-    subject: `Subscription cancelled — access until ${until}`,
+    subject: `Subscription cancelled, access until ${until}`,
     html: emailShell({
       preheader:    `Your ${label} plan is cancelled. Access continues until ${until}.`,
       eyebrow:      "Subscription cancelled",
@@ -153,7 +153,7 @@ export function planExpiredEmail(p: { name: string; plan: string }): { subject: 
 
   const bodyHtml = [
     para(`Hey ${first}, your ${label} plan has expired and your account is now on the free Starter plan.`),
-    para(`Your journal, stats, and progress are all safe — but live alerts, the full Academy, and AI reviews are paused until you renew.`),
+    para(`Your journal, stats, and progress are all safe, but live alerts, the full Academy, and AI reviews are paused until you renew.`),
   ].join("");
 
   return {

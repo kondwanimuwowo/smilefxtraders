@@ -63,9 +63,9 @@ export function useTrades() {
       try {
         res = await fetch("/api/trades");
       } catch {
-        throw new Error("Can't reach the server — check your internet connection.");
+        throw new Error("Can't reach the server. Check your internet connection.");
       }
-      if (res.status === 401) throw new Error("Session expired — please sign in again.");
+      if (res.status === 401) throw new Error("Session expired. Please sign in again.");
       if (!res.ok) {
         const body = await res.json().catch(() => ({})) as { error?: string };
         throw new Error(body.error ?? `Server error (${res.status})`);
@@ -154,7 +154,7 @@ export function useUpdateTrade() {
         queryClient.setQueryData(["trades"], context.previousTrades);
       }
       console.error("[save trade]", err);
-      toast("Save failed — check console for details.", "coral", "error");
+      toast("Save failed. Check the console for details.", "coral", "error");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["trades"] });

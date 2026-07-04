@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { TrendMatrix } from "./TrendMatrix";
 
-export const metadata = { title: "Trend Matrix — Smile FX Traders" };
+export const metadata = { title: "Trend Matrix | Smile FX Traders" };
 
 export default async function TrendMatrixPage() {
   const supabase = await createClient();

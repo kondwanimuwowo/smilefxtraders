@@ -271,8 +271,8 @@ export async function POST(req: NextRequest) {
 
     if (!pageRes.ok) {
       const hint =
-        pageRes.status === 403 ? "InvestingLive is blocking automated requests (bot protection). Use the Upload Image button instead — download the FXO image from InvestingLive manually and upload it here." :
-        pageRes.status === 404 ? `Page not found — today's FXO post may not have been published yet. Try again after 07:00 EST. URL tried: ${pageUrl}` :
+        pageRes.status === 403 ? "InvestingLive is blocking automated requests (bot protection). Use the Upload Image button instead: download the FXO image from InvestingLive manually and upload it here." :
+        pageRes.status === 404 ? `Page not found. Today's FXO post may not have been published yet, try again after 07:00 EST. URL tried: ${pageUrl}` :
         pageRes.status === 429 ? "Rate limited by InvestingLive. Wait a few minutes before retrying." :
         `InvestingLive returned HTTP ${pageRes.status}. Use Upload Image as a fallback.`;
       return NextResponse.json({ error: hint, status: pageRes.status, url: pageUrl }, { status: 502 });

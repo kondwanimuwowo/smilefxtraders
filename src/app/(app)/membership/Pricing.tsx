@@ -23,15 +23,15 @@ function usePlanPrices() {
 
 const FAQ = [
   { q: "Can I pay in Kwacha?",
-    a: "Yes — all prices are in ZMW (Kwacha). Pay via Airtel Money, MTN MoMo, Zamtel Kwacha, or card." },
+    a: "Yes, all prices are in ZMW (Kwacha). Pay via Airtel Money, MTN MoMo, Zamtel Kwacha, or card." },
   { q: "Can I cancel at any time?",
     a: "Yes. No contracts, no lock-ins. Cancel from your settings and you keep access until the end of your billing period." },
   { q: "What is the Gavo AI Trade Review?",
-    a: "After logging a trade, you can request a review from Gavo — our AI trading coach. Gavo grades your trade against the SMC rulebook, giving you a letter grade (A+–D), a verdict, what you did well, and what to improve." },
+    a: "After logging a trade, you can request a review from Gavo, our AI trading coach. Gavo grades your trade against the SMC rulebook, giving you a letter grade (A+–D), a verdict, what you did well, and what to improve." },
   { q: "What is the 1-on-1 mentorship?",
     a: "Funded Track members get monthly private video review sessions with Kondwani. He reviews your journal, identifies patterns in your trading, and gives you a personalised improvement plan." },
   { q: "Is there a free trial for Pro?",
-    a: "Not currently. The Starter plan is free forever and gives you access to all the tools — you only need to upgrade when you want unlimited journal entries and live alerts." },
+    a: "Not currently. The Starter plan is free forever and gives you access to all the tools. You only need to upgrade when you want unlimited journal entries and live alerts." },
 ];
 
 function FAQItem({ q, a }: { q: string; a: string }) {
@@ -154,7 +154,7 @@ export function Pricing() {
             7-day money-back guarantee
           </div>
           <p className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
-            Not satisfied in your first 7 days? Email us and we&apos;ll refund you in full — no questions asked.
+            Not satisfied in your first 7 days? Email us and we&apos;ll refund you in full, no questions asked.
           </p>
         </div>
       </div>

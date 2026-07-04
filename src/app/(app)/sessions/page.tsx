@@ -39,7 +39,7 @@ const SESSION_GUIDE = [
     border:  "rgba(48,232,223,0.35)",
     glow:    "rgba(48,232,223,0.06)",
     pairs:   ["EUR/USD", "GBP/USD", "GBP/JPY", "XAU/USD"],
-    note:    "Highest volume session. Most BOS and CHoCH signals print here. London open (09:00–10:00) is a prime killzone — key for OB entries.",
+    note:    "Highest volume session. Most BOS and CHoCH signals print here. London open (09:00–10:00) is a prime killzone, key for OB entries.",
   },
   {
     name:    "New York",
@@ -48,7 +48,7 @@ const SESSION_GUIDE = [
     border:  "rgba(255,89,66,0.35)",
     glow:    "rgba(255,89,66,0.06)",
     pairs:   ["EUR/USD", "GBP/USD", "USD/CAD", "XAU/USD", "NAS100"],
-    note:    "NY open (14:00–16:00) overlaps London — the day's strongest directional move. News drives displacement. Hunt OB+FVG confluences.",
+    note:    "NY open (14:00–16:00) overlaps London, producing the day's strongest directional move. News drives displacement. Hunt OB+FVG confluences.",
   },
 ];
 
@@ -100,7 +100,7 @@ export default function SessionsPage() {
           Market Sessions
         </h1>
         <p className="text-[13.5px] mt-2 max-w-xl leading-relaxed" style={{ color: "var(--ink-dim)" }}>
-          Live session status in your timezone. Active sessions glow on the timeline — overlapping killzones are the highest-probability windows for SMC setups.
+          Live session status in your timezone. Active sessions glow on the timeline. Overlapping killzones are the highest-probability windows for SMC setups.
         </p>
       </div>
 
