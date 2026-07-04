@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         name:          "Mwila Kunda",
         commenterName: "Chanda Bwalya",
         commentText:   "Clean entry! Did you wait for the 5m CHoCH before entering or take it straight off the FVG tap?",
-        postExcerpt:   "Caught the NY session sweep on GBPUSD today — patience finally paying off. +2.4R",
+        postExcerpt:   "Caught the NY session sweep on GBPUSD today. Patience finally paying off. +2.4R",
       }),
     },
   };

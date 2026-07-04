@@ -122,7 +122,7 @@ function DivergencePanel({ entry }: { entry: CotEntry }) {
       border: "rgba(248,185,61,0.2)",
       icon:   "sync_alt",
       title:  "Counter-Movement: Watch for Reversal",
-      body:   `Large specs and commercials moving in opposite directions (LS: ${fmt(lsChange)}, C: ${fmt(cChange)}). COT Index at ${cotIndex}. Counter-divergence often precedes a structure shift — stay patient, wait for CHoCH confirmation.`,
+      body:   `Large specs and commercials moving in opposite directions (LS: ${fmt(lsChange)}, C: ${fmt(cChange)}). COT Index at ${cotIndex}. Counter-divergence often precedes a structure shift. Stay patient and wait for CHoCH confirmation.`,
     },
   };
 
