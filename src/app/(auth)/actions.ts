@@ -100,13 +100,15 @@ export async function signupAction(formData: FormData) {
   }
 
   try {
-    await prisma.user.create({
-      data: {
-        supabaseId: data.user.id,
-        name,
-        username,
-        email,
-      },
+    // Upsert, not create — the DB trigger (handle_new_auth_user) already
+    // inserted a placeholder row the instant auth.signUp() created the
+    // auth.users row, using an email-prefix name/username. The `update`
+    // branch overwrites that placeholder with what the user actually typed
+    // into the signup form, so their real name/username always wins.
+    await prisma.user.upsert({
+      where:  { supabaseId: data.user.id },
+      update: { name, username, email },
+      create: { supabaseId: data.user.id, name, username, email },
     });
   } catch (err: unknown) {
     const e = err as { code?: string; meta?: { target?: string[] } };

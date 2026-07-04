@@ -44,14 +44,20 @@ export async function GET(request: Request) {
 
   const sbUser = data.user;
 
-  // Check if a Prisma user row already exists
+  // Check if a Prisma user row already exists. Note: the DB trigger
+  // (handle_new_auth_user) now creates a placeholder row the instant
+  // auth.users gets a new row — including for brand-new OAuth signups — so
+  // `existing` will usually already be truthy here, with an email-prefix
+  // name/username rather than the real OAuth identity.
   const existing = await prisma.user.findUnique({
     where: { supabaseId: sbUser.id },
     select: { id: true, instruments: true, email: true },
   }).catch(() => null);
 
   if (!existing) {
-    // New OAuth user — create Prisma row and send to onboarding
+    // Trigger didn't fire for some reason (disabled, migration not applied
+    // in this environment, etc) — fall back to creating the row here so
+    // OAuth login still works without it.
     const emailPrefix = sbUser.email!.split("@")[0].replace(/[^a-z0-9_]/gi, "").toLowerCase();
     let username = emailPrefix || "trader";
     let suffix = 0;
@@ -70,6 +76,20 @@ export async function GET(request: Request) {
     }).catch(() => null);
 
     return NextResponse.redirect(`${origin}/onboarding`);
+  }
+
+  // Trigger already created the row (the common case now) — backfill the
+  // real OAuth name/avatar over its email-prefix placeholder while the user
+  // hasn't onboarded yet. Once onboarded, leave it alone in case they've
+  // since customized their name in Settings.
+  if (existing.instruments.length === 0 && sbUser.user_metadata?.full_name) {
+    await prisma.user.update({
+      where: { id: existing.id },
+      data: {
+        name:      sbUser.user_metadata.full_name as string,
+        avatarUrl: (sbUser.user_metadata?.avatar_url as string | undefined) ?? undefined,
+      },
+    }).catch(() => null);
   }
 
   // Confirmed email change — Supabase already updated auth.users; mirror it
