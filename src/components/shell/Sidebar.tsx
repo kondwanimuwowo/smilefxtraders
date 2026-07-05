@@ -225,7 +225,7 @@ export function Sidebar() {
                   <NavLink
                     key={item.href}
                     item={item}
-                    active={pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/"))}
+                    active={pathname === item.href || (item.href !== "/" && item.href !== "/admin" && pathname.startsWith(item.href + "/"))}
                     collapsed={effectiveCollapsed}
                     onNavigate={isMobile ? () => setMobileSidebarOpen(false) : undefined}
                   />
