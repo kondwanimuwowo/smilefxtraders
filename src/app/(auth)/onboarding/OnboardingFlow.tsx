@@ -5,6 +5,7 @@ import { Button, Icon } from "@/components/ui";
 import { saveOnboardingAction } from "../actions";
 import type { Framework } from "@/lib/frameworks";
 import { useInstruments } from "@/lib/hooks/useInstruments";
+import { isValidPhone } from "@/lib/validation";
 
 const FRAMEWORKS: { key: Framework; label: string; sub: string; icon: string; accent: string }[] = [
   { key: "SMC",  label: "Smart Money Concepts (ICT)", sub: "Order blocks, FVGs, liquidity sweeps",  icon: "psychology",        accent: "var(--teal)" },
@@ -31,6 +32,8 @@ export function OnboardingFlow() {
     ? dbInstruments.map((i) => ({ key: i.symbol, label: i.label }))
     : INSTRUMENTS_FALLBACK;
   const [step, setStep] = useState(0);
+  const [phone,        setPhone]        = useState("");
+  const [phoneTouched, setPhoneTouched] = useState(false);
   const [framework,   setFramework]   = useState<Framework>("SMC");
   const [instruments, setInstruments] = useState<string[]>([]);
   const [riskPct,     setRiskPct]     = useState(0.5);
@@ -44,8 +47,10 @@ export function OnboardingFlow() {
   }, [instrumentOptions]);
   const [experience,  setExperience]  = useState("Intermediate");
   const [isPending,   startTransition] = useTransition();
+  const [serverError, setServerError] = useState<string | null>(null);
 
-  const totalSteps = 4;
+  const totalSteps = 5;
+  const phoneValid = isValidPhone(phone);
 
   const toggleInstrument = (key: string) =>
     setInstruments((prev) =>
@@ -54,11 +59,15 @@ export function OnboardingFlow() {
 
   function handleFinish() {
     const fd = new FormData();
+    fd.set("phone", phone.trim());
     fd.set("framework", framework);
     instruments.forEach((ins) => fd.append("instruments", ins));
     fd.set("riskPct", String(riskPct));
     fd.set("experience", experience);
-    startTransition(async () => { await saveOnboardingAction(fd); });
+    startTransition(async () => {
+      const result = await saveOnboardingAction(fd);
+      if (result?.error) setServerError(result.error);
+    });
   }
 
   return (
@@ -77,8 +86,40 @@ export function OnboardingFlow() {
         Step {step + 1} of {totalSteps}
       </div>
 
-      {/* Step 0 — Framework */}
+      {/* Step 0 — Phone */}
       {step === 0 && (
+        <>
+          <h1 className="font-display font-semibold mb-1" style={{ fontSize: 24, color: "var(--ink-strong)" }}>
+            How can we reach you?
+          </h1>
+          <p className="text-[13.5px] mb-5 leading-relaxed" style={{ color: "var(--ink-mid)" }}>
+            Used for account recovery and important alerts. Include your country code.
+          </p>
+          <input
+            type="tel"
+            inputMode="tel"
+            autoFocus
+            placeholder="+260971234567"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            onBlur={() => setPhoneTouched(true)}
+            className="w-full px-4 py-3 rounded-xl border text-[15px] font-mono"
+            style={{
+              borderColor: phoneTouched && !phoneValid ? "var(--coral)" : "var(--line)",
+              background: "var(--panel-2)",
+              color: "var(--ink-strong)",
+            }}
+          />
+          {phoneTouched && !phoneValid && (
+            <p className="text-[12.5px] mt-2" style={{ color: "var(--coral)" }}>
+              Enter a valid phone number in international format, e.g. +260971234567.
+            </p>
+          )}
+        </>
+      )}
+
+      {/* Step 1 — Framework */}
+      {step === 1 && (
         <>
           <h1 className="font-display font-semibold mb-1" style={{ fontSize: 24, color: "var(--ink-strong)" }}>
             What&apos;s your trading system?
@@ -130,8 +171,8 @@ export function OnboardingFlow() {
         </>
       )}
 
-      {/* Step 1 — Instruments */}
-      {step === 1 && (
+      {/* Step 2 — Instruments */}
+      {step === 2 && (
         <>
           <h1 className="font-display font-semibold mb-1" style={{ fontSize: 24, color: "var(--ink-strong)" }}>
             What do you trade?
@@ -172,8 +213,8 @@ export function OnboardingFlow() {
         </>
       )}
 
-      {/* Step 2 — Risk */}
-      {step === 2 && (
+      {/* Step 3 — Risk */}
+      {step === 3 && (
         <>
           <h1 className="font-display font-semibold mb-1" style={{ fontSize: 24, color: "var(--ink-strong)" }}>
             Set your risk
@@ -203,8 +244,8 @@ export function OnboardingFlow() {
         </>
       )}
 
-      {/* Step 3 — Experience */}
-      {step === 3 && (
+      {/* Step 4 — Experience */}
+      {step === 4 && (
         <>
           <h1 className="font-display font-semibold mb-1" style={{ fontSize: 24, color: "var(--ink-strong)" }}>
             Your experience
@@ -246,6 +287,9 @@ export function OnboardingFlow() {
       )}
 
       {/* Navigation */}
+      {serverError && (
+        <p className="text-[12.5px] mt-5" style={{ color: "var(--coral)" }}>{serverError}</p>
+      )}
       <div className="flex gap-3 mt-7">
         {step > 0 && (
           <Button type="button" variant="ghost" icon="arrow_back" onClick={() => setStep(step - 1)}>
@@ -258,8 +302,14 @@ export function OnboardingFlow() {
             variant="primary"
             fullWidth
             iconRight="arrow_forward"
-            disabled={step === 1 && instruments.length === 0}
-            onClick={() => setStep(step + 1)}
+            disabled={
+              (step === 0 && !phoneValid) ||
+              (step === 2 && instruments.length === 0)
+            }
+            onClick={() => {
+              if (step === 0 && !phoneValid) { setPhoneTouched(true); return; }
+              setStep(step + 1);
+            }}
           >
             Continue
           </Button>

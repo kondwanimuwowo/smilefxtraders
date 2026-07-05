@@ -1,3 +1,4 @@
+import { redirect, unstable_rethrow } from "next/navigation";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { Topbar } from "@/components/shell/Topbar";
 import { BottomTabBar } from "@/components/shell/BottomTabBar";
@@ -72,73 +73,41 @@ async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }>
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { user: null, trades: [] };
 
-    // 1 — try to find existing Prisma record
+    // No public.users row means this user hasn't completed onboarding yet
+    // (that's the only place a profile row gets created) — send them there
+    // instead of lazily fabricating a placeholder profile.
     let db = await prisma.user.findUnique({ where: { supabaseId: user.id } }).catch(() => null);
+    if (!db) redirect("/onboarding");
 
-    // 2 — auto-create if missing (handles demo + external Supabase logins)
-    if (!db && user.email) {
-      const base = user.email.split("@")[0].replace(/[^a-z0-9_]/gi, "_").toLowerCase();
-      db = await prisma.user.upsert({
-        where:  { supabaseId: user.id },
-        update: {},
-        create: {
-          supabaseId: user.id,
-          name:       (user.user_metadata?.full_name as string | undefined) ?? base,
-          username:   `${base}_${user.id.slice(0, 6)}`,
-          email:      user.email,
-        },
+    // Lazy-expire cancelled subscriptions: if planExpiresAt has passed, downgrade to FREE
+    if (db.planExpiresAt && db.planExpiresAt < new Date() && db.plan !== "FREE") {
+      const expired = await prisma.user.update({
+        where: { id: db.id },
+        data:  { plan: "FREE", planExpiresAt: null },
       }).catch(() => null);
+      if (expired) db = expired;
     }
 
-    if (db) {
-      // Lazy-expire cancelled subscriptions: if planExpiresAt has passed, downgrade to FREE
-      if (db.planExpiresAt && db.planExpiresAt < new Date() && db.plan !== "FREE") {
-        const expired = await prisma.user.update({
-          where: { id: db.id },
-          data:  { plan: "FREE", planExpiresAt: null },
-        }).catch(() => null);
-        if (expired) db = expired;
-      }
-
-      // Mirror a confirmed email change from auth.users into Prisma. The
-      // /auth/callback mirror only covers clicks that land there — if an
-      // email scanner consumed the change-email confirmation link (change
-      // applied in auth, but the user's own click errored out), this heals
-      // the mismatch on their next page load instead of leaving it stale.
-      if (user.email && db.email !== user.email) {
-        const synced = await prisma.user.update({
-          where: { id: db.id },
-          data:  { email: user.email },
-        }).catch(() => null);
-        if (synced) db = synced;
-      }
-
-      const dbTrades = await prisma.trade.findMany({
-        where: { userId: db.id },
-        orderBy: { date: "desc" },
-      }).catch(() => []);
-      return { user: dbToAppUser(db), trades: dbTrades.map(dbTradeToStore) };
+    // Mirror a confirmed email change from auth.users into Prisma. The
+    // /auth/callback mirror only covers clicks that land there — if an
+    // email scanner consumed the change-email confirmation link (change
+    // applied in auth, but the user's own click errored out), this heals
+    // the mismatch on their next page load instead of leaving it stale.
+    if (user.email && db.email !== user.email) {
+      const synced = await prisma.user.update({
+        where: { id: db.id },
+        data:  { email: user.email },
+      }).catch(() => null);
+      if (synced) db = synced;
     }
 
-    // 3 — Prisma unavailable: slim fallback
-    const emailBase = user.email?.split("@")[0] ?? "trader";
-    return {
-      user: {
-        name:        (user.user_metadata?.full_name as string | undefined) ?? emailBase,
-        handle:      emailBase,
-        email:       user.email ?? "",
-        role:        "student",
-        plan:        "free",
-        level:       1,
-        streak:      0,
-        riskPct:     0.5,
-        instruments: ["EURUSD", "XAUUSD"],
-        experience:  "beginner",
-        framework:   "SMC",
-      },
-      trades: [],
-    };
-  } catch {
+    const dbTrades = await prisma.trade.findMany({
+      where: { userId: db.id },
+      orderBy: { date: "desc" },
+    }).catch(() => []);
+    return { user: dbToAppUser(db), trades: dbTrades.map(dbTradeToStore) };
+  } catch (err) {
+    unstable_rethrow(err);
     return { user: null, trades: [] };
   }
 }

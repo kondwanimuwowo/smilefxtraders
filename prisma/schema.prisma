@@ -14,6 +14,7 @@ model User {
   name       String
   username   String   @unique
   email      String   @unique
+  phone      String?
   location   String?
   avatarUrl  String?  @map("avatar_url")
   role       Role     @default(STUDENT)

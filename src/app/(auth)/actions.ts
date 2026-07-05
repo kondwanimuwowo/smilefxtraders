@@ -2,10 +2,13 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email/send";
 import { welcomeEmail } from "@/lib/email/templates/welcome";
+import { validateSignupSecurity } from "@/lib/bot-protection";
+import { isValidPhone } from "@/lib/validation";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.smilefxtraders.com";
 
@@ -57,6 +60,7 @@ export async function demoLoginAction() {
           name:        "Demo Trader",
           username:    "demo_trader",
           email:       data.user.email!,
+          phone:       "+260970000000",
           plan:        "PRO",
           level:       3,
           streak:      7,
@@ -75,12 +79,18 @@ export async function demoLoginAction() {
 }
 
 export async function signupAction(formData: FormData) {
-  const supabase = await createClient();
   const name = formData.get("name") as string;
   const username = (formData.get("username") as string).replace(/^@/, "");
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
+  const hdrs = await headers();
+  const ip = hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || "unknown";
+
+  const security = await validateSignupSecurity(email, ip);
+  if (!security.ok) return { error: security.error };
+
+  const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -99,24 +109,10 @@ export async function signupAction(formData: FormData) {
     return { pendingVerification: true, email };
   }
 
-  try {
-    // Upsert, not create — the DB trigger (handle_new_auth_user) already
-    // inserted a placeholder row the instant auth.signUp() created the
-    // auth.users row, using an email-prefix name/username. The `update`
-    // branch overwrites that placeholder with what the user actually typed
-    // into the signup form, so their real name/username always wins.
-    await prisma.user.upsert({
-      where:  { supabaseId: data.user.id },
-      update: { name, username, email },
-      create: { supabaseId: data.user.id, name, username, email },
-    });
-  } catch (err: unknown) {
-    const e = err as { code?: string; meta?: { target?: string[] } };
-    if (e?.code === "P2002" && e.meta?.target?.includes("username")) {
-      return { error: "Username already taken. Choose another." };
-    }
-    // Other P2002s (double-submit on email/supabaseId) mean the row exists — continue.
-  }
+  // No public.users row is created here. auth.users just holds the
+  // credential; the profile row (name/username/phone/etc.) is only created
+  // once the user actually completes onboarding, so an abandoned signup
+  // never gets a community/profile presence.
 
   // Email confirmation enabled: no session until the link is clicked.
   if (!data.session) {
@@ -132,14 +128,23 @@ export async function saveOnboardingAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const phone = (formData.get("phone") as string ?? "").trim();
+  if (!isValidPhone(phone)) {
+    return { error: "Enter a valid phone number in international format, e.g. +260971234567." };
+  }
+
   const instruments = formData.getAll("instruments") as string[];
   const riskPct = parseFloat(formData.get("riskPct") as string);
   const experience = formData.get("experience") as string;
   const framework = (formData.get("framework") as string) || "SMC";
 
+  // This is the one place a public.users profile row gets created — a
+  // signed-up-but-not-onboarded auth.users row has no profile/community
+  // presence at all.
   const dbUser = await prisma.user.upsert({
     where: { supabaseId: user.id },
     update: {
+      phone,
       instruments,
       riskPct,
       experience: experience.toUpperCase() as "BEGINNER" | "INTERMEDIATE" | "ADVANCED",
@@ -149,7 +154,8 @@ export async function saveOnboardingAction(formData: FormData) {
       supabaseId:  user.id,
       email:       user.email ?? "",
       name:        (user.user_metadata?.full_name as string | undefined) ?? user.email?.split("@")[0] ?? "Trader",
-      username:    `trader_${user.id.slice(0, 8)}`,
+      username:    (user.user_metadata?.username as string | undefined) ?? `trader_${user.id.slice(0, 8)}`,
+      phone,
       instruments,
       riskPct,
       experience: experience.toUpperCase() as "BEGINNER" | "INTERMEDIATE" | "ADVANCED",
