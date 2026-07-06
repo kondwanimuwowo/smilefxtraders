@@ -13,13 +13,13 @@ export default function FeaturesPage() {
   return (
     <>
       {/* Dark hero */}
-      <section className="dark" style={{ padding: "128px 0 96px", background: "radial-gradient(ellipse at 12% 18%, rgba(8,174,170,0.45) 0%, transparent 52%), radial-gradient(ellipse at 88% 88%, rgba(248,185,61,0.32) 0%, transparent 48%), linear-gradient(155deg, #0C4E6B 0%, #082A3B 60%)" }}>
+      <section className="dark py-32 pb-24 bg-[radial-gradient(ellipse_at_12%_18%,rgba(8,174,170,0.45)_0%,transparent_52%),radial-gradient(ellipse_at_88%_88%,rgba(248,185,61,0.32)_0%,transparent_48%),linear-gradient(155deg,#0C4E6B_0%,#082A3B_60%)]">
         <div className="container">
           <div className="sec-head reveal">
-            <h2 style={{ fontSize: "clamp(28px,3.8vw,46px)", fontWeight: 800, letterSpacing: "-0.01em", lineHeight: 1.18, margin: 0 }}>Every tool a disciplined trader needs</h2>
+            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18]" style={{ fontSize: "clamp(28px,3.8vw,46px)" }}>Every tool a disciplined trader needs</h2>
             <p className="lead">Smile FX is built specifically for SMC and Supply &amp; Demand traders. One platform to journal, validate, follow, analyse, and learn.</p>
           </div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 28 }}>
+          <div className="flex gap-2.5 flex-wrap mt-7">
             {[["#journal","Journal"],["#validator","Rules Validator"],["#alerts","Live Alerts"],["#cot","COT Reports"],["#gavo","Gavo AI"],["#academy","Academy"],["#expiries","FX Expiries"]].map(([href, label]) => (
               <a key={href} href={href} className="feature-pill">{label}</a>
             ))}
@@ -31,11 +31,11 @@ export default function FeaturesPage() {
         <div className="container">
 
           {/* 1. Journal */}
-          <div className="feature-row" id="journal" style={{ scrollMarginTop: 90 }}>
+          <div className="feature-row scroll-mt-[90px]" id="journal">
             <div className="feature-text reveal">
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="flex items-center gap-3">
                 <div className="icon-chip"><span className="material-symbols-rounded">menu_book</span></div>
-                <span className="chip" style={{ fontSize: 11 }}>Core tool</span>
+                <span className="chip text-[11px]">Core tool</span>
               </div>
               <h3>Trade Journal</h3>
               <p className="lead">Log every trade with full context. Know your real edge: which pairs, sessions, and models actually make you money.</p>
@@ -53,32 +53,29 @@ export default function FeaturesPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded" style={{ color: "var(--teal)", fontSize: 18 }}>menu_book</span>
-                  <span style={{ fontWeight: 600, fontSize: 13, marginLeft: 4 }}>Trade Journal</span>
-                  <span className="chip" style={{ marginLeft: "auto", fontSize: 11 }}>+12.4R</span>
+                  <span className="material-symbols-rounded text-teal text-[18px]">menu_book</span>
+                  <span className="font-semibold text-[13px] ml-1">Trade Journal</span>
+                  <span className="chip ml-auto text-[11px]">+12.4R</span>
                 </div>
-                <div className="mock-body" style={{ display: "grid", gap: 11 }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+                <div className="mock-body grid gap-[11px]">
+                  <div className="grid grid-cols-3 gap-2.5">
                     <div className="mock-tile"><div className="k">Win rate</div><div className="v">63%</div></div>
-                    <div className="mock-tile"><div className="k">Avg win</div><div className="v" style={{ color: "var(--teal-dark)" }}>+2.6R</div></div>
-                    <div className="mock-tile"><div className="k">Discipline</div><div className="v" style={{ color: "var(--gold-dark)" }}>91</div></div>
+                    <div className="mock-tile"><div className="k">Avg win</div><div className="v text-[var(--teal-dark)]">+2.6R</div></div>
+                    <div className="mock-tile"><div className="k">Discipline</div><div className="v text-[var(--gold-dark)]">91</div></div>
                   </div>
-                  <div style={{ border: "1px solid var(--line)", borderRadius: 12, overflow: "hidden" }}>
+                  <div className="border border-line rounded-xl overflow-hidden">
                     {[
                       { pair: "XAUUSD", dir: "Long", model: "FVG sweep · London", pnl: "+3.1R", col: "var(--teal-dark)" },
                       { pair: "USDJPY", dir: "Long", model: "OB+BOS · New York", pnl: "OPEN", col: "var(--gold-dark)" },
                       { pair: "NAS100", dir: "Short", model: "SMT divergence · NY", pnl: "+4.0R", col: "var(--teal-dark)" },
                     ].map(({ pair, dir, model, pnl, col }, i) => (
-                      <div key={pair} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 13px", borderBottom: i < 2 ? "1px solid var(--line)" : undefined }}>
-                        <span className="mono" style={{ fontWeight: 600, fontSize: 13 }}>{pair}</span>
-                        <span className={`chip ${dir === "Short" ? "badge-short" : "badge-long"}`} style={{ fontSize: 10 }}>{dir}</span>
-                        <span
-                          className="truncate"
-                          style={{ fontSize: 12, color: "var(--ink-mid)", flex: 1, minWidth: 0 }}
-                        >
+                      <div key={pair} className={`flex items-center gap-2.5 py-2.5 px-[13px] ${i < 2 ? "border-b border-line" : ""}`}>
+                        <span className="mono font-semibold text-[13px]">{pair}</span>
+                        <span className={`chip text-[10px] ${dir === "Short" ? "badge-short" : "badge-long"}`}>{dir}</span>
+                        <span className="truncate text-xs text-ink-mid flex-1 min-w-0">
                           {model}
                         </span>
-                        <span className="mono" style={{ color: col, fontWeight: 700, fontSize: 13 }}>{pnl}</span>
+                        <span className="mono font-bold text-[13px]" style={{ color: col }}>{pnl}</span>
                       </div>
                     ))}
                   </div>
@@ -88,11 +85,11 @@ export default function FeaturesPage() {
           </div>
 
           {/* 2. Validator */}
-          <div className="feature-row flip" id="validator" style={{ scrollMarginTop: 90, marginTop: 96 }}>
+          <div className="feature-row flip scroll-mt-[90px] mt-24" id="validator">
             <div className="feature-text reveal">
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="flex items-center gap-3">
                 <div className="icon-chip"><span className="material-symbols-rounded">rule</span></div>
-                <span className="chip" style={{ fontSize: 11 }}>Pre-trade checklist</span>
+                <span className="chip text-[11px]">Pre-trade checklist</span>
               </div>
               <h3>Rules Validator</h3>
               <p className="lead">A 5-minute checklist that keeps impulsive trades off the books. Check all 8 SMC or Supply &amp; Demand rules before clicking execute.</p>
@@ -109,26 +106,26 @@ export default function FeaturesPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded" style={{ color: "var(--teal)", fontSize: 18 }}>rule</span>
-                  <span style={{ fontWeight: 600, fontSize: 13, marginLeft: 4 }}>Rules Validator</span>
-                  <span className="chip" style={{ marginLeft: "auto", fontSize: 11 }}>8 rules</span>
+                  <span className="material-symbols-rounded text-teal text-[18px]">rule</span>
+                  <span className="font-semibold text-[13px] ml-1">Rules Validator</span>
+                  <span className="chip ml-auto text-[11px]">8 rules</span>
                 </div>
-                <div className="mock-body" style={{ display: "grid", gap: 9 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 11, padding: 13, background: "rgba(8,174,170,0.1)", border: "1px solid rgba(8,174,170,0.4)", borderRadius: 12 }}>
-                    <span className="material-symbols-rounded ic-fill" style={{ color: "var(--teal)", fontSize: 32 }}>verified</span>
+                <div className="mock-body grid gap-[9px]">
+                  <div className="flex items-center gap-[11px] p-[13px] bg-[rgba(8,174,170,0.1)] border border-[rgba(8,174,170,0.4)] rounded-xl">
+                    <span className="material-symbols-rounded ic-fill text-teal text-[32px]">verified</span>
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: 17 }}>A+ · Pass</div>
-                      <div style={{ fontSize: 12.5, color: "var(--ink-mid)" }}>XAUUSD · Long · 8 / 8 rules met</div>
+                      <div className="font-bold text-[17px]">A+ · Pass</div>
+                      <div className="text-[12.5px] text-ink-mid">XAUUSD · Long · 8 / 8 rules met</div>
                     </div>
-                    <div style={{ marginLeft: "auto", textAlign: "center" }}>
-                      <div className="mono" style={{ fontSize: 22, fontWeight: 700, color: "var(--teal-dark)" }}>A+</div>
-                      <div style={{ fontSize: 10, color: "var(--ink-dim)" }}>grade</div>
+                    <div className="ml-auto text-center">
+                      <div className="mono text-[22px] font-bold text-[var(--teal-dark)]">A+</div>
+                      <div className="text-[10px] text-ink-dim">grade</div>
                     </div>
                   </div>
-                  <div style={{ display: "grid", gap: 7 }}>
+                  <div className="grid gap-[7px]">
                     {["HTF bias clear · trading the draw","POI confluence · OB + FVG overlap","Within London killzone · risk 0.5%"].map(r => (
-                      <div key={r} style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 13 }}>
-                        <span className="material-symbols-rounded ic-fill" style={{ color: "var(--teal)", fontSize: 18 }}>check_circle</span> {r}
+                      <div key={r} className="flex items-center gap-[9px] text-[13px]">
+                        <span className="material-symbols-rounded ic-fill text-teal text-[18px]">check_circle</span> {r}
                       </div>
                     ))}
                   </div>
@@ -138,11 +135,11 @@ export default function FeaturesPage() {
           </div>
 
           {/* 3. Live Alerts */}
-          <div className="feature-row" id="alerts" style={{ scrollMarginTop: 90, marginTop: 96 }}>
+          <div className="feature-row scroll-mt-[90px] mt-24" id="alerts">
             <div className="feature-text reveal">
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="flex items-center gap-3">
                 <div className="icon-chip"><span className="material-symbols-rounded">notifications_active</span></div>
-                <span className="chip" style={{ fontSize: 11 }}>Instructor calls</span>
+                <span className="chip text-[11px]">Instructor calls</span>
               </div>
               <h3>Live Setup Alerts</h3>
               <p className="lead">Follow Kondwani's live calls in real time. Each alert includes pair, direction, entry, SL/TP, the SMC model used, and a setup note.</p>
@@ -159,25 +156,25 @@ export default function FeaturesPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="avatar avatar-ring" style={{ width: 30, height: 30, fontSize: 12, background: "linear-gradient(135deg,#1672A1,#0B425D)" }}>K</span>
-                  <span style={{ fontWeight: 700, fontSize: 13, marginLeft: 4 }}>Kondwani</span>
-                  <span className="chip gold" style={{ fontSize: 10 }}>LEAD INSTRUCTOR</span>
-                  <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 800, color: "var(--coral)" }}>
-                    <span style={{ width: 7, height: 7, borderRadius: 99, background: "var(--coral)", display: "inline-block" }} />LIVE
+                  <span className="avatar avatar-ring w-[30px] h-[30px] text-xs bg-[linear-gradient(135deg,#1672A1,#0B425D)]">K</span>
+                  <span className="font-bold text-[13px] ml-1">Kondwani</span>
+                  <span className="chip gold text-[10px]">LEAD INSTRUCTOR</span>
+                  <span className="ml-auto inline-flex items-center gap-[5px] text-[11px] font-extrabold text-coral">
+                    <span className="w-[7px] h-[7px] rounded-full bg-coral inline-block" />LIVE
                   </span>
                 </div>
                 <div className="mock-body">
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                    <span className="mono" style={{ fontSize: 15, fontWeight: 700 }}>XAUUSD</span>
-                    <span className="chip badge-long" style={{ fontSize: 11 }}><span className="material-symbols-rounded" style={{ fontSize: 13 }}>trending_up</span> Long</span>
-                    <span className="chip" style={{ fontSize: 11 }}>FVG sweep</span>
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <span className="mono text-[15px] font-bold">XAUUSD</span>
+                    <span className="chip badge-long text-[11px]"><span className="material-symbols-rounded text-[13px]">trending_up</span> Long</span>
+                    <span className="chip text-[11px]">FVG sweep</span>
                   </div>
                   <ChartViz seed={42} n={32} drift={0.05} h={150} />
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginTop: 12 }}>
-                    <div className="mock-tile" style={{ padding: "9px 11px" }}><div className="k">Entry</div><div className="v" style={{ fontSize: 14 }}>2,331.50</div></div>
-                    <div className="mock-tile" style={{ padding: "9px 11px" }}><div className="k">Stop</div><div className="v" style={{ fontSize: 14, color: "var(--coral-dark)" }}>2,326.10</div></div>
-                    <div className="mock-tile" style={{ padding: "9px 11px" }}><div className="k">TP1</div><div className="v" style={{ fontSize: 14, color: "var(--teal-dark)" }}>2,344.00</div></div>
-                    <div className="mock-tile" style={{ padding: "9px 11px" }}><div className="k">R:R</div><div className="v" style={{ fontSize: 14, color: "var(--gold-dark)" }}>3.1R</div></div>
+                  <div className="grid grid-cols-4 gap-2 mt-3">
+                    <div className="mock-tile p-[9px_11px]"><div className="k">Entry</div><div className="v text-sm">2,331.50</div></div>
+                    <div className="mock-tile p-[9px_11px]"><div className="k">Stop</div><div className="v text-sm text-[var(--coral-dark)]">2,326.10</div></div>
+                    <div className="mock-tile p-[9px_11px]"><div className="k">TP1</div><div className="v text-sm text-[var(--teal-dark)]">2,344.00</div></div>
+                    <div className="mock-tile p-[9px_11px]"><div className="k">R:R</div><div className="v text-sm text-[var(--gold-dark)]">3.1R</div></div>
                   </div>
                 </div>
               </div>
@@ -185,11 +182,11 @@ export default function FeaturesPage() {
           </div>
 
           {/* 4. COT Reports */}
-          <div className="feature-row flip" id="cot" style={{ scrollMarginTop: 90, marginTop: 96 }}>
+          <div className="feature-row flip scroll-mt-[90px] mt-24" id="cot">
             <div className="feature-text reveal">
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="flex items-center gap-3">
                 <div className="icon-chip"><span className="material-symbols-rounded">groups</span></div>
-                <span className="chip" style={{ fontSize: 11 }}>Institutional data</span>
+                <span className="chip text-[11px]">Institutional data</span>
               </div>
               <h3>COT Reports</h3>
               <p className="lead">See what large speculators and commercials are doing in the futures market, straight from the CFTC's Commitment of Traders report.</p>
@@ -206,22 +203,22 @@ export default function FeaturesPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded" style={{ color: "var(--teal)", fontSize: 18 }}>groups</span>
-                  <span style={{ fontWeight: 600, fontSize: 13, marginLeft: 4 }}>COT Reports</span>
-                  <span className="chip" style={{ marginLeft: "auto", fontSize: 11 }}>Tue update</span>
+                  <span className="material-symbols-rounded text-teal text-[18px]">groups</span>
+                  <span className="font-semibold text-[13px] ml-1">COT Reports</span>
+                  <span className="chip ml-auto text-[11px]">Tue update</span>
                 </div>
-                <div className="mock-body" style={{ display: "grid", gap: 12 }}>
+                <div className="mock-body grid gap-3">
                   <div className="mock-tile">
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontWeight: 700, fontSize: 15 }}>GOLD</span><span className="chip" style={{ fontSize: 11 }}>Bullish</span></div>
-                    <div style={{ display: "flex", alignItems: "flex-end", gap: 10, marginTop: 8 }}><span className="mono" style={{ fontSize: 20, fontWeight: 700, color: "var(--teal-dark)" }}>+184.0K</span><span className="mono" style={{ fontSize: 12, color: "var(--teal-dark)" }}>▲ 12.5K w/w</span></div>
-                    <div style={{ fontSize: 10.5, color: "var(--ink-dim)", margin: "10px 0 5px" }}>52-week range · specs near top</div>
-                    <div style={{ position: "relative", height: 8, borderRadius: 99, background: "var(--bg-soft)" }}><div style={{ position: "absolute", left: "78%", top: -2, width: 4, height: 12, borderRadius: 99, background: "var(--teal)" }} /></div>
+                    <div className="flex justify-between items-center"><span className="font-bold text-[15px]">GOLD</span><span className="chip text-[11px]">Bullish</span></div>
+                    <div className="flex items-end gap-2.5 mt-2"><span className="mono text-xl font-bold text-[var(--teal-dark)]">+184.0K</span><span className="mono text-xs text-[var(--teal-dark)]">▲ 12.5K w/w</span></div>
+                    <div className="text-[10.5px] text-ink-dim my-2.5 mb-[5px]">52-week range · specs near top</div>
+                    <div className="relative h-2 rounded-full bg-[var(--bg-soft)]"><div className="absolute -top-0.5 w-1 h-3 rounded-full bg-teal" style={{ left: "78%" }} /></div>
                   </div>
                   <div className="mock-tile">
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontWeight: 700, fontSize: 15 }}>USDJPY</span><span className="chip coral" style={{ fontSize: 11 }}>Bearish</span></div>
-                    <div style={{ display: "flex", alignItems: "flex-end", gap: 10, marginTop: 8 }}><span className="mono" style={{ fontSize: 20, fontWeight: 700, color: "var(--coral-dark)" }}>−18.5K</span><span className="mono" style={{ fontSize: 12, color: "var(--coral-dark)" }}>▼ 5.2K w/w · inverted</span></div>
-                    <div style={{ fontSize: 10.5, color: "var(--ink-dim)", margin: "10px 0 5px" }}>52-week range · specs near bottom</div>
-                    <div style={{ position: "relative", height: 8, borderRadius: 99, background: "var(--bg-soft)" }}><div style={{ position: "absolute", left: "22%", top: -2, width: 4, height: 12, borderRadius: 99, background: "var(--coral)" }} /></div>
+                    <div className="flex justify-between items-center"><span className="font-bold text-[15px]">USDJPY</span><span className="chip coral text-[11px]">Bearish</span></div>
+                    <div className="flex items-end gap-2.5 mt-2"><span className="mono text-xl font-bold text-[var(--coral-dark)]">−18.5K</span><span className="mono text-xs text-[var(--coral-dark)]">▼ 5.2K w/w · inverted</span></div>
+                    <div className="text-[10.5px] text-ink-dim my-2.5 mb-[5px]">52-week range · specs near bottom</div>
+                    <div className="relative h-2 rounded-full bg-[var(--bg-soft)]"><div className="absolute -top-0.5 w-1 h-3 rounded-full bg-coral" style={{ left: "22%" }} /></div>
                   </div>
                 </div>
               </div>
@@ -229,11 +226,11 @@ export default function FeaturesPage() {
           </div>
 
           {/* 5. Gavo AI */}
-          <div className="feature-row" id="gavo" style={{ scrollMarginTop: 90, marginTop: 96 }}>
+          <div className="feature-row scroll-mt-[90px] mt-24" id="gavo">
             <div className="feature-text reveal">
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="flex items-center gap-3">
                 <div className="icon-chip"><span className="material-symbols-rounded">auto_awesome</span></div>
-                <span className="chip gold" style={{ fontSize: 11 }}>AI coaching</span>
+                <span className="chip gold text-[11px]">AI coaching</span>
               </div>
               <h3>Gavo AI Trade Review</h3>
               <p className="lead">Your always-on trading coach. Grade any trade from your journal. Gavo checks it against the full SMC rulebook and gives you a structured debrief.</p>
@@ -248,44 +245,44 @@ export default function FeaturesPage() {
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">
-              <div className="card" style={{ padding: 20, background: "linear-gradient(165deg, rgba(8,174,170,0.1), rgba(22,114,161,0.05))" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 14 }}>
-                  <div style={{ width: 34, height: 34, borderRadius: 10, background: "linear-gradient(135deg,var(--teal),var(--navy))", color: "#fff", display: "grid", placeItems: "center" }}>
-                    <span className="material-symbols-rounded ic-fill" style={{ fontSize: 18 }}>auto_awesome</span>
+              <div className="card p-5 bg-[linear-gradient(165deg,rgba(8,174,170,0.1),rgba(22,114,161,0.05))]">
+                <div className="flex items-center gap-[11px] mb-3.5">
+                  <div className="w-[34px] h-[34px] rounded-[10px] bg-[linear-gradient(135deg,var(--teal),var(--navy))] text-white grid place-items-center">
+                    <span className="material-symbols-rounded ic-fill text-[18px]">auto_awesome</span>
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700 }}>Gavo AI Review</div>
-                    <div style={{ fontSize: 11.5, color: "var(--ink-dim)" }}>Graded against 8 SMC rules</div>
-                  </div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-                  <div style={{ width: 46, height: 46, borderRadius: 12, background: "var(--teal)", color: "#fff", display: "grid", placeItems: "center", fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700 }}>A</div>
-                  <div style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.4 }}>&quot;Clean liquidity sweep into a discount FVG. Textbook patience.&quot;</div>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                  <div style={{ background: "#fff", borderRadius: 11, padding: 12 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--teal-dark)", marginBottom: 6 }}>What worked</div>
-                    <div style={{ fontSize: 12.5, color: "var(--ink-mid)", lineHeight: 1.5 }}>Waited for M5 CHoCH · SL beyond the sweep</div>
-                  </div>
-                  <div style={{ background: "#fff", borderRadius: 11, padding: 12 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--coral-dark)", marginBottom: 6 }}>To improve</div>
-                    <div style={{ fontSize: 12.5, color: "var(--ink-mid)", lineHeight: 1.5 }}>Scale out at TP1, trail the runner</div>
+                  <div className="flex-1">
+                    <div className="text-sm font-bold">Gavo AI Review</div>
+                    <div className="text-[11.5px] text-ink-dim">Graded against 8 SMC rules</div>
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginTop: 12, padding: "11px 13px", background: "#fff", borderRadius: 11 }}>
-                  <span className="material-symbols-rounded ic-fill" style={{ color: "var(--gold)", fontSize: 18 }}>lightbulb</span>
-                  <span style={{ fontSize: 13, color: "var(--ink)", lineHeight: 1.5 }}>Tip: mark the opposing liquidity before entry to plan your runner target.</span>
+                <div className="flex items-center gap-3 mb-3.5">
+                  <div className="w-[46px] h-[46px] rounded-xl bg-teal text-white grid place-items-center font-display text-xl font-bold">A</div>
+                  <div className="text-[14.5px] font-semibold leading-[1.4]">&quot;Clean liquidity sweep into a discount FVG. Textbook patience.&quot;</div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-white rounded-[11px] p-3">
+                    <div className="text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--teal-dark)] mb-1.5">What worked</div>
+                    <div className="text-[12.5px] text-ink-mid leading-[1.5]">Waited for M5 CHoCH · SL beyond the sweep</div>
+                  </div>
+                  <div className="bg-white rounded-[11px] p-3">
+                    <div className="text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--coral-dark)] mb-1.5">To improve</div>
+                    <div className="text-[12.5px] text-ink-mid leading-[1.5]">Scale out at TP1, trail the runner</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 mt-3 py-[11px] px-[13px] bg-white rounded-[11px]">
+                  <span className="material-symbols-rounded ic-fill text-gold text-[18px]">lightbulb</span>
+                  <span className="text-[13px] text-ink leading-[1.5]">Tip: mark the opposing liquidity before entry to plan your runner target.</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* 6. Academy */}
-          <div className="feature-row flip" id="academy" style={{ scrollMarginTop: 90, marginTop: 96 }}>
+          <div className="feature-row flip scroll-mt-[90px] mt-24" id="academy">
             <div className="feature-text reveal">
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="flex items-center gap-3">
                 <div className="icon-chip"><span className="material-symbols-rounded">school</span></div>
-                <span className="chip" style={{ fontSize: 11 }}>Full curriculum</span>
+                <span className="chip text-[11px]">Full curriculum</span>
               </div>
               <h3>Academy</h3>
               <p className="lead">6 structured courses from market structure basics to prop firm readiness. Video lessons + quizzes, all inside the platform.</p>
@@ -304,25 +301,38 @@ export default function FeaturesPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded" style={{ color: "var(--teal)", fontSize: 18 }}>school</span>
-                  <span style={{ fontWeight: 600, fontSize: 13, marginLeft: 4 }}>Academy</span>
-                  <span className="chip" style={{ marginLeft: "auto", fontSize: 11 }}>27 lessons</span>
+                  <span className="material-symbols-rounded text-teal text-[18px]">school</span>
+                  <span className="font-semibold text-[13px] ml-1">Academy</span>
+                  <span className="chip ml-auto text-[11px]">27 lessons</span>
                 </div>
-                <div className="mock-body" style={{ display: "grid", gap: 8 }}>
+                <div className="mock-body grid gap-2">
                   {[
                     { label: "Course 1 · Market Structure", sub: "5 lessons · complete", state: "done" },
                     { label: "Course 2 · Order Blocks & FVG", sub: "7 lessons · in progress", state: "current" },
                     { label: "Course 3 · Sessions & Killzones", sub: "4 lessons · locked", state: "locked" },
                   ].map(({ label, sub, state }) => (
-                    <div key={label} style={{ display: "flex", alignItems: "center", gap: 11, padding: 11, borderRadius: 10, opacity: state === "locked" ? 0.7 : 1, background: state === "current" ? "rgba(248,185,61,0.1)" : "var(--bg-soft)" }}>
-                      <span style={{ width: 30, height: 30, borderRadius: 8, background: state === "current" ? "var(--gold)" : state === "done" ? "rgba(8,174,170,0.14)" : "var(--bg-tint)", display: "grid", placeItems: "center" }}>
-                        <span className={`material-symbols-rounded ${state !== "locked" ? "ic-fill" : ""}`} style={{ color: state === "current" ? "var(--navy-deep)" : state === "done" ? "var(--teal)" : "var(--ink-dim)", fontSize: 17 }}>
+                    <div
+                      key={label}
+                      className="flex items-center gap-[11px] p-[11px] rounded-[10px]"
+                      style={{
+                        opacity: state === "locked" ? 0.7 : 1,
+                        background: state === "current" ? "rgba(248,185,61,0.1)" : "var(--bg-soft)",
+                      }}
+                    >
+                      <span
+                        className="w-[30px] h-[30px] rounded-lg grid place-items-center"
+                        style={{ background: state === "current" ? "var(--gold)" : state === "done" ? "rgba(8,174,170,0.14)" : "var(--bg-tint)" }}
+                      >
+                        <span
+                          className={`material-symbols-rounded text-[17px] ${state !== "locked" ? "ic-fill" : ""}`}
+                          style={{ color: state === "current" ? "var(--navy-deep)" : state === "done" ? "var(--teal)" : "var(--ink-dim)" }}
+                        >
                           {state === "done" ? "verified" : state === "current" ? "play_arrow" : "lock"}
                         </span>
                       </span>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 13.5, fontWeight: 600 }}>{label}</div>
-                        <div style={{ fontSize: 11.5, color: "var(--ink-dim)" }}>{sub}</div>
+                      <div className="flex-1">
+                        <div className="text-[13.5px] font-semibold">{label}</div>
+                        <div className="text-[11.5px] text-ink-dim">{sub}</div>
                       </div>
                     </div>
                   ))}
@@ -332,11 +342,11 @@ export default function FeaturesPage() {
           </div>
 
           {/* 7. FX Option Expiries */}
-          <div className="feature-row" id="expiries" style={{ scrollMarginTop: 90, marginTop: 96 }}>
+          <div className="feature-row scroll-mt-[90px] mt-24" id="expiries">
             <div className="feature-text reveal">
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="flex items-center gap-3">
                 <div className="icon-chip"><span className="material-symbols-rounded">calendar_month</span></div>
-                <span className="chip" style={{ fontSize: 11 }}>Market intelligence</span>
+                <span className="chip text-[11px]">Market intelligence</span>
               </div>
               <h3>FX Option Expiries</h3>
               <p className="lead">Large FX option expiries create price magnetism. Knowing where they sit helps you anticipate sticky price levels and avoid fakeouts.</p>
@@ -352,22 +362,25 @@ export default function FeaturesPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded" style={{ color: "var(--teal)", fontSize: 18 }}>calendar_month</span>
-                  <span style={{ fontWeight: 600, fontSize: 13, marginLeft: 4 }}>FX Option Expiries</span>
-                  <span className="chip" style={{ marginLeft: "auto", fontSize: 11 }}>10:00 NY cut</span>
+                  <span className="material-symbols-rounded text-teal text-[18px]">calendar_month</span>
+                  <span className="font-semibold text-[13px] ml-1">FX Option Expiries</span>
+                  <span className="chip ml-auto text-[11px]">10:00 NY cut</span>
                 </div>
-                <div className="mock-body" style={{ display: "grid", gap: 8 }}>
+                <div className="mock-body grid gap-2">
                   {[
                     { pair: "EURUSD", level: "1.0850", size: "€1.2B", near: true },
                     { pair: "USDJPY", level: "157.00", size: "$2.1B", near: false },
                     { pair: "GBPUSD", level: "1.2700", size: "£780M", near: false },
                     { pair: "USDCHF", level: "0.8950", size: "$640M", near: false },
                   ].map(({ pair, level, size, near }) => (
-                    <div key={pair} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 13px", borderRadius: 10, background: near ? "rgba(8,174,170,0.08)" : "var(--bg-soft)", border: near ? "1px solid rgba(8,174,170,0.3)" : undefined }}>
-                      <span className="mono" style={{ fontWeight: 700, fontSize: 13, width: 64 }}>{pair}</span>
-                      <span className="mono" style={{ fontSize: 13, flex: 1 }}>{level}</span>
-                      <span className="chip" style={{ fontSize: 10 }}>{size}</span>
-                      {near && <span className="chip" style={{ fontSize: 10, background: "rgba(248,185,61,0.16)", color: "var(--gold-dark)" }}>near POI</span>}
+                    <div
+                      key={pair}
+                      className={`flex items-center gap-2.5 py-[11px] px-[13px] rounded-[10px] ${near ? "bg-[rgba(8,174,170,0.08)] border border-[rgba(8,174,170,0.3)]" : "bg-[var(--bg-soft)]"}`}
+                    >
+                      <span className="mono font-bold text-[13px] w-16">{pair}</span>
+                      <span className="mono text-[13px] flex-1">{level}</span>
+                      <span className="chip text-[10px]">{size}</span>
+                      {near && <span className="chip text-[10px] bg-[rgba(248,185,61,0.16)] text-[var(--gold-dark)]">near POI</span>}
                     </div>
                   ))}
                 </div>

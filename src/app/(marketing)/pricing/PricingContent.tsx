@@ -26,26 +26,26 @@ export function PricingContent({ prices }: Props) {
   return (
     <>
       {/* Dark hero */}
-      <section className="dark" style={{ padding: "128px 0 64px", background: "radial-gradient(ellipse at 12% 18%, rgba(8,174,170,0.45) 0%, transparent 52%), radial-gradient(ellipse at 88% 88%, rgba(248,185,61,0.32) 0%, transparent 48%), linear-gradient(155deg, #0C4E6B 0%, #082A3B 60%)" }}>
+      <section className="dark py-32 pb-16 bg-[radial-gradient(ellipse_at_12%_18%,rgba(8,174,170,0.45)_0%,transparent_52%),radial-gradient(ellipse_at_88%_88%,rgba(248,185,61,0.32)_0%,transparent_48%),linear-gradient(155deg,#0C4E6B_0%,#082A3B_60%)]">
         <div className="container">
           <div className="sec-head center reveal">
-            <h2 style={{ fontSize: "clamp(28px,3.8vw,46px)", fontWeight: 800, letterSpacing: "-0.01em", lineHeight: 1.18, margin: 0 }}>Simple, transparent pricing</h2>
-            <p className="lead" style={{ marginTop: 18 }}>Start free. Upgrade when the limits become a constraint.</p>
+            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18]" style={{ fontSize: "clamp(28px,3.8vw,46px)" }}>Simple, transparent pricing</h2>
+            <p className="lead mt-[18px]">Start free. Upgrade when the limits become a constraint.</p>
           </div>
           {/* Billing toggle */}
-          <div className="reveal" style={{ display: "flex", justifyContent: "center", marginTop: 30 }}>
+          <div className="reveal flex justify-center mt-[30px]">
             <div className="toggle-wrap">
               <button
                 onClick={() => setAnnual(false)}
-                style={{ border: "none", background: !annual ? "var(--teal)" : "transparent", color: !annual ? "#fff" : "rgba(255,255,255,0.7)", padding: "9px 20px", borderRadius: 99, fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 14, cursor: "pointer", transition: "all 0.2s" }}
+                className={`border-none py-[9px] px-5 rounded-full font-sans font-semibold text-sm cursor-pointer transition-all duration-200 ${!annual ? "bg-teal text-white" : "bg-transparent text-white/70"}`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setAnnual(true)}
-                style={{ border: "none", background: annual ? "var(--teal)" : "transparent", color: annual ? "#fff" : "rgba(255,255,255,0.7)", padding: "9px 20px", borderRadius: 99, fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 14, cursor: "pointer", transition: "all 0.2s" }}
+                className={`border-none py-[9px] px-5 rounded-full font-sans font-semibold text-sm cursor-pointer transition-all duration-200 ${annual ? "bg-teal text-white" : "bg-transparent text-white/70"}`}
               >
-                Annual <span style={{ color: annual ? "#fff" : "var(--gold)" }}>−20%</span>
+                Annual <span className={annual ? "text-white" : "text-gold"}>−20%</span>
               </button>
             </div>
           </div>
@@ -53,12 +53,9 @@ export function PricingContent({ prices }: Props) {
       </section>
 
       {/* Plan cards */}
-      <section className="section" style={{ paddingTop: 0 }}>
+      <section className="section pt-0">
         <div className="container">
-          <div
-            className="reveal price-grid"
-            style={{ marginTop: -24 }}
-          >
+          <div className="reveal price-grid -mt-6">
             {PLAN_META.map((meta) => (
               <MarketingPlanCard
                 key={meta.id}
@@ -70,14 +67,14 @@ export function PricingContent({ prices }: Props) {
           </div>
 
           {/* Money-back */}
-          <div className="reveal" style={{ display: "flex", alignItems: "center", gap: 16, margin: "40px auto 0", maxWidth: 640, padding: "20px 24px", background: "rgba(8,174,170,0.06)", border: "1px solid rgba(8,174,170,0.2)", borderRadius: 18 }}>
-            <span className="material-symbols-rounded ic-fill" style={{ color: "var(--teal)", fontSize: 28, flexShrink: 0 }}>verified_user</span>
+          <div className="reveal flex items-center gap-4 mt-10 mx-auto max-w-[640px] py-5 px-6 bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.2)] rounded-[18px]">
+            <span className="material-symbols-rounded ic-fill text-teal text-[28px] shrink-0">verified_user</span>
             <div>
-              <div style={{ fontWeight: 700, fontSize: 15, color: "var(--ink-strong)" }}>7-day money-back guarantee</div>
-              <p style={{ fontSize: 13, color: "var(--ink-dim)", marginTop: 3 }}>Not satisfied in your first 7 days? Email us and we&apos;ll refund in full, no questions asked.</p>
+              <div className="font-bold text-[15px] text-ink-strong">7-day money-back guarantee</div>
+              <p className="text-[13px] text-ink-dim mt-1">Not satisfied in your first 7 days? Email us and we&apos;ll refund in full, no questions asked.</p>
             </div>
           </div>
-          <p className="reveal" style={{ textAlign: "center", fontSize: 12.5, color: "var(--ink-dim)", marginTop: 20 }}>
+          <p className="reveal text-center text-[12.5px] text-ink-dim mt-5">
             All prices in ZMW (Kwacha). Annual billing saves 20%.
           </p>
         </div>
@@ -85,24 +82,24 @@ export function PricingContent({ prices }: Props) {
 
       {/* FAQ */}
       <section className="section soft">
-        <div className="container" style={{ maxWidth: 820 }}>
-          <div className="sec-head center reveal" style={{ marginBottom: 8 }}>
+        <div className="container max-w-[820px]">
+          <div className="sec-head center reveal mb-2">
             <div className="eyebrow">Questions</div>
             <h2>Good to know</h2>
-            <div className="rule" style={{ margin: "20px auto 0" }} />
+            <div className="rule mt-5 mx-auto" />
           </div>
-          <div className="reveal" style={{ marginTop: 32 }}>
+          <div className="reveal mt-8">
             {FAQ_ITEMS.map(({ q, a }, i) => (
-              <div key={q} style={{ borderBottom: "1px solid var(--line)" }}>
+              <div key={q} className="border-b border-line">
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  style={{ width: "100%", textAlign: "left", background: "none", border: "none", padding: "20px 0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, cursor: "pointer", fontFamily: "var(--font-display)", fontSize: 17, fontWeight: 600, color: "var(--ink)" }}
+                  className="w-full text-left bg-transparent border-none py-5 flex items-center justify-between gap-4 cursor-pointer font-display text-[17px] font-semibold text-ink"
                 >
                   {q}
-                  <span className="material-symbols-rounded" style={{ transition: "transform 0.25s", transform: openFaq === i ? "rotate(45deg)" : "none", color: "var(--teal)", flexShrink: 0 }}>add</span>
+                  <span className={`material-symbols-rounded text-teal shrink-0 transition-transform duration-[250ms] ${openFaq === i ? "rotate-45" : "rotate-0"}`}>add</span>
                 </button>
-                <div style={{ maxHeight: openFaq === i ? 200 : 0, overflow: "hidden", transition: "max-height 0.3s cubic-bezier(0.16,1,0.3,1)" }}>
-                  <p style={{ paddingBottom: 20, fontSize: 14.5, color: "var(--ink-mid)", lineHeight: 1.65 }}>{a}</p>
+                <div className="overflow-hidden transition-[max-height] duration-300 ease-app" style={{ maxHeight: openFaq === i ? 200 : 0 }}>
+                  <p className="pb-5 text-[14.5px] text-ink-mid leading-[1.65]">{a}</p>
                 </div>
               </div>
             ))}
@@ -113,10 +110,10 @@ export function PricingContent({ prices }: Props) {
       {/* CTA */}
       <section className="section">
         <div className="container">
-          <div className="reveal" style={{ textAlign: "center", maxWidth: 560, margin: "0 auto" }}>
+          <div className="reveal text-center max-w-[560px] mx-auto">
             <h2 style={{ fontSize: "clamp(26px,3.6vw,38px)" }}>Start free, upgrade when it pays off</h2>
-            <p className="lead" style={{ marginTop: 12 }}>No card required to begin. Build the habit first.</p>
-            <div style={{ marginTop: 24 }}>
+            <p className="lead mt-3">No card required to begin. Build the habit first.</p>
+            <div className="mt-6">
               <Button href="/signup" size="lg" iconRight="arrow_forward">Create your free account</Button>
             </div>
           </div>

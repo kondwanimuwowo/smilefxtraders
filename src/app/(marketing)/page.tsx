@@ -27,36 +27,31 @@ export default async function HomePage() {
             {/* Left */}
             <div>
               <h1
-                className="reveal"
+                className="reveal mt-[18px] leading-[1.18] text-white font-display font-extrabold tracking-[-0.01em]"
                 data-delay="60"
-                style={{ fontSize: "clamp(28px,3.8vw,46px)", margin: "18px 0 0", lineHeight: 1.18, color: "#fff", fontFamily: "var(--font-display)", fontWeight: 800, letterSpacing: "-0.01em" }}
+                style={{ fontSize: "clamp(32px,4vw,54px)" }}
               >
                 Trade Smart Money<br />
-                <span style={{ color: "var(--teal-bright)" }}>Together</span>
+                <span className="text-teal-bright">Together</span>
               </h1>
               <p
-                className="reveal"
+                className="reveal text-[15px] text-white/76 mt-[22px] max-w-[520px] leading-[1.6]"
                 data-delay="120"
-                style={{ fontSize: 15, color: "rgba(255,255,255,0.76)", marginTop: 22, maxWidth: 520, lineHeight: 1.6 }}
               >
                 A professional trading desk for SMC and Supply &amp; Demand traders. Journal your edge, validate every setup, and follow live calls from Kondwani.
               </p>
-              <div
-                className="reveal"
-                data-delay="180"
-                style={{ display: "flex", gap: 14, marginTop: 32, flexWrap: "wrap" }}
-              >
+              <div className="reveal flex gap-3.5 mt-8 flex-wrap" data-delay="180">
                 <Button href="/signup" size="lg" iconRight="arrow_forward">Start for free</Button>
               </div>
             </div>
 
             {/* Right: Hero illustration */}
-            <div className="reveal" data-delay="160" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div className="reveal flex items-center justify-center" data-delay="160">
               <img
                 src="/hero-illustration.svg"
                 alt=""
                 aria-hidden="true"
-                style={{ width: "100%", maxWidth: 480, height: "auto", display: "block" }}
+                className="w-full max-w-[480px] h-auto block"
               />
             </div>
           </div>
@@ -71,7 +66,7 @@ export default async function HomePage() {
             <div className="rule" />
             <p className="lead">Built for SMC and Supply &amp; Demand traders who take their craft seriously.</p>
           </div>
-          <div className="grid g3" style={{ marginTop: 56 }}>
+          <div className="grid g3 auto-rows-fr" style={{ marginTop: 56 }}>
             {[
               { icon: "menu_book",            title: "Trade Journal",       desc: "Log every trade with full context: entry, SL, TP, model, session, R:R. Find your edge through session analytics and model win-rates.", href: "/features#journal" },
               { icon: "rule",                 title: "Rules Validator",     desc: "Walk any idea through the SMC checklist before you click. Get a clear A+ / Wait / No-Trade verdict.", href: "/features#validator" },
@@ -80,14 +75,16 @@ export default async function HomePage() {
               { icon: "auto_awesome",         title: "Gavo AI Review",      desc: "Your AI trading coach grades every trade against the SMC rulebook with a structured verdict: what was good, what to improve.", href: "/features#gavo" },
               { icon: "school",               title: "Academy",             desc: "A six-level SMC curriculum taught in order, from market structure foundations to prop-firm readiness.", href: "/learn" },
             ].map((tool, i) => (
-              <div key={tool.title} className="card tool-card reveal" data-delay={i % 3 * 80}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                  <div className="icon-chip" style={{ flexShrink: 0 }}><span className="material-symbols-rounded">{tool.icon}</span></div>
-                  <h3 style={{ margin: 0 }}>{tool.title}</h3>
+              <div key={tool.title} className="card tool-card reveal h-full flex flex-col" data-delay={i % 3 * 80}>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="icon-chip shrink-0">
+                    <span className="material-symbols-rounded text-[32px] leading-none translate-y-[2px]">{tool.icon}</span>
+                  </div>
+                  <h3 className="m-0 font-bold">{tool.title}</h3>
                 </div>
                 <p>{tool.desc}</p>
-                <Link href={tool.href} className="link-arrow">
-                  Learn more <span className="material-symbols-rounded">arrow_forward</span>
+                <Link href={tool.href} className="link-arrow mt-auto pt-3">
+                  Learn more <span className="material-symbols-rounded translate-y-[2px]">arrow_forward</span>
                 </Link>
               </div>
             ))}
@@ -114,14 +111,14 @@ export default async function HomePage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded" style={{ color: "var(--teal)", fontSize: 18 }}>menu_book</span>
-                  <span style={{ fontWeight: 600, fontSize: 13, marginLeft: 4 }}>Trade Journal</span>
+                  <span className="material-symbols-rounded text-teal text-[18px]">menu_book</span>
+                  <span className="font-semibold text-[13px] ml-1">Trade Journal</span>
                 </div>
-                <div className="mock-body" style={{ display: "grid", gap: 10 }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+                <div className="mock-body grid gap-2.5">
+                  <div className="grid grid-cols-3 gap-2.5">
                     <div className="mock-tile"><div className="k">Win rate</div><div className="v">—</div></div>
-                    <div className="mock-tile"><div className="k">Net R</div><div className="v" style={{ color: "var(--teal-dark)" }}>—</div></div>
-                    <div className="mock-tile"><div className="k">Discipline</div><div className="v" style={{ color: "var(--gold-dark)" }}>—</div></div>
+                    <div className="mock-tile"><div className="k">Net R</div><div className="v text-[var(--teal-dark)]">—</div></div>
+                    <div className="mock-tile"><div className="k">Discipline</div><div className="v text-[var(--gold-dark)]">—</div></div>
                   </div>
                   <ChartViz seed={11} n={34} drift={0.06} h={150} annot={false} />
                 </div>
@@ -130,7 +127,7 @@ export default async function HomePage() {
           </div>
 
           {/* Validator */}
-          <div className="feature-row flip" style={{ marginTop: 88 }}>
+          <div className="feature-row flip">
             <div className="feature-text reveal">
               <div className="eyebrow">Rules Validator</div>
               <h3>Validate before you risk.</h3>
@@ -147,20 +144,20 @@ export default async function HomePage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded" style={{ color: "var(--teal)", fontSize: 18 }}>rule</span>
-                  <span style={{ fontWeight: 600, fontSize: 13, marginLeft: 4 }}>Rules Validator</span>
+                  <span className="material-symbols-rounded text-teal text-[18px]">rule</span>
+                  <span className="font-semibold text-[13px] ml-1">Rules Validator</span>
                 </div>
-                <div className="mock-body" style={{ display: "grid", gap: 9 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 11, padding: 13, background: "rgba(8,174,170,0.1)", border: "1px solid rgba(8,174,170,0.4)", borderRadius: 12 }}>
-                    <span className="material-symbols-rounded ic-fill" style={{ color: "var(--teal)", fontSize: 32 }}>verified</span>
+                <div className="mock-body grid gap-[9px]">
+                  <div className="flex items-center gap-[11px] p-[13px] bg-[rgba(8,174,170,0.1)] border border-[rgba(8,174,170,0.4)] rounded-xl">
+                    <span className="material-symbols-rounded ic-fill text-teal text-[32px]">verified</span>
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: 17 }}>A+ Setup: Take it</div>
-                      <div style={{ fontSize: 12.5, color: "var(--ink-mid)" }}>XAUUSD · Long · all rules met</div>
+                      <div className="font-bold text-[17px]">A+ Setup: Take it</div>
+                      <div className="text-[12.5px] text-ink-mid">XAUUSD · Long · all rules met</div>
                     </div>
                   </div>
                   {["HTF bias clear · trading the draw", "Liquidity swept into discount FVG", "M5 CHoCH confirmed · 1:3 R:R"].map((t) => (
-                    <div key={t} style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 13 }}>
-                      <span className="material-symbols-rounded ic-fill" style={{ color: "var(--teal)", fontSize: 18 }}>check_circle</span>
+                    <div key={t} className="flex items-center gap-[9px] text-[13px]">
+                      <span className="material-symbols-rounded ic-fill text-teal text-[18px]">check_circle</span>
                       {t}
                     </div>
                   ))}
@@ -221,26 +218,26 @@ export default async function HomePage() {
       {/* ===== INSTRUCTOR ===== */}
       <section className="section">
         <div className="container">
-          <div style={{ display: "grid", gap: 56, alignItems: "center" }} className="instr-grid">
-            <div className="reveal" style={{ position: "relative" }}>
-              <div style={{ borderRadius: 24, overflow: "hidden", boxShadow: "0 24px 60px rgba(11,66,93,0.16)", aspectRatio: "4/5", background: "linear-gradient(165deg, #0C4359 0%, #082A3B 78%)", display: "grid", placeItems: "center", position: "relative" }}>
-                <div style={{ textAlign: "center", color: "rgba(255,255,255,0.55)", padding: 24 }}>
-                  <span className="material-symbols-rounded" style={{ fontSize: 64 }}>account_circle</span>
+          <div className="instr-grid">
+            <div className="reveal relative">
+              <div className="rounded-3xl overflow-hidden aspect-[4/5] bg-[linear-gradient(165deg,#0C4359_0%,#082A3B_78%)] grid place-items-center relative shadow-[0_24px_60px_rgba(11,66,93,0.16)]">
+                <div className="text-center text-white/55 p-6">
+                  <span className="material-symbols-rounded text-[64px]">account_circle</span>
                 </div>
               </div>
             </div>
             <div>
               <div className="eyebrow reveal">Lead Instructor</div>
-              <h2 className="reveal" data-delay="60" style={{ fontSize: "clamp(28px,3.4vw,40px)", marginTop: 16 }}>Kondwani</h2>
-              <div className="reveal" data-delay="80" style={{ width: 56, height: 4, borderRadius: 99, background: "var(--coral)", marginTop: 18 }} />
-              <p className="reveal" data-delay="120" style={{ fontSize: 17, color: "var(--ink-mid)", marginTop: 22, lineHeight: 1.7 }}>
+              <h2 className="reveal mt-4" data-delay="60" style={{ fontSize: "clamp(28px,3.4vw,40px)" }}>Kondwani</h2>
+              <div className="reveal w-14 h-1 rounded-full bg-coral mt-[18px]" data-delay="80" />
+              <p className="reveal text-[17px] text-ink-mid mt-[22px] leading-[1.7]" data-delay="120">
                 Live calls posted every trading day. Every alert is validated against the SMC rulebook before posting, so you know exactly why the setup qualifies. Kondwani teaches pure smart money: liquidity, fair-value gaps, order blocks, premium and discount, from first principles.
               </p>
-              <blockquote className="reveal" data-delay="160" style={{ margin: "24px 0 0", padding: "18px 22px", background: "var(--bg-soft)", borderRadius: 14, display: "flex", gap: 13 }}>
-                <span style={{ width: 8, borderRadius: 99, background: "var(--coral)", flexShrink: 0 }} />
-                <p style={{ fontSize: 16, fontStyle: "italic", color: "var(--ink)", lineHeight: 1.6 }}>&quot;I don&apos;t want to hand you fish. I want you to read the chart, follow your rules, and never need my signals again.&quot;</p>
+              <blockquote className="reveal mt-6 py-[18px] px-[22px] bg-[var(--bg-soft)] rounded-[14px] flex gap-[13px]" data-delay="160">
+                <span className="w-2 rounded-full bg-coral shrink-0" />
+                <p className="text-base italic text-ink leading-[1.6]">&quot;I don&apos;t want to hand you fish. I want you to read the chart, follow your rules, and never need my signals again.&quot;</p>
               </blockquote>
-              <div className="reveal" data-delay="200" style={{ display: "flex", gap: 14, marginTop: 26, flexWrap: "wrap" }}>
+              <div className="reveal flex gap-3.5 mt-[26px] flex-wrap" data-delay="200">
                 <Button href="/about" size="lg" iconRight="arrow_forward">Read his story</Button>
                 <Button href="/learn" size="lg" variant="ghost" icon="school">Browse the Academy</Button>
               </div>
@@ -252,11 +249,11 @@ export default async function HomePage() {
       {/* ===== PRICING TEASER ===== */}
       <section className="section soft">
         <div className="container">
-          <div className="sec-head center reveal" style={{ marginBottom: 52 }}>
+          <div className="sec-head center reveal mb-[52px]">
             <h2>Simple, transparent plans</h2>
-            <p className="lead" style={{ marginTop: 14 }}>Start free. Upgrade when you&apos;re ready.</p>
+            <p className="lead mt-3.5">Start free. Upgrade when you&apos;re ready.</p>
           </div>
-          <div className="grid g3" style={{ alignItems: "start" }}>
+          <div className="grid g3 items-start">
             {PLAN_META.map((meta, i) => (
               <div key={meta.id} className="reveal" data-delay={i * 80}>
                 <MarketingPlanCard
@@ -266,8 +263,8 @@ export default async function HomePage() {
               </div>
             ))}
           </div>
-          <div className="reveal" style={{ textAlign: "center", marginTop: 36 }}>
-            <Link href="/pricing" className="link-arrow" style={{ fontSize: 15 }}>
+          <div className="reveal text-center mt-9">
+            <Link href="/pricing" className="link-arrow text-[15px]">
               See full pricing &amp; FAQ <span className="material-symbols-rounded">arrow_forward</span>
             </Link>
           </div>

@@ -20,24 +20,24 @@ export default function LearnPage() {
   return (
     <>
       {/* Dark hero */}
-      <section className="dark" style={{ padding: "128px 0 96px", background: "radial-gradient(ellipse at 12% 18%, rgba(8,174,170,0.45) 0%, transparent 52%), radial-gradient(ellipse at 88% 88%, rgba(248,185,61,0.32) 0%, transparent 48%), linear-gradient(155deg, #0C4E6B 0%, #082A3B 60%)" }}>
+      <section className="dark py-32 pb-24 bg-[radial-gradient(ellipse_at_12%_18%,rgba(8,174,170,0.45)_0%,transparent_52%),radial-gradient(ellipse_at_88%_88%,rgba(248,185,61,0.32)_0%,transparent_48%),linear-gradient(155deg,#0C4E6B_0%,#082A3B_60%)]">
         <div className="container">
           <div className="sec-head reveal">
-            <h2 style={{ fontSize: "clamp(28px,3.8vw,46px)", fontWeight: 800, letterSpacing: "-0.01em", lineHeight: 1.18, margin: 0 }}>From your first candle to a funded account</h2>
-            <p className="lead" style={{ marginTop: 18 }}>Six levels, taught in order. Master each before the next unlocks, so nothing is skipped and nothing is rushed. This is the same path Kondwani walks every new trader through.</p>
+            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18]" style={{ fontSize: "clamp(28px,3.8vw,46px)" }}>From your first candle to a funded account</h2>
+            <p className="lead mt-[18px]">Six levels, taught in order. Master each before the next unlocks, so nothing is skipped and nothing is rushed. This is the same path Kondwani walks every new trader through.</p>
           </div>
-          <div style={{ display: "flex", gap: 28, marginTop: 34, flexWrap: "wrap" }}>
+          <div className="flex gap-7 mt-[34px] flex-wrap">
             <div>
-              <div className="mono" style={{ fontSize: 30, fontWeight: 700, color: "var(--teal-bright)" }}>64</div>
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>Video lessons</div>
+              <div className="mono text-[30px] font-bold text-teal-bright">64</div>
+              <div className="text-[13px] text-white/60">Video lessons</div>
             </div>
             <div>
-              <div className="mono" style={{ fontSize: 30, fontWeight: 700, color: "var(--gold)" }}>6</div>
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>Structured levels</div>
+              <div className="mono text-[30px] font-bold text-gold">6</div>
+              <div className="text-[13px] text-white/60">Structured levels</div>
             </div>
             <div>
-              <div className="mono" style={{ fontSize: 30, fontWeight: 700, color: "var(--teal-bright)" }}>∞</div>
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>Replays &amp; updates</div>
+              <div className="mono text-[30px] font-bold text-teal-bright">∞</div>
+              <div className="text-[13px] text-white/60">Replays &amp; updates</div>
             </div>
           </div>
         </div>
@@ -51,31 +51,31 @@ export default function LearnPage() {
             <h2>A path, not a playlist</h2>
             <div className="rule" />
           </div>
-          <div style={{ marginTop: 48, display: "flex", flexDirection: "column", gap: 18 }}>
+          <div className="mt-12 flex flex-col gap-[18px]">
             {LEVELS.map(({ num, title, desc, state, lessons }) => {
               const icon = state === "done" ? "verified" : state === "current" ? "play_circle" : "lock";
               const iconColor = state === "done" ? "var(--teal)" : state === "current" ? "var(--gold)" : "var(--ink-dim)";
               const iconBg = state === "current" ? "rgba(248,185,61,0.16)" : state === "done" ? "rgba(8,174,170,0.14)" : "var(--bg-soft)";
               const tag = state === "done"
-                ? <span className="chip" style={{ fontSize: 11 }}>Complete</span>
+                ? <span className="chip text-[11px]">Complete</span>
                 : state === "current"
-                ? <span className="chip gold" style={{ fontSize: 11 }}>In progress</span>
-                : <span className="chip" style={{ background: "var(--bg-soft)", color: "var(--ink-dim)", fontSize: 11 }}>Locked</span>;
+                ? <span className="chip gold text-[11px]">In progress</span>
+                : <span className="chip text-[11px] bg-[var(--bg-soft)] text-ink-dim">Locked</span>;
               return (
-                <div key={num} className="card reveal" style={{ display: "flex", alignItems: "center", gap: 20, padding: "22px 26px", opacity: state === "locked" ? 0.62 : 1 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700, color: "var(--ink-dim)", width: 38, flexShrink: 0 }}>{num}</div>
-                  <div style={{ width: 48, height: 48, borderRadius: 13, background: iconBg, display: "grid", placeItems: "center", flexShrink: 0 }}>
-                    <span className={`material-symbols-rounded ${state !== "locked" ? "ic-fill" : ""}`} style={{ color: iconColor, fontSize: 24 }}>{icon}</span>
+                <div key={num} className={`card reveal flex items-center gap-5 py-[22px] px-[26px] ${state === "locked" ? "opacity-[0.62]" : ""}`}>
+                  <div className="font-display text-2xl font-bold text-ink-dim w-[38px] shrink-0">{num}</div>
+                  <div className="w-12 h-12 rounded-[13px] grid place-items-center shrink-0" style={{ background: iconBg }}>
+                    <span className={`material-symbols-rounded text-2xl ${state !== "locked" ? "ic-fill" : ""}`} style={{ color: iconColor }}>{icon}</span>
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                      <h3 style={{ fontSize: 19 }}>{title}</h3>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h3 className="text-[19px]">{title}</h3>
                       {tag}
                     </div>
-                    <p style={{ fontSize: 14, color: "var(--ink-mid)", marginTop: 5, lineHeight: 1.55 }}>{desc}</p>
+                    <p className="text-sm text-ink-mid mt-1.5 leading-[1.55]">{desc}</p>
                   </div>
-                  <div style={{ textAlign: "right", flexShrink: 0 }}>
-                    <div className="mono" style={{ fontSize: 13, color: "var(--ink-mid)" }}>{lessons} lessons</div>
+                  <div className="text-right shrink-0">
+                    <div className="mono text-[13px] text-ink-mid">{lessons} lessons</div>
                   </div>
                 </div>
               );
@@ -104,25 +104,25 @@ export default function LearnPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded" style={{ color: "var(--teal)", fontSize: 18 }}>play_lesson</span>
-                  <span style={{ fontWeight: 600, fontSize: 13, marginLeft: 4 }}>FVG + OB Confluence Entries</span>
-                  <span className="chip gold" style={{ marginLeft: "auto", fontSize: 10 }}>Lesson 4</span>
+                  <span className="material-symbols-rounded text-teal text-[18px]">play_lesson</span>
+                  <span className="font-semibold text-[13px] ml-1">FVG + OB Confluence Entries</span>
+                  <span className="chip gold ml-auto text-[10px]">Lesson 4</span>
                 </div>
                 <div className="mock-body">
-                  <div style={{ aspectRatio: "16/9", borderRadius: 12, background: "var(--navy-grad)", display: "grid", placeItems: "center", position: "relative", overflow: "hidden" }}>
-                    <div style={{ width: 58, height: 58, borderRadius: 99, background: "var(--gold)", display: "grid", placeItems: "center", boxShadow: "0 8px 26px rgba(248,185,61,0.4)" }}>
-                      <span className="material-symbols-rounded ic-fill" style={{ color: "var(--navy-deep)", fontSize: 30 }}>play_arrow</span>
+                  <div className="aspect-video rounded-xl bg-navy-grad grid place-items-center relative overflow-hidden">
+                    <div className="w-[58px] h-[58px] rounded-full bg-gold grid place-items-center shadow-[0_8px_26px_rgba(248,185,61,0.4)]">
+                      <span className="material-symbols-rounded ic-fill text-[var(--navy-deep)] text-[30px]">play_arrow</span>
                     </div>
-                    <div style={{ position: "absolute", left: 14, right: 14, bottom: 14, height: 4, borderRadius: 99, background: "rgba(255,255,255,0.25)" }}>
-                      <div style={{ width: "32%", height: "100%", borderRadius: 99, background: "var(--gold)" }} />
+                    <div className="absolute left-3.5 right-3.5 bottom-3.5 h-1 rounded-full bg-white/25">
+                      <div className="h-full rounded-full bg-gold" style={{ width: "32%" }} />
                     </div>
-                    <span className="mono" style={{ position: "absolute", bottom: 24, right: 16, fontSize: 11, color: "rgba(255,255,255,0.8)" }}>3:04 / 16:55</span>
+                    <span className="mono absolute bottom-6 right-4 text-[11px] text-white/80">3:04 / 16:55</span>
                   </div>
-                  <p style={{ fontSize: 13, color: "var(--ink-mid)", lineHeight: 1.55, marginTop: 14 }}>The highest-probability SMC entry stacks an Order Block with an FVG in the same zone, in line with HTF bias, after a liquidity sweep.</p>
-                  <div style={{ display: "grid", gap: 7, marginTop: 10 }}>
+                  <p className="text-[13px] text-ink-mid leading-[1.55] mt-3.5">The highest-probability SMC entry stacks an Order Block with an FVG in the same zone, in line with HTF bias, after a liquidity sweep.</p>
+                  <div className="grid gap-[7px] mt-2.5">
                     {["HTF draw on liquidity established", "OB and FVG overlap in discount"].map((pt, i) => (
-                      <div key={pt} style={{ display: "flex", gap: 9, alignItems: "flex-start", fontSize: 12.5 }}>
-                        <span className="mono" style={{ width: 20, height: 20, borderRadius: 6, background: "var(--bg-tint)", color: "var(--teal-dark)", display: "grid", placeItems: "center", fontWeight: 700, fontSize: 11, flexShrink: 0 }}>{i + 1}</span>
+                      <div key={pt} className="flex gap-[9px] items-start text-[12.5px]">
+                        <span className="mono w-5 h-5 rounded-md bg-bg-tint text-[var(--teal-dark)] grid place-items-center font-bold text-[11px] shrink-0">{i + 1}</span>
                         {pt}
                       </div>
                     ))}
@@ -138,20 +138,20 @@ export default function LearnPage() {
       <section className="section">
         <div className="container">
           <div className="grid g3 reveal">
-            <div className="card" style={{ padding: 28 }}>
+            <div className="card p-7">
               <div className="icon-chip"><span className="material-symbols-rounded">groups_3</span></div>
-              <h3 style={{ fontSize: 19, margin: "16px 0 8px" }}>Weekly live calls</h3>
-              <p style={{ fontSize: 14.5, color: "var(--ink-mid)", lineHeight: 1.6 }}>Join Kondwani live to mark up the week&apos;s setups and ask questions in real time. <span style={{ color: "var(--gold-dark)", fontWeight: 600 }}>Funded Track</span></p>
+              <h3 className="text-[19px] mt-4 mb-2">Weekly live calls</h3>
+              <p className="text-[14.5px] text-ink-mid leading-[1.6]">Join Kondwani live to mark up the week&apos;s setups and ask questions in real time. <span className="text-[var(--gold-dark)] font-semibold">Funded Track</span></p>
             </div>
-            <div className="card" style={{ padding: 28 }}>
+            <div className="card p-7">
               <div className="icon-chip"><span className="material-symbols-rounded">reviews</span></div>
-              <h3 style={{ fontSize: 19, margin: "16px 0 8px" }}>1-on-1 journal reviews</h3>
-              <p style={{ fontSize: 14.5, color: "var(--ink-mid)", lineHeight: 1.6 }}>Send your journal for a personal teardown and find the leaks faster with a mentor&apos;s eye.</p>
+              <h3 className="text-[19px] mt-4 mb-2">1-on-1 journal reviews</h3>
+              <p className="text-[14.5px] text-ink-mid leading-[1.6]">Send your journal for a personal teardown and find the leaks faster with a mentor&apos;s eye.</p>
             </div>
-            <div className="card" style={{ padding: 28 }}>
+            <div className="card p-7">
               <div className="icon-chip"><span className="material-symbols-rounded">workspace_premium</span></div>
-              <h3 style={{ fontSize: 19, margin: "16px 0 8px" }}>Prop-firm playbook</h3>
-              <p style={{ fontSize: 14.5, color: "var(--ink-mid)", lineHeight: 1.6 }}>The exact rules and risk model to pass a challenge and trade a funded account responsibly.</p>
+              <h3 className="text-[19px] mt-4 mb-2">Prop-firm playbook</h3>
+              <p className="text-[14.5px] text-ink-mid leading-[1.6]">The exact rules and risk model to pass a challenge and trade a funded account responsibly.</p>
             </div>
           </div>
         </div>
@@ -160,10 +160,10 @@ export default function LearnPage() {
       {/* CTA */}
       <section className="section soft">
         <div className="container">
-          <div className="reveal" style={{ textAlign: "center", maxWidth: 600, margin: "0 auto" }}>
+          <div className="reveal text-center max-w-[600px] mx-auto">
             <h2 style={{ fontSize: "clamp(28px,4vw,40px)" }}>Start at Level 1 today</h2>
-            <p className="lead" style={{ marginTop: 14 }}>Foundations is free on the Starter plan. Climb at your own pace.</p>
-            <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 26, flexWrap: "wrap" }}>
+            <p className="lead mt-3.5">Foundations is free on the Starter plan. Climb at your own pace.</p>
+            <div className="flex gap-3.5 justify-center mt-[26px] flex-wrap">
               <Button href="/signup" size="lg" iconRight="arrow_forward">Begin learning</Button>
               <Button href="/pricing" size="lg" variant="ghost">Compare plans</Button>
             </div>

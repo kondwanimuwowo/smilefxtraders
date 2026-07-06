@@ -16,7 +16,7 @@ function FeatureRow({ text, included }: { text: string; included: boolean }) {
     <div className="flex items-start gap-3 py-1.5">
       <span
         className="material-symbols-rounded shrink-0 mt-0.5"
-        style={{ fontSize: 16, color: included ? "var(--teal)" : "var(--track)", fontVariationSettings: "'FILL' 1" }}
+        style={{ fontSize: 16, color: included ? "var(--teal)" : "var(--track)", fontFamily: "Material Symbols Rounded Fill" }}
       >
         {included ? "check_circle" : "cancel"}
       </span>
@@ -64,7 +64,7 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
           >
             <span
               className="material-symbols-rounded"
-              style={{ fontSize: 22, color: meta.color, fontVariationSettings: "'FILL' 1" }}
+              style={{ fontSize: 22, color: meta.color, fontFamily: "Material Symbols Rounded Fill" }}
             >
               {meta.icon}
             </span>

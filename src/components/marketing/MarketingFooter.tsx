@@ -8,7 +8,7 @@ export function MarketingFooter() {
       className="text-white/70"
       style={{ background: "var(--navy-deep, #082A3B)", padding: "72px 0 32px" }}
     >
-      <div className="mx-auto px-7" style={{ maxWidth: "1200px" }}>
+      <div className="mx-auto px-5" style={{ maxWidth: "1200px" }}>
         {/* Grid */}
         <div className="footer-grid">
           {/* Brand col */}

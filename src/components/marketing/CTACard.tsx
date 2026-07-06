@@ -21,27 +21,20 @@ export function CTACard({
 }: CTACardProps) {
   return (
     <div
-      className="reveal"
-      style={{
-        background: "linear-gradient(155deg, #0C4E6B 0%, #082A3B 60%)",
-        borderRadius: 32,
-        padding: "clamp(32px, 8vw, 64px) clamp(20px, 6vw, 48px)",
-        textAlign: "center",
-        position: "relative",
-        overflow: "hidden",
-      }}
+      className="reveal text-center relative overflow-hidden rounded-[32px] bg-[linear-gradient(155deg,#0C4E6B_0%,#082A3B_60%)]"
+      style={{ padding: "clamp(32px, 8vw, 64px) clamp(20px, 6vw, 48px)" }}
     >
       {/* teal glow — top-left */}
-      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 12% 18%, rgba(8,174,170,0.45) 0%, transparent 52%)", pointerEvents: "none" }} />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_12%_18%,rgba(8,174,170,0.45)_0%,transparent_52%)]" />
       {/* gold glow — bottom-right */}
-      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 88% 88%, rgba(248,185,61,0.32) 0%, transparent 48%)", pointerEvents: "none" }} />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_88%_88%,rgba(248,185,61,0.32)_0%,transparent_48%)]" />
 
-      <div style={{ position: "relative", zIndex: 2, maxWidth: 600, margin: "0 auto" }}>
-        <h2 style={{ color: "#fff", fontSize: "clamp(28px,4vw,42px)", textShadow: "0 2px 16px rgba(0,0,0,0.35)" }}>
+      <div className="relative z-2 max-w-[600px] mx-auto">
+        <h2 className="text-white [text-shadow:0_2px_16px_rgba(0,0,0,0.35)]" style={{ fontSize: "clamp(28px,4vw,42px)" }}>
           {heading}
         </h2>
-        <p style={{ fontSize: 15, color: "rgba(255,255,255,0.88)", marginTop: 16 }}>{sub}</p>
-        <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 28, flexWrap: "wrap" }}>
+        <p className="text-[15px] text-white/88 mt-4">{sub}</p>
+        <div className="flex gap-3.5 justify-center mt-7 flex-wrap">
           <Button href={primaryHref} size="lg" iconRight="arrow_forward">
             {primaryLabel}
           </Button>
