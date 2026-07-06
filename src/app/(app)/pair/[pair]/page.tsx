@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Icon, Ring, Sparkline, Skeleton, Panel, PanelHead } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import type { CotSignal } from "@/app/api/cot/route";
 import type { CotDetailResponse, CotDetailRow } from "@/app/api/cot/[pair]/route";
 import type { CalEvent } from "@/app/api/calendar/route";
@@ -111,7 +112,7 @@ function BiasCell({ tf, bias }: { tf: string; bias: Bias | undefined }) {
   const cfg = bias ? BIAS_CELL[bias] : null;
   return (
     <div className="flex flex-col items-center gap-1">
-      <div className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--ink-dim)" }}>{tf}</div>
+      <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-dim">{tf}</div>
       <div
         className="flex flex-col items-center justify-center rounded-xl gap-0.5"
         style={{
@@ -127,7 +128,7 @@ function BiasCell({ tf, bias }: { tf: string; bias: Bias | undefined }) {
             <span className="text-[9px] font-bold">{cfg.label}</span>
           </>
         ) : (
-          <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>—</span>
+          <span className="text-[12px] text-ink-dim">—</span>
         )}
       </div>
     </div>
@@ -150,7 +151,7 @@ function FactorBadge({ label: factorLabel, score }: { label: string; score: numb
     >
       <Icon name={icon} size={15} fill style={{ color, flexShrink: 0 }} />
       <div>
-        <div className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--ink-dim)" }}>
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-dim">
           {factorLabel}
         </div>
         <div className="text-[12.5px] font-bold" style={{ color }}>{valueLabel}</div>
@@ -194,10 +195,7 @@ function fmtTime(time: string): string {
 function CurrencyChip({ code }: { code: string }) {
   if (!code) return null;
   return (
-    <span
-      className="inline-flex items-center text-[11px] font-bold px-2 py-0.5 rounded-lg tracking-wide"
-      style={{ background: "var(--panel-2)", color: "var(--ink-mid)", border: "1px solid var(--line)" }}
-    >
+    <span className="inline-flex items-center text-[11px] font-bold px-2 py-0.5 rounded-lg tracking-wide bg-panel-2 text-ink-mid border border-line">
       {code}
     </span>
   );
@@ -272,10 +270,10 @@ export default function PairOverviewPage() {
   if (!meta) {
     return (
       <div className="view">
-        <button onClick={() => router.back()} className="flex items-center gap-1.5 mb-5 text-[13px] font-semibold hover:opacity-75" style={{ color: "var(--ink-dim)" }}>
+        <button onClick={() => router.back()} className="flex items-center gap-1.5 mb-5 text-[13px] font-semibold hover:opacity-75 text-ink-dim">
           <Icon name="arrow_back" size={16} /> Back
         </button>
-        <div className="rounded-2xl px-5 py-4 text-[13px]" style={{ background: "rgba(234,82,61,0.07)", border: "1px solid rgba(234,82,61,0.2)", color: "var(--coral)" }}>
+        <div className="rounded-2xl px-5 py-4 text-[13px] bg-[rgba(234,82,61,0.07)] border border-[rgba(234,82,61,0.2)] text-coral">
           Unknown pair: {P}
         </div>
       </div>
@@ -289,8 +287,7 @@ export default function PairOverviewPage() {
       <button
         type="button"
         onClick={() => router.back()}
-        className="flex items-center gap-1.5 mb-5 text-[13px] font-semibold hover:opacity-75 active:scale-95 transition-all"
-        style={{ color: "var(--ink-dim)" }}
+        className="flex items-center gap-1.5 mb-5 text-[13px] font-semibold hover:opacity-75 active:scale-95 transition-all text-ink-dim"
       >
         <Icon name="arrow_back" size={16} />
         Back
@@ -302,24 +299,18 @@ export default function PairOverviewPage() {
           <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
             <CurrencyChip code={meta.base} />
             {meta.quote && <CurrencyChip code={meta.quote} />}
-            <h1
-              className="font-display font-bold"
-              style={{ fontSize: 28, letterSpacing: "-0.025em", color: "var(--ink-strong)" }}
-            >
+            <h1 className="font-display font-bold text-[28px] tracking-[-0.025em] text-ink-strong">
               {P}
             </h1>
-            <span className="text-[15px]" style={{ color: "var(--ink-dim)" }}>·</span>
-            <span className="text-[15px]" style={{ color: "var(--ink-mid)" }}>{meta.label}</span>
+            <span className="text-[15px] text-ink-dim">·</span>
+            <span className="text-[15px] text-ink-mid">{meta.label}</span>
             {meta.usdBase && (
-              <span
-                className="text-[10px] px-2 py-0.5 rounded-lg"
-                style={{ background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }}
-              >
+              <span className="text-[10px] px-2 py-0.5 rounded-lg bg-panel-2 text-ink-dim border border-line">
                 USD-base
               </span>
             )}
           </div>
-          <p className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
+          <p className="text-[13px] text-ink-dim">
             Pair overview · COT bias, trend alignment, upcoming events
           </p>
         </div>
@@ -351,7 +342,7 @@ export default function PairOverviewPage() {
         className="rounded-2xl px-6 py-5 mb-6"
         style={{ background: verdict.bg, border: `2px solid ${verdict.border}` }}
       >
-        <div className="text-[10.5px] font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--ink-dim)" }}>
+        <div className="text-[10.5px] font-semibold uppercase tracking-widest mb-3 text-ink-dim">
           Weekly Bias · Three-Factor Confluence
         </div>
         <div className="flex items-start justify-between gap-6 flex-wrap">
@@ -371,7 +362,7 @@ export default function PairOverviewPage() {
                 {verdict.label}
               </span>
             </div>
-            <p className="text-[12.5px] leading-relaxed max-w-md" style={{ color: "var(--ink-mid)" }}>
+            <p className="text-[12.5px] leading-relaxed max-w-md text-ink-mid">
               {verdict.desc}
             </p>
           </div>
@@ -400,8 +391,7 @@ export default function PairOverviewPage() {
               action={
                 <Link
                   href="/trend"
-                  className="flex items-center gap-1 text-[12px] font-semibold hover:opacity-75 transition-opacity"
-                  style={{ color: "var(--teal)" }}
+                  className="flex items-center gap-1 text-[12px] font-semibold hover:opacity-75 transition-opacity text-teal"
                 >
                   Edit <Icon name="open_in_new" size={12} />
                 </Link>
@@ -409,14 +399,11 @@ export default function PairOverviewPage() {
             />
 
             {tfs.length === 0 ? (
-              <div
-                className="flex items-start gap-3 rounded-xl px-4 py-3.5 text-[12.5px] leading-relaxed"
-                style={{ background: "rgba(248,185,61,0.05)", border: "1px solid rgba(248,185,61,0.18)", color: "var(--ink-mid)" }}
-              >
-                <Icon name="info" size={15} fill style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }} />
+              <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 text-[12.5px] leading-relaxed bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.18)] text-ink-mid">
+                <Icon name="info" size={15} fill className="text-gold shrink-0 mt-px" />
                 <span>
                   No trend data for {P}.{" "}
-                  <Link href="/trend" style={{ color: "var(--teal)" }} className="underline underline-offset-2">
+                  <Link href="/trend" className="text-teal underline underline-offset-2">
                     Open the Trend Matrix
                   </Link>{" "}
                   to set timeframe biases for this pair.
@@ -430,12 +417,12 @@ export default function PairOverviewPage() {
                   ))}
                   {/* Confluence score */}
                   <div className="ml-auto flex flex-col items-end gap-1">
-                    <div className="text-[10.5px]" style={{ color: "var(--ink-dim)" }}>Confluence</div>
+                    <div className="text-[10.5px] text-ink-dim">Confluence</div>
                     <div
                       className="font-display font-bold tabular-nums"
                       style={{ fontSize: 22, color: confColor, letterSpacing: "-0.02em" }}
                     >
-                      {confCount}<span className="text-[13px]" style={{ color: "var(--ink-dim)" }}>/5</span>
+                      {confCount}<span className="text-[13px] text-ink-dim">/5</span>
                     </div>
                     <div className="text-[11px] font-semibold capitalize" style={{ color: confColor }}>
                       {confBias}
@@ -443,15 +430,10 @@ export default function PairOverviewPage() {
                   </div>
                 </div>
                 {/* Confluence bar */}
-                <div style={{ height: 5, borderRadius: 3, background: "var(--track)", overflow: "hidden" }}>
+                <div className="h-[5px] rounded-[3px] bg-track overflow-hidden">
                   <div
-                    style={{
-                      height: "100%",
-                      width: `${(confCount / 5) * 100}%`,
-                      borderRadius: 3,
-                      background: confColor,
-                      transition: "width 700ms var(--ease-app)",
-                    }}
+                    className="h-full rounded-[3px]"
+                    style={{ width: `${(confCount / 5) * 100}%`, background: confColor, transition: "width 700ms var(--ease-app)" }}
                   />
                 </div>
               </div>
@@ -460,22 +442,18 @@ export default function PairOverviewPage() {
 
           {/* Economic Calendar */}
           <Panel pad={0}>
-            <div
-              className="flex items-center justify-between px-5 py-4"
-              style={{ borderBottom: "1px solid var(--line)" }}
-            >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-line">
               <div>
-                <div className="text-[15px] font-semibold" style={{ color: "var(--ink-strong)" }}>
+                <div className="text-[15px] font-semibold text-ink-strong">
                   Economic Calendar
                 </div>
-                <div className="text-[12px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+                <div className="text-[12px] mt-0.5 text-ink-dim">
                   {meta.currencies.join(" + ")} events this week
                 </div>
               </div>
               <Link
                 href="/calendar"
-                className="flex items-center gap-1 text-[12px] font-semibold hover:opacity-75"
-                style={{ color: "var(--teal)" }}
+                className="flex items-center gap-1 text-[12px] font-semibold hover:opacity-75 text-teal"
               >
                 Full calendar <Icon name="open_in_new" size={12} />
               </Link>
@@ -487,8 +465,8 @@ export default function PairOverviewPage() {
               </div>
             ) : relevantEvents.length === 0 ? (
               <div className="px-5 py-8 text-center">
-                <Icon name="event_busy" size={28} style={{ color: "var(--ink-dim)", margin: "0 auto 8px" }} />
-                <div className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
+                <Icon name="event_busy" size={28} className="text-ink-dim mx-auto mb-2" />
+                <div className="text-[13px] text-ink-dim">
                   No {meta.currencies.join("/")} events this week
                 </div>
               </div>
@@ -505,25 +483,22 @@ export default function PairOverviewPage() {
                   >
                     <ImpactDots level={ev.impact} />
                     <div className="flex-1 min-w-0">
-                      <div className="text-[12.5px] font-medium truncate" style={{ color: "var(--ink-strong)" }}>
+                      <div className="text-[12.5px] font-medium truncate text-ink-strong">
                         {ev.event}
                       </div>
-                      <div className="text-[11px]" style={{ color: "var(--ink-dim)" }}>
+                      <div className="text-[11px] text-ink-dim">
                         {ev.date} · {fmtTime(ev.time)}
                       </div>
                     </div>
-                    <div
-                      className="flex items-center gap-3 shrink-0 text-[11.5px]"
-                      style={{ fontFamily: "var(--mono)", fontFeatureSettings: '"tnum"' }}
-                    >
+                    <div className="flex items-center gap-3 shrink-0 text-[11.5px] font-mono">
                       {ev.forecast && (
-                        <span style={{ color: "var(--ink-dim)" }}>F: {ev.forecast}{ev.unit}</span>
+                        <span className="text-ink-dim">F: {ev.forecast}{ev.unit}</span>
                       )}
                       {ev.previous && (
-                        <span style={{ color: "var(--ink-dim)" }}>P: {ev.previous}{ev.unit}</span>
+                        <span className="text-ink-dim">P: {ev.previous}{ev.unit}</span>
                       )}
                       {ev.actual && (
-                        <span style={{ color: "var(--teal-bright)", fontWeight: 600 }}>
+                        <span className="text-teal-bright font-semibold">
                           {ev.actual}{ev.unit}
                         </span>
                       )}
@@ -547,8 +522,7 @@ export default function PairOverviewPage() {
               action={
                 <Link
                   href={`/cot/${P}`}
-                  className="flex items-center gap-1 text-[12px] font-semibold hover:opacity-75"
-                  style={{ color: "var(--teal)" }}
+                  className="flex items-center gap-1 text-[12px] font-semibold hover:opacity-75 text-teal"
                 >
                   Full history <Icon name="open_in_new" size={12} />
                 </Link>
@@ -580,10 +554,7 @@ export default function PairOverviewPage() {
                     {cotSig.label}
                   </span>
                   {meta.usdBase && (
-                    <span
-                      className="ml-auto text-[10px] px-1.5 py-0.5 rounded-lg"
-                      style={{ background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }}
-                    >
+                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-lg bg-panel-2 text-ink-dim border border-line">
                       inverted
                     </span>
                   )}
@@ -599,11 +570,11 @@ export default function PairOverviewPage() {
                       >
                         {cotData.cotIndex}
                       </div>
-                      <div className="text-[9px] leading-none mt-0.5" style={{ color: "var(--ink-dim)" }}>/100</div>
+                      <div className="text-[9px] leading-none mt-0.5 text-ink-dim">/100</div>
                     </div>
                   </Ring>
                   <div className="flex-1">
-                    <div className="text-[10.5px] mb-1.5" style={{ color: "var(--ink-dim)" }}>COT Index · 52-week range</div>
+                    <div className="text-[10.5px] mb-1.5 text-ink-dim">COT Index · 52-week range</div>
                     <div className="flex items-baseline gap-1.5 mb-1">
                       <span
                         className="font-display font-bold tabular-nums"
@@ -611,7 +582,7 @@ export default function PairOverviewPage() {
                       >
                         {fmtNet(cotData.wowChange)}
                       </span>
-                      <span className="text-[11px]" style={{ color: "var(--ink-dim)" }}>WoW</span>
+                      <span className="text-[11px] text-ink-dim">WoW</span>
                     </div>
                     {cotData.rows[0] && (
                       <div
@@ -627,7 +598,7 @@ export default function PairOverviewPage() {
                 {/* 8-week sparkline */}
                 {sparkData.length > 1 && (
                   <div>
-                    <div className="text-[10.5px] mb-1.5" style={{ color: "var(--ink-dim)" }}>Large Spec Net · 8 weeks</div>
+                    <div className="text-[10.5px] mb-1.5 text-ink-dim">Large Spec Net · 8 weeks</div>
                     <Sparkline
                       data={sparkData}
                       width={260}
@@ -639,7 +610,7 @@ export default function PairOverviewPage() {
                 )}
               </>
             ) : (
-              <div className="text-[13px] text-center py-4" style={{ color: "var(--ink-dim)" }}>
+              <div className="text-[13px] text-center py-4 text-ink-dim">
                 No COT data available for {P}
               </div>
             )}
@@ -668,28 +639,27 @@ export default function PairOverviewPage() {
                       >
                         <Icon name={dxySig.icon} size={14} fill style={{ color: dxySig.color }} />
                         <div>
-                          <div className="text-[10px] uppercase tracking-wide font-semibold" style={{ color: "var(--ink-dim)" }}>DXY COT</div>
+                          <div className="text-[10px] uppercase tracking-wide font-semibold text-ink-dim">DXY COT</div>
                           <div className="text-[12.5px] font-semibold" style={{ color: dxySig.color }}>{dxySig.label}</div>
                         </div>
                       </div>
                       <div
-                        className="flex items-center gap-2 rounded-xl px-3 py-2.5"
-                        style={{
-                          background: confirms ? "rgba(8,174,170,0.07)" : "rgba(234,82,61,0.07)",
-                          border: `1px solid ${confirms ? "rgba(8,174,170,0.2)" : "rgba(234,82,61,0.2)"}`,
-                        }}
+                        className={cn(
+                          "flex items-center gap-2 rounded-xl px-3 py-2.5 border",
+                          confirms ? "bg-[rgba(8,174,170,0.07)] border-[rgba(8,174,170,0.2)]" : "bg-[rgba(234,82,61,0.07)] border-[rgba(234,82,61,0.2)]"
+                        )}
                       >
                         <Icon
                           name={confirms ? "check_circle" : "cancel"}
                           size={16} fill
-                          style={{ color: confirms ? "var(--teal)" : "var(--coral)" }}
+                          className={confirms ? "text-teal" : "text-coral"}
                         />
-                        <span className="text-[12.5px] font-semibold" style={{ color: confirms ? "var(--teal)" : "var(--coral)" }}>
+                        <span className={cn("text-[12.5px] font-semibold", confirms ? "text-teal" : "text-coral")}>
                           {confirms ? "Confirms" : "Diverges"}
                         </span>
                       </div>
                     </div>
-                    <p className="text-[11.5px] leading-relaxed" style={{ color: "var(--ink-dim)" }}>
+                    <p className="text-[11.5px] leading-relaxed text-ink-dim">
                       {meta.usdBase
                         ? "DXY bullish = strong USD = bullish for this pair. DXY bearish = USD weakness = bearish pressure."
                         : "DXY bearish = weak USD = bullish for this pair. DXY bullish = USD strength = bearish pressure."}
@@ -703,7 +673,7 @@ export default function PairOverviewPage() {
           {/* Key Levels */}
           <Panel>
             <PanelHead title="Key Levels" icon="straighten" />
-            <div className="flex flex-col" style={{ color: "var(--ink-dim)" }}>
+            <div className="flex flex-col text-ink-dim">
               {[
                 "Previous Week High",
                 "Previous Week Low",
@@ -713,18 +683,14 @@ export default function PairOverviewPage() {
               ].map((label, i, arr) => (
                 <div
                   key={label}
-                  className="flex items-center justify-between py-2.5 text-[12.5px]"
-                  style={{ borderBottom: i < arr.length - 1 ? "1px solid var(--line)" : "none" }}
+                  className={cn("flex items-center justify-between py-2.5 text-[12.5px]", i < arr.length - 1 && "border-b border-line")}
                 >
                   <span>{label}</span>
-                  <span className="tabular-nums" style={{ fontFamily: "var(--mono)", color: "var(--ink-dim)" }}>—</span>
+                  <span className="tabular-nums font-mono text-ink-dim">—</span>
                 </div>
               ))}
             </div>
-            <div
-              className="mt-3 rounded-xl px-3 py-2.5 flex items-center gap-2 text-[11.5px]"
-              style={{ background: "rgba(248,185,61,0.05)", border: "1px solid rgba(248,185,61,0.15)", color: "var(--gold)" }}
-            >
+            <div className="mt-3 rounded-xl px-3 py-2.5 flex items-center gap-2 text-[11.5px] bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.15)] text-gold">
               <Icon name="construction" size={13} />
               Manual entry or journal integration coming soon
             </div>
@@ -733,14 +699,11 @@ export default function PairOverviewPage() {
           {/* News */}
           <Panel>
             <PanelHead title="Recent News" icon="newspaper" />
-            <div
-              className="rounded-xl px-4 py-4 flex items-start gap-3 text-[12.5px]"
-              style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-dim)" }}
-            >
-              <Icon name="rss_feed" size={16} style={{ color: "var(--ink-dim)", flexShrink: 0, marginTop: 1 }} />
+            <div className="rounded-xl px-4 py-4 flex items-start gap-3 text-[12.5px] bg-panel-2 border border-line text-ink-dim">
+              <Icon name="rss_feed" size={16} className="text-ink-dim shrink-0 mt-px" />
               <span>
                 News feed requires a news API key (e.g. Finnhub, NewsAPI).{" "}
-                <span style={{ color: "var(--gold)" }}>Coming soon.</span>
+                <span className="text-gold">Coming soon.</span>
               </span>
             </div>
           </Panel>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Icon, Skeleton } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import {
   PAIRS_ORDER, PAIR_LABELS, fmtNotional, notionalInMillions,
   type FxOrderRecord,
@@ -65,25 +66,15 @@ function LevelRow({ level, spot, pair }: { level: FxLevel; spot: number | null; 
 
       {/* Price */}
       <span
-        className="tabular-nums text-[12.5px] flex-1"
-        style={{
-          fontFamily: "var(--mono)",
-          fontFeatureSettings: '"tnum"',
-          fontWeight: level.large ? 700 : 500,
-          color: priceColor,
-          letterSpacing: "0.01em",
-        }}
+        className={cn("tabular-nums text-[12.5px] flex-1 font-mono tracking-[0.01em]", level.large ? "font-bold" : "font-medium")}
+        style={{ color: priceColor }}
       >
         {level.price}
       </span>
 
       {/* Notional */}
       <span
-        className="text-[11px] shrink-0"
-        style={{
-          color: huge ? "var(--gold)" : "var(--ink-dim)",
-          fontWeight: level.large ? 700 : 400,
-        }}
+        className={cn("text-[11px] shrink-0", huge ? "text-gold" : "text-ink-dim", level.large ? "font-bold" : "font-normal")}
       >
         {fmtNotional(level)}
       </span>
@@ -91,12 +82,7 @@ function LevelRow({ level, spot, pair }: { level: FxLevel; spot: number | null; 
       {/* Pip distance */}
       {near && dist !== null && (
         <span
-          className="text-[10px] font-semibold shrink-0 rounded-md px-1.5 py-0.5"
-          style={{
-            color: above ? "var(--teal)" : "var(--coral)",
-            background: above ? "rgba(8,174,170,0.1)" : "rgba(234,82,61,0.1)",
-            fontFamily: "var(--mono)",
-          }}
+          className={cn("text-[10px] font-semibold shrink-0 rounded-md px-1.5 py-0.5 font-mono", above ? "text-teal bg-[rgba(8,174,170,0.1)]" : "text-coral bg-[rgba(234,82,61,0.1)]")}
         >
           {Math.round(dist)}p
         </span>
@@ -118,23 +104,15 @@ function PairCard({ record, liveSpot }: { record: FxOrderRecord; liveSpot: strin
 
   return (
     <div
-      className="flex flex-col rounded-2xl overflow-hidden"
-      style={{
-        background: "var(--panel)",
-        border: `1px solid ${hasAlert ? "rgba(8,174,170,0.3)" : "var(--line)"}`,
-        boxShadow: hasAlert ? "0 0 0 1px rgba(8,174,170,0.1)" : "none",
-      }}
+      className={cn(
+        "flex flex-col rounded-2xl overflow-hidden bg-panel border",
+        hasAlert ? "border-[rgba(8,174,170,0.3)] shadow-[0_0_0_1px_rgba(8,174,170,0.1)]" : "border-line shadow-none"
+      )}
     >
       {/* Card header */}
-      <div
-        className="flex items-center justify-between px-4 py-3"
-        style={{ borderBottom: "1px solid var(--line)", background: hasAlert ? "rgba(8,174,170,0.03)" : "var(--panel-2)" }}
-      >
+      <div className={cn("flex items-center justify-between px-4 py-3 border-b border-line", hasAlert ? "bg-[rgba(8,174,170,0.03)]" : "bg-panel-2")}>
         <div className="flex items-center gap-2">
-          <span
-            className="font-display font-bold"
-            style={{ fontSize: 14, color: "var(--ink-strong)", letterSpacing: "-0.01em" }}
-          >
+          <span className="font-display font-bold text-[14px] tracking-[-0.01em] text-ink-strong">
             {PAIR_LABELS[record.pair] ?? record.pair}
           </span>
         </div>
@@ -142,13 +120,10 @@ function PairCard({ record, liveSpot }: { record: FxOrderRecord; liveSpot: strin
         {/* Spot price — live from Twelve Data if available, else image snapshot */}
         {spot !== null && (
           <div className="flex flex-col items-end">
-            <span
-              className="tabular-nums text-[12px] font-semibold"
-              style={{ fontFamily: "var(--mono)", color: "var(--ink-mid)", fontFeatureSettings: '"tnum"' }}
-            >
+            <span className="tabular-nums text-[12px] font-semibold font-mono text-ink-mid">
               {liveSpot ?? record.spotPrice}
             </span>
-            <span className="text-[9px] uppercase tracking-wider" style={{ color: "var(--ink-dim)" }}>
+            <span className="text-[9px] uppercase tracking-wider text-ink-dim">
               {liveSpot ? "live" : "snapshot"}
             </span>
           </div>
@@ -163,10 +138,7 @@ function PairCard({ record, liveSpot }: { record: FxOrderRecord; liveSpot: strin
       </div>
 
       {/* Footer — always at bottom */}
-      <div
-        className="px-4 py-2 text-[10.5px] mt-auto"
-        style={{ borderTop: "1px solid var(--line)", color: "var(--ink-dim)" }}
-      >
+      <div className="px-4 py-2 text-[10.5px] mt-auto border-t border-line text-ink-dim">
         {sorted.length} level{sorted.length !== 1 ? "s" : ""} · 10am NY Cut
       </div>
     </div>
@@ -232,8 +204,7 @@ export default function FxOrdersDatePage() {
       <button
         type="button"
         onClick={() => router.back()}
-        className="flex items-center gap-1.5 mb-5 text-[13px] font-semibold hover:opacity-75 active:scale-95 transition-all"
-        style={{ color: "var(--ink-dim)" }}
+        className="flex items-center gap-1.5 mb-5 text-[13px] font-semibold hover:opacity-75 active:scale-95 transition-all text-ink-dim"
       >
         <Icon name="arrow_back" size={16} />
         All dates
@@ -242,19 +213,16 @@ export default function FxOrdersDatePage() {
       {/* ── Header ── */}
       <div className="flex items-start justify-between gap-4 mb-2 flex-wrap">
         <div>
-          <h1
-            className="font-display font-bold"
-            style={{ fontSize: 22, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}
-          >
+          <h1 className="font-display font-bold text-[22px] tracking-[-0.02em] text-ink-strong">
             {loading ? "Loading…" : error ? "No data" : fmtDay(date)}
           </h1>
-          <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+          <p className="text-[13px] mt-0.5 text-ink-dim">
             FX option expiries · 10am New York Cut
           </p>
         </div>
 
         {!loading && !error && (
-          <div className="flex items-center gap-3 flex-wrap text-[12.5px]" style={{ color: "var(--ink-dim)" }}>
+          <div className="flex items-center gap-3 flex-wrap text-[12.5px] text-ink-dim">
             <span className="flex items-center gap-1">
               <Icon name="currency_exchange" size={13} />
               {records.length} pairs
@@ -264,13 +232,13 @@ export default function FxOrdersDatePage() {
               {totalLevels} levels
             </span>
             {largeLevels > 0 && (
-              <span className="flex items-center gap-1" style={{ color: "var(--gold)" }}>
+              <span className="flex items-center gap-1 text-gold">
                 <Icon name="star" size={13} fill />
                 {largeLevels} ≥1bn
               </span>
             )}
             {nearPairs > 0 && (
-              <span className="flex items-center gap-1" style={{ color: "var(--teal)" }}>
+              <span className="flex items-center gap-1 text-teal">
                 <Icon name="near_me" size={13} fill />
                 {nearPairs} pairs with near levels
               </span>
@@ -286,28 +254,22 @@ export default function FxOrdersDatePage() {
 
       {/* ── Legend ── */}
       {!loading && !error && (
-        <div
-          className="flex items-center gap-4 flex-wrap rounded-xl px-4 py-2.5 mb-5"
-          style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
-        >
-          <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--ink-dim)" }}>Key</span>
-          <div className="flex items-center gap-1.5 text-[11.5px]" style={{ color: "var(--teal-bright)" }}>
-            <div className="w-2 h-2 rounded-full" style={{ background: "var(--teal-bright)" }} />
+        <div className="flex items-center gap-4 flex-wrap rounded-xl px-4 py-2.5 mb-5 bg-panel-2 border border-line">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">Key</span>
+          <div className="flex items-center gap-1.5 text-[11.5px] text-teal-bright">
+            <div className="w-2 h-2 rounded-full bg-teal-bright" />
             Level above spot ≤50 pips
           </div>
-          <div className="flex items-center gap-1.5 text-[11.5px]" style={{ color: "var(--coral-bright)" }}>
-            <div className="w-2 h-2 rounded-full" style={{ background: "var(--coral-bright)" }} />
+          <div className="flex items-center gap-1.5 text-[11.5px] text-coral-bright">
+            <div className="w-2 h-2 rounded-full bg-coral-bright" />
             Level below spot ≤50 pips
           </div>
-          <div className="flex items-center gap-1.5 text-[11.5px]" style={{ color: "var(--gold)" }}>
-            <div className="w-2 h-2 rounded-full" style={{ background: "var(--gold)" }} />
+          <div className="flex items-center gap-1.5 text-[11.5px] text-gold">
+            <div className="w-2 h-2 rounded-full bg-gold" />
             Large ≥$1bn notional
           </div>
-          <div className="flex items-center gap-1.5 text-[11.5px]" style={{ color: "var(--ink-dim)" }}>
-            <span
-              className="text-[10px] font-bold rounded-md px-1 py-0.5"
-              style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)", fontFamily: "var(--mono)" }}
-            >
+          <div className="flex items-center gap-1.5 text-[11.5px] text-ink-dim">
+            <span className="text-[10px] font-bold rounded-md px-1 py-0.5 bg-[rgba(8,174,170,0.1)] text-teal font-mono">
               25p
             </span>
             pip distance from spot
@@ -317,10 +279,7 @@ export default function FxOrdersDatePage() {
 
       {/* ── Error ── */}
       {error && (
-        <div
-          className="rounded-2xl px-5 py-4 text-[13px]"
-          style={{ background: "rgba(234,82,61,0.06)", border: "1px solid rgba(234,82,61,0.2)", color: "var(--coral)" }}
-        >
+        <div className="rounded-2xl px-5 py-4 text-[13px] bg-[rgba(234,82,61,0.06)] border border-[rgba(234,82,61,0.2)] text-coral">
           {error}
         </div>
       )}
