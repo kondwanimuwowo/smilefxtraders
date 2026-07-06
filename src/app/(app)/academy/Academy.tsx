@@ -78,10 +78,10 @@ function useMarkComplete() {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const TIER_CONFIG: Record<PlanTier, { label: string; color: string; bg: string }> = {
-  free:   { label: "Free",         color: "var(--ink-dim)",      bg: "var(--panel-2)"          },
-  pro:    { label: "Pro",          color: "var(--teal)",         bg: "rgba(8,174,170,0.12)"    },
-  funded: { label: "Funded Track", color: "var(--gold)",         bg: "rgba(248,185,61,0.12)"   },
+const TIER_CONFIG: Record<PlanTier, { label: string; textCls: string; badgeCls: string }> = {
+  free:   { label: "Free",         textCls: "text-ink-dim", badgeCls: "text-ink-dim bg-panel-2"              },
+  pro:    { label: "Pro",          textCls: "text-teal",    badgeCls: "text-teal bg-[rgba(8,174,170,0.12)]"  },
+  funded: { label: "Funded Track", textCls: "text-gold",    badgeCls: "text-gold bg-[rgba(248,185,61,0.12)]" },
 };
 
 function tierAccess(userPlan: PlanTier, courseTier: string): boolean {
@@ -137,13 +137,8 @@ function CourseCard({
 
   return (
     <div
-      className="rounded-2xl overflow-hidden transition-all"
-      style={{
-        background: "var(--panel)",
-        border: complete ? `1px solid ${course.color}55` : "1px solid var(--line)",
-        opacity: canAccess ? 1 : 0.65,
-        cursor: canAccess ? "pointer" : "default",
-      }}
+      className={`rounded-2xl overflow-hidden transition-all bg-panel ${canAccess ? "cursor-pointer" : "cursor-default opacity-65"}`}
+      style={{ border: complete ? `1px solid ${course.color}55` : "1px solid var(--line)" }}
       onClick={canAccess ? onOpen : onUpgrade}
     >
       {complete && (
@@ -164,32 +159,29 @@ function CourseCard({
             className="size-10 rounded-xl flex items-center justify-center shrink-0"
             style={{ background: `${course.color}20` }}
           >
-            <span className="material-symbols-rounded" style={{ fontSize: 22, color: course.color }}>{course.icon}</span>
+            <span className="material-symbols-rounded text-[22px]" style={{ color: course.color }}>{course.icon}</span>
           </div>
-          <span
-            className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
-            style={{ background: tierCfg.bg, color: tierCfg.color }}
-          >
+          <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${tierCfg.badgeCls}`}>
             {tierCfg.label}
           </span>
         </div>
 
-        <h3 className="font-display font-bold text-[15px] mb-1.5 leading-snug" style={{ color: "var(--ink-strong)" }}>
+        <h3 className="font-display font-bold text-[15px] mb-1.5 leading-snug text-ink-strong">
           {course.title}
         </h3>
-        <p className="text-[12.5px] leading-relaxed mb-3" style={{ color: "var(--ink-dim)" }}>
+        <p className="text-[12.5px] leading-relaxed mb-3 text-ink-dim">
           {course.description}
         </p>
 
         <div className="flex items-center gap-3 mb-3">
-          <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>{total} lessons</span>
+          <span className="text-[12px] text-ink-dim">{total} lessons</span>
           {canAccess && done > 0 && (
             <span className="text-[12px] font-medium" style={{ color: course.color }}>{done}/{total} complete</span>
           )}
         </div>
 
         {canAccess ? (
-          <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: "var(--track)" }}>
+          <div className="relative h-1.5 rounded-full overflow-hidden bg-track">
             <div
               className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
               style={{ width: `${pct}%`, background: course.color }}
@@ -199,8 +191,7 @@ function CourseCard({
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onUpgrade(); }}
-            className="flex items-center gap-1.5 text-[12px] font-semibold transition-opacity hover:opacity-70"
-            style={{ color: tierCfg.color }}
+            className={`flex items-center gap-1.5 text-[12px] font-semibold transition-opacity hover:opacity-70 ${tierCfg.textCls}`}
           >
             <Icon name="lock" size={14} />
             Upgrade to {tierCfg.label}
@@ -216,12 +207,9 @@ function CourseCard({
 function LessonBody({ body }: { body: string | null }) {
   if (!body) {
     return (
-      <div
-        className="rounded-xl flex flex-col items-center justify-center gap-2 py-10"
-        style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
-      >
+      <div className="rounded-xl flex flex-col items-center justify-center gap-2 py-10 bg-panel-2 border border-line">
         <Icon name="play_circle" size={44} fill style={{ color: "var(--teal)" }} />
-        <span className="text-[13px] font-medium" style={{ color: "var(--ink-dim)" }}>
+        <span className="text-[13px] font-medium text-ink-dim">
           Video coming soon, instructor will upload
         </span>
       </div>
@@ -230,8 +218,7 @@ function LessonBody({ body }: { body: string | null }) {
 
   return (
     <div
-      className="prose-lesson rounded-xl px-6 py-5"
-      style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
+      className="prose-lesson rounded-xl px-6 py-5 bg-panel-2 border border-line"
       dangerouslySetInnerHTML={{ __html: renderMarkdown(body) }}
     />
   );
@@ -262,7 +249,7 @@ function LessonList({
 
   return (
     <div>
-      <button type="button" onClick={onBack} className="flex items-center gap-2 mb-5 text-[13px] font-medium" style={{ color: "var(--ink-dim)" }}>
+      <button type="button" onClick={onBack} className="flex items-center gap-2 mb-5 text-[13px] font-medium text-ink-dim">
         <Icon name="arrow_back" size={17} />
         Back to Academy
       </button>
@@ -272,28 +259,25 @@ function LessonList({
           className="size-12 rounded-xl flex items-center justify-center shrink-0"
           style={{ background: `${course.color}20` }}
         >
-          <span className="material-symbols-rounded" style={{ fontSize: 26, color: course.color }}>{course.icon}</span>
+          <span className="material-symbols-rounded text-[26px]" style={{ color: course.color }}>{course.icon}</span>
         </div>
         <div className="flex-1 min-w-0">
-          <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--ink-strong)", letterSpacing: "-0.02em" }}>
+          <h2 className="font-display font-bold text-[22px] tracking-[-0.02em] text-ink-strong">
             {course.title}
           </h2>
-          <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>{course.description}</p>
+          <p className="text-[13px] mt-0.5 text-ink-dim">{course.description}</p>
         </div>
       </div>
 
-      <div
-        className="rounded-2xl px-5 py-3.5 mb-5 flex items-center gap-4"
-        style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-      >
+      <div className="rounded-2xl px-5 py-3.5 mb-5 flex items-center gap-4 bg-panel border border-line">
         <div className="flex-1">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[12px] font-semibold" style={{ color: "var(--ink-mid)" }}>
+            <span className="text-[12px] font-semibold text-ink-mid">
               {done === total && total > 0 ? "Course complete" : `${done} of ${total} lessons complete`}
             </span>
             <span className="text-[12px] font-bold" style={{ color: course.color }}>{pct}%</span>
           </div>
-          <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: "var(--track)" }}>
+          <div className="relative h-1.5 rounded-full overflow-hidden bg-track">
             <div
               className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
               style={{ width: `${pct}%`, background: course.color }}
@@ -318,11 +302,9 @@ function LessonList({
             <div
               id={`lesson-${lesson.id}`}
               key={lesson.id}
-              className="rounded-2xl border overflow-hidden"
-              style={{
-                background:   isPlaying ? "rgba(8,174,170,0.07)" : "var(--panel)",
-                borderColor:  isPlaying ? "rgba(8,174,170,0.3)"  : "var(--line)",
-              }}
+              className={`rounded-2xl border overflow-hidden ${
+                isPlaying ? "bg-[rgba(8,174,170,0.07)] border-[rgba(8,174,170,0.3)]" : "bg-panel border-line"
+              }`}
             >
               <button
                 type="button"
@@ -330,27 +312,25 @@ function LessonList({
                 className="flex items-center gap-4 px-5 py-4 text-left w-full transition-all"
               >
                 <div
-                  className="size-8 rounded-full flex items-center justify-center shrink-0 text-[13px] font-bold"
-                  style={{
-                    background: isDone ? "var(--teal)" : "var(--panel-2)",
-                    color:      isDone ? "#fff"        : "var(--ink-dim)",
-                  }}
+                  className={`size-8 rounded-full flex items-center justify-center shrink-0 text-[13px] font-bold ${
+                    isDone ? "bg-teal text-white" : "bg-panel-2 text-ink-dim"
+                  }`}
                 >
-                  {isDone ? <Icon name="check" size={16} style={{ color: "#fff" }} /> : i + 1}
+                  {isDone ? <Icon name="check" size={16} className="text-white" /> : i + 1}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[13.5px] font-semibold leading-snug" style={{ color: "var(--ink-strong)" }}>
+                  <div className="text-[13.5px] font-semibold leading-snug text-ink-strong">
                     {lesson.title}
                   </div>
                   {lesson.summary && (
-                    <div className="text-[11.5px] mt-0.5 truncate" style={{ color: "var(--ink-dim)" }}>
+                    <div className="text-[11.5px] mt-0.5 truncate text-ink-dim">
                       {lesson.summary}
                     </div>
                   )}
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>{lesson.duration}</span>
-                  <span className="material-symbols-rounded text-[18px]" style={{ color: "var(--ink-dim)" }}>
+                  <span className="text-[12px] text-ink-dim">{lesson.duration}</span>
+                  <span className="material-symbols-rounded text-[18px] text-ink-dim">
                     {isPlaying ? "expand_less" : "chevron_right"}
                   </span>
                 </div>
@@ -366,11 +346,11 @@ function LessonList({
                     <button
                       type="button"
                       onClick={() => markComplete({ lessonId: lesson.id, completed: !isDone })}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12.5px] font-semibold transition-all"
-                      style={isDone
-                        ? { background: "rgba(8,174,170,0.1)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.2)" }
-                        : { background: "var(--panel-2)", color: "var(--ink-mid)", border: "1px solid var(--line)" }
-                      }
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[12.5px] font-semibold transition-all border ${
+                        isDone
+                          ? "bg-[rgba(8,174,170,0.1)] text-teal border-[rgba(8,174,170,0.2)]"
+                          : "bg-panel-2 text-ink-mid border-line"
+                      }`}
                     >
                       <Icon name={isDone ? "check_circle" : "radio_button_unchecked"} size={16} fill={isDone} />
                       {isDone ? "Mark incomplete" : "Mark as complete"}
@@ -383,11 +363,10 @@ function LessonList({
                           if (!isDone) markComplete({ lessonId: lesson.id, completed: true });
                           openLesson(next.id);
                         }}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12.5px] font-semibold ml-auto"
-                        style={{ background: "var(--teal)", color: "#fff" }}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12.5px] font-semibold ml-auto bg-teal text-white"
                       >
                         Next lesson
-                        <Icon name="arrow_forward" size={15} style={{ color: "#fff" }} />
+                        <Icon name="arrow_forward" size={15} className="text-white" />
                       </button>
                     )}
                   </div>
@@ -409,37 +388,31 @@ function ProgressBanner({ completedIds, totalLessons, isLoading }: { completedId
 
   if (isLoading) {
     return (
-      <div
-        className="rounded-2xl px-5 py-4 mb-6 animate-pulse"
-        style={{ background: "var(--panel)", border: "1px solid var(--line)", height: 72 }}
-      />
+      <div className="rounded-2xl px-5 py-4 mb-6 animate-pulse bg-panel border border-line h-[72px]" />
     );
   }
 
   if (done === 0) return null;
 
   return (
-    <div
-      className="rounded-2xl px-5 py-4 mb-6 flex items-center gap-5"
-      style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-    >
+    <div className="rounded-2xl px-5 py-4 mb-6 flex items-center gap-5 bg-panel border border-line">
       <div className="flex-1">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[13px] font-semibold" style={{ color: "var(--ink-strong)" }}>Your progress</span>
-          <span className="font-display font-bold text-[13px]" style={{ color: "var(--teal)" }}>
+          <span className="text-[13px] font-semibold text-ink-strong">Your progress</span>
+          <span className="font-display font-bold text-[13px] text-teal">
             {done} / {totalLessons} lessons
           </span>
         </div>
-        <div className="relative h-2 rounded-full overflow-hidden" style={{ background: "var(--track)" }}>
+        <div className="relative h-2 rounded-full overflow-hidden bg-track">
           <div
-            className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
-            style={{ width: `${pct}%`, background: "var(--teal)" }}
+            className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 bg-teal"
+            style={{ width: `${pct}%` }}
           />
         </div>
       </div>
       <div className="text-right shrink-0">
-        <div className="font-display font-bold text-[22px]" style={{ color: "var(--teal)", letterSpacing: "-0.03em" }}>{pct}%</div>
-        <div className="text-[11px]" style={{ color: "var(--ink-dim)" }}>complete</div>
+        <div className="font-display font-bold text-[22px] tracking-[-0.03em] text-teal">{pct}%</div>
+        <div className="text-[11px] text-ink-dim">complete</div>
       </div>
     </div>
   );
@@ -447,15 +420,13 @@ function ProgressBanner({ completedIds, totalLessons, isLoading }: { completedId
 
 // ── Skeleton grid ─────────────────────────────────────────────────────────────
 
+const COURSE_GRID_COLS = "grid-cols-[repeat(auto-fill,minmax(min(340px,100%),1fr))]";
+
 function SkeletonGrid() {
   return (
-    <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(340px, 100%), 1fr))" }}>
+    <div className={`grid gap-4 ${COURSE_GRID_COLS}`}>
       {[...Array(3)].map((_, i) => (
-        <div
-          key={i}
-          className="rounded-2xl animate-pulse"
-          style={{ background: "var(--panel)", border: "1px solid var(--line)", height: 200 }}
-        />
+        <div key={i} className="rounded-2xl animate-pulse bg-panel border border-line h-[200px]" />
       ))}
     </div>
   );
@@ -492,10 +463,10 @@ export function Academy() {
     <div className="view">
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="font-display font-bold" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
+          <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
             Academy
           </h1>
-          <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+          <p className="text-[13px] mt-0.5 text-ink-dim">
             Structured SMC education from Foundations to Prop Firm readiness.
           </p>
         </div>
@@ -511,11 +482,11 @@ export function Academy() {
       {/* Free tier */}
       <section className="mb-7">
         <div className="flex items-center gap-2 mb-3">
-          <span className="font-display font-semibold text-[16px]" style={{ color: "var(--ink-strong)" }}>Foundations</span>
+          <span className="font-display font-semibold text-[16px] text-ink-strong">Foundations</span>
           <Chip tone="neutral">Free</Chip>
         </div>
         {isLoading ? <SkeletonGrid /> : (
-          <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(340px, 100%), 1fr))" }}>
+          <div className={`grid gap-4 ${COURSE_GRID_COLS}`}>
             {freeCourses.map((c) => (
               <CourseCard
                 key={c.id} course={c}
@@ -532,11 +503,11 @@ export function Academy() {
       {/* Pro tier */}
       <section className="mb-7">
         <div className="flex items-center gap-2 mb-3">
-          <span className="font-display font-semibold text-[16px]" style={{ color: "var(--ink-strong)" }}>Pro Trader</span>
+          <span className="font-display font-semibold text-[16px] text-ink-strong">Pro Trader</span>
           <Chip tone="teal">Pro plan</Chip>
         </div>
         {isLoading ? <SkeletonGrid /> : (
-          <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(340px, 100%), 1fr))" }}>
+          <div className={`grid gap-4 ${COURSE_GRID_COLS}`}>
             {proCourses.map((c) => (
               <CourseCard
                 key={c.id} course={c}
@@ -553,11 +524,11 @@ export function Academy() {
       {/* Funded track tier */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <span className="font-display font-semibold text-[16px]" style={{ color: "var(--ink-strong)" }}>Funded Track</span>
+          <span className="font-display font-semibold text-[16px] text-ink-strong">Funded Track</span>
           <Chip tone="gold">Funded plan</Chip>
         </div>
         {isLoading ? <SkeletonGrid /> : (
-          <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(340px, 100%), 1fr))" }}>
+          <div className={`grid gap-4 ${COURSE_GRID_COLS}`}>
             {fundCourses.map((c) => (
               <CourseCard
                 key={c.id} course={c}

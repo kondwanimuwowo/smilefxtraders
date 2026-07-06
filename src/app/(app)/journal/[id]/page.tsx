@@ -98,16 +98,12 @@ function resultBg(t: Trade) {
 
 function MetaBox({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
-    <div
-      className="flex flex-col gap-0.5 rounded-xl px-4 py-3.5"
-      style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
-    >
-      <span className="text-[10.5px] font-semibold uppercase tracking-wider" style={{ color: "var(--ink-dim)" }}>
+    <div className="flex flex-col gap-0.5 rounded-xl px-4 py-3.5 bg-panel-2 border border-line">
+      <span className="text-[10.5px] font-semibold uppercase tracking-wider text-ink-dim">
         {label}
       </span>
       <span
-        className={mono ? "font-mono tabular-nums text-[15px] font-semibold" : "font-display font-bold text-[20px]"}
-        style={{ color: "var(--ink-strong)", letterSpacing: mono ? 0 : "-0.01em" }}
+        className={`text-ink-strong ${mono ? "font-mono tabular-nums text-[15px] font-semibold" : "font-display font-bold text-[20px] tracking-[-0.01em]"}`}
       >
         {value}
       </span>
@@ -121,8 +117,8 @@ function NotFound() {
   const router = useRouter();
   return (
     <div className="view flex flex-col items-center justify-center gap-4 py-24">
-      <span className="material-symbols-rounded" style={{ fontSize: 48, color: "var(--ink-dim)" }}>search_off</span>
-      <p className="text-[14px]" style={{ color: "var(--ink-dim)" }}>Trade not found.</p>
+      <span className="material-symbols-rounded text-[48px] text-ink-dim">search_off</span>
+      <p className="text-[14px] text-ink-dim">Trade not found.</p>
       <Button type="button" variant="ghost" icon="arrow_back" onClick={() => router.push("/journal")}>
         Back to journal
       </Button>
@@ -198,24 +194,19 @@ export default function TradeDetailPage() {
           <button
             type="button"
             onClick={() => router.push("/journal")}
-            className="flex items-center gap-1.5 text-[13px] font-semibold transition-opacity hover:opacity-70"
-            style={{ color: "var(--ink-dim)" }}
+            className="flex items-center gap-1.5 text-[13px] font-semibold transition-opacity hover:opacity-70 text-ink-dim"
           >
             <Icon name="arrow_back" size={16} />
             Journal
           </button>
 
           {/* Prev / next */}
-          <div
-            className="flex items-center rounded-lg overflow-hidden"
-            style={{ border: "1px solid var(--line)" }}
-          >
+          <div className="flex items-center rounded-lg overflow-hidden border border-line">
             <button
               type="button"
               disabled={!olderTrade}
               onClick={() => olderTrade && router.push(`/journal/${olderTrade.id}`)}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-[11.5px] font-semibold transition-colors hover:bg-[var(--hover)] disabled:opacity-30"
-              style={{ color: "var(--ink-dim)", borderRight: "1px solid var(--line)" }}
+              className="flex items-center gap-1 px-2.5 py-1.5 text-[11.5px] font-semibold transition-colors hover:bg-hover disabled:opacity-30 text-ink-dim border-r border-line"
               title={olderTrade ? `${olderTrade.pair} ${olderTrade.date}` : undefined}
             >
               <Icon name="chevron_left" size={15} />
@@ -225,8 +216,7 @@ export default function TradeDetailPage() {
               type="button"
               disabled={!newerTrade}
               onClick={() => newerTrade && router.push(`/journal/${newerTrade.id}`)}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-[11.5px] font-semibold transition-colors hover:bg-[var(--hover)] disabled:opacity-30"
-              style={{ color: "var(--ink-dim)" }}
+              className="flex items-center gap-1 px-2.5 py-1.5 text-[11.5px] font-semibold transition-colors hover:bg-hover disabled:opacity-30 text-ink-dim"
               title={newerTrade ? `${newerTrade.pair} ${newerTrade.date}` : undefined}
             >
               Newer
@@ -244,7 +234,7 @@ export default function TradeDetailPage() {
             variant="ghost"
             icon="delete"
             onClick={handleDelete}
-            style={{ color: "var(--coral)" }}
+            className="!text-coral"
           >
             Delete
           </Button>
@@ -255,23 +245,17 @@ export default function TradeDetailPage() {
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1
-              className="font-display font-bold"
-              style={{ fontSize: 32, letterSpacing: "-0.025em", color: "var(--ink-strong)" }}
-            >
+            <h1 className="font-display font-bold text-[32px] tracking-[-0.025em] text-ink-strong">
               {t.pair}
             </h1>
             <DirPill dir={t.dir} />
             {t.framework === "SnD" && (
-              <span
-                className="text-[11px] font-semibold px-2.5 py-1 rounded-lg"
-                style={{ background: "rgba(248,185,61,0.12)", color: "var(--gold)", border: "1px solid rgba(248,185,61,0.25)" }}
-              >
+              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-[rgba(248,185,61,0.12)] text-gold border border-[rgba(248,185,61,0.25)]">
                 S&D
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2 text-[13px]" style={{ color: "var(--ink-dim)" }}>
+          <div className="flex items-center gap-2 text-[13px] text-ink-dim">
             <span>{t.openedAt ? fmtDateTime(t.openedAt) : t.date}</span>
             {t.session && <><span>·</span><span>{t.session} KZ</span></>}
             {duration && <><span>·</span><Icon name="schedule" size={13} /><span>{duration}</span></>}
@@ -279,7 +263,7 @@ export default function TradeDetailPage() {
               <>
                 <span>·</span>
                 <Icon name="notifications_active" size={13} fill style={{ color: "var(--gold)" }} />
-                <span style={{ color: "var(--gold)" }}>From alert</span>
+                <span className="text-gold">From alert</span>
               </>
             )}
           </div>
@@ -288,17 +272,13 @@ export default function TradeDetailPage() {
         {/* PnL badge */}
         <div className="flex gap-3 items-start">
           {pipMove && (
-            <div
-              className="flex flex-col items-end rounded-2xl px-4 py-3.5 shrink-0"
-              style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
-            >
+            <div className="flex flex-col items-end rounded-2xl px-4 py-3.5 shrink-0 bg-panel-2 border border-line">
               <span
-                className="font-mono font-bold tabular-nums text-[20px]"
-                style={{ color: t.result === "win" ? "var(--teal-bright)" : "var(--coral-bright)" }}
+                className={`font-mono font-bold tabular-nums text-[20px] ${t.result === "win" ? "text-teal-bright" : "text-coral-bright"}`}
               >
                 {pipMove}
               </span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider mt-0.5" style={{ color: "var(--ink-dim)" }}>
+              <span className="text-[10px] font-semibold uppercase tracking-wider mt-0.5 text-ink-dim">
                 price move
               </span>
             </div>
@@ -308,14 +288,14 @@ export default function TradeDetailPage() {
             style={{ background: resultBg(t) }}
           >
             <span
-              className="font-display font-bold tabular-nums"
-              style={{ fontSize: 30, letterSpacing: "-0.025em", color: pnlColor(t) }}
+              className="font-display font-bold tabular-nums text-[30px] tracking-[-0.025em]"
+              style={{ color: pnlColor(t) }}
             >
               {pnlLabel(t)}
             </span>
             <span
-              className="text-[11px] font-semibold uppercase tracking-wider mt-0.5"
-              style={{ color: pnlColor(t), opacity: 0.75 }}
+              className="text-[11px] font-semibold uppercase tracking-wider mt-0.5 opacity-75"
+              style={{ color: pnlColor(t) }}
             >
               {t.result}
             </span>
@@ -324,13 +304,10 @@ export default function TradeDetailPage() {
       </div>
 
       {/* ── Chart ── */}
-      <div
-        className="rounded-2xl overflow-hidden mb-6"
-        style={{ height: 380, border: "1px solid var(--line)" }}
-      >
+      <div className="rounded-2xl overflow-hidden mb-6 h-[380px] border border-line">
         {t.chartUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={t.chartUrl} alt="Trade chart" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <img src={t.chartUrl} alt="Trade chart" className="w-full h-full object-cover" />
         ) : (
           <CandleChart candles={candles} annotations={{ zones, lines, marks }} height={300} />
         )}
@@ -343,18 +320,15 @@ export default function TradeDetailPage() {
         <div className="flex flex-col gap-4">
 
           {/* Model */}
-          <div
-            className="rounded-xl px-4 py-4 flex items-start gap-3"
-            style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-          >
-            <span className="material-symbols-rounded shrink-0 mt-0.5" style={{ fontSize: 20, color: "var(--teal)" }}>
+          <div className="rounded-xl px-4 py-4 flex items-start gap-3 bg-panel border border-line">
+            <span className="material-symbols-rounded shrink-0 mt-0.5 text-xl text-teal">
               schema
             </span>
             <div>
-              <div className="font-semibold text-[14px] mb-0.5" style={{ color: "var(--ink-strong)" }}>
+              <div className="font-semibold text-[14px] mb-0.5 text-ink-strong">
                 {t.model}
               </div>
-              <div className="text-[13px] leading-relaxed" style={{ color: "var(--ink-dim)" }}>
+              <div className="text-[13px] leading-relaxed text-ink-dim">
                 {brief}
               </div>
             </div>
@@ -362,44 +336,40 @@ export default function TradeDetailPage() {
 
           {/* Price levels */}
           {hasPrices && (
-            <div
-              className="rounded-xl px-4 py-4"
-              style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-            >
-              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--ink-dim)" }}>
+            <div className="rounded-xl px-4 py-4 bg-panel border border-line">
+              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-3 text-ink-dim">
                 Price levels
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {t.entryPrice != null && (
                   <div>
-                    <div className="text-[11px] mb-0.5" style={{ color: "var(--ink-dim)" }}>Entry</div>
-                    <div className="font-mono font-semibold text-[15px]" style={{ color: "var(--ink-strong)" }}>
+                    <div className="text-[11px] mb-0.5 text-ink-dim">Entry</div>
+                    <div className="font-mono font-semibold text-[15px] text-ink-strong">
                       {fmtPrice(t.entryPrice, t.pair)}
                     </div>
                   </div>
                 )}
                 {t.stopLoss != null && (
                   <div>
-                    <div className="text-[11px] mb-0.5" style={{ color: "var(--ink-dim)" }}>Stop loss</div>
-                    <div className="font-mono font-semibold text-[15px]" style={{ color: "var(--coral)" }}>
+                    <div className="text-[11px] mb-0.5 text-ink-dim">Stop loss</div>
+                    <div className="font-mono font-semibold text-[15px] text-coral">
                       {fmtPrice(t.stopLoss, t.pair)}
                     </div>
                   </div>
                 )}
                 {t.takeProfit != null && (
                   <div>
-                    <div className="text-[11px] mb-0.5" style={{ color: "var(--ink-dim)" }}>Take profit</div>
-                    <div className="font-mono font-semibold text-[15px]" style={{ color: "var(--teal)" }}>
+                    <div className="text-[11px] mb-0.5 text-ink-dim">Take profit</div>
+                    <div className="font-mono font-semibold text-[15px] text-teal">
                       {fmtPrice(t.takeProfit, t.pair)}
                     </div>
                   </div>
                 )}
                 {isClosed && t.closePrice != null && (
                   <div>
-                    <div className="text-[11px] mb-0.5" style={{ color: "var(--ink-dim)" }}>Closed at</div>
+                    <div className="text-[11px] mb-0.5 text-ink-dim">Closed at</div>
                     <div
-                      className="font-mono font-semibold text-[15px]"
-                      style={{ color: t.result === "win" ? "var(--teal-bright)" : "var(--coral-bright)" }}
+                      className={`font-mono font-semibold text-[15px] ${t.result === "win" ? "text-teal-bright" : "text-coral-bright"}`}
                     >
                       {fmtPrice(t.closePrice, t.pair)}
                     </div>
@@ -411,34 +381,31 @@ export default function TradeDetailPage() {
 
           {/* Timing */}
           {hasTiming && (
-            <div
-              className="rounded-xl px-4 py-4"
-              style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-            >
-              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--ink-dim)" }}>
+            <div className="rounded-xl px-4 py-4 bg-panel border border-line">
+              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-3 text-ink-dim">
                 Timing
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {t.openedAt && (
                   <div>
-                    <div className="text-[11px] mb-0.5" style={{ color: "var(--ink-dim)" }}>Opened</div>
-                    <div className="font-mono text-[13px] font-semibold" style={{ color: "var(--ink-strong)" }}>
+                    <div className="text-[11px] mb-0.5 text-ink-dim">Opened</div>
+                    <div className="font-mono text-[13px] font-semibold text-ink-strong">
                       {fmtDateTime(t.openedAt)}
                     </div>
                   </div>
                 )}
                 {t.closedAt && (
                   <div>
-                    <div className="text-[11px] mb-0.5" style={{ color: "var(--ink-dim)" }}>Closed</div>
-                    <div className="font-mono text-[13px] font-semibold" style={{ color: "var(--ink-strong)" }}>
+                    <div className="text-[11px] mb-0.5 text-ink-dim">Closed</div>
+                    <div className="font-mono text-[13px] font-semibold text-ink-strong">
                       {fmtDateTime(t.closedAt)}
                     </div>
                   </div>
                 )}
                 {duration && (
                   <div>
-                    <div className="text-[11px] mb-0.5" style={{ color: "var(--ink-dim)" }}>Duration</div>
-                    <div className="font-mono text-[13px] font-semibold" style={{ color: "var(--ink-strong)" }}>
+                    <div className="text-[11px] mb-0.5 text-ink-dim">Duration</div>
+                    <div className="font-mono text-[13px] font-semibold text-ink-strong">
                       {duration}
                     </div>
                   </div>
@@ -455,28 +422,24 @@ export default function TradeDetailPage() {
           </div>
 
           {/* Execution + Discipline */}
-          <div
-            className="rounded-xl px-4 py-4 flex items-center justify-between gap-4"
-            style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-          >
+          <div className="rounded-xl px-4 py-4 flex items-center justify-between gap-4 bg-panel border border-line">
             <div>
-              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--ink-dim)" }}>
+              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2 text-ink-dim">
                 Execution quality
               </div>
               <Stars value={t.rating ?? 0} size={20} />
             </div>
             <div className="flex flex-col items-end gap-1.5">
-              <div className="text-[10.5px] font-semibold uppercase tracking-wider" style={{ color: "var(--ink-dim)" }}>
+              <div className="text-[10.5px] font-semibold uppercase tracking-wider text-ink-dim">
                 Rules followed
               </div>
               <div className="flex items-center gap-1.5">
                 <span
-                  className="material-symbols-rounded"
-                  style={{ fontSize: 20, color: t.discipline ? "var(--teal)" : "var(--coral)", fontVariationSettings: "'FILL' 1" }}
+                  className={`material-symbols-rounded ic-fill text-xl ${t.discipline ? "text-teal" : "text-coral"}`}
                 >
                   {t.discipline ? "check_circle" : "cancel"}
                 </span>
-                <span className="text-[13px] font-semibold" style={{ color: t.discipline ? "var(--teal)" : "var(--coral)" }}>
+                <span className={`text-[13px] font-semibold ${t.discipline ? "text-teal" : "text-coral"}`}>
                   {t.discipline ? "Clean" : "Broken"}
                 </span>
               </div>
@@ -489,11 +452,8 @@ export default function TradeDetailPage() {
             const fibTags   = t.tags.filter((tag) => fibTagSet.has(tag));
             const otherTags = t.tags.filter((tag) => !fibTagSet.has(tag));
             return (
-              <div
-                className="rounded-xl px-4 py-4"
-                style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-              >
-                <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2.5" style={{ color: "var(--ink-dim)" }}>
+              <div className="rounded-xl px-4 py-4 bg-panel border border-line">
+                <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2.5 text-ink-dim">
                   Tags
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -501,20 +461,15 @@ export default function TradeDetailPage() {
                   {fibTags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold"
-                      style={{
-                        background: "rgba(248,185,61,0.13)",
-                        border: "1px solid rgba(248,185,61,0.3)",
-                        color: "var(--gold)",
-                      }}
+                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[rgba(248,185,61,0.13)] border border-[rgba(248,185,61,0.3)] text-gold"
                     >
-                      <span className="material-symbols-rounded" style={{ fontSize: 11, fontVariationSettings: "'FILL' 1" }}>architecture</span>
+                      <span className="material-symbols-rounded ic-fill text-[11px]">architecture</span>
                       {tag}
                     </span>
                   ))}
                 </div>
                 {fibTags.length > 0 && (
-                  <div className="text-[11px] mt-1.5" style={{ color: "var(--ink-dim)" }}>
+                  <div className="text-[11px] mt-1.5 text-ink-dim">
                     Fibonacci confluence at {fibTags.join(", ")}
                   </div>
                 )}
@@ -524,14 +479,11 @@ export default function TradeDetailPage() {
 
           {/* Notes */}
           {t.note && (
-            <div
-              className="rounded-xl px-4 py-4"
-              style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-            >
-              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--ink-dim)" }}>
+            <div className="rounded-xl px-4 py-4 bg-panel border border-line">
+              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2 text-ink-dim">
                 Notes
               </div>
-              <p className="text-[13.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
+              <p className="text-[13.5px] leading-relaxed text-ink-mid">
                 {t.note}
               </p>
             </div>
@@ -539,16 +491,13 @@ export default function TradeDetailPage() {
 
           {/* Discipline breach — merged with mistake if both present */}
           {!t.discipline && (
-            <div
-              className="flex items-start gap-3 rounded-xl px-4 py-4"
-              style={{ background: "rgba(234,82,61,0.07)", border: "1px solid rgba(234,82,61,0.22)" }}
-            >
+            <div className="flex items-start gap-3 rounded-xl px-4 py-4 bg-[rgba(234,82,61,0.07)] border border-[rgba(234,82,61,0.22)]">
               <Icon name="warning" size={18} fill style={{ color: "var(--coral)", flexShrink: 0, marginTop: 1 }} />
               <div>
-                <div className="font-semibold text-[13px] mb-1" style={{ color: "var(--coral)" }}>
+                <div className="font-semibold text-[13px] mb-1 text-coral">
                   {t.mistake ? "Rule broken" : "Discipline breach recorded"}
                 </div>
-                <div className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
+                <div className="text-[12.5px] leading-relaxed text-ink-mid">
                   {t.mistake ?? "This trade broke your rules. Review your mistake log to find patterns. Recurring breaches are usually the same emotional trigger."}
                 </div>
               </div>

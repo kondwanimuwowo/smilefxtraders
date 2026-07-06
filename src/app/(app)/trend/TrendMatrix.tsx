@@ -99,7 +99,7 @@ function BiasCell({ bias, onClick, readonly }: { bias: Bias; onClick: () => void
     >
       <span
         className="material-symbols-rounded"
-        style={{ fontSize: 20, color: cfg.color, fontVariationSettings: "'FILL' 1" }}
+        style={{ fontSize: 20, color: cfg.color, fontFamily: "Material Symbols Rounded Fill" }}
       >
         {cfg.icon}
       </span>
@@ -204,7 +204,7 @@ function SummaryRow({ matrix, pairs }: { matrix: Matrix; pairs: string[] }) {
         return (
           <td key={tf} className="px-2 py-3 text-center">
             <div className="flex flex-col items-center gap-0.5">
-              <span className="material-symbols-rounded" style={{ fontSize: 16, color: cfg.color, fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-rounded" style={{ fontSize: 16, color: cfg.color, fontFamily: "Material Symbols Rounded Fill" }}>
                 {cfg.icon}
               </span>
               <span className="text-[10px]" style={{ color: "var(--ink-dim)" }}>
@@ -330,7 +330,7 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
           <div className="hidden sm:flex items-center gap-3 text-[12px]" style={{ color: "var(--ink-dim)" }}>
             {(["bullish", "bearish", "ranging"] as Bias[]).map((b) => (
               <span key={b} className="flex items-center gap-1.5">
-                <span className="material-symbols-rounded" style={{ fontSize: 14, color: BIAS_CONFIG[b].color, fontVariationSettings: "'FILL' 1" }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 14, color: BIAS_CONFIG[b].color, fontFamily: "Material Symbols Rounded Fill" }}>
                   {BIAS_CONFIG[b].icon}
                 </span>
                 {b.charAt(0).toUpperCase() + b.slice(1)}
@@ -374,7 +374,7 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
                 className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold"
                 style={{ background: cfg.bg, color: cfg.color }}
               >
-                <span className="material-symbols-rounded" style={{ fontSize: 13, fontVariationSettings: "'FILL' 1" }}>{cfg.icon}</span>
+                <span className="material-symbols-rounded" style={{ fontSize: 13, fontFamily: "Material Symbols Rounded Fill" }}>{cfg.icon}</span>
                 {p}
               </span>
             );

@@ -6,10 +6,26 @@ import { saveOnboardingAction } from "../actions";
 import type { Framework } from "@/lib/frameworks";
 import { useInstruments } from "@/lib/hooks/useInstruments";
 import { isValidPhone } from "@/lib/validation";
+import { cn } from "@/lib/cn";
 
-const FRAMEWORKS: { key: Framework; label: string; sub: string; icon: string; accent: string }[] = [
-  { key: "SMC",  label: "Smart Money Concepts (ICT)", sub: "Order blocks, FVGs, liquidity sweeps",  icon: "psychology",        accent: "var(--teal)" },
-  { key: "SnD",  label: "Supply & Demand",            sub: "Fresh zones, impulsive origins, premium/discount", icon: "layers", accent: "var(--gold)" },
+const FRAMEWORKS: {
+  key: Framework; label: string; sub: string; icon: string;
+  selectedCls: string; iconBoxCls: string; iconCls: string; radioCls: string;
+}[] = [
+  {
+    key: "SMC", label: "Smart Money Concepts (ICT)", sub: "Order blocks, FVGs, liquidity sweeps", icon: "psychology",
+    selectedCls: "border-teal bg-[color-mix(in_srgb,var(--teal)_8%,transparent)]",
+    iconBoxCls:  "bg-[color-mix(in_srgb,var(--teal)_15%,transparent)]",
+    iconCls:     "text-teal",
+    radioCls:    "text-teal",
+  },
+  {
+    key: "SnD", label: "Supply & Demand", sub: "Fresh zones, impulsive origins, premium/discount", icon: "layers",
+    selectedCls: "border-gold bg-[color-mix(in_srgb,var(--gold)_8%,transparent)]",
+    iconBoxCls:  "bg-[color-mix(in_srgb,var(--gold)_15%,transparent)]",
+    iconCls:     "text-gold",
+    radioCls:    "text-gold",
+  },
 ];
 
 const INSTRUMENTS_FALLBACK = [
@@ -77,22 +93,21 @@ export function OnboardingFlow() {
         {Array.from({ length: totalSteps }).map((_, i) => (
           <div
             key={i}
-            className="h-1 rounded-full flex-1 transition-colors"
-            style={{ background: i <= step ? "var(--teal)" : "var(--track)" }}
+            className={`h-1 rounded-full flex-1 transition-colors ${i <= step ? "bg-teal" : "bg-track"}`}
           />
         ))}
       </div>
-      <div className="text-[11px] font-semibold mb-5 mt-1" style={{ color: "var(--ink-dim)" }}>
+      <div className="text-[11px] font-semibold mb-5 mt-1 text-ink-dim">
         Step {step + 1} of {totalSteps}
       </div>
 
       {/* Step 0 — Phone */}
       {step === 0 && (
         <>
-          <h1 className="font-display font-semibold mb-1" style={{ fontSize: 24, color: "var(--ink-strong)" }}>
+          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
             How can we reach you?
           </h1>
-          <p className="text-[13.5px] mb-5 leading-relaxed" style={{ color: "var(--ink-mid)" }}>
+          <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
             Used for account recovery and important alerts. Include your country code.
           </p>
           <input
@@ -103,15 +118,12 @@ export function OnboardingFlow() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             onBlur={() => setPhoneTouched(true)}
-            className="w-full px-4 py-3 rounded-xl border text-[15px] font-mono"
-            style={{
-              borderColor: phoneTouched && !phoneValid ? "var(--coral)" : "var(--line)",
-              background: "var(--panel-2)",
-              color: "var(--ink-strong)",
-            }}
+            className={`w-full px-4 py-3 rounded-xl border text-[15px] font-mono bg-panel-2 text-ink-strong ${
+              phoneTouched && !phoneValid ? "border-coral" : "border-line"
+            }`}
           />
           {phoneTouched && !phoneValid && (
-            <p className="text-[12.5px] mt-2" style={{ color: "var(--coral)" }}>
+            <p className="text-[12.5px] mt-2 text-coral">
               Enter a valid phone number in international format, e.g. +260971234567.
             </p>
           )}
@@ -121,48 +133,45 @@ export function OnboardingFlow() {
       {/* Step 1 — Framework */}
       {step === 1 && (
         <>
-          <h1 className="font-display font-semibold mb-1" style={{ fontSize: 24, color: "var(--ink-strong)" }}>
+          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
             What&apos;s your trading system?
           </h1>
-          <p className="text-[13.5px] mb-5 leading-relaxed" style={{ color: "var(--ink-mid)" }}>
+          <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
             Your default for the journal, validator, and Gavo AI reviews. You can change this anytime in settings.
           </p>
           <div className="flex flex-col gap-3">
-            {FRAMEWORKS.map(({ key, label, sub, icon, accent }) => {
+            {FRAMEWORKS.map(({ key, label, sub, icon, selectedCls, iconBoxCls, iconCls, radioCls }) => {
               const selected = framework === key;
               return (
                 <button
                   key={key}
                   type="button"
                   onClick={() => setFramework(key)}
-                  className="relative flex items-center gap-4 p-4 rounded-xl border text-left transition-all"
-                  style={
-                    selected
-                      ? { borderColor: accent, background: `color-mix(in srgb, ${accent} 8%, transparent)` }
-                      : { borderColor: "var(--line)", background: "var(--panel-2)" }
-                  }
+                  className={cn(
+                    "relative flex items-center gap-4 p-4 rounded-xl border text-left transition-all",
+                    selected ? selectedCls : "border-line bg-panel-2"
+                  )}
                 >
                   <div
-                    className="size-10 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ background: selected ? `color-mix(in srgb, ${accent} 15%, transparent)` : "var(--track)" }}
+                    className={cn(
+                      "size-10 rounded-xl flex items-center justify-center shrink-0",
+                      selected ? iconBoxCls : "bg-track"
+                    )}
                   >
-                    <span
-                      className="material-symbols-rounded"
-                      style={{ fontSize: 20, color: selected ? accent : "var(--ink-dim)", fontVariationSettings: "'FILL' 1" }}
-                    >
+                    <span className={cn("material-symbols-rounded ic-fill text-xl", selected ? iconCls : "text-ink-dim")}>
                       {icon}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-[14.5px]" style={{ color: "var(--ink-strong)" }}>
+                    <div className="font-semibold text-[14.5px] text-ink-strong">
                       {label}
                     </div>
-                    <div className="text-[12.5px] mt-0.5" style={{ color: "var(--ink-dim)" }}>{sub}</div>
+                    <div className="text-[12.5px] mt-0.5 text-ink-dim">{sub}</div>
                   </div>
                   <Icon
                     name={selected ? "radio_button_checked" : "radio_button_unchecked"}
                     size={20}
-                    style={{ color: selected ? accent : "var(--ink-dim)", flexShrink: 0 }}
+                    className={cn("shrink-0", selected ? radioCls : "text-ink-dim")}
                   />
                 </button>
               );
@@ -174,10 +183,10 @@ export function OnboardingFlow() {
       {/* Step 2 — Instruments */}
       {step === 2 && (
         <>
-          <h1 className="font-display font-semibold mb-1" style={{ fontSize: 24, color: "var(--ink-strong)" }}>
+          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
             What do you trade?
           </h1>
-          <p className="text-[13.5px] mb-5 leading-relaxed" style={{ color: "var(--ink-mid)" }}>
+          <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
             Pick the instruments you focus on. We&apos;ll tailor your watchlist and calendar.
           </p>
           <div className="grid grid-cols-2 gap-3">
@@ -188,22 +197,20 @@ export function OnboardingFlow() {
                   key={key}
                   type="button"
                   onClick={() => toggleInstrument(key)}
-                  className="relative flex flex-col items-start p-4 rounded-xl border text-left transition-all"
-                  style={
-                    selected
-                      ? { borderColor: "var(--teal)", background: "rgba(8,174,170,0.08)" }
-                      : { borderColor: "var(--line)", background: "var(--panel-2)" }
-                  }
+                  className={cn(
+                    "relative flex flex-col items-start p-4 rounded-xl border text-left transition-all",
+                    selected ? "border-teal bg-[rgba(8,174,170,0.08)]" : "border-line bg-panel-2"
+                  )}
                 >
-                  <span className="font-semibold text-[15px]" style={{ color: "var(--ink-strong)" }}>
+                  <span className="font-semibold text-[15px] text-ink-strong">
                     {key}
                   </span>
-                  <span className="text-[12px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+                  <span className="text-[12px] mt-0.5 text-ink-dim">
                     {label}
                   </span>
                   {selected && (
                     <span className="absolute top-2.5 right-2.5">
-                      <Icon name="check_circle" size={18} fill style={{ color: "var(--teal)" }} />
+                      <Icon name="check_circle" size={18} fill className="text-teal" />
                     </span>
                   )}
                 </button>
@@ -216,17 +223,17 @@ export function OnboardingFlow() {
       {/* Step 3 — Risk */}
       {step === 3 && (
         <>
-          <h1 className="font-display font-semibold mb-1" style={{ fontSize: 24, color: "var(--ink-strong)" }}>
+          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
             Set your risk
           </h1>
-          <p className="text-[13.5px] mb-6 leading-relaxed" style={{ color: "var(--ink-mid)" }}>
+          <p className="text-[13.5px] mb-6 leading-relaxed text-ink-mid">
             How much of your account do you risk per trade? Discipline starts here.
           </p>
           <div className="text-center mb-6">
-            <div className="font-display font-bold" style={{ fontSize: 52, color: "var(--teal)" }}>
+            <div className="font-display font-bold text-[52px] text-teal">
               {riskPct}%
             </div>
-            <div className="text-[13px] mt-1" style={{ color: "var(--ink-dim)" }}>per trade</div>
+            <div className="text-[13px] mt-1 text-ink-dim">per trade</div>
           </div>
           <input
             type="range"
@@ -237,7 +244,7 @@ export function OnboardingFlow() {
             value={riskPct}
             onChange={(e) => setRiskPct(parseFloat(e.target.value))}
           />
-          <div className="flex justify-between text-[11.5px] mt-2" style={{ color: "var(--ink-dim)" }}>
+          <div className="flex justify-between text-[11.5px] mt-2 text-ink-dim">
             <span>0.25% · Conservative</span>
             <span>3% · Aggressive</span>
           </div>
@@ -247,10 +254,10 @@ export function OnboardingFlow() {
       {/* Step 4 — Experience */}
       {step === 4 && (
         <>
-          <h1 className="font-display font-semibold mb-1" style={{ fontSize: 24, color: "var(--ink-strong)" }}>
+          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
             Your experience
           </h1>
-          <p className="text-[13.5px] mb-5 leading-relaxed" style={{ color: "var(--ink-mid)" }}>
+          <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
             We&apos;ll point you to the right place in the Academy.
           </p>
           <div className="flex flex-col gap-2.5">
@@ -261,23 +268,21 @@ export function OnboardingFlow() {
                   key={value}
                   type="button"
                   onClick={() => setExperience(value)}
-                  className="flex items-center justify-between p-4 rounded-xl border text-left transition-all"
-                  style={
-                    active
-                      ? { borderColor: "var(--teal)", background: "rgba(8,174,170,0.08)" }
-                      : { borderColor: "var(--line)", background: "var(--panel-2)" }
-                  }
+                  className={cn(
+                    "flex items-center justify-between p-4 rounded-xl border text-left transition-all",
+                    active ? "border-teal bg-[rgba(8,174,170,0.08)]" : "border-line bg-panel-2"
+                  )}
                 >
                   <div>
-                    <div className="font-semibold text-[14.5px]" style={{ color: "var(--ink-strong)" }}>
+                    <div className="font-semibold text-[14.5px] text-ink-strong">
                       {value}
                     </div>
-                    <div className="text-[12.5px] mt-0.5" style={{ color: "var(--ink-dim)" }}>{desc}</div>
+                    <div className="text-[12.5px] mt-0.5 text-ink-dim">{desc}</div>
                   </div>
                   <Icon
                     name={active ? "radio_button_checked" : "radio_button_unchecked"}
                     size={20}
-                    style={{ color: active ? "var(--teal)" : "var(--ink-dim)", flexShrink: 0 }}
+                    className={cn("shrink-0", active ? "text-teal" : "text-ink-dim")}
                   />
                 </button>
               );
@@ -288,7 +293,7 @@ export function OnboardingFlow() {
 
       {/* Navigation */}
       {serverError && (
-        <p className="text-[12.5px] mt-5" style={{ color: "var(--coral)" }}>{serverError}</p>
+        <p className="text-[12.5px] mt-5 text-coral">{serverError}</p>
       )}
       <div className="flex gap-3 mt-7">
         {step > 0 && (

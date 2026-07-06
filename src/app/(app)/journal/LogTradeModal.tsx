@@ -243,7 +243,7 @@ export function LogTradeModal({ open, onClose, edit, preset }: Props) {
               ]}
             />
             {isEditLock && (
-              <span className="text-[11px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+              <span className="text-[11px] mt-0.5 text-ink-dim">
                 Framework cannot be changed when editing a logged trade.
               </span>
             )}
@@ -297,13 +297,7 @@ export function LogTradeModal({ open, onClose, edit, preset }: Props) {
             type="datetime-local"
             value={f.openedAt}
             onChange={(e) => set("openedAt", e.target.value)}
-            className="w-full rounded-lg px-3 py-2 text-[13px] font-mono"
-            style={{
-              background: "var(--input-bg)",
-              border:     "1px solid var(--line)",
-              color:      "var(--ink-strong)",
-              outline:    "none",
-            }}
+            className="w-full rounded-lg px-3 py-2 text-[13px] font-mono bg-transparent border border-line text-ink-strong outline-none"
           />
         </Field>
         <Field
@@ -311,10 +305,7 @@ export function LogTradeModal({ open, onClose, edit, preset }: Props) {
             <span className="flex items-center gap-1.5">
               Planned R:R
               {calculatedRR !== null && (
-                <span
-                  className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
-                  style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.2)" }}
-                >
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[rgba(8,174,170,0.1)] text-teal border border-[rgba(8,174,170,0.2)]">
                   auto
                 </span>
               )}
@@ -378,13 +369,7 @@ export function LogTradeModal({ open, onClose, edit, preset }: Props) {
                 type="datetime-local"
                 value={f.closedAt}
                 onChange={(e) => set("closedAt", e.target.value)}
-                className="w-full rounded-lg px-3 py-2 text-[13px] font-mono"
-                style={{
-                  background: "var(--input-bg)",
-                  border:     "1px solid var(--line)",
-                  color:      "var(--ink-strong)",
-                  outline:    "none",
-                }}
+                className="w-full rounded-lg px-3 py-2 text-[13px] font-mono bg-transparent border border-line text-ink-strong outline-none"
               />
             </Field>
           </>
@@ -403,7 +388,7 @@ export function LogTradeModal({ open, onClose, edit, preset }: Props) {
         <Field label="Execution quality">
           <div className="flex items-center gap-3 py-1">
             <Stars value={f.rating} onChange={(v) => set("rating", v)} size={22} />
-            <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+            <span className="text-[12px] text-ink-dim">
               {["", "Poor", "Below avg", "Average", "Good", "Textbook"][f.rating]}
             </span>
           </div>
@@ -427,13 +412,11 @@ export function LogTradeModal({ open, onClose, edit, preset }: Props) {
                           : [...f.fibTags, tag],
                       )
                     }
-                    className="rounded-full px-3 py-1 text-[12px] font-semibold transition-all"
-                    style={{
-                      cursor:     "pointer",
-                      background: active ? "rgba(248,185,61,0.15)" : "var(--input-bg)",
-                      border:     `1px solid ${active ? "var(--gold)" : "var(--line)"}`,
-                      color:      active ? "var(--gold)" : "var(--ink-dim)",
-                    }}
+                    className={`rounded-full px-3 py-1 text-[12px] font-semibold transition-all cursor-pointer border ${
+                      active
+                        ? "bg-[rgba(248,185,61,0.15)] border-gold text-gold"
+                        : "bg-transparent border-line text-ink-dim"
+                    }`}
                   >
                     {tag}
                   </button>
@@ -441,7 +424,7 @@ export function LogTradeModal({ open, onClose, edit, preset }: Props) {
               })}
             </div>
             {f.fibTags.length > 0 && (
-              <span className="text-[11px] mt-1 block" style={{ color: "var(--ink-dim)" }}>
+              <span className="text-[11px] mt-1 block text-ink-dim">
                 Fib level recorded as confluence, shown on the trade detail page.
               </span>
             )}

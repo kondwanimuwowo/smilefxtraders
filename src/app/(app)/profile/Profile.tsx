@@ -9,14 +9,14 @@ import { Panel, PanelHead, Avatar, DirPill, Chip, Ring, Sparkline, Button } from
 
 // ── Stat box ──────────────────────────────────────────────────────────────────
 
-function StatBox({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
+function StatBox({ label, value, sub, colorCls }: { label: string; value: string; sub?: string; colorCls?: string }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-xl px-4 py-3.5" style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}>
-      <span className="text-[10.5px] font-semibold uppercase tracking-wider" style={{ color: "var(--ink-dim)" }}>{label}</span>
-      <span className="font-display font-bold text-[22px] tabular-nums" style={{ color: color ?? "var(--ink-strong)", letterSpacing: "-0.02em" }}>
+    <div className="flex flex-col gap-0.5 rounded-xl px-4 py-3.5 bg-panel-2 border border-line">
+      <span className="text-[10.5px] font-semibold uppercase tracking-wider text-ink-dim">{label}</span>
+      <span className={`font-display font-bold text-[22px] tabular-nums tracking-[-0.02em] ${colorCls ?? "text-ink-strong"}`}>
         {value}
       </span>
-      {sub && <span className="text-[11.5px]" style={{ color: "var(--ink-dim)" }}>{sub}</span>}
+      {sub && <span className="text-[11.5px] text-ink-dim">{sub}</span>}
     </div>
   );
 }
@@ -66,11 +66,11 @@ function computeBadges(trades: Trade[], stats: TradeStats, plan: string) {
 
 // ── Trade history mini ────────────────────────────────────────────────────────
 
-function TradeHistoryRow({ label, value, color }: { label: string; value: string; color: string }) {
+function TradeHistoryRow({ label, value, colorCls }: { label: string; value: string; colorCls: string }) {
   return (
-    <div className="flex items-center justify-between py-2.5 border-b last:border-0" style={{ borderColor: "var(--line)" }}>
-      <span className="text-[13px]" style={{ color: "var(--ink-mid)" }}>{label}</span>
-      <span className="font-semibold text-[13px] tabular-nums" style={{ color }}>{value}</span>
+    <div className="flex items-center justify-between py-2.5 border-b last:border-0 border-line">
+      <span className="text-[13px] text-ink-mid">{label}</span>
+      <span className={`font-semibold text-[13px] tabular-nums ${colorCls}`}>{value}</span>
     </div>
   );
 }
@@ -95,10 +95,13 @@ export function Profile() {
     ? new Date(user.joinedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })
     : "—";
 
-  const PLAN_LABEL: Record<string, { label: string; color: string }> = {
-    free:   { label: "Starter",       color: "var(--ink-dim)"  },
-    pro:    { label: "Pro Trader",    color: "var(--teal)"     },
-    funded: { label: "Funded Track",  color: "var(--gold)"     },
+  // No background class: the original computed `${color}18` against a var()
+  // reference, which is invalid CSS — the background never rendered, so the
+  // badge has always been text-only on transparent.
+  const PLAN_LABEL: Record<string, { label: string; cls: string }> = {
+    free:   { label: "Starter",      cls: "text-ink-dim" },
+    pro:    { label: "Pro Trader",   cls: "text-teal"    },
+    funded: { label: "Funded Track", cls: "text-gold"    },
   };
   const planCfg = PLAN_LABEL[plan];
 
@@ -113,7 +116,7 @@ export function Profile() {
 
   return (
     <div className="view">
-      <h1 className="font-display font-bold mb-5" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
+      <h1 className="font-display font-bold mb-5 text-2xl tracking-[-0.02em] text-ink-strong">
         Profile
       </h1>
 
@@ -123,28 +126,25 @@ export function Profile() {
           <Panel>
             <div className="flex flex-col items-center text-center py-2">
               <Avatar seed={seed} name={name} size={72} />
-              <div className="mt-3 font-display font-bold text-[20px]" style={{ color: "var(--ink-strong)" }}>
+              <div className="mt-3 font-display font-bold text-[20px] text-ink-strong">
                 {name}
               </div>
-              <div className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>@{handle}</div>
+              <div className="text-[13px] mt-0.5 text-ink-dim">@{handle}</div>
               <div className="flex items-center gap-2 mt-2">
-                <span
-                  className="text-[11.5px] font-semibold px-3 py-1 rounded-full"
-                  style={{ background: `${planCfg.color}18`, color: planCfg.color }}
-                >
+                <span className={`text-[11.5px] font-semibold px-3 py-1 rounded-full ${planCfg.cls}`}>
                   {planCfg.label}
                 </span>
                 <Chip tone="neutral">Lv. {level}</Chip>
               </div>
               {streak > 0 && (
-                <div className="flex items-center gap-1.5 mt-2 text-[13px] font-semibold" style={{ color: "var(--gold)" }}>
-                  <span className="material-symbols-rounded text-[17px]" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
+                <div className="flex items-center gap-1.5 mt-2 text-[13px] font-semibold text-gold">
+                  <span className="material-symbols-rounded ic-fill text-[17px]">local_fire_department</span>
                   {streak}-day streak
                 </div>
               )}
             </div>
 
-            <div className="mt-4 pt-4 border-t flex flex-col gap-2" style={{ borderColor: "var(--line)" }}>
+            <div className="mt-4 pt-4 border-t flex flex-col gap-2 border-line">
               {[
                 { icon: "bar_chart", label: "Experience",    value: experience.charAt(0).toUpperCase() + experience.slice(1) },
                 { icon: "percent",   label: "Risk per trade", value: `${riskPct}%` },
@@ -152,15 +152,15 @@ export function Profile() {
                 ...(user?.loc ? [{ icon: "location_on", label: "Location", value: user.loc }] : []),
               ].map(({ icon, label, value }) => (
                 <div key={label} className="flex items-center gap-3 py-1.5">
-                  <span className="material-symbols-rounded text-[17px]" style={{ color: "var(--teal)" }}>{icon}</span>
-                  <span className="text-[13px] flex-1" style={{ color: "var(--ink-mid)" }}>{label}</span>
-                  <span className="text-[13px] font-semibold" style={{ color: "var(--ink-strong)" }}>{value}</span>
+                  <span className="material-symbols-rounded text-[17px] text-teal">{icon}</span>
+                  <span className="text-[13px] flex-1 text-ink-mid">{label}</span>
+                  <span className="text-[13px] font-semibold text-ink-strong">{value}</span>
                 </div>
               ))}
             </div>
 
-            <div className="mt-4 pt-4 border-t" style={{ borderColor: "var(--line)" }}>
-              <Button type="button" variant="ghost" icon="settings" onClick={() => router.push("/settings")} style={{ width: "100%" }}>
+            <div className="mt-4 pt-4 border-t border-line">
+              <Button type="button" variant="ghost" icon="settings" onClick={() => router.push("/settings")} fullWidth>
                 Edit profile
               </Button>
             </div>
@@ -173,21 +173,17 @@ export function Profile() {
               {badges.map((b) => (
                 <div
                   key={b.label}
-                  className="flex flex-col items-center text-center gap-1 rounded-xl py-3 px-1"
-                  style={{
-                    background: b.earned ? "rgba(8,174,170,0.07)" : "var(--panel-2)",
-                    border: `1px solid ${b.earned ? "rgba(8,174,170,0.2)" : "var(--line)"}`,
-                    opacity: b.earned ? 1 : 0.45,
-                  }}
+                  className={`flex flex-col items-center text-center gap-1 rounded-xl py-3 px-1 border ${
+                    b.earned
+                      ? "bg-[rgba(8,174,170,0.07)] border-[rgba(8,174,170,0.2)]"
+                      : "bg-panel-2 border-line opacity-45"
+                  }`}
                   title={b.desc}
                 >
-                  <span
-                    className="material-symbols-rounded"
-                    style={{ fontSize: 22, color: b.earned ? "var(--gold)" : "var(--ink-dim)", fontVariationSettings: "'FILL' 1" }}
-                  >
+                  <span className={`material-symbols-rounded ic-fill text-[22px] ${b.earned ? "text-gold" : "text-ink-dim"}`}>
                     {b.icon}
                   </span>
-                  <span className="text-[10.5px] font-semibold leading-tight" style={{ color: b.earned ? "var(--ink-strong)" : "var(--ink-dim)" }}>
+                  <span className={`text-[10.5px] font-semibold leading-tight ${b.earned ? "text-ink-strong" : "text-ink-dim"}`}>
                     {b.label}
                   </span>
                 </div>
@@ -200,10 +196,10 @@ export function Profile() {
         <div className="flex flex-col gap-4">
           {/* Stats grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <StatBox label="Net R"      value={(stats.netR >= 0 ? "+" : "") + stats.netR.toFixed(1) + "R"} color={stats.netR >= 0 ? "var(--teal-bright)" : "var(--coral-bright)"} />
+            <StatBox label="Net R"      value={(stats.netR >= 0 ? "+" : "") + stats.netR.toFixed(1) + "R"} colorCls={stats.netR >= 0 ? "text-teal-bright" : "text-coral-bright"} />
             <StatBox label="Win Rate"   value={`${stats.winRate}%`}      sub={`${stats.wins}W / ${stats.losses}L`} />
-            <StatBox label="Expectancy" value={(stats.expectancy >= 0 ? "+" : "") + stats.expectancy + "R"} sub="Expected R/trade" color={stats.expectancy > 0 ? "var(--teal)" : stats.expectancy < 0 ? "var(--coral)" : "var(--ink-dim)"} />
-            <StatBox label="Discipline" value={`${stats.discFollowed}%`} sub="Rules followed" color={stats.discFollowed >= 80 ? "var(--teal)" : "var(--coral)"} />
+            <StatBox label="Expectancy" value={(stats.expectancy >= 0 ? "+" : "") + stats.expectancy + "R"} sub="Expected R/trade" colorCls={stats.expectancy > 0 ? "text-teal" : stats.expectancy < 0 ? "text-coral" : "text-ink-dim"} />
+            <StatBox label="Discipline" value={`${stats.discFollowed}%`} sub="Rules followed" colorCls={stats.discFollowed >= 80 ? "text-teal" : "text-coral"} />
             <StatBox label="Trades"     value={String(trades.length)}   sub={`${stats.closed} closed`} />
           </div>
 
@@ -211,7 +207,7 @@ export function Profile() {
           <Panel>
             <PanelHead title="Equity curve" icon="show_chart" sub="Cumulative R across all closed trades" />
             {equityData ? (
-              <div style={{ height: 120, marginTop: 4 }}>
+              <div className="h-[120px] mt-1">
                 <Sparkline
                   data={equityData}
                   width={600}
@@ -221,7 +217,7 @@ export function Profile() {
                 />
               </div>
             ) : (
-              <div className="py-6 text-center text-[13px]" style={{ color: "var(--ink-dim)" }}>
+              <div className="py-6 text-center text-[13px] text-ink-dim">
                 Log your first closed trade to see your equity curve.
               </div>
             )}
@@ -231,10 +227,10 @@ export function Profile() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Panel>
               <PanelHead title="Performance breakdown" icon="analytics" />
-              <TradeHistoryRow label="Avg win"       value={`+${stats.avgWin.toFixed(1)}R`}  color="var(--teal-bright)"  />
-              <TradeHistoryRow label="Avg loss"      value={`${stats.avgLoss.toFixed(1)}R`}  color="var(--coral-bright)" />
-              <TradeHistoryRow label="Closed trades" value={String(stats.closed)}            color="var(--ink-strong)"   />
-              <TradeHistoryRow label="Open trades"   value={String(trades.filter(t => t.result === "open").length)} color="var(--gold)" />
+              <TradeHistoryRow label="Avg win"       value={`+${stats.avgWin.toFixed(1)}R`}  colorCls="text-teal-bright"  />
+              <TradeHistoryRow label="Avg loss"      value={`${stats.avgLoss.toFixed(1)}R`}  colorCls="text-coral-bright" />
+              <TradeHistoryRow label="Closed trades" value={String(stats.closed)}            colorCls="text-ink-strong"   />
+              <TradeHistoryRow label="Open trades"   value={String(trades.filter(t => t.result === "open").length)} colorCls="text-gold" />
             </Panel>
 
             <Panel>
@@ -248,10 +244,10 @@ export function Profile() {
                   color={stats.discFollowed >= 80 ? "var(--teal)" : stats.discFollowed >= 60 ? "var(--gold)" : "var(--coral)"}
                 >
                   <div className="text-center">
-                    <div className="font-display font-bold text-[22px]" style={{ color: "var(--ink-strong)" }}>
+                    <div className="font-display font-bold text-[22px] text-ink-strong">
                       {stats.discFollowed}%
                     </div>
-                    <div className="text-[10px]" style={{ color: "var(--ink-dim)" }}>discipline</div>
+                    <div className="text-[10px] text-ink-dim">discipline</div>
                   </div>
                 </Ring>
               </div>
@@ -266,15 +262,15 @@ export function Profile() {
                 {stats.models.map((m) => (
                   <div key={m.model}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[12.5px] font-medium" style={{ color: "var(--ink-strong)" }}>{m.model}</span>
-                      <span className="text-[12px] tabular-nums font-semibold" style={{ color: m.pct >= 60 ? "var(--teal)" : m.pct >= 40 ? "var(--gold)" : "var(--coral)" }}>
+                      <span className="text-[12.5px] font-medium text-ink-strong">{m.model}</span>
+                      <span className={`text-[12px] tabular-nums font-semibold ${m.pct >= 60 ? "text-teal" : m.pct >= 40 ? "text-gold" : "text-coral"}`}>
                         {m.pct}% · {m.n}T
                       </span>
                     </div>
-                    <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: "var(--track)" }}>
+                    <div className="relative h-1.5 rounded-full overflow-hidden bg-track">
                       <div
-                        className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
-                        style={{ width: `${m.pct}%`, background: m.pct >= 60 ? "var(--teal)" : m.pct >= 40 ? "var(--gold)" : "var(--coral)" }}
+                        className={`absolute inset-y-0 left-0 rounded-full transition-all duration-700 ${m.pct >= 60 ? "bg-teal" : m.pct >= 40 ? "bg-gold" : "bg-coral"}`}
+                        style={{ width: `${m.pct}%` }}
                       />
                     </div>
                   </div>
@@ -289,22 +285,23 @@ export function Profile() {
               <PanelHead title="Recent trades" icon="history" />
               <div className="flex flex-col">
                 {recentTrades.map((t) => (
-                  <div key={t.id} className="flex items-center gap-3 py-2.5 border-b last:border-0" style={{ borderColor: "var(--line)" }}>
+                  <div key={t.id} className="flex items-center gap-3 py-2.5 border-b last:border-0 border-line">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-[13px]" style={{ color: "var(--ink-strong)" }}>{t.pair}</span>
+                        <span className="font-semibold text-[13px] text-ink-strong">{t.pair}</span>
                         <DirPill dir={t.dir} />
                       </div>
-                      <div className="text-[11.5px] mt-0.5 truncate" style={{ color: "var(--ink-dim)" }}>{t.model}</div>
+                      <div className="text-[11.5px] mt-0.5 truncate text-ink-dim">{t.model}</div>
                     </div>
                     <div className="text-right shrink-0">
                       <div
-                        className="font-display font-bold tabular-nums text-[14px]"
-                        style={{ color: t.result === "win" ? "var(--teal-bright)" : t.result === "loss" ? "var(--coral-bright)" : "var(--gold)", letterSpacing: "-0.01em" }}
+                        className={`font-display font-bold tabular-nums text-[14px] tracking-[-0.01em] ${
+                          t.result === "win" ? "text-teal-bright" : t.result === "loss" ? "text-coral-bright" : "text-gold"
+                        }`}
                       >
                         {t.result === "open" ? "Open" : (t.pnlR >= 0 ? "+" : "") + t.pnlR.toFixed(1) + "R"}
                       </div>
-                      <div className="text-[11px]" style={{ color: "var(--ink-dim)" }}>{t.date}</div>
+                      <div className="text-[11px] text-ink-dim">{t.date}</div>
                     </div>
                   </div>
                 ))}

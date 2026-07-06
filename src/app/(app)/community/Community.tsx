@@ -196,17 +196,10 @@ function PostCard({ post }: { post: ApiPost }) {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden"
-      style={{
-        background: "var(--panel)",
-        border: post.isInstructor ? "1px solid rgba(248,185,61,0.3)" : "1px solid var(--line)",
-      }}
+      className={`rounded-2xl overflow-hidden bg-panel border ${post.isInstructor ? "border-[rgba(248,185,61,0.3)]" : "border-line"}`}
     >
       {post.isInstructor && (
-        <div
-          className="flex items-center gap-2 px-5 py-2 text-[11.5px] font-semibold"
-          style={{ background: "rgba(248,185,61,0.08)", borderBottom: "1px solid rgba(248,185,61,0.2)", color: "var(--gold)" }}
-        >
+        <div className="flex items-center gap-2 px-5 py-2 text-[11.5px] font-semibold bg-[rgba(248,185,61,0.08)] border-b border-[rgba(248,185,61,0.2)] text-gold">
           <Icon name="workspace_premium" size={14} fill />
           Instructor post · Kondwani
         </div>
@@ -217,16 +210,16 @@ function PostCard({ post }: { post: ApiPost }) {
         <Avatar seed={post.avatarSeed} name={post.name} size={38} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-[14px]" style={{ color: "var(--ink-strong)" }}>{post.name}</span>
+            <span className="font-semibold text-[14px] text-ink-strong">{post.name}</span>
             {post.isInstructor && (
-              <span className="material-symbols-rounded text-[15px]" style={{ color: "var(--gold)", fontVariationSettings: "'FILL' 1" }}>verified</span>
+              <span className="material-symbols-rounded ic-fill text-[15px] text-gold">verified</span>
             )}
-            <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>@{post.handle}</span>
-            <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>· {relativeTime(post.time)}</span>
+            <span className="text-[12px] text-ink-dim">@{post.handle}</span>
+            <span className="text-[12px] text-ink-dim">· {relativeTime(post.time)}</span>
           </div>
           {(post.pair || post.result) && (
             <div className="flex items-center gap-2 mt-1">
-              {post.pair && <span className="font-semibold text-[12.5px]" style={{ color: "var(--ink-strong)" }}>{post.pair}</span>}
+              {post.pair && <span className="font-semibold text-[12.5px] text-ink-strong">{post.pair}</span>}
               {post.dir  && <DirPill dir={post.dir.toLowerCase() as "long" | "short"} size="sm" />}
               {post.result === "WIN"  && <Chip tone="teal">Win</Chip>}
               {post.result === "LOSS" && <Chip tone="coral">Loss</Chip>}
@@ -237,26 +230,24 @@ function PostCard({ post }: { post: ApiPost }) {
 
       {/* Body */}
       <div className="px-5 pb-4">
-        <p className="text-[13.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>{post.text}</p>
+        <p className="text-[13.5px] leading-relaxed text-ink-mid">{post.text}</p>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1 px-5 py-3 border-t" style={{ borderColor: "var(--line)" }}>
+      <div className="flex items-center gap-1 px-5 py-3 border-t border-line">
         <button
           type="button"
           onClick={() => toggleLike()}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors hover:bg-[var(--hover)]"
-          style={{ color: post.likedByMe ? "var(--teal)" : "var(--ink-dim)" }}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors hover:bg-hover ${post.likedByMe ? "text-teal" : "text-ink-dim"}`}
         >
-          <span className="material-symbols-rounded text-[18px]" style={{ fontVariationSettings: post.likedByMe ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
+          <span className={`material-symbols-rounded text-[18px] ${post.likedByMe ? "ic-fill" : ""}`}>favorite</span>
           {post.likes}
         </button>
 
         <button
           type="button"
           onClick={() => { setCommentOpen((o) => !o); setTimeout(() => inputRef.current?.focus(), 50); }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors hover:bg-[var(--hover)]"
-          style={{ color: commentOpen ? "var(--teal)" : "var(--ink-dim)" }}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors hover:bg-hover ${commentOpen ? "text-teal" : "text-ink-dim"}`}
         >
           <Icon name="chat_bubble_outline" size={17} />
           {post.comments}
@@ -265,16 +256,16 @@ function PostCard({ post }: { post: ApiPost }) {
 
       {/* Comments */}
       {(commentOpen || post.commentList.length > 0) && (
-        <div className="px-5 pb-4 flex flex-col gap-3" style={{ borderTop: "1px solid var(--line)", paddingTop: 12 }}>
+        <div className="px-5 pb-4 pt-3 flex flex-col gap-3 border-t border-line">
           {post.commentList.map((c) => (
             <div key={c.id} className="flex items-start gap-2.5">
               <Avatar seed={c.avatarSeed} name={c.name} size={28} />
-              <div className="flex-1 rounded-xl px-3 py-2" style={{ background: "var(--panel-2)" }}>
+              <div className="flex-1 rounded-xl px-3 py-2 bg-panel-2">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-[12px] font-semibold" style={{ color: "var(--ink-strong)" }}>{c.name}</span>
-                  <span className="text-[11px]" style={{ color: "var(--ink-dim)" }}>{relativeTime(c.time)}</span>
+                  <span className="text-[12px] font-semibold text-ink-strong">{c.name}</span>
+                  <span className="text-[11px] text-ink-dim">{relativeTime(c.time)}</span>
                 </div>
-                <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>{c.text}</p>
+                <p className="text-[12.5px] leading-relaxed text-ink-mid">{c.text}</p>
               </div>
             </div>
           ))}
@@ -282,10 +273,7 @@ function PostCard({ post }: { post: ApiPost }) {
           {commentOpen && (
             <div className="flex items-center gap-2.5 mt-1">
               <Avatar seed={user?.avatarSeed ?? 99} name={user?.name ?? "You"} size={28} />
-              <div
-                className="flex-1 flex items-center gap-2 rounded-xl px-3 py-2"
-                style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
-              >
+              <div className="flex-1 flex items-center gap-2 rounded-xl px-3 py-2 bg-panel-2 border border-line">
                 <input
                   ref={inputRef}
                   type="text"
@@ -293,14 +281,13 @@ function PostCard({ post }: { post: ApiPost }) {
                   onChange={(e) => setDraft(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && submitComment()}
                   placeholder="Add a comment…"
-                  className="flex-1 bg-transparent text-[12.5px] outline-none"
-                  style={{ color: "var(--ink-strong)" }}
+                  className="flex-1 bg-transparent text-[12.5px] outline-none text-ink-strong"
                 />
                 <button
                   type="button"
                   onClick={submitComment}
                   disabled={!draft.trim()}
-                  style={{ color: draft.trim() ? "var(--teal)" : "var(--ink-dim)" }}
+                  className={draft.trim() ? "text-teal" : "text-ink-dim"}
                 >
                   <Icon name="send" size={17} />
                 </button>
@@ -331,10 +318,10 @@ const PAIR_OPTIONS_FALLBACK = [
 ];
 
 function TogglePill({
-  active, activeStyle, children, onClick,
+  active, activeClass, children, onClick,
 }: {
   active: boolean;
-  activeStyle: React.CSSProperties;
+  activeClass: string;
   children: React.ReactNode;
   onClick: () => void;
 }) {
@@ -342,11 +329,9 @@ function TogglePill({
     <button
       type="button"
       onClick={onClick}
-      className="rounded-lg px-2.5 py-1 text-[11.5px] font-semibold transition-all"
-      style={active
-        ? activeStyle
-        : { background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }
-      }
+      className={`rounded-lg px-2.5 py-1 text-[11.5px] font-semibold transition-all border ${
+        active ? activeClass : "bg-panel-2 text-ink-dim border-line"
+      }`}
     >
       {children}
     </button>
@@ -387,10 +372,7 @@ function ComposeBox() {
   }
 
   return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-    >
+    <div className="rounded-2xl overflow-hidden bg-panel border border-line">
       {/* Writing area */}
       <div className="flex items-start gap-3 px-4 pt-4 pb-3">
         <div className="shrink-0 mt-1">
@@ -401,18 +383,14 @@ function ComposeBox() {
           onChange={(e) => setText(e.target.value)}
           placeholder="Share a trade idea, analysis, or lesson…"
           rows={3}
-          className="flex-1 rounded-xl px-3.5 py-2.5 mt-2 text-[13.5px] resize-none outline-none leading-relaxed placeholder:text-[var(--ink-dim)]"
-          style={{ background: "var(--panel-2)", color: "var(--ink-strong)" }}
+          className="flex-1 rounded-xl px-3.5 py-2.5 mt-2 text-[13.5px] resize-none outline-none leading-relaxed placeholder:text-[var(--ink-dim)] bg-panel-2 text-ink-strong"
         />
       </div>
 
       {/* Action bar */}
-      <div
-        className="flex items-center gap-2 px-5 py-3 flex-wrap"
-        style={{ borderTop: "1px solid var(--line)" }}
-      >
+      <div className="flex items-center gap-2 px-5 py-3 flex-wrap border-t border-line">
         {/* Pair picker */}
-        <div style={{ width: 130 }}>
+        <div className="w-[130px]">
           <Select
             compact
             value={pair}
@@ -425,32 +403,32 @@ function ComposeBox() {
         {/* Direction + result tags — only visible once a pair is selected */}
         {pair && (
           <>
-            <div className="w-px h-4 shrink-0" style={{ background: "var(--line)" }} />
+            <div className="w-px h-4 shrink-0 bg-line" />
             <TogglePill
               active={dir === "long"}
-              activeStyle={{ background: "rgba(8,174,170,0.15)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.3)" }}
+              activeClass="bg-[rgba(8,174,170,0.15)] text-teal border-[rgba(8,174,170,0.3)]"
               onClick={() => setDir(dir === "long" ? "" : "long")}
             >
               Long
             </TogglePill>
             <TogglePill
               active={dir === "short"}
-              activeStyle={{ background: "rgba(234,82,61,0.12)", color: "var(--coral)", border: "1px solid rgba(234,82,61,0.3)" }}
+              activeClass="bg-[rgba(234,82,61,0.12)] text-coral border-[rgba(234,82,61,0.3)]"
               onClick={() => setDir(dir === "short" ? "" : "short")}
             >
               Short
             </TogglePill>
-            <div className="w-px h-4 shrink-0" style={{ background: "var(--line)" }} />
+            <div className="w-px h-4 shrink-0 bg-line" />
             <TogglePill
               active={result === "WIN"}
-              activeStyle={{ background: "rgba(8,174,170,0.12)", color: "var(--teal-bright)", border: "1px solid rgba(8,174,170,0.25)" }}
+              activeClass="bg-[rgba(8,174,170,0.12)] text-teal-bright border-[rgba(8,174,170,0.25)]"
               onClick={() => setResult(result === "WIN" ? "" : "WIN")}
             >
               Win
             </TogglePill>
             <TogglePill
               active={result === "LOSS"}
-              activeStyle={{ background: "rgba(234,82,61,0.1)", color: "var(--coral)", border: "1px solid rgba(234,82,61,0.25)" }}
+              activeClass="bg-[rgba(234,82,61,0.1)] text-coral border-[rgba(234,82,61,0.25)]"
               onClick={() => setResult(result === "LOSS" ? "" : "LOSS")}
             >
               Loss
@@ -472,9 +450,9 @@ function ComposeBox() {
       </div>
 
       {error instanceof Error && error.message.includes("Pro") && (
-        <div className="px-5 pb-3 text-[12px]" style={{ color: "var(--coral)" }}>
+        <div className="px-5 pb-3 text-[12px] text-coral">
           Community posting requires a Pro plan.{" "}
-          <a href="/membership" style={{ color: "var(--teal)", textDecoration: "underline" }}>Upgrade</a>
+          <a href="/membership" className="text-teal underline">Upgrade</a>
         </div>
       )}
     </div>
@@ -513,17 +491,17 @@ function Leaderboard() {
         <div className="flex flex-col gap-2.5">
           {[0, 1, 2].map((i) => (
             <div key={i} className="flex items-center gap-3 animate-pulse">
-              <div className="w-5 h-5 rounded-full shrink-0" style={{ background: "var(--track)" }} />
-              <div className="w-8 h-8 rounded-full shrink-0" style={{ background: "var(--track)" }} />
+              <div className="w-5 h-5 rounded-full shrink-0 bg-track" />
+              <div className="w-8 h-8 rounded-full shrink-0 bg-track" />
               <div className="flex-1">
-                <div className="h-3 w-24 rounded mb-1.5" style={{ background: "var(--track)" }} />
-                <div className="h-2.5 w-16 rounded" style={{ background: "var(--track)" }} />
+                <div className="h-3 w-24 rounded mb-1.5 bg-track" />
+                <div className="h-2.5 w-16 rounded bg-track" />
               </div>
             </div>
           ))}
         </div>
       ) : leaders.length === 0 ? (
-        <p className="text-[12.5px]" style={{ color: "var(--ink-dim)" }}>
+        <p className="text-[12.5px] text-ink-dim">
           No trades logged yet this month.
         </p>
       ) : (
@@ -531,20 +509,18 @@ function Leaderboard() {
           {leaders.map((l, i) => (
             <div key={l.handle} className="flex items-center gap-3">
               <div
-                className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-                style={{
-                  background: i === 0 ? "var(--gold)" : i === 1 ? "rgba(154,208,206,0.3)" : "var(--panel-2)",
-                  color: i === 0 ? "var(--navy-deep)" : "var(--ink-dim)",
-                }}
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${
+                  i === 0 ? "bg-gold text-navy-deep" : i === 1 ? "bg-[rgba(154,208,206,0.3)] text-ink-dim" : "bg-panel-2 text-ink-dim"
+                }`}
               >
                 {i + 1}
               </div>
               <Avatar seed={l.avatarSeed} name={l.name} size={30} />
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] font-semibold truncate" style={{ color: "var(--ink-strong)" }}>{l.name}</div>
-                <div className="text-[11px]" style={{ color: "var(--ink-dim)" }}>{l.winRate}% win rate</div>
+                <div className="text-[12.5px] font-semibold truncate text-ink-strong">{l.name}</div>
+                <div className="text-[11px] text-ink-dim">{l.winRate}% win rate</div>
               </div>
-              <span className="font-display font-bold text-[13px] tabular-nums" style={{ color: "var(--teal-bright)" }}>
+              <span className="font-display font-bold text-[13px] tabular-nums text-teal-bright">
                 {l.netR}
               </span>
             </div>
@@ -580,10 +556,10 @@ function CommunityStats() {
       <PanelHead title="Community stats" icon="groups" />
       <div className="grid grid-cols-2 gap-3">
         {stats.map(({ label, value, icon }) => (
-          <div key={label} className="rounded-xl px-3 py-3 flex flex-col gap-1" style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}>
-            <span className="material-symbols-rounded text-[16px]" style={{ color: "var(--teal)" }}>{icon}</span>
-            <div className="font-display font-bold text-[18px]" style={{ color: "var(--ink-strong)" }}>{value}</div>
-            <div className="text-[11px]" style={{ color: "var(--ink-dim)" }}>{label}</div>
+          <div key={label} className="rounded-xl px-3 py-3 flex flex-col gap-1 bg-panel-2 border border-line">
+            <span className="material-symbols-rounded text-[16px] text-teal">{icon}</span>
+            <div className="font-display font-bold text-[18px] text-ink-strong">{value}</div>
+            <div className="text-[11px] text-ink-dim">{label}</div>
           </div>
         ))}
       </div>
@@ -603,10 +579,10 @@ export function Community() {
     <div className="view">
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 className="font-display font-bold" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
+          <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
             Community
           </h1>
-          <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+          <p className="text-[13px] mt-0.5 text-ink-dim">
             Zambia&apos;s SMC trading community: share trades, analysis, and lessons.
           </p>
         </div>
@@ -624,11 +600,11 @@ export function Community() {
                 key={tab.id}
                 type="button"
                 onClick={() => setFilter(tab.id)}
-                className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all"
-                style={filter === tab.id
-                  ? { background: "rgba(8,174,170,0.12)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.25)" }
-                  : { background: "transparent", color: "var(--ink-dim)", border: "1px solid transparent" }
-                }
+                className={`px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all border ${
+                  filter === tab.id
+                    ? "bg-[rgba(8,174,170,0.12)] text-teal border-[rgba(8,174,170,0.25)]"
+                    : "bg-transparent text-ink-dim border-transparent"
+                }`}
               >
                 {tab.label}
               </button>
@@ -636,15 +612,15 @@ export function Community() {
           </div>
 
           {error instanceof Error ? (
-            <div className="rounded-2xl px-5 py-10 text-center" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
+            <div className="rounded-2xl px-5 py-10 text-center bg-panel border border-line">
               <Icon name="wifi_off" size={28} style={{ color: "var(--ink-dim)", marginBottom: 8 }} />
-              <p className="text-[13px] font-medium mb-1" style={{ color: "var(--ink-strong)" }}>Could not load posts</p>
-              <p className="text-[12.5px]" style={{ color: "var(--ink-dim)" }}>{error.message}</p>
+              <p className="text-[13px] font-medium mb-1 text-ink-strong">Could not load posts</p>
+              <p className="text-[12.5px] text-ink-dim">{error.message}</p>
             </div>
           ) : isLoading ? (
             <div className="flex flex-col gap-4">
               {[0, 1, 2].map((i) => (
-                <div key={i} className="rounded-2xl h-36 animate-pulse" style={{ background: "var(--panel)", border: "1px solid var(--line)" }} />
+                <div key={i} className="rounded-2xl h-36 animate-pulse bg-panel border border-line" />
               ))}
             </div>
           ) : filtered.length === 0 ? (
@@ -665,8 +641,7 @@ export function Community() {
                   type="button"
                   onClick={() => fetchNextPage()}
                   disabled={isFetchingNextPage}
-                  className="w-full py-3 rounded-2xl text-[13px] font-semibold transition-all"
-                  style={{ background: "var(--panel)", border: "1px solid var(--line)", color: "var(--ink-mid)" }}
+                  className="w-full py-3 rounded-2xl text-[13px] font-semibold transition-all bg-panel border border-line text-ink-mid"
                 >
                   {isFetchingNextPage ? "Loading…" : "Load more"}
                 </button>
@@ -682,7 +657,7 @@ export function Community() {
 
           <Panel>
             <PanelHead title="Community guidelines" icon="gavel" />
-            <ul className="flex flex-col gap-2 text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
+            <ul className="flex flex-col gap-2 text-[12.5px] leading-relaxed text-ink-mid">
               {[
                 "Post both wins AND losses. Accountability drives improvement.",
                 "Explain your reasoning, not just the direction.",

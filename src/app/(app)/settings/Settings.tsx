@@ -40,8 +40,8 @@ function MembershipSection() {
       <PanelHead title="Membership" icon="workspace_premium" />
       <div className="flex items-center justify-between gap-4 py-2">
         <div>
-          <div className="text-[13.5px] font-semibold" style={{ color: "var(--ink-strong)" }}>Current plan: {planLabel}</div>
-          <div className="text-[12px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+          <div className="text-[13.5px] font-semibold text-ink-strong">Current plan: {planLabel}</div>
+          <div className="text-[12px] mt-0.5 text-ink-dim">
             Manage billing, upgrade, or cancel below.
           </div>
         </div>
@@ -51,8 +51,8 @@ function MembershipSection() {
       </div>
       <Divider />
       <div>
-        <div className="text-[13px] font-medium mb-1" style={{ color: "var(--ink-strong)" }}>Cancel subscription</div>
-        <p className="text-[12px] leading-relaxed mb-3" style={{ color: "var(--ink-dim)" }}>
+        <div className="text-[13px] font-medium mb-1 text-ink-strong">Cancel subscription</div>
+        <p className="text-[12px] leading-relaxed mb-3 text-ink-dim">
           Your plan stays active until the end of the current billing period. No pro-rata refunds.
         </p>
         {confirmOpen ? (
@@ -60,17 +60,17 @@ function MembershipSection() {
             className="rounded-xl p-4 mb-2"
             style={{ background: "rgba(234,82,61,0.06)", border: "1px solid rgba(234,82,61,0.2)" }}
           >
-            <p className="text-[13px] font-semibold mb-3" style={{ color: "var(--coral)" }}>
+            <p className="text-[13px] font-semibold mb-3 text-coral">
               Cancel {planLabel}? You&apos;ll lose live alerts, AI reviews, and full Academy access.
             </p>
             <div className="flex gap-3">
-              <Button type="button" variant="ghost" onClick={() => setConfirmOpen(false)} style={{ flex: 1 }}>Keep plan</Button>
+              <Button type="button" variant="ghost" onClick={() => setConfirmOpen(false)} className="flex-1">Keep plan</Button>
               <Button
                 type="button"
                 variant="ghost"
                 loading={cancelling}
                 onClick={handleCancel}
-                style={{ flex: 1, color: "var(--coral)", borderColor: "rgba(234,82,61,0.3)" }}
+                className="flex-1 !text-coral !border-[rgba(234,82,61,0.3)]"
               >
                 Confirm cancel
               </Button>
@@ -82,7 +82,7 @@ function MembershipSection() {
             variant="ghost"
             icon="cancel"
             onClick={() => setConfirmOpen(true)}
-            style={{ color: "var(--coral)", borderColor: "rgba(234,82,61,0.3)" }}
+            className="!text-coral !border-[rgba(234,82,61,0.3)]"
           >
             Cancel subscription
           </Button>
@@ -104,7 +104,7 @@ function Section({ title, icon, children }: { title: string; icon: string; child
 }
 
 function Divider() {
-  return <div className="my-4 border-t" style={{ borderColor: "var(--line)" }} />;
+  return <div className="my-4 border-t border-line" />;
 }
 
 function ToggleRow({ label, sub, checked, onChange }: {
@@ -113,18 +113,16 @@ function ToggleRow({ label, sub, checked, onChange }: {
   return (
     <div className="flex items-center justify-between gap-4 py-2.5">
       <div>
-        <div className="text-[13.5px] font-medium" style={{ color: "var(--ink-strong)" }}>{label}</div>
-        {sub && <div className="text-[12px] mt-0.5" style={{ color: "var(--ink-dim)" }}>{sub}</div>}
+        <div className="text-[13.5px] font-medium text-ink-strong">{label}</div>
+        {sub && <div className="text-[12px] mt-0.5 text-ink-dim">{sub}</div>}
       </div>
       <button
         type="button"
         onClick={() => onChange(!checked)}
-        className="relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors"
-        style={{ background: checked ? "var(--teal)" : "var(--track)" }}
+        className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? "bg-teal" : "bg-track"}`}
       >
         <span
-          className="inline-block size-5 rounded-full bg-white shadow-sm transition-transform"
-          style={{ transform: checked ? "translateX(20px)" : "translateX(2px)", marginTop: 2 }}
+          className={`inline-block size-5 rounded-full bg-white shadow-sm transition-transform mt-0.5 ${checked ? "translate-x-5" : "translate-x-0.5"}`}
         />
       </button>
     </div>
@@ -362,7 +360,7 @@ export function Settings() {
 
   return (
     <div className="view">
-      <h1 className="font-display font-bold mb-5" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
+      <h1 className="font-display font-bold mb-5 text-2xl tracking-[-0.02em] text-ink-strong">
         Settings
       </h1>
 
@@ -380,20 +378,18 @@ export function Settings() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Your name"
-                    className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)]"
-                    style={{ background: "var(--panel-2)", borderColor: "var(--line)", color: "var(--ink-strong)" }}
+                    className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong"
                   />
                 </Field>
                 <Field label="Username" half>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px]" style={{ color: "var(--ink-dim)" }}>@</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-ink-dim">@</span>
                     <input
                       type="text"
                       value={handle}
                       onChange={(e) => setHandle(e.target.value.replace(/[@\s]/g, "_").toLowerCase())}
                       placeholder="your_handle"
-                      className="w-full rounded-[9px] border pl-7 pr-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)]"
-                      style={{ background: "var(--panel-2)", borderColor: "var(--line)", color: "var(--ink-strong)" }}
+                      className="w-full rounded-[9px] border pl-7 pr-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong"
                     />
                   </div>
                 </Field>
@@ -404,11 +400,10 @@ export function Settings() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)]"
-                  style={{ background: "var(--panel-2)", borderColor: "var(--line)", color: "var(--ink-strong)" }}
+                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong"
                 />
                 <div className="flex items-center justify-between gap-3 mt-1.5">
-                  <span className="text-[11px]" style={{ color: "var(--ink-dim)" }}>
+                  <span className="text-[11px] text-ink-dim">
                     Changing this sends a confirmation link to the new address.
                   </span>
                   {email.trim().toLowerCase() !== (user?.email ?? "").toLowerCase() && (
@@ -431,8 +426,7 @@ export function Settings() {
                   value={loc}
                   onChange={(e) => setLoc(e.target.value)}
                   placeholder="e.g. Lusaka, Zambia"
-                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)]"
-                  style={{ background: "var(--panel-2)", borderColor: "var(--line)", color: "var(--ink-strong)" }}
+                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong"
                 />
               </Field>
               <div className="flex justify-end">
@@ -463,7 +457,7 @@ export function Settings() {
                   ]}
                 />
               ) : (
-                <div className="h-10 rounded-[10px]" style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }} />
+                <div className="h-10 rounded-[10px] bg-panel-2 border border-line" />
               )}
             </Field>
           </Section>
@@ -500,8 +494,7 @@ export function Settings() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="new-password"
-                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)]"
-                  style={{ background: "var(--panel-2)", borderColor: "var(--line)", color: "var(--ink-strong)" }}
+                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong"
                 />
               </Field>
               <Field label="Confirm new password">
@@ -511,8 +504,7 @@ export function Settings() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="new-password"
-                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)]"
-                  style={{ background: "var(--panel-2)", borderColor: "var(--line)", color: "var(--ink-strong)" }}
+                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong"
                 />
               </Field>
               <div className="flex justify-end">
@@ -543,7 +535,7 @@ export function Settings() {
                   onChange={(e) => setRiskPct(e.target.value)}
                   placeholder="0.5"
                 />
-                <span className="text-[11.5px] mt-1" style={{ color: "var(--ink-dim)" }}>
+                <span className="text-[11.5px] mt-1 text-ink-dim">
                   Used as the default when logging trades. Recommended: 0.5–1%.
                 </span>
               </Field>
@@ -557,7 +549,7 @@ export function Settings() {
                     { v: "SnD", l: "Supply & Demand" },
                   ]}
                 />
-                <span className="text-[11.5px] mt-1" style={{ color: "var(--ink-dim)" }}>
+                <span className="text-[11.5px] mt-1 text-ink-dim">
                   Sets your default system in the journal and validator.
                 </span>
               </Field>
@@ -583,12 +575,9 @@ export function Settings() {
                         key={pair}
                         type="button"
                         onClick={() => toggleInstr(pair)}
-                        className="px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all"
-                        style={
-                          active
-                            ? { background: "var(--teal)", color: "#fff" }
-                            : { background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }
-                        }
+                        className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
+                          active ? "bg-teal text-white" : "bg-panel-2 text-ink-dim border border-line"
+                        }`}
                       >
                         {pair}
                       </button>
@@ -660,7 +649,7 @@ export function Settings() {
           {/* Danger zone */}
           <Panel style={{ border: "1px solid rgba(234,82,61,0.25)" }}>
             <PanelHead title="Danger zone" icon="warning" style={{ color: "var(--coral)" }} />
-            <p className="text-[13px] leading-relaxed mb-4" style={{ color: "var(--ink-dim)" }}>
+            <p className="text-[13px] leading-relaxed mb-4 text-ink-dim">
               Deleting your account will permanently remove all your trades, journal entries, community posts, and settings. This cannot be undone, and your email address can&apos;t be used to create another account afterward.
             </p>
             {deleteConfirmOpen ? (
@@ -668,7 +657,7 @@ export function Settings() {
                 className="rounded-xl p-4"
                 style={{ background: "rgba(234,82,61,0.06)", border: "1px solid rgba(234,82,61,0.2)" }}
               >
-                <p className="text-[13px] font-semibold mb-3" style={{ color: "var(--coral)" }}>
+                <p className="text-[13px] font-semibold mb-3 text-coral">
                   Type your username (@{handle || "…"}) to confirm.
                 </p>
                 <input
@@ -676,15 +665,14 @@ export function Settings() {
                   value={deleteTyped}
                   onChange={(e) => setDeleteTyped(e.target.value)}
                   placeholder={handle}
-                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none mb-3"
-                  style={{ background: "var(--panel-2)", borderColor: "var(--line)", color: "var(--ink-strong)" }}
+                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none mb-3 bg-panel-2 border-line text-ink-strong"
                 />
                 <div className="flex gap-3">
                   <Button
                     type="button"
                     variant="ghost"
                     onClick={() => { setDeleteConfirmOpen(false); setDeleteTyped(""); }}
-                    style={{ flex: 1 }}
+                    className="flex-1"
                   >
                     Keep account
                   </Button>
@@ -694,7 +682,7 @@ export function Settings() {
                     loading={deleting}
                     disabled={deleteTyped.trim().toLowerCase() !== handle.trim().toLowerCase() || !handle}
                     onClick={handleDeleteAccount}
-                    style={{ flex: 1, color: "var(--coral)", borderColor: "rgba(234,82,61,0.3)" }}
+                    className="flex-1 !text-coral !border-[rgba(234,82,61,0.3)]"
                   >
                     Permanently delete
                   </Button>
@@ -706,7 +694,7 @@ export function Settings() {
                 variant="ghost"
                 icon="delete_forever"
                 onClick={() => setDeleteConfirmOpen(true)}
-                style={{ color: "var(--coral)", borderColor: "rgba(234,82,61,0.3)" }}
+                className="!text-coral !border-[rgba(234,82,61,0.3)]"
               >
                 Delete account
               </Button>

@@ -125,13 +125,13 @@ function FeaturedAlertCard() {
 
   if (isLoading) {
     return (
-      <Panel pad={0} style={{ overflow: "hidden" }}>
+      <Panel pad={0} className="overflow-hidden">
         <div className="animate-pulse">
-          <div className="h-14 border-b" style={{ background: "var(--panel-2)", borderColor: "var(--line)" }} />
+          <div className="h-14 border-b bg-panel-2 border-line" />
           <div className="p-5 space-y-3">
-            <div className="h-4 w-2/3 rounded-lg" style={{ background: "var(--track)" }} />
-            <div className="h-3 w-full rounded-lg" style={{ background: "var(--track)" }} />
-            <div className="h-56 rounded-xl" style={{ background: "var(--track)" }} />
+            <div className="h-4 w-2/3 rounded-lg bg-track" />
+            <div className="h-3 w-full rounded-lg bg-track" />
+            <div className="h-56 rounded-xl bg-track" />
           </div>
         </div>
       </Panel>
@@ -140,7 +140,7 @@ function FeaturedAlertCard() {
 
   if (!alert || !chart) {
     return (
-      <Panel pad={0} style={{ overflow: "hidden" }}>
+      <Panel pad={0} className="overflow-hidden">
         <EmptyState
           icon="notifications_active"
           title="No active setup right now"
@@ -175,39 +175,27 @@ function FeaturedAlertCard() {
   }
 
   return (
-    <Panel pad={0} style={{ overflow: "hidden" }}>
+    <Panel pad={0} className="overflow-hidden">
       {/* Card header */}
-      <div
-        className="flex items-center justify-between px-5 py-3.5"
-        style={{ borderBottom: "1px solid var(--line)" }}
-      >
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-line">
         <div className="flex items-center gap-3">
           <Avatar seed={3} name="Kondwani" size={36} ring="var(--gold)" />
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-[13.5px]" style={{ color: "var(--ink-strong)" }}>
+              <span className="font-semibold text-[13.5px] text-ink-strong">
                 Kondwani
               </span>
-              <span
-                className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
-                style={{ background: "var(--gold)", color: "var(--navy-deep)" }}
-              >
+              <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-gold text-[var(--navy-deep)]">
                 Lead Trader
               </span>
             </div>
-            <div className="text-[11.5px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+            <div className="text-[11.5px] mt-0.5 text-ink-dim">
               Posted a live setup · {postedTime}
             </div>
           </div>
         </div>
-        <div
-          className="flex items-center gap-1.5 text-[10.5px] font-bold tracking-widest uppercase"
-          style={{ color: "var(--teal-bright)" }}
-        >
-          <span
-            className="size-1.5 rounded-full"
-            style={{ background: "var(--teal-bright)", animation: "var(--animate-live)" }}
-          />
+        <div className="flex items-center gap-1.5 text-[10.5px] font-bold tracking-widest uppercase text-teal-bright">
+          <span className="size-1.5 rounded-full bg-teal-bright animate-live" />
           LIVE
         </div>
       </div>
@@ -215,7 +203,7 @@ function FeaturedAlertCard() {
       {/* Card body */}
       <div className="px-5 py-4">
         <div className="flex items-center gap-2.5 flex-wrap mb-2.5">
-          <span className="font-display font-bold text-[17px]" style={{ color: "var(--ink-strong)" }}>
+          <span className="font-display font-bold text-[17px] text-ink-strong">
             {alert.pair}
           </span>
           <DirPill dir={alert.dir} />
@@ -224,7 +212,7 @@ function FeaturedAlertCard() {
           {alert.tags.map((t) => <Chip key={t}>{t}</Chip>)}
         </div>
         {alert.note && (
-          <p className="text-[13.5px] leading-relaxed mb-4" style={{ color: "var(--ink)" }}>
+          <p className="text-[13.5px] leading-relaxed mb-4 text-ink">
             {alert.note}
           </p>
         )}
@@ -241,8 +229,8 @@ function FeaturedAlertCard() {
               ["R:R",   alert.rr + "R",        "var(--gold)"],
             ] as [string, string, string][]
           ).map(([label, val, color]) => (
-            <div key={label} className="rounded-xl p-3" style={{ background: "var(--panel-2)" }}>
-              <div className="text-[10px] uppercase tracking-widest font-semibold mb-1" style={{ color: "var(--ink-dim)" }}>
+            <div key={label} className="rounded-xl p-3 bg-panel-2">
+              <div className="text-[10px] uppercase tracking-widest font-semibold mb-1 text-ink-dim">
                 {label}
               </div>
               <div className="font-semibold text-[14.5px] tabular-nums" style={{ color }}>
@@ -265,7 +253,7 @@ function FeaturedAlertCard() {
           <Link href="/alerts">
             <Button variant="ghost" size="sm" icon="open_in_full">View setup</Button>
           </Link>
-          <div className="ml-auto flex items-center gap-4 text-[12px]" style={{ color: "var(--ink-dim)" }}>
+          <div className="ml-auto flex items-center gap-4 text-[12px] text-ink-dim">
             <span className="flex items-center gap-1.5">
               <Icon name="favorite" size={14} fill style={{ color: "var(--coral)" }} />
               {alert.reactions ?? 0}
@@ -411,7 +399,7 @@ function ActiveTradesPanel() {
   if (active.length === 0) return null;
 
   return (
-    <Panel pad={0} style={{ overflow: "hidden" }}>
+    <Panel pad={0} className="overflow-hidden">
       <div className="px-5 pt-4 pb-3">
         <PanelHead title="Active Positions" icon="radar" style={{ marginBottom: 0 }} />
       </div>
@@ -422,34 +410,24 @@ function ActiveTradesPanel() {
           return (
             <div
               key={t.id}
-              className="relative flex items-center gap-4 px-5 py-3.5"
-              style={{
-                borderTop: i > 0 ? "1px solid var(--line)" : "none",
-                background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)",
-              }}
+              className={`relative flex items-center gap-4 px-5 py-3.5 ${i > 0 ? "border-t border-line" : ""} ${i % 2 === 0 ? "bg-transparent" : "bg-white/[0.01]"}`}
             >
               {/* Direction accent bar */}
               <div
-                className="absolute left-0 top-3 bottom-3 rounded-r-full"
-                style={{ width: 3, background: dirColor, opacity: 0.7 }}
+                className="absolute left-0 top-3 bottom-3 rounded-r-full w-[3px] opacity-70"
+                style={{ background: dirColor }}
               />
 
               {/* Pair + direction */}
               <div className="flex flex-col gap-1 min-w-[90px] shrink-0">
                 <div className="flex items-center gap-2">
-                  <span
-                    className="font-bold text-[15px] tracking-tight"
-                    style={{ color: "var(--ink-strong)", fontFamily: "var(--font-display)" }}
-                  >
+                  <span className="font-bold text-[15px] tracking-tight text-ink-strong font-display">
                     {t.pair}
                   </span>
                   <DirPill dir={t.dir} size="sm" />
                 </div>
                 {t.model && (
-                  <span
-                    className="text-[10px] font-medium truncate"
-                    style={{ color: "var(--ink-dim)", maxWidth: 110 }}
-                  >
+                  <span className="text-[10px] font-medium truncate text-ink-dim max-w-[110px]">
                     {t.model}
                   </span>
                 )}
@@ -457,34 +435,27 @@ function ActiveTradesPanel() {
 
               {/* Price levels */}
               <div
-                className="flex-1 grid gap-x-4 gap-y-0.5 tabular-nums text-[11px]"
-                style={{ gridTemplateColumns: "repeat(3, auto)", fontFamily: "var(--mono)", color: "var(--ink-dim)" }}
+                className="flex-1 grid grid-cols-[repeat(3,auto)] gap-x-4 gap-y-0.5 tabular-nums text-[11px] font-mono text-ink-dim"
               >
-                <span style={{ color: dirColor, fontWeight: 600 }}>
+                <span className="font-semibold" style={{ color: dirColor }}>
                   {t.entryPrice ?? "—"}
                 </span>
                 <span>{t.stopLoss ?? "—"}</span>
                 <span>{t.takeProfit ?? "—"}</span>
 
-                <span style={{ fontSize: 9, opacity: 0.6, letterSpacing: "0.04em" }}>ENTRY</span>
-                <span style={{ fontSize: 9, opacity: 0.6, letterSpacing: "0.04em" }}>SL</span>
-                <span style={{ fontSize: 9, opacity: 0.6, letterSpacing: "0.04em" }}>TP</span>
+                <span className="text-[9px] opacity-60 tracking-[0.04em]">ENTRY</span>
+                <span className="text-[9px] opacity-60 tracking-[0.04em]">SL</span>
+                <span className="text-[9px] opacity-60 tracking-[0.04em]">TP</span>
               </div>
 
               {/* Right: R:R + date */}
               <div className="flex flex-col items-end gap-1.5 shrink-0">
                 {t.rr != null && (
-                  <span
-                    className="text-[11px] font-bold tabular-nums"
-                    style={{ color: "var(--gold)", fontFamily: "var(--mono)" }}
-                  >
+                  <span className="text-[11px] font-bold tabular-nums text-gold font-mono">
                     {t.rr}R
                   </span>
                 )}
-                <span
-                  className="text-[10px] tabular-nums"
-                  style={{ color: "var(--ink-dim)", fontFamily: "var(--mono)" }}
-                >
+                <span className="text-[10px] tabular-nums text-ink-dim font-mono">
                   {t.openedAt ? fmtMonthDay(t.openedAt) : t.date}
                 </span>
               </div>
@@ -494,15 +465,12 @@ function ActiveTradesPanel() {
       </div>
 
       {/* Footer pulse */}
-      <div
-        className="flex items-center gap-2 px-5 py-2.5"
-        style={{ borderTop: "1px solid var(--line)", background: "rgba(248,185,61,0.03)" }}
-      >
+      <div className="flex items-center gap-2 px-5 py-2.5 border-t border-line bg-[rgba(248,185,61,0.03)]">
         <span
-          className="inline-block w-1.5 h-1.5 rounded-full"
-          style={{ background: "var(--gold)", boxShadow: "0 0 6px var(--gold)", animation: "live-pulse 2s infinite" }}
+          className="inline-block w-1.5 h-1.5 rounded-full bg-gold shadow-[0_0_6px_var(--gold)]"
+          style={{ animation: "live-pulse 2s infinite" }}
         />
-        <span className="text-[10.5px] font-semibold uppercase tracking-widest" style={{ color: "var(--gold)", letterSpacing: "0.1em" }}>
+        <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-gold">
           {active.length} position{active.length !== 1 ? "s" : ""} live
         </span>
       </div>
@@ -581,29 +549,23 @@ function SessionCard() {
         {/* Header row */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span
-              className="material-symbols-rounded"
-              style={{ fontSize: 14, color: "var(--ink-dim)", fontVariationSettings: "'FILL' 1" }}
-            >
+            <span className="material-symbols-rounded ic-fill text-[14px] text-ink-dim">
               schedule
             </span>
-            <span className="text-[12px] font-semibold" style={{ color: "var(--ink-strong)", fontFamily: "var(--font-display)" }}>
+            <span className="text-[12px] font-semibold text-ink-strong font-display">
               Sessions
             </span>
             {isKillzone && (
-              <span
-                className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full"
-                style={{ background: "rgba(48,232,223,0.08)", color: "var(--teal-bright)", border: "1px solid rgba(48,232,223,0.22)", letterSpacing: "0.08em" }}
-              >
+              <span className="text-[9px] font-bold uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-full bg-[rgba(48,232,223,0.08)] text-teal-bright border border-[rgba(48,232,223,0.22)]">
                 Killzone
               </span>
             )}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] tabular-nums font-semibold" style={{ color: "var(--ink-strong)", fontFamily: "var(--mono)" }}>
+            <span className="text-[11px] tabular-nums font-semibold text-ink-strong font-mono">
               {timeLabel}
             </span>
-            <span className="text-[8.5px] font-bold uppercase px-1 py-0.5 rounded" style={{ background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)", letterSpacing: "0.08em" }}>
+            <span className="text-[8.5px] font-bold uppercase tracking-[0.08em] px-1 py-0.5 rounded bg-panel-2 text-ink-dim border border-line">
               GMT+2
             </span>
           </div>
@@ -612,8 +574,8 @@ function SessionCard() {
         {/* Active sessions */}
         {open.length === 0 ? (
           <div className="flex items-center gap-1.5 mb-2.5">
-            <span className="size-1.5 rounded-full shrink-0" style={{ background: "var(--ink-dim)" }} />
-            <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+            <span className="size-1.5 rounded-full shrink-0 bg-ink-dim" />
+            <span className="text-[12px] text-ink-dim">
               {closed ? "Closed for the weekend" : "Market closed"}
             </span>
           </div>
@@ -626,15 +588,15 @@ function SessionCard() {
                     className="size-1.5 rounded-full shrink-0"
                     style={{ background: s.color, boxShadow: `0 0 4px ${s.color}` }}
                   />
-                  <span style={{ fontSize: 12 }}>{s.flag}</span>
+                  <span className="text-xs">{s.flag}</span>
                   <span className="text-[12.5px] font-semibold" style={{ color: s.color }}>
                     {s.name}
                   </span>
-                  <span className="text-[9.5px] font-bold uppercase tracking-widest" style={{ color: s.color, opacity: 0.7 }}>
+                  <span className="text-[9.5px] font-bold uppercase tracking-widest opacity-70" style={{ color: s.color }}>
                     open
                   </span>
                 </div>
-                <span className="text-[11px] tabular-nums" style={{ color: "var(--ink-dim)", fontFamily: "var(--mono)" }}>
+                <span className="text-[11px] tabular-nums text-ink-dim font-mono">
                   closes {s.closeL}
                 </span>
               </div>
@@ -643,31 +605,31 @@ function SessionCard() {
         )}
 
         {/* Divider */}
-        <div className="my-2.5" style={{ height: 1, background: "var(--line)", opacity: 0.5 }} />
+        <div className="my-2.5 h-px bg-line opacity-50" />
 
         {/* Next session + link */}
         <div className="flex items-center justify-between gap-2">
           {closed ? (
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-rounded" style={{ fontSize: 13, color: "var(--ink-dim)" }}>
+              <span className="material-symbols-rounded text-[13px] text-ink-dim">
                 arrow_forward
               </span>
-              <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+              <span className="text-[12px] text-ink-dim">
                 Reopens in{" "}
-                <span className="font-semibold tabular-nums" style={{ color: "var(--ink-strong)", fontFamily: "var(--mono)" }}>
+                <span className="font-semibold tabular-nums text-ink-strong font-mono">
                   {fmtCountdown(reopenH)}
                 </span>
               </span>
             </div>
           ) : next ? (
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-rounded" style={{ fontSize: 13, color: "var(--ink-dim)" }}>
+              <span className="material-symbols-rounded text-[13px] text-ink-dim">
                 arrow_forward
               </span>
-              <span style={{ fontSize: 12 }}>{next.flag}</span>
-              <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+              <span className="text-xs">{next.flag}</span>
+              <span className="text-[12px] text-ink-dim">
                 {next.name} in{" "}
-                <span className="font-semibold tabular-nums" style={{ color: "var(--ink-strong)", fontFamily: "var(--mono)" }}>
+                <span className="font-semibold tabular-nums text-ink-strong font-mono">
                   {fmtCountdown(sessionHoursUntil(next.open, gmt2))}
                 </span>
               </span>
@@ -675,7 +637,7 @@ function SessionCard() {
           ) : (
             <div />
           )}
-          <Link href="/sessions" className="text-[11.5px] font-medium" style={{ color: "var(--teal)" }}>
+          <Link href="/sessions" className="text-[11.5px] font-medium text-teal">
             All sessions →
           </Link>
         </div>
@@ -702,16 +664,10 @@ export function Dashboard() {
       {/* ── Header ── */}
       <div className="flex items-end justify-between gap-4 flex-wrap mb-5">
         <div>
-          <div
-            className="text-[11px] font-semibold uppercase tracking-[0.26em] mb-1.5"
-            style={{ color: "var(--teal)" }}
-          >
+          <div className="text-[11px] font-semibold uppercase tracking-[0.26em] mb-1.5 text-teal">
             {getDayLabel()} · {getSessionLabel()}
           </div>
-          <h1
-            className="font-display font-normal leading-tight"
-            style={{ fontSize: 28, color: "var(--ink-strong)", letterSpacing: "-0.02em" }}
-          >
+          <h1 className="font-display font-normal leading-tight text-[28px] text-ink-strong tracking-[-0.02em]">
             {getGreeting()},{" "}
             <span className="font-bold">{user?.name?.split(" ")[0] ?? "Trader"}</span>
           </h1>
@@ -771,7 +727,7 @@ export function Dashboard() {
           <FeaturedAlertCard />
 
           {/* Equity curve */}
-          <Panel pad={0} style={{ overflow: "hidden" }}>
+          <Panel pad={0} className="overflow-hidden">
             {!eq ? (
               <EmptyState
                 icon="candlestick_chart"
@@ -811,30 +767,26 @@ export function Dashboard() {
               <Ring value={stats.discFollowed} max={100} size={92} stroke={8} color="var(--gold)">
                 <div className="text-center">
                   <div
-                    className="font-display font-bold text-[22px] leading-none"
-                    style={{ color: "var(--ink-strong)", fontFeatureSettings: '"tnum"' }}
+                    className="font-display font-bold text-[22px] leading-none text-ink-strong"
+                    style={{ fontFeatureSettings: '"tnum"' }}
                   >
                     {stats.discFollowed}
                   </div>
-                  <div
-                    className="text-[10px] uppercase tracking-widest mt-0.5"
-                    style={{ color: "var(--ink-dim)" }}
-                  >
+                  <div className="text-[10px] uppercase tracking-widest mt-0.5 text-ink-dim">
                     %
                   </div>
                 </div>
               </Ring>
               <div className="flex flex-col gap-2 flex-1 min-w-0">
                 {recentTrades.length === 0 ? (
-                  <div className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+                  <div className="text-[12px] text-ink-dim">
                     No trades logged yet
                   </div>
                 ) : (
                   recentTrades.map((t) => (
                     <div
                       key={t.id}
-                      className="flex items-center gap-2 text-[12px] leading-none"
-                      style={{ color: t.discipline ? "var(--ink)" : "var(--ink-dim)" }}
+                      className={`flex items-center gap-2 text-[12px] leading-none ${t.discipline ? "text-ink" : "text-ink-dim"}`}
                     >
                       <Icon
                         name={t.discipline ? "check_circle" : "cancel"}
@@ -859,7 +811,7 @@ export function Dashboard() {
               title="High-impact today"
               icon="event"
               action={
-                <Link href="/calendar" className="text-[12px] font-medium" style={{ color: "var(--teal)" }}>
+                <Link href="/calendar" className="text-[12px] font-medium text-teal">
                   Calendar →
                 </Link>
               }
@@ -867,11 +819,11 @@ export function Dashboard() {
             {eventsLoading ? (
               <div className="space-y-2.5">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-4 rounded animate-pulse" style={{ background: "var(--track)" }} />
+                  <div key={i} className="h-4 rounded animate-pulse bg-track" />
                 ))}
               </div>
             ) : todayEvents.length === 0 ? (
-              <div className="py-4 text-center text-[12.5px]" style={{ color: "var(--ink-dim)" }}>
+              <div className="py-4 text-center text-[12.5px] text-ink-dim">
                 No high-impact events scheduled today.
               </div>
             ) : (
@@ -879,22 +831,21 @@ export function Dashboard() {
                 {todayEvents.map((ev, i) => (
                   <div
                     key={ev.id}
-                    className="flex items-center gap-2.5 py-2.5"
-                    style={{ borderBottom: i < todayEvents.length - 1 ? "1px solid var(--line)" : "none" }}
+                    className={`flex items-center gap-2.5 py-2.5 ${i < todayEvents.length - 1 ? "border-b border-line" : ""}`}
                   >
                     <span
                       className="size-2 rounded-full shrink-0"
                       style={{ background: IMPACT_COLOR[ev.impact] ?? "var(--ink-dim)" }}
                     />
-                    <span className="text-[11px] shrink-0 tabular-nums" style={{ color: "var(--ink-dim)", width: 36 }}>
+                    <span className="text-[11px] shrink-0 tabular-nums text-ink-dim w-9">
                       {ev.time}
                     </span>
-                    <Chip tone="neutral" style={{ fontSize: 10, padding: "2px 7px" }}>{ev.currency}</Chip>
-                    <span className="text-[12.5px] min-w-0 truncate" style={{ color: "var(--ink)" }}>
+                    <Chip tone="neutral" className="!text-[10px] !px-[7px] !py-[2px]">{ev.currency}</Chip>
+                    <span className="text-[12.5px] min-w-0 truncate text-ink">
                       {ev.event}
                     </span>
                     {ev.actual && (
-                      <span className="text-[11px] font-semibold shrink-0 ml-auto" style={{ color: "var(--teal)" }}>
+                      <span className="text-[11px] font-semibold shrink-0 ml-auto text-teal">
                         {ev.actual}
                       </span>
                     )}
@@ -910,23 +861,22 @@ export function Dashboard() {
               title="Trend snapshot"
               icon="ssid_chart"
               action={
-                <Link href="/trend" className="text-[12px] font-medium" style={{ color: "var(--teal)" }}>
+                <Link href="/trend" className="text-[12px] font-medium text-teal">
                   Matrix →
                 </Link>
               }
             />
             {trendUpdatedAt && (
-              <div className="text-[10.5px] mb-2" style={{ color: "var(--ink-dim)" }}>
+              <div className="text-[10.5px] mb-2 text-ink-dim">
                 Updated {new Date(trendUpdatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
               </div>
             )}
             {/* TF header labels */}
-            <div className="flex items-center gap-1.5 mb-2" style={{ paddingLeft: "clamp(48px, 17%, 68px)" }}>
+            <div className="flex items-center gap-1.5 mb-2 pl-[clamp(48px,17%,68px)]">
               {(["MN", "W", "D", "H4", "H1"] as const).map((tf) => (
                 <div
                   key={tf}
-                  className="flex-1 text-center text-[9.5px] font-semibold uppercase tracking-wider"
-                  style={{ color: "var(--ink-dim)" }}
+                  className="flex-1 text-center text-[9.5px] font-semibold uppercase tracking-wider text-ink-dim"
                 >
                   {tf}
                 </div>
@@ -935,35 +885,27 @@ export function Dashboard() {
             <div className="flex flex-col gap-2">
               {trendRows.map(({ pair, tfs, bias }) => (
                 <div key={pair} className="flex items-center gap-1.5">
-                  <span
-                    className="text-[12px] font-semibold shrink-0"
-                    style={{ color: "var(--ink-strong)", width: 60 }}
-                  >
+                  <span className="text-[12px] font-semibold shrink-0 text-ink-strong w-[60px]">
                     {pair}
                   </span>
                   <div className="flex gap-1 flex-1">
                     {tfs.map((d, i) => (
                       <div
                         key={i}
-                        className="flex-1 h-[18px] rounded"
-                        style={{
-                          background:
-                            d === "bullish" ? "rgba(8,174,170,0.25)" :
-                            d === "bearish" ? "rgba(234,82,61,0.25)" :
-                            "var(--track)",
-                        }}
+                        className={`flex-1 h-[18px] rounded ${
+                          d === "bullish" ? "bg-[rgba(8,174,170,0.25)]" :
+                          d === "bearish" ? "bg-[rgba(234,82,61,0.25)]" :
+                          "bg-track"
+                        }`}
                       />
                     ))}
                   </div>
                   <span
-                    className="text-[11px] font-semibold text-right shrink-0"
-                    style={{
-                      width: 50,
-                      color:
-                        bias === "Bullish" ? "var(--teal-bright)" :
-                        bias === "Bearish" ? "var(--coral-bright)" :
-                        "var(--gold)",
-                    }}
+                    className={`text-[11px] font-semibold text-right shrink-0 w-[50px] ${
+                      bias === "Bullish" ? "text-teal-bright" :
+                      bias === "Bearish" ? "text-coral-bright" :
+                      "text-gold"
+                    }`}
                   >
                     {bias}
                   </span>

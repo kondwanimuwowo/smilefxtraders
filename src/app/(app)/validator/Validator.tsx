@@ -41,7 +41,7 @@ function CheckToggle({ label, checked, onChange }: { label: string; checked: boo
     >
       <span
         className="material-symbols-rounded shrink-0"
-        style={{ fontSize: 18, color: checked ? "var(--teal)" : "var(--ink-dim)", fontVariationSettings: "'FILL' 1" }}
+        style={{ fontSize: 18, color: checked ? "var(--teal)" : "var(--ink-dim)", fontFamily: "Material Symbols Rounded Fill" }}
       >
         {checked ? "check_box" : "check_box_outline_blank"}
       </span>
@@ -63,7 +63,7 @@ function RuleRow({ rule }: { rule: RuleResult }) {
     >
       <span
         className="material-symbols-rounded shrink-0 mt-0.5"
-        style={{ fontSize: 17, color: STATUS_COLOR[rule.status], fontVariationSettings: "'FILL' 1" }}
+        style={{ fontSize: 17, color: STATUS_COLOR[rule.status], fontFamily: "Material Symbols Rounded Fill" }}
       >
         {STATUS_ICON[rule.status]}
       </span>
@@ -615,7 +615,7 @@ export function Validator() {
                 </div>
                 {setup.fibConfluence && (
                   <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className="material-symbols-rounded" style={{ fontSize: 13, color: "var(--gold)", fontVariationSettings: "'FILL' 1" }}>architecture</span>
+                    <span className="material-symbols-rounded" style={{ fontSize: 13, color: "var(--gold)", fontFamily: "Material Symbols Rounded Fill" }}>architecture</span>
                     <span className="text-[11px] font-semibold" style={{ color: "var(--gold)" }}>
                       Fib {setup.fibLevel} active
                     </span>
@@ -663,7 +663,7 @@ export function Validator() {
           <div className="flex items-center gap-4 px-1">
             {(["pass", "warn", "fail"] as Status[]).map((s) => (
               <div key={s} className="flex items-center gap-1.5">
-                <span className="material-symbols-rounded" style={{ fontSize: 14, color: STATUS_COLOR[s], fontVariationSettings: "'FILL' 1" }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 14, color: STATUS_COLOR[s], fontFamily: "Material Symbols Rounded Fill" }}>
                   {STATUS_ICON[s]}
                 </span>
                 <span className="text-[11.5px] capitalize" style={{ color: "var(--ink-dim)" }}>{s}</span>

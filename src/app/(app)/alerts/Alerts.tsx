@@ -406,7 +406,7 @@ function AlertCard({
                 className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
                 style={{ background: statusCfg.bg, color: statusCfg.color }}
               >
-                <span className="material-symbols-rounded" style={{ fontSize: 12, fontVariationSettings: "'FILL' 1" }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 12, fontFamily: "Material Symbols Rounded Fill" }}>
                   {statusCfg.icon}
                 </span>
                 {statusCfg.label}
@@ -445,7 +445,7 @@ function AlertCard({
             className="flex flex-col items-center py-2.5 px-2"
             style={{ borderLeft: i > 0 ? "1px solid var(--line)" : undefined, background: "var(--panel-2)" }}
           >
-            <span className="material-symbols-rounded mb-0.5" style={{ fontSize: 13, color, fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+            <span className="material-symbols-rounded mb-0.5" style={{ fontSize: 13, color, fontFamily: "Material Symbols Rounded Fill" }}>{icon}</span>
             <span className="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: "var(--ink-dim)" }}>{label}</span>
             <span className="font-display font-bold tabular-nums text-[13px]" style={{ color, letterSpacing: "-0.01em" }}>{value}</span>
           </div>
@@ -650,7 +650,7 @@ export function Alerts() {
             { label: "Stop loss",    value: slCount,        icon: "cancel",               color: "var(--coral)"      },
           ].map(({ label, value, icon, color }) => (
             <div key={label} className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
-              <span className="material-symbols-rounded shrink-0" style={{ fontSize: 18, color, fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+              <span className="material-symbols-rounded shrink-0" style={{ fontSize: 18, color, fontFamily: "Material Symbols Rounded Fill" }}>{icon}</span>
               <div>
                 <div className="font-display font-bold text-[20px] tabular-nums leading-none" style={{ color }}>{value}</div>
                 <div className="text-[10.5px] font-medium mt-0.5" style={{ color: "var(--ink-dim)" }}>{label}</div>

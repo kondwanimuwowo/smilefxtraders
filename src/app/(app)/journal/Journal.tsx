@@ -61,20 +61,20 @@ function ModelBar({ model, pct, n }: { model: string; pct: number; n: number }) 
   const shortName = model.split("→")[0].split("+")[0].trim();
   return (
     <div className="flex items-center gap-2.5">
-      <div className="text-[11.5px] font-medium min-w-0 flex-1 truncate" style={{ color: "var(--ink-mid)" }}>
+      <div className="text-[11.5px] font-medium min-w-0 flex-1 truncate text-ink-mid">
         {shortName}
       </div>
       <div className="flex items-center gap-1.5 shrink-0">
-        <div className="relative h-1.5 rounded-full overflow-hidden" style={{ width: 80, background: "var(--track)" }}>
+        <div className="relative h-1.5 rounded-full overflow-hidden w-20 bg-track">
           <div
-            className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
-            style={{ width: `${pct}%`, background: pct >= 60 ? "var(--teal)" : pct >= 40 ? "var(--gold)" : "var(--coral)" }}
+            className={`absolute inset-y-0 left-0 rounded-full transition-all duration-700 ${pct >= 60 ? "bg-teal" : pct >= 40 ? "bg-gold" : "bg-coral"}`}
+            style={{ width: `${pct}%` }}
           />
         </div>
-        <span className="text-[11px] font-semibold tabular-nums" style={{ color: "var(--ink-dim)", width: 32, textAlign: "right" }}>
+        <span className="text-[11px] font-semibold tabular-nums text-ink-dim w-8 text-right">
           {pct}%
         </span>
-        <span className="text-[10px]" style={{ color: "var(--ink-dim)", width: 20 }}>
+        <span className="text-[10px] text-ink-dim w-5">
           /{n}
         </span>
       </div>
@@ -85,22 +85,19 @@ function ModelBar({ model, pct, n }: { model: string; pct: number; n: number }) 
 function PairBar({ pair, pct, n }: { pair: string; pct: number; n: number }) {
   return (
     <div className="flex items-center gap-2.5">
-      <span
-        className="text-[11px] font-bold tabular-nums shrink-0"
-        style={{ color: "var(--ink-mid)", width: 56, fontFamily: "var(--mono)" }}
-      >
+      <span className="text-[11px] font-bold tabular-nums shrink-0 text-ink-mid w-14 font-mono">
         {pair}
       </span>
-      <div className="flex-1 relative h-1.5 rounded-full overflow-hidden" style={{ background: "var(--track)" }}>
+      <div className="flex-1 relative h-1.5 rounded-full overflow-hidden bg-track">
         <div
-          className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
-          style={{ width: `${pct}%`, background: pct >= 60 ? "var(--teal)" : pct >= 40 ? "var(--gold)" : "var(--coral)" }}
+          className={`absolute inset-y-0 left-0 rounded-full transition-all duration-700 ${pct >= 60 ? "bg-teal" : pct >= 40 ? "bg-gold" : "bg-coral"}`}
+          style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-[11px] font-semibold tabular-nums shrink-0" style={{ color: "var(--ink-dim)", width: 32, textAlign: "right" }}>
+      <span className="text-[11px] font-semibold tabular-nums shrink-0 text-ink-dim w-8 text-right">
         {pct}%
       </span>
-      <span className="text-[10px] shrink-0" style={{ color: "var(--ink-dim)", width: 20 }}>
+      <span className="text-[10px] shrink-0 text-ink-dim w-5">
         /{n}
       </span>
     </div>
@@ -111,14 +108,14 @@ function SessionBar({ session, count, max }: { session: string; count: number; m
   const pct = max ? (count / max) * 100 : 0;
   return (
     <div className="flex items-center gap-2.5">
-      <span className="text-[11.5px] font-medium" style={{ color: "var(--ink-mid)", width: 72 }}>{session}</span>
-      <div className="flex-1 relative h-1.5 rounded-full overflow-hidden" style={{ background: "var(--track)" }}>
+      <span className="text-[11.5px] font-medium text-ink-mid w-[72px]">{session}</span>
+      <div className="flex-1 relative h-1.5 rounded-full overflow-hidden bg-track">
         <div
           className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
           style={{ width: `${pct}%`, background: SESSION_COLORS[session] ?? "var(--teal)" }}
         />
       </div>
-      <span className="text-[11px] tabular-nums font-semibold" style={{ color: "var(--ink-dim)", width: 16, textAlign: "right" }}>
+      <span className="text-[11px] tabular-nums font-semibold text-ink-dim w-4 text-right">
         {count}
       </span>
     </div>
@@ -176,6 +173,7 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
   }, [trades]);
 
   const equityColor = (stats.netR ?? 0) >= 0 ? "var(--teal-bright)" : "var(--coral-bright)";
+  const equityColorCls = (stats.netR ?? 0) >= 0 ? "text-teal-bright" : "text-coral-bright";
 
   return (
     <div className="flex flex-col gap-4">
@@ -185,20 +183,17 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
         <Panel>
           <div className="px-4 pt-4 pb-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="font-display font-semibold text-[14px]" style={{ color: "var(--ink-strong)" }}>
+              <span className="font-display font-semibold text-[14px] text-ink-strong">
                 Equity curve
               </span>
-              <span
-                className="font-display font-bold tabular-nums text-[18px]"
-                style={{ color: equityColor, letterSpacing: "-0.01em" }}
-              >
+              <span className={`font-display font-bold tabular-nums text-[18px] tracking-[-0.01em] ${equityColorCls}`}>
                 {stats.netR >= 0 ? "+" : ""}{stats.netR.toFixed(1)}R
               </span>
             </div>
-            <p className="text-[11px] mb-3" style={{ color: "var(--ink-dim)" }}>
+            <p className="text-[11px] mb-3 text-ink-dim">
               Cumulative R · {stats.closed} closed trades
             </p>
-            <div ref={sparkRef} className="w-full" style={{ height: 80 }}>
+            <div ref={sparkRef} className="w-full h-20">
               <Sparkline
                 data={stats.equity}
                 width={260}
@@ -209,10 +204,10 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
               />
             </div>
             <div className="flex justify-between mt-1.5">
-              <span className="text-[9.5px] tabular-nums" style={{ color: "var(--ink-dim)", fontFamily: "var(--mono)" }}>
+              <span className="text-[9.5px] tabular-nums text-ink-dim font-mono">
                 {Math.min(...stats.equity).toFixed(1)}R
               </span>
-              <span className="text-[9.5px] tabular-nums" style={{ color: "var(--ink-dim)", fontFamily: "var(--mono)" }}>
+              <span className="text-[9.5px] tabular-nums text-ink-dim font-mono">
                 {Math.max(...stats.equity).toFixed(1)}R
               </span>
             </div>
@@ -222,29 +217,29 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
 
       {/* Avg win / avg loss / hold time */}
       <Panel>
-        <div className="px-4 pt-4 pb-4 grid gap-3" style={{ gridTemplateColumns: avgHoldMs != null ? "1fr 1fr 1fr" : "1fr 1fr" }}>
+        <div className={`px-4 pt-4 pb-4 grid gap-3 ${avgHoldMs != null ? "grid-cols-3" : "grid-cols-2"}`}>
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "var(--ink-dim)" }}>
+            <div className="text-[10px] font-semibold uppercase tracking-wider mb-1 text-ink-dim">
               Avg win
             </div>
-            <div className="font-display font-bold tabular-nums text-[20px]" style={{ color: "var(--teal-bright)", letterSpacing: "-0.01em" }}>
+            <div className="font-display font-bold tabular-nums text-[20px] tracking-[-0.01em] text-teal-bright">
               +{stats.avgWin.toFixed(1)}R
             </div>
           </div>
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "var(--ink-dim)" }}>
+            <div className="text-[10px] font-semibold uppercase tracking-wider mb-1 text-ink-dim">
               Avg loss
             </div>
-            <div className="font-display font-bold tabular-nums text-[20px]" style={{ color: "var(--coral-bright)", letterSpacing: "-0.01em" }}>
+            <div className="font-display font-bold tabular-nums text-[20px] tracking-[-0.01em] text-coral-bright">
               {stats.avgLoss.toFixed(1)}R
             </div>
           </div>
           {avgHoldMs != null && (
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "var(--ink-dim)" }}>
+              <div className="text-[10px] font-semibold uppercase tracking-wider mb-1 text-ink-dim">
                 Avg hold
               </div>
-              <div className="font-display font-bold tabular-nums text-[20px]" style={{ color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
+              <div className="font-display font-bold tabular-nums text-[20px] tracking-[-0.01em] text-ink-strong">
                 {fmtAvgHold(avgHoldMs)}
               </div>
             </div>
@@ -255,11 +250,11 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
       {/* Model win rate */}
       <Panel>
         <div className="px-4 pt-4 pb-3">
-          <div className="font-display font-semibold text-[14px] mb-3" style={{ color: "var(--ink-strong)" }}>
+          <div className="font-display font-semibold text-[14px] mb-3 text-ink-strong">
             Model win rate
           </div>
           {stats.models.length === 0 ? (
-            <p className="text-[12px] pb-2" style={{ color: "var(--ink-dim)" }}>No closed trades yet.</p>
+            <p className="text-[12px] pb-2 text-ink-dim">No closed trades yet.</p>
           ) : (
             <div className="flex flex-col gap-2.5 pb-2">
               {stats.models.slice(0, 6).map((m) => (
@@ -274,7 +269,7 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
       {pairStats.length > 0 && (
         <Panel>
           <div className="px-4 pt-4 pb-3">
-            <div className="font-display font-semibold text-[14px] mb-3" style={{ color: "var(--ink-strong)" }}>
+            <div className="font-display font-semibold text-[14px] mb-3 text-ink-strong">
               Pair performance
             </div>
             <div className="flex flex-col gap-2.5 pb-2">
@@ -289,7 +284,7 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
       {/* Session breakdown */}
       <Panel>
         <div className="px-4 pt-4 pb-4">
-          <div className="font-display font-semibold text-[14px] mb-3" style={{ color: "var(--ink-strong)" }}>
+          <div className="font-display font-semibold text-[14px] mb-3 text-ink-strong">
             Sessions
           </div>
           <div className="flex flex-col gap-2.5">
@@ -306,19 +301,19 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
           <div className="px-4 pt-4 pb-4">
             <div className="flex items-center gap-2 mb-3">
               <Icon name="warning" size={15} fill style={{ color: "var(--coral)" }} />
-              <span className="font-display font-semibold text-[14px]" style={{ color: "var(--ink-strong)" }}>
+              <span className="font-display font-semibold text-[14px] text-ink-strong">
                 Recurring leaks
               </span>
             </div>
             <div className="flex flex-col gap-2">
               {leaks.map(({ model, count }) => (
                 <div key={model} className="flex items-center justify-between">
-                  <span className="text-[12px]" style={{ color: "var(--ink-mid)" }}>{model}</span>
+                  <span className="text-[12px] text-ink-mid">{model}</span>
                   <Chip tone="coral">{count}×</Chip>
                 </div>
               ))}
             </div>
-            <p className="text-[11.5px] leading-relaxed mt-3" style={{ color: "var(--ink-dim)" }}>
+            <p className="text-[11.5px] leading-relaxed mt-3 text-ink-dim">
               Rule breaks on these setups. Review your checklist before entering.
             </p>
           </div>
@@ -333,27 +328,26 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
 function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string) => void; onEdit: () => void }) {
   return (
     <tr
-      className="group cursor-pointer transition-colors hover:bg-[var(--hover)]"
+      className="group cursor-pointer transition-colors hover:bg-hover"
       onClick={() => onView(trade.id)}
     >
       <td className="px-4 py-3 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <span
-            className="shrink-0 rounded-full"
+            className="shrink-0 rounded-full w-1.5 h-1.5"
             style={{
-              width: 6, height: 6,
               background: pnlColor(trade),
               boxShadow: trade.result !== "open" ? `0 0 4px ${pnlColor(trade)}` : "none",
             }}
           />
-          <div className="text-[12.5px] font-medium tabular-nums" style={{ color: "var(--ink-dim)" }}>
+          <div className="text-[12.5px] font-medium tabular-nums text-ink-dim">
             {trade.date}
           </div>
         </div>
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="font-display font-bold text-[13.5px]" style={{ color: "var(--ink-strong)" }}>
+          <span className="font-display font-bold text-[13.5px] text-ink-strong">
             {trade.pair}
           </span>
           <DirPill dir={trade.dir} size="sm" />
@@ -363,7 +357,7 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
         </div>
       </td>
       <td className="px-4 py-3 hidden lg:table-cell">
-        <div className="text-[12px] max-w-[160px] truncate" style={{ color: "var(--ink-mid)" }}>
+        <div className="text-[12px] max-w-[160px] truncate text-ink-mid">
           {trade.model.split("→")[0].split("+")[0].trim()}
         </div>
       </td>
@@ -375,14 +369,14 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
         )}
       </td>
       <td className="px-4 py-3 hidden lg:table-cell text-right">
-        <span className="tabular-nums text-[12.5px]" style={{ color: "var(--ink-dim)" }}>
+        <span className="tabular-nums text-[12.5px] text-ink-dim">
           {trade.rr ? `1:${trade.rr}` : "—"}
         </span>
       </td>
       <td className="px-4 py-3 text-right">
         <span
-          className="font-display font-bold tabular-nums text-[14px]"
-          style={{ color: pnlColor(trade), letterSpacing: "-0.01em" }}
+          className="font-display font-bold tabular-nums text-[14px] tracking-[-0.01em]"
+          style={{ color: pnlColor(trade) }}
         >
           {pnlLabel(trade)}
         </span>
@@ -392,12 +386,7 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
       </td>
       <td className="px-4 py-3 hidden lg:table-cell text-center">
         <span
-          className="material-symbols-rounded"
-          style={{
-            fontSize: 16,
-            color: trade.discipline ? "var(--teal)" : "var(--coral)",
-            fontVariationSettings: "'FILL' 1",
-          }}
+          className={`material-symbols-rounded ic-fill text-[16px] ${trade.discipline ? "text-teal" : "text-coral"}`}
         >
           {trade.discipline ? "check_circle" : "cancel"}
         </span>
@@ -409,8 +398,7 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
         >
           <button
             type="button"
-            className="p-1 rounded-lg hover:bg-[var(--hover)] transition-colors"
-            style={{ color: "var(--ink-dim)" }}
+            className="p-1 rounded-lg hover:bg-hover transition-colors text-ink-dim"
             onClick={onEdit}
             title="Edit"
           >
@@ -430,8 +418,8 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
   const pages = Math.ceil(total / PAGE_SIZE);
   if (pages <= 1) return null;
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-t" style={{ borderColor: "var(--line)" }}>
-      <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+    <div className="flex items-center justify-between px-4 py-3 border-t border-line">
+      <span className="text-[12px] text-ink-dim">
         {Math.min((page - 1) * PAGE_SIZE + 1, total)}–{Math.min(page * PAGE_SIZE, total)} of {total}
       </span>
       <div className="flex items-center gap-1.5">
@@ -439,8 +427,7 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
           type="button"
           disabled={page === 1}
           onClick={() => onChange(page - 1)}
-          className="p-1.5 rounded-lg hover:bg-[var(--hover)] disabled:opacity-30 transition-colors"
-          style={{ color: "var(--ink-mid)" }}
+          className="p-1.5 rounded-lg hover:bg-hover disabled:opacity-30 transition-colors text-ink-mid"
         >
           <Icon name="chevron_left" size={18} />
         </button>
@@ -451,12 +438,7 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
               key={p}
               type="button"
               onClick={() => onChange(p)}
-              className="size-7 rounded-lg text-[12px] font-semibold transition-colors"
-              style={
-                page === p
-                  ? { background: "var(--teal)", color: "#fff" }
-                  : { color: "var(--ink-mid)" }
-              }
+              className={`size-7 rounded-lg text-[12px] font-semibold transition-colors ${page === p ? "bg-teal text-white" : "text-ink-mid"}`}
             >
               {p}
             </button>
@@ -466,8 +448,7 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
           type="button"
           disabled={page === pages}
           onClick={() => onChange(page + 1)}
-          className="p-1.5 rounded-lg hover:bg-[var(--hover)] disabled:opacity-30 transition-colors"
-          style={{ color: "var(--ink-mid)" }}
+          className="p-1.5 rounded-lg hover:bg-hover disabled:opacity-30 transition-colors text-ink-mid"
         >
           <Icon name="chevron_right" size={18} />
         </button>
@@ -527,17 +508,16 @@ export function Journal() {
       <div className="flex items-start justify-between mb-5">
         <div>
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="font-display font-bold" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
+            <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
               Trade Journal
             </h1>
             {streak.n >= 2 && (
               <span
-                className="inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
-                style={{
-                  background: streak.type === "win" ? "rgba(8,174,170,0.1)" : "rgba(234,82,61,0.1)",
-                  color:      streak.type === "win" ? "var(--teal-bright)" : "var(--coral-bright)",
-                  border:     `1px solid ${streak.type === "win" ? "rgba(8,174,170,0.28)" : "rgba(234,82,61,0.28)"}`,
-                }}
+                className={`inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${
+                  streak.type === "win"
+                    ? "bg-[rgba(8,174,170,0.1)] text-teal-bright border border-[rgba(8,174,170,0.28)]"
+                    : "bg-[rgba(234,82,61,0.1)] text-coral-bright border border-[rgba(234,82,61,0.28)]"
+                }`}
               >
                 <Icon
                   name={streak.type === "win" ? "local_fire_department" : "trending_down"}
@@ -549,7 +529,7 @@ export function Journal() {
               </span>
             )}
           </div>
-          <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+          <p className="text-[13px] mt-0.5 text-ink-dim">
             {trades.length === 0
               ? "Start logging trades to build your edge."
               : `${trades.length} trade${trades.length !== 1 ? "s" : ""} logged · ${stats.closed} closed`}
@@ -605,21 +585,15 @@ export function Journal() {
         <div className="flex flex-col gap-3">
           {/* Filter bar */}
           <div className="flex items-center gap-3 flex-wrap">
-            <div
-              className="flex items-center rounded-xl p-0.5"
-              style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
-            >
+            <div className="flex items-center rounded-xl p-0.5 bg-panel-2 border border-line">
               {FILTERS.map((f) => (
                 <button
                   key={f}
                   type="button"
                   onClick={() => handleFilterChange(f)}
-                  className="px-3.5 py-1.5 rounded-[10px] text-[12.5px] font-semibold transition-all"
-                  style={
-                    filter === f
-                      ? { background: "var(--panel)", color: "var(--ink-strong)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }
-                      : { color: "var(--ink-dim)" }
-                  }
+                  className={`px-3.5 py-1.5 rounded-[10px] text-[12.5px] font-semibold transition-all ${
+                    filter === f ? "bg-panel text-ink-strong shadow-[0_1px_4px_rgba(0,0,0,0.12)]" : "text-ink-dim"
+                  }`}
                 >
                   {f}
                 </button>
@@ -633,12 +607,9 @@ export function Journal() {
                   key={pair}
                   type="button"
                   onClick={() => handlePairToggle(pair)}
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all"
-                  style={
-                    pairFilter === pair
-                      ? { background: "var(--teal)", color: "#fff" }
-                      : { background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }
-                  }
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+                    pairFilter === pair ? "bg-teal text-white" : "bg-panel-2 text-ink-dim border border-line"
+                  }`}
                 >
                   {pair}
                 </button>
@@ -646,21 +617,17 @@ export function Journal() {
             </div>
 
             {/* Search */}
-            <div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl flex-1 min-w-0"
-              style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
-            >
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl flex-1 min-w-0 bg-panel-2 border border-line">
               <Icon name="search" size={15} style={{ color: "var(--ink-dim)", flexShrink: 0 }} />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => handleSearch(e.target.value)}
                 placeholder="Search pair, model, notes…"
-                className="flex-1 bg-transparent text-[12.5px] outline-none"
-                style={{ color: "var(--ink-strong)" }}
+                className="flex-1 bg-transparent text-[12.5px] outline-none text-ink-strong"
               />
               {search && (
-                <button type="button" onClick={() => handleSearch("")} style={{ color: "var(--ink-dim)" }}>
+                <button type="button" onClick={() => handleSearch("")} className="text-ink-dim">
                   <Icon name="close" size={14} />
                 </button>
               )}
@@ -668,10 +635,7 @@ export function Journal() {
           </div>
 
           {/* Table */}
-          <div
-            className="rounded-2xl overflow-hidden"
-            style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-          >
+          <div className="rounded-2xl overflow-hidden bg-panel border border-line">
             {filtered.length === 0 ? (
               <EmptyState
                 icon="menu_book"
@@ -694,7 +658,7 @@ export function Journal() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
-                      <tr style={{ borderBottom: "1px solid var(--line)" }}>
+                      <tr className="border-b border-line">
                         {[
                           { label: "Date",    cls: "" },
                           { label: "Pair",    cls: "" },
@@ -708,8 +672,7 @@ export function Journal() {
                         ].map((h) => (
                           <th
                             key={h.label}
-                            className={`px-4 py-2.5 text-[10.5px] font-semibold uppercase tracking-wider ${h.cls}`}
-                            style={{ color: "var(--ink-dim)" }}
+                            className={`px-4 py-2.5 text-[10.5px] font-semibold uppercase tracking-wider text-ink-dim ${h.cls}`}
                           >
                             {h.label}
                           </th>

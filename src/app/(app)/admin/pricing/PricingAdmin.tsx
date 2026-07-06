@@ -63,7 +63,7 @@ export function PricingAdmin({ initial }: Props) {
             >
               <div className="flex items-center gap-3 mb-5">
                 <div className="size-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${meta.color}18` }}>
-                  <span className="material-symbols-rounded" style={{ fontSize: 20, color: meta.color, fontVariationSettings: "'FILL' 1" }}>
+                  <span className="material-symbols-rounded" style={{ fontSize: 20, color: meta.color, fontFamily: "Material Symbols Rounded Fill" }}>
                     {meta.icon}
                   </span>
                 </div>

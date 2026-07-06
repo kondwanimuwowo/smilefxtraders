@@ -37,12 +37,12 @@ const FAQ = [
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-b" style={{ borderColor: "var(--line)" }}>
+    <div className="border-b border-line">
       <button type="button" onClick={() => setOpen((o) => !o)} className="flex items-center justify-between w-full py-4 text-left gap-4">
-        <span className="font-semibold text-[14px]" style={{ color: "var(--ink-strong)" }}>{q}</span>
+        <span className="font-semibold text-[14px] text-ink-strong">{q}</span>
         <Icon name={open ? "expand_less" : "expand_more"} size={20} style={{ color: "var(--ink-dim)", flexShrink: 0 }} />
       </button>
-      {open && <div className="pb-4 text-[13px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>{a}</div>}
+      {open && <div className="pb-4 text-[13px] leading-relaxed text-ink-mid">{a}</div>}
     </div>
   );
 }
@@ -68,26 +68,24 @@ export function Pricing() {
   return (
     <div className="view">
       <div className="text-center mb-8">
-        <h1 className="font-display font-bold" style={{ fontSize: 30, letterSpacing: "-0.03em", color: "var(--ink-strong)" }}>
+        <h1 className="font-display font-bold text-[30px] tracking-[-0.03em] text-ink-strong">
           Simple, transparent pricing
         </h1>
-        <p className="text-[15px] mt-2 max-w-lg mx-auto" style={{ color: "var(--ink-dim)" }}>
+        <p className="text-[15px] mt-2 max-w-lg mx-auto text-ink-dim">
           Built for Zambian traders. All prices in ZMW (Kwacha).
         </p>
         <div className="flex items-center justify-center gap-3 mt-5">
-          <span className="text-[13.5px] font-medium" style={{ color: annual ? "var(--ink-dim)" : "var(--ink-strong)" }}>Monthly</span>
+          <span className={`text-[13.5px] font-medium ${annual ? "text-ink-dim" : "text-ink-strong"}`}>Monthly</span>
           <button
             type="button"
             onClick={() => setAnnual((a) => !a)}
-            className="relative inline-flex h-6 w-11 rounded-full transition-colors"
-            style={{ background: annual ? "var(--teal)" : "var(--track)" }}
+            className={`relative inline-flex h-6 w-11 rounded-full transition-colors ${annual ? "bg-teal" : "bg-track"}`}
           >
             <span
-              className="inline-block size-5 rounded-full bg-white shadow-sm transition-transform"
-              style={{ transform: annual ? "translateX(20px)" : "translateX(2px)", marginTop: 2 }}
+              className={`inline-block size-5 rounded-full bg-white shadow-sm transition-transform mt-0.5 ${annual ? "translate-x-5" : "translate-x-0.5"}`}
             />
           </button>
-          <span className="text-[13.5px] font-medium" style={{ color: annual ? "var(--ink-strong)" : "var(--ink-dim)" }}>Annual</span>
+          <span className={`text-[13.5px] font-medium ${annual ? "text-ink-strong" : "text-ink-dim"}`}>Annual</span>
           {annual && <Chip tone="teal">Save 20%</Chip>}
         </div>
       </div>
@@ -107,8 +105,7 @@ export function Pricing() {
                 if (isCurrent) {
                   return (
                     <div
-                      className="w-full py-2.5 rounded-xl text-center text-[13.5px] font-semibold"
-                      style={{ background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }}
+                      className="w-full py-2.5 rounded-xl text-center text-[13.5px] font-semibold bg-panel-2 text-ink-dim border border-line"
                     >
                       Current plan
                     </div>
@@ -117,8 +114,7 @@ export function Pricing() {
                 if (m.id === "free") {
                   return (
                     <div
-                      className="w-full py-2.5 rounded-xl text-center text-[13.5px] font-semibold"
-                      style={{ background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }}
+                      className="w-full py-2.5 rounded-xl text-center text-[13.5px] font-semibold bg-panel-2 text-ink-dim border border-line"
                     >
                       Downgrade not available
                     </div>
@@ -128,12 +124,11 @@ export function Pricing() {
                   <button
                     type="button"
                     onClick={() => { setCheckoutPlan(m.id as PaidPlan); setCheckoutCycle(annual ? "annual" : "monthly"); }}
-                    className="w-full py-2.5 rounded-xl text-[13.5px] font-bold transition-all active:scale-95"
-                    style={
+                    className={`w-full py-2.5 rounded-xl text-[13.5px] font-bold transition-all active:scale-95 ${
                       m.popular
-                        ? { background: "linear-gradient(135deg, var(--teal), #069E9A)", color: "#fff" }
-                        : { background: "linear-gradient(135deg, var(--gold), #e09b25)", color: "var(--navy-deep)" }
-                    }
+                        ? "bg-[linear-gradient(135deg,var(--teal),#069E9A)] text-white"
+                        : "bg-[linear-gradient(135deg,var(--gold),#e09b25)] text-navy-deep"
+                    }`}
                   >
                     {m.id === "pro" ? "Upgrade to Pro" : "Join Funded Track"}
                   </button>
@@ -145,22 +140,21 @@ export function Pricing() {
       </div>
 
       <div
-        className="rounded-2xl px-6 py-5 flex items-center gap-4 mb-10"
-        style={{ background: "rgba(8,174,170,0.06)", border: "1px solid rgba(8,174,170,0.2)" }}
+        className="rounded-2xl px-6 py-5 flex items-center gap-4 mb-10 bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.2)]"
       >
         <Icon name="verified_user" size={30} fill style={{ color: "var(--teal)", flexShrink: 0 }} />
         <div>
-          <div className="font-display font-semibold text-[15px] mb-0.5" style={{ color: "var(--ink-strong)" }}>
+          <div className="font-display font-semibold text-[15px] mb-0.5 text-ink-strong">
             7-day money-back guarantee
           </div>
-          <p className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
+          <p className="text-[13px] text-ink-dim">
             Not satisfied in your first 7 days? Email us and we&apos;ll refund you in full, no questions asked.
           </p>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto">
-        <h2 className="font-display font-bold text-[20px] mb-4" style={{ color: "var(--ink-strong)", letterSpacing: "-0.02em" }}>
+        <h2 className="font-display font-bold text-[20px] mb-4 tracking-[-0.02em] text-ink-strong">
           Frequently asked questions
         </h2>
         {FAQ.map((item) => <FAQItem key={item.q} {...item} />)}

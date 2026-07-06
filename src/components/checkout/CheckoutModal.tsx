@@ -162,22 +162,17 @@ export function CheckoutModal({
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="relative w-full max-w-md rounded-2xl overflow-hidden"
-        style={{
-          background:  "var(--panel)",
-          border:      "1px solid var(--line)",
-          boxShadow:   "0 24px 70px rgba(0,0,0,0.4)",
-          animation:   "popIn 180ms cubic-bezier(0.16,1,0.3,1)",
-        }}
+        className="relative w-full max-w-md rounded-2xl overflow-hidden bg-panel border border-line shadow-[0_24px_70px_rgba(0,0,0,0.4)]"
+        style={{ animation: "popIn 180ms cubic-bezier(0.16,1,0.3,1)" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: "var(--line)" }}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-line">
           <div>
-            <div className="font-display font-bold text-[16px]" style={{ color: "var(--ink-strong)" }}>
+            <div className="font-display font-bold text-[16px] text-ink-strong">
               {screen === "success" ? "Payment confirmed!" : `Upgrade to ${planCfg.name}`}
             </div>
             {screen !== "success" && (
-              <div className="text-[12.5px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+              <div className="text-[12.5px] mt-0.5 text-ink-dim">
                 K{price}/mo · {cycle === "annual" ? "billed annually" : "billed monthly"} · ZMW
               </div>
             )}
@@ -185,8 +180,7 @@ export function CheckoutModal({
           <button
             type="button"
             onClick={onClose}
-            className="size-8 flex items-center justify-center rounded-lg hover:opacity-70 transition-opacity"
-            style={{ color: "var(--ink-dim)" }}
+            className="size-8 flex items-center justify-center rounded-lg hover:opacity-70 transition-opacity text-ink-dim"
           >
             <span className="material-symbols-rounded text-[20px]">close</span>
           </button>
@@ -198,18 +192,15 @@ export function CheckoutModal({
           {screen === "method" && (
             <div className="flex flex-col gap-4">
               {/* Method tabs */}
-              <div className="flex rounded-xl overflow-hidden" style={{ border: "1px solid var(--line)" }}>
+              <div className="flex rounded-xl overflow-hidden border border-line">
                 {(["mobile", "card"] as const).map((m) => (
                   <button
                     key={m}
                     type="button"
                     onClick={() => setMethod(m)}
-                    className="flex-1 py-2.5 text-[13px] font-semibold transition-all"
-                    style={{
-                      background:  method === m ? "var(--teal)" : "var(--panel-2)",
-                      color:       method === m ? "#fff"         : "var(--ink-mid)",
-                      borderRight: m === "mobile" ? "1px solid var(--line)" : "none",
-                    }}
+                    className={`flex-1 py-2.5 text-[13px] font-semibold transition-all ${
+                      method === m ? "bg-teal text-white" : "bg-panel-2 text-ink-mid"
+                    } ${m === "mobile" ? "border-r border-line" : ""}`}
                   >
                     {m === "mobile" ? "Mobile Money" : "Card"}
                   </button>
@@ -219,23 +210,21 @@ export function CheckoutModal({
               {method === "mobile" ? (
                 <div className="flex flex-col gap-3">
                   <label className="flex flex-col gap-1.5">
-                    <span className="text-[12px] font-semibold" style={{ color: "var(--ink-mid)" }}>Mobile number</span>
+                    <span className="text-[12px] font-semibold text-ink-mid">Mobile number</span>
                     <input
                       type="tel"
                       placeholder="09XXXXXXXX"
                       value={phone}
                       onChange={(e) => handlePhoneChange(e.target.value)}
-                      className="rounded-xl px-3 py-2.5 text-[14px] outline-none"
-                      style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+                      className="rounded-xl px-3 py-2.5 text-[14px] outline-none bg-panel-2 border border-line text-ink-strong"
                     />
                   </label>
 
                   <div className="flex flex-col gap-1.5">
-                    <span className="flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: "var(--ink-mid)" }}>
+                    <span className="flex items-center gap-1.5 text-[12px] font-semibold text-ink-mid">
                       Mobile money provider
                       {autoPicked && (
-                        <span className="text-[10.5px] font-semibold px-1.5 py-0.5 rounded-full"
-                          style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.2)" }}>
+                        <span className="text-[10.5px] font-semibold px-1.5 py-0.5 rounded-full bg-[rgba(8,174,170,0.1)] text-teal border border-[rgba(8,174,170,0.2)]">
                           auto-detected
                         </span>
                       )}
@@ -248,16 +237,14 @@ export function CheckoutModal({
                             key={o.value}
                             type="button"
                             onClick={() => { setOperator(o.value); setAutoPicked(false); }}
-                            className="flex flex-col items-center gap-1.5 rounded-xl px-2 py-2.5 transition-all"
-                            style={{
-                              background: active ? "rgba(8,174,170,0.07)" : "var(--panel-2)",
-                              border:     `1px solid ${active ? "var(--teal)" : "var(--line)"}`,
-                              boxShadow:  active ? "inset 0 0 0 1px rgba(8,174,170,0.25)" : "none",
-                            }}
+                            className={`flex flex-col items-center gap-1.5 rounded-xl px-2 py-2.5 transition-all border ${
+                              active
+                                ? "bg-[rgba(8,174,170,0.07)] border-teal shadow-[inset_0_0_0_1px_rgba(8,174,170,0.25)]"
+                                : "bg-panel-2 border-line"
+                            }`}
                           >
                             <NetworkLogo op={o.value} size={30} />
-                            <span className="text-[11px] font-semibold leading-tight text-center"
-                              style={{ color: active ? "var(--ink-strong)" : "var(--ink-dim)" }}>
+                            <span className={`text-[11px] font-semibold leading-tight text-center ${active ? "text-ink-strong" : "text-ink-dim"}`}>
                               {o.label}
                             </span>
                           </button>
@@ -267,45 +254,35 @@ export function CheckoutModal({
                   </div>
 
                   {error && (
-                    <div className="text-[12.5px] font-medium" style={{ color: "var(--coral)" }}>{error}</div>
+                    <div className="text-[12.5px] font-medium text-coral">{error}</div>
                   )}
 
                   <button
                     type="button"
                     disabled={loading}
                     onClick={submitMobileMoney}
-                    className="w-full py-3 rounded-xl text-[14px] font-bold transition-all active:scale-98"
-                    style={{
-                      background: "linear-gradient(135deg, var(--teal), #069E9A)",
-                      color:      "#fff",
-                      opacity:    loading ? 0.7 : 1,
-                      boxShadow:  "0 4px 14px rgba(8,174,170,0.3)",
-                    }}
+                    className={`w-full py-3 rounded-xl text-[14px] font-bold transition-all active:scale-98 bg-[linear-gradient(135deg,var(--teal),#069E9A)] text-white shadow-[0_4px_14px_rgba(8,174,170,0.3)] ${loading ? "opacity-70" : "opacity-100"}`}
                   >
                     {loading ? "Initiating…" : `Pay K${price}`}
                   </button>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-4 py-4 text-center">
-                  <span
-                    className="material-symbols-rounded"
-                    style={{ fontSize: 40, color: "var(--ink-dim)", fontVariationSettings: "'FILL' 0" }}
-                  >
+                  <span className="material-symbols-rounded text-[40px] text-ink-dim">
                     credit_card
                   </span>
                   <div>
-                    <div className="font-semibold text-[14.5px] mb-1" style={{ color: "var(--ink-strong)" }}>
+                    <div className="font-semibold text-[14.5px] mb-1 text-ink-strong">
                       Card payments coming soon
                     </div>
-                    <p className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
+                    <p className="text-[13px] text-ink-dim">
                       Use Mobile Money to pay now: Airtel, MTN, and Zamtel are all supported.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setMethod("mobile")}
-                    className="px-5 py-2 rounded-full text-[13px] font-semibold transition-all"
-                    style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.2)" }}
+                    className="px-5 py-2 rounded-full text-[13px] font-semibold transition-all bg-[rgba(8,174,170,0.1)] text-teal border border-[rgba(8,174,170,0.2)]"
                   >
                     Switch to Mobile Money
                   </button>
@@ -317,24 +294,18 @@ export function CheckoutModal({
           {/* ── Screen: waiting ── */}
           {screen === "waiting" && (
             <div className="flex flex-col items-center gap-5 py-4">
-              <div
-                className="size-16 rounded-full flex items-center justify-center"
-                style={{ background: "rgba(8,174,170,0.1)", border: "2px solid rgba(8,174,170,0.3)" }}
-              >
-                <span
-                  className="material-symbols-rounded text-[32px]"
-                  style={{ color: "var(--teal)", fontVariationSettings: "'FILL' 1" }}
-                >
+              <div className="size-16 rounded-full flex items-center justify-center bg-[rgba(8,174,170,0.1)] border-2 border-[rgba(8,174,170,0.3)]">
+                <span className="material-symbols-rounded ic-fill text-[32px] text-teal">
                   smartphone
                 </span>
               </div>
 
               <div className="text-center">
-                <div className="font-display font-semibold text-[16px] mb-1" style={{ color: "var(--ink-strong)" }}>
+                <div className="font-display font-semibold text-[16px] mb-1 text-ink-strong">
                   Check your phone
                 </div>
-                <p className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
-                  Approve the payment prompt from <strong style={{ color: "var(--ink-mid)" }}>{OPERATORS.find(o => o.value === operator)?.label}</strong>.
+                <p className="text-[13px] text-ink-dim">
+                  Approve the payment prompt from <strong className="text-ink-mid">{OPERATORS.find(o => o.value === operator)?.label}</strong>.
                   This page will update automatically.
                 </p>
               </div>
@@ -345,30 +316,25 @@ export function CheckoutModal({
                     {[...Array(3)].map((_, i) => (
                       <div
                         key={i}
-                        className="size-2 rounded-full"
-                        style={{
-                          background:  "var(--teal)",
-                          animation:   `bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
-                          opacity:     0.7,
-                        }}
+                        className="size-2 rounded-full bg-teal opacity-70"
+                        style={{ animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }}
                       />
                     ))}
                   </div>
-                  <div className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+                  <div className="text-[12px] text-ink-dim">
                     Checking… ({Math.min(polls, POLL_MAX)} / {POLL_MAX})
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-3">
-                  <div className="text-[12.5px] text-center" style={{ color: "var(--ink-dim)" }}>
+                  <div className="text-[12.5px] text-center text-ink-dim">
                     Not confirmed yet. Make sure you approved the prompt.
                   </div>
-                  {error && <div className="text-[12px]" style={{ color: "var(--coral)" }}>{error}</div>}
+                  {error && <div className="text-[12px] text-coral">{error}</div>}
                   <button
                     type="button"
                     onClick={manualVerify}
-                    className="px-5 py-2 rounded-xl text-[13px] font-semibold"
-                    style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.2)" }}
+                    className="px-5 py-2 rounded-xl text-[13px] font-semibold bg-[rgba(8,174,170,0.1)] text-teal border border-[rgba(8,174,170,0.2)]"
                   >
                     Check again
                   </button>
@@ -380,22 +346,16 @@ export function CheckoutModal({
           {/* ── Screen: success ── */}
           {screen === "success" && (
             <div className="flex flex-col items-center gap-4 py-6">
-              <div
-                className="size-20 rounded-full flex items-center justify-center"
-                style={{ background: "rgba(8,174,170,0.12)", border: "2px solid rgba(8,174,170,0.4)" }}
-              >
-                <span
-                  className="material-symbols-rounded text-[40px]"
-                  style={{ color: "var(--teal)", fontVariationSettings: "'FILL' 1" }}
-                >
+              <div className="size-20 rounded-full flex items-center justify-center bg-[rgba(8,174,170,0.12)] border-2 border-[rgba(8,174,170,0.4)]">
+                <span className="material-symbols-rounded ic-fill text-[40px] text-teal">
                   check_circle
                 </span>
               </div>
               <div className="text-center">
-                <div className="font-display font-bold text-[18px] mb-1" style={{ color: "var(--ink-strong)" }}>
+                <div className="font-display font-bold text-[18px] mb-1 text-ink-strong">
                   You&apos;re now on {planCfg.name}!
                 </div>
-                <p className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
+                <p className="text-[13px] text-ink-dim">
                   Your account has been upgraded. All features are now unlocked.
                 </p>
               </div>
