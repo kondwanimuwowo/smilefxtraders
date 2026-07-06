@@ -92,17 +92,17 @@ function RangeTrack({ value, label, weeks, color }: { value: number; label: stri
     <div>
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-2">
-          <span className="text-[12px] font-medium" style={{ color: "var(--ink-mid)" }}>{label}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "var(--panel-2)", color: "var(--ink-dim)" }}>
+          <span className="text-[12px] font-medium text-ink-mid">{label}</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-panel-2 text-ink-dim">
             {weeks}
           </span>
         </div>
         <span className="text-[13px] font-bold tabular-nums" style={{ color }}>
           {value}
-          <span className="text-[10px] font-normal ml-0.5" style={{ color: "var(--ink-dim)" }}>/100</span>
+          <span className="text-[10px] font-normal ml-0.5 text-ink-dim">/100</span>
         </span>
       </div>
-      <div className="relative rounded-full overflow-hidden" style={{ height: 6, background: "var(--track)" }}>
+      <div className="relative rounded-full overflow-hidden h-1.5 bg-track">
         <div className="absolute top-0 left-0 h-full" style={{ width: "20%", background: "rgba(234,82,61,0.15)" }} />
         <div className="absolute top-0 right-0 h-full" style={{ width: "20%", background: "rgba(8,174,170,0.15)" }} />
         <div
@@ -110,12 +110,8 @@ function RangeTrack({ value, label, weeks, color }: { value: number; label: stri
           style={{ width: `${value}%`, background: color, opacity: 0.45, transition: "width 700ms var(--ease-app)" }}
         />
         <div
-          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full border-2"
-          style={{
-            left: `${value}%`, width: 12, height: 12,
-            background: "var(--panel)", borderColor: color,
-            transition: "left 700ms var(--ease-app)",
-          }}
+          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 w-3 h-3 bg-panel"
+          style={{ left: `${value}%`, borderColor: color, transition: "left 700ms var(--ease-app)" }}
         />
       </div>
     </div>
@@ -150,7 +146,7 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
       <div className="flex flex-col items-center gap-1.5">
         <div className="relative flex items-center justify-center" style={{ width: 72, height: 72 }}>
           <svg width="72" height="72" viewBox="0 0 72 72">
-            <circle cx="36" cy="36" r="29" fill="none" stroke="var(--track)" strokeWidth="7" />
+            <circle cx="36" cy="36" r="29" fill="none" stroke="currentColor" strokeWidth="7" className="text-track" />
             <circle
               cx="36" cy="36" r="29" fill="none"
               stroke={color} strokeWidth="7" strokeLinecap="round"
@@ -164,32 +160,29 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
             <span className="font-display font-bold tabular-nums leading-none" style={{ fontSize: 18, color }}>
               {cotIndex}
             </span>
-            <span className="font-medium leading-none mt-0.5" style={{ fontSize: 9, color: "var(--ink-dim)" }}>/100</span>
+            <span className="font-medium leading-none mt-0.5 text-[9px] text-ink-dim">/100</span>
           </div>
         </div>
         <div className="text-center font-semibold leading-tight px-2 py-0.5 rounded" style={{ fontSize: 10.5, maxWidth: 80, ...badge }}>
           {zoneLabel}
         </div>
-        <div className="text-center" style={{ fontSize: 9.5, color: "var(--ink-dim)" }}>COT Index · 3yr</div>
+        <div className="text-center text-[9.5px] text-ink-dim">COT Index · 3yr</div>
       </div>
     );
   }
 
   // ── Full mode (detail page) ───────────────────────────────────────────────
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
+    <div className="rounded-2xl overflow-hidden bg-panel border border-line">
 
       {/* Header */}
-      <div className="px-5 pt-4 pb-3 flex items-start justify-between gap-3" style={{ borderBottom: "1px solid var(--line)" }}>
+      <div className="px-5 pt-4 pb-3 flex items-start justify-between gap-3 border-b border-line">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--ink-dim)" }}>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">
               COT Index
             </span>
-            <span
-              className="text-[10px] px-1.5 py-0.5 rounded font-medium"
-              style={{ background: "rgba(8,174,170,0.08)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.18)" }}
-            >
+            <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-[rgba(8,174,170,0.08)] text-teal border border-[rgba(8,174,170,0.18)]">
               {totalWeeks >= 156 ? "3yr · 156w range" : `${totalWeeks}w range`}
             </span>
           </div>
@@ -197,7 +190,7 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
             <span className="font-display font-bold tabular-nums" style={{ fontSize: 40, lineHeight: 1, color }}>
               {cotIndex}
             </span>
-            <span style={{ fontSize: 16, color: "var(--ink-dim)" }}>/100</span>
+            <span className="text-base text-ink-dim">/100</span>
             <span className="inline-flex items-center text-[12px] font-semibold px-2.5 py-1 rounded-full" style={badge}>
               {zoneLabel}
             </span>
@@ -205,18 +198,15 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
         </div>
 
         {/* Current net callout */}
-        <div
-          className="flex flex-col items-end gap-0.5 shrink-0 px-3 py-2 rounded-xl"
-          style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
-        >
-          <span className="text-[10px] uppercase tracking-wide font-medium" style={{ color: "var(--ink-dim)" }}>Current net</span>
+        <div className="flex flex-col items-end gap-0.5 shrink-0 px-3 py-2 rounded-xl bg-panel-2 border border-line">
+          <span className="text-[10px] uppercase tracking-wide font-medium text-ink-dim">Current net</span>
           <span
             className="font-display font-bold tabular-nums"
             style={{ fontSize: 18, letterSpacing: "-0.01em", color: (rows[0]?.largeSpecNet ?? 0) >= 0 ? "var(--teal-bright)" : "var(--coral-bright)" }}
           >
             {fmtNet(rows[0]?.largeSpecNet ?? 0)}
           </span>
-          <span className="text-[10px]" style={{ color: "var(--ink-dim)" }}>Large Spec net</span>
+          <span className="text-[10px] text-ink-dim">Large Spec net</span>
         </div>
       </div>
 
@@ -228,35 +218,32 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
 
         {/* Zone key */}
         <div className="flex items-center justify-between pt-1">
-          <span className="text-[10px] px-2 py-0.5 rounded" style={{ background: "rgba(234,82,61,0.10)", color: "var(--coral)" }}>
+          <span className="text-[10px] px-2 py-0.5 rounded bg-[rgba(234,82,61,0.10)] text-coral">
             0–20 extreme short
           </span>
-          <span className="text-[10px]" style={{ color: "var(--ink-dim)" }}>40–60 neutral</span>
-          <span className="text-[10px] px-2 py-0.5 rounded" style={{ background: "rgba(8,174,170,0.10)", color: "var(--teal)" }}>
+          <span className="text-[10px] text-ink-dim">40–60 neutral</span>
+          <span className="text-[10px] px-2 py-0.5 rounded bg-[rgba(8,174,170,0.10)] text-teal">
             80–100 extreme long
           </span>
         </div>
       </div>
 
       {/* Peak / current / trough anchors */}
-      <div
-        className="px-5 py-3 grid grid-cols-3 gap-2"
-        style={{ borderTop: "1px solid var(--line)", background: "var(--panel-2)" }}
-      >
+      <div className="px-5 py-3 grid grid-cols-3 gap-2 border-t border-line bg-panel-2">
         <div>
-          <div className="text-[10px] uppercase tracking-wide font-medium mb-0.5" style={{ color: "var(--ink-dim)" }}>Period peak</div>
-          <div className="font-semibold tabular-nums text-[13px]" style={{ color: "var(--teal-bright)" }}>{fmtNet(peakNet)}</div>
-          <div className="text-[10px]" style={{ color: "var(--ink-dim)" }}>{fmtDate(peakDate)}</div>
+          <div className="text-[10px] uppercase tracking-wide font-medium mb-0.5 text-ink-dim">Period peak</div>
+          <div className="font-semibold tabular-nums text-[13px] text-teal-bright">{fmtNet(peakNet)}</div>
+          <div className="text-[10px] text-ink-dim">{fmtDate(peakDate)}</div>
         </div>
         <div className="flex flex-col items-center">
-          <div className="text-[10px] uppercase tracking-wide font-medium mb-0.5" style={{ color: "var(--ink-dim)" }}>Current</div>
+          <div className="text-[10px] uppercase tracking-wide font-medium mb-0.5 text-ink-dim">Current</div>
           <div className="font-semibold tabular-nums text-[13px]" style={{ color }}>{fmtNet(rows[0]?.largeSpecNet ?? 0)}</div>
-          <div className="text-[10px]" style={{ color: "var(--ink-dim)" }}>{fmtDate(rows[0]?.date ?? "")}</div>
+          <div className="text-[10px] text-ink-dim">{fmtDate(rows[0]?.date ?? "")}</div>
         </div>
         <div className="flex flex-col items-end">
-          <div className="text-[10px] uppercase tracking-wide font-medium mb-0.5" style={{ color: "var(--ink-dim)" }}>Period trough</div>
-          <div className="font-semibold tabular-nums text-[13px]" style={{ color: "var(--coral-bright)" }}>{fmtNet(troughNet)}</div>
-          <div className="text-[10px]" style={{ color: "var(--ink-dim)" }}>{fmtDate(troughDate)}</div>
+          <div className="text-[10px] uppercase tracking-wide font-medium mb-0.5 text-ink-dim">Period trough</div>
+          <div className="font-semibold tabular-nums text-[13px] text-coral-bright">{fmtNet(troughNet)}</div>
+          <div className="text-[10px] text-ink-dim">{fmtDate(troughDate)}</div>
         </div>
       </div>
 
@@ -266,7 +253,7 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
         style={{ background: badge.bg, border: `1px solid ${badge.bg}` }}
       >
         <Icon name="psychology" size={14} fill style={{ color, flexShrink: 0, marginTop: 1 }} />
-        <p className="text-[12px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>{interp}</p>
+        <p className="text-[12px] leading-relaxed text-ink-mid">{interp}</p>
       </div>
     </div>
   );

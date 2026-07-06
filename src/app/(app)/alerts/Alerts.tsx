@@ -139,13 +139,13 @@ function usePostAlert() {
 import { fmtRelative } from "@/lib/date";
 function timeAgo(iso: string): string { return fmtRelative(iso); }
 
-const STATUS_CONFIG: Record<AlertStatusApp, { label: string; color: string; bg: string; icon: string }> = {
-  active:    { label: "Active",    color: "var(--teal)",         bg: "rgba(8,174,170,0.12)",    icon: "radio_button_checked" },
-  tp1:       { label: "TP1 Hit",   color: "var(--teal-bright)",  bg: "rgba(48,232,223,0.12)",   icon: "done_all" },
-  tp2:       { label: "TP2 Hit",   color: "var(--teal-bright)",  bg: "rgba(48,232,223,0.16)",   icon: "verified" },
-  sl:        { label: "Stop Loss", color: "var(--coral)",        bg: "rgba(234,82,61,0.12)",    icon: "cancel" },
-  cancelled: { label: "Cancelled", color: "var(--ink-dim)",      bg: "rgba(0,0,0,0.06)",        icon: "block" },
-  closed:    { label: "Closed",    color: "var(--ink-dim)",      bg: "rgba(0,0,0,0.06)",        icon: "lock" },
+const STATUS_CONFIG: Record<AlertStatusApp, { label: string; textCls: string; bgCls: string; icon: string }> = {
+  active:    { label: "Active",    textCls: "text-teal",        bgCls: "bg-[rgba(8,174,170,0.12)]",  icon: "radio_button_checked" },
+  tp1:       { label: "TP1 Hit",   textCls: "text-teal-bright",  bgCls: "bg-[rgba(48,232,223,0.12)]", icon: "done_all" },
+  tp2:       { label: "TP2 Hit",   textCls: "text-teal-bright",  bgCls: "bg-[rgba(48,232,223,0.16)]", icon: "verified" },
+  sl:        { label: "Stop Loss", textCls: "text-coral",       bgCls: "bg-[rgba(234,82,61,0.12)]",  icon: "cancel" },
+  cancelled: { label: "Cancelled", textCls: "text-ink-dim",     bgCls: "bg-[rgba(0,0,0,0.06)]",       icon: "block" },
+  closed:    { label: "Closed",    textCls: "text-ink-dim",     bgCls: "bg-[rgba(0,0,0,0.06)]",       icon: "lock" },
 };
 
 const STATUS_TRANSITIONS: AlertStatusApp[] = ["active", "tp1", "tp2", "sl", "cancelled"];
@@ -248,12 +248,12 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
       style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
     >
       <div
-        className="w-full max-w-lg rounded-2xl p-6 overflow-y-auto"
-        style={{ background: "var(--panel)", border: "1px solid var(--line)", maxHeight: "90vh", boxShadow: "0 24px 70px rgba(0,0,0,0.4)" }}
+        className="w-full max-w-lg rounded-2xl p-6 overflow-y-auto bg-panel border border-line shadow-[0_24px_70px_rgba(0,0,0,0.4)]"
+        style={{ maxHeight: "90vh" }}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-display font-bold text-[18px]" style={{ color: "var(--ink-strong)" }}>Post Alert</h2>
-          <button type="button" onClick={onClose} style={{ color: "var(--ink-dim)" }}>
+          <h2 className="font-display font-bold text-[18px] text-ink-strong">Post Alert</h2>
+          <button type="button" onClick={onClose} className="text-ink-dim">
             <Icon name="close" size={20} />
           </button>
         </div>
@@ -262,20 +262,20 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
           {/* Pair + Direction */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Pair</label>
+              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">Pair</label>
               <Select value={form.pair} onChange={(v) => set("pair", v)} options={pairs.length ? pairs : ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"]} />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Direction</label>
-              <div className="flex rounded-xl overflow-hidden" style={{ border: "1px solid var(--line)" }}>
+              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">Direction</label>
+              <div className="flex rounded-xl overflow-hidden border border-line">
                 {(["long", "short"] as const).map((d) => (
                   <button
                     key={d} type="button" onClick={() => set("dir", d)}
-                    className="flex-1 py-2 text-[12.5px] font-semibold capitalize transition-all"
-                    style={form.dir === d
-                      ? { background: d === "long" ? "var(--teal)" : "var(--coral)", color: "#fff" }
-                      : { background: "var(--panel-2)", color: "var(--ink-mid)" }
-                    }
+                    className={`flex-1 py-2 text-[12.5px] font-semibold capitalize transition-all ${
+                      form.dir === d
+                        ? d === "long" ? "bg-teal text-white" : "bg-coral text-white"
+                        : "bg-panel-2 text-ink-mid"
+                    }`}
                   >
                     {d}
                   </button>
@@ -287,11 +287,11 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
           {/* Model + Session */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Model</label>
+              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">Model</label>
               <Select value={form.model} onChange={(v) => set("model", v)} options={MODELS} />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Session</label>
+              <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">Session</label>
               <Select value={form.session} onChange={(v) => set("session", v)} options={SESSIONS} />
             </div>
           </div>
@@ -304,13 +304,12 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
               { label: "R:R",   key: "rr" },
             ].map(({ label, key }) => (
               <div key={key}>
-                <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>{label}</label>
+                <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">{label}</label>
                 <input
                   type="text" value={(form as unknown as Record<string, string>)[key]}
                   onChange={(e) => set(key, e.target.value)}
                   placeholder={label}
-                  className="w-full px-3 py-2 rounded-xl text-[13px] font-mono"
-                  style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+                  className="w-full px-3 py-2 rounded-xl text-[13px] font-mono bg-panel-2 border border-line text-ink-strong"
                 />
               </div>
             ))}
@@ -318,16 +317,15 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
 
           {/* Tags */}
           <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Tags</label>
+            <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">Tags</label>
             <div className="flex gap-2">
               <input
                 type="text" value={form.tagInput} onChange={(e) => set("tagInput", e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
                 placeholder="Add tag, press Enter"
-                className="flex-1 px-3 py-2 rounded-xl text-[13px]"
-                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+                className="flex-1 px-3 py-2 rounded-xl text-[13px] bg-panel-2 border border-line text-ink-strong"
               />
-              <button type="button" onClick={addTag} className="px-3 rounded-xl" style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-mid)" }}>
+              <button type="button" onClick={addTag} className="px-3 rounded-xl bg-panel-2 border border-line text-ink-mid">
                 <Icon name="add" size={16} />
               </button>
             </div>
@@ -335,8 +333,7 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {form.tags.map((t) => (
                   <button key={t} type="button" onClick={() => set("tags", form.tags.filter((x) => x !== t))}
-                    className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
-                    style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.2)" }}
+                    className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[rgba(8,174,170,0.1)] text-teal border border-[rgba(8,174,170,0.2)]"
                   >
                     {t} <Icon name="close" size={10} />
                   </button>
@@ -347,12 +344,11 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
 
           {/* Note */}
           <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "var(--ink-dim)" }}>Analysis Note</label>
+            <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">Analysis Note</label>
             <textarea
               value={form.note} onChange={(e) => set("note", e.target.value)}
               rows={4} placeholder="HTF bias, entry rationale, key levels..."
-              className="w-full px-3 py-2 rounded-xl text-[13px] resize-none"
-              style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+              className="w-full px-3 py-2 rounded-xl text-[13px] resize-none bg-panel-2 border border-line text-ink-strong"
             />
           </div>
 
@@ -386,54 +382,48 @@ function AlertCard({
 
   return (
     <div
-      className="rounded-2xl overflow-hidden"
-      style={{
-        border: `1px solid ${alert.status === "active" ? "rgba(8,174,170,0.25)" : "var(--line)"}`,
-        background: "var(--panel)",
-        opacity: alert.status === "sl" || alert.status === "cancelled" || alert.status === "closed" ? 0.75 : 1,
-      }}
+      className={`rounded-2xl overflow-hidden bg-panel ${
+        alert.status === "sl" || alert.status === "cancelled" || alert.status === "closed" ? "opacity-75" : ""
+      }`}
+      style={{ border: `1px solid ${alert.status === "active" ? "rgba(8,174,170,0.25)" : "var(--line)"}` }}
     >
       {/* Card header */}
       <div className="px-5 pt-4 pb-3">
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2.5 mb-1.5">
-              <span className="font-display font-bold text-[22px]" style={{ color: "var(--ink-strong)", letterSpacing: "-0.02em" }}>
+              <span className="font-display font-bold text-[22px] tracking-[-0.02em] text-ink-strong">
                 {alert.pair}
               </span>
               <DirPill dir={alert.dir} />
               <span
-                className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
-                style={{ background: statusCfg.bg, color: statusCfg.color }}
+                className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${statusCfg.bgCls} ${statusCfg.textCls}`}
               >
-                <span className="material-symbols-rounded" style={{ fontSize: 12, fontFamily: "Material Symbols Rounded Fill" }}>
+                <span className="material-symbols-rounded ic-fill text-xs">
                   {statusCfg.icon}
                 </span>
                 {statusCfg.label}
               </span>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[12.5px]" style={{ color: "var(--ink-dim)" }}>{alert.model}</span>
-              <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>·</span>
-              <span className="text-[12.5px]" style={{ color: "var(--ink-dim)" }}>{alert.session} KZ</span>
-              <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>·</span>
-              <span className="text-[12.5px]" style={{ color: "var(--ink-dim)" }}>{timeAgo(alert.timePosted)}</span>
+              <span className="text-[12.5px] text-ink-dim">{alert.model}</span>
+              <span className="text-[12px] text-ink-dim">·</span>
+              <span className="text-[12.5px] text-ink-dim">{alert.session} KZ</span>
+              <span className="text-[12px] text-ink-dim">·</span>
+              <span className="text-[12.5px] text-ink-dim">{timeAgo(alert.timePosted)}</span>
             </div>
           </div>
           <div className="text-right shrink-0">
-            <div className="font-display font-bold tabular-nums" style={{ fontSize: 24, color: "var(--gold)", letterSpacing: "-0.02em" }}>
+            <div className="font-display font-bold tabular-nums text-2xl tracking-[-0.02em] text-gold">
               {alert.rr}R
             </div>
-            <div className="text-[11px] font-semibold" style={{ color: "var(--ink-dim)" }}>Planned R:R</div>
+            <div className="text-[11px] font-semibold text-ink-dim">Planned R:R</div>
           </div>
         </div>
       </div>
 
       {/* Levels grid */}
-      <div
-        className="mx-5 mb-3 grid grid-cols-2 sm:grid-cols-4 rounded-xl overflow-hidden"
-        style={{ border: "1px solid var(--line)" }}
-      >
+      <div className="mx-5 mb-3 grid grid-cols-2 sm:grid-cols-4 rounded-xl overflow-hidden border border-line">
         {[
           { label: "Entry", value: alert.entry, color: alert.dir === "long" ? "var(--teal)" : "var(--coral)", icon: "login" },
           { label: "Stop",  value: alert.sl,    color: "var(--coral-bright)", icon: "stop_circle" },
@@ -442,20 +432,19 @@ function AlertCard({
         ].map(({ label, value, color, icon }, i) => (
           <div
             key={label}
-            className="flex flex-col items-center py-2.5 px-2"
-            style={{ borderLeft: i > 0 ? "1px solid var(--line)" : undefined, background: "var(--panel-2)" }}
+            className={`flex flex-col items-center py-2.5 px-2 bg-panel-2 ${i > 0 ? "border-l border-line" : ""}`}
           >
-            <span className="material-symbols-rounded mb-0.5" style={{ fontSize: 13, color, fontFamily: "Material Symbols Rounded Fill" }}>{icon}</span>
-            <span className="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: "var(--ink-dim)" }}>{label}</span>
-            <span className="font-display font-bold tabular-nums text-[13px]" style={{ color, letterSpacing: "-0.01em" }}>{value}</span>
+            <span className="material-symbols-rounded ic-fill mb-0.5 text-[13px]" style={{ color }}>{icon}</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider mb-0.5 text-ink-dim">{label}</span>
+            <span className="font-display font-bold tabular-nums text-[13px] tracking-[-0.01em]" style={{ color }}>{value}</span>
           </div>
         ))}
       </div>
 
       {/* Chart */}
       <div
-        className="mx-5 mb-3 rounded-xl overflow-hidden cursor-pointer"
-        style={{ height: expanded ? 180 : 100, border: "1px solid var(--line)", transition: "height 300ms var(--ease-app)" }}
+        className="mx-5 mb-3 rounded-xl overflow-hidden cursor-pointer border border-line"
+        style={{ height: expanded ? 180 : 100, transition: "height 300ms var(--ease-app)" }}
         onClick={() => setExpanded((e) => !e)}
         title={expanded ? "Collapse chart" : "Expand chart"}
       >
@@ -467,20 +456,20 @@ function AlertCard({
         <div className="flex flex-wrap gap-1.5 mb-2">
           {alert.tags.map((tag) => <Chip key={tag} tone="teal">{tag}</Chip>)}
         </div>
-        <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-dim)" }}>{alert.note}</p>
+        <p className="text-[12.5px] leading-relaxed text-ink-dim">{alert.note}</p>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2.5 px-5 py-3 border-t flex-wrap" style={{ borderColor: "var(--line)" }}>
+      <div className="flex items-center gap-2.5 px-5 py-3 border-t flex-wrap border-line">
         <div className="flex items-center gap-2">
           <Avatar
             seed={alert.authorId ? alert.authorId.charCodeAt(0) + (alert.authorId.charCodeAt(1) ?? 0) : 186}
             name="Kondwani"
             size={26}
           />
-          <span className="text-[12px] font-medium" style={{ color: "var(--ink-mid)" }}>Kondwani · Instructor</span>
+          <span className="text-[12px] font-medium text-ink-mid">Kondwani · Instructor</span>
           {(alert.taken ?? 0) > 0 && (
-            <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md" style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)" }}>
+            <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-[rgba(8,174,170,0.1)] text-teal">
               {alert.taken} taken
             </span>
           )}
@@ -495,8 +484,7 @@ function AlertCard({
               <button
                 key={s} type="button"
                 onClick={() => updateStatus({ id: alert.id, status: s })}
-                className="px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all"
-                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-mid)" }}
+                className="px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all bg-panel-2 border border-line text-ink-mid"
               >
                 → {STATUS_CONFIG[s].label}
               </button>
@@ -504,8 +492,7 @@ function AlertCard({
             <button
               type="button"
               onClick={() => { if (confirm("Delete this alert?")) deleteAlert(alert.id); }}
-              className="p-1 rounded-lg"
-              style={{ color: "var(--coral)" }}
+              className="p-1 rounded-lg text-coral"
             >
               <Icon name="delete" size={14} />
             </button>
@@ -515,7 +502,7 @@ function AlertCard({
         {/* Student copy-to-journal */}
         {!isInstructor && alert.status === "active" && (
           copied ? (
-            <span className="flex items-center gap-1.5 text-[12.5px] font-semibold" style={{ color: "var(--teal)" }}>
+            <span className="flex items-center gap-1.5 text-[12.5px] font-semibold text-teal">
               <Icon name="check_circle" size={16} fill />
               In your journal
             </span>
@@ -526,7 +513,7 @@ function AlertCard({
           )
         )}
         {!isInstructor && alert.status !== "active" && (
-          <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>Trade closed · {statusCfg.label}</span>
+          <span className="text-[12px] text-ink-dim">Trade closed · {statusCfg.label}</span>
         )}
       </div>
     </div>
@@ -594,14 +581,11 @@ export function Alerts() {
 
       {/* Free-plan delay warning */}
       {user?.plan === "free" && (
-        <div
-          className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4 text-[13px]"
-          style={{ background: "rgba(248,185,61,0.08)", border: "1px solid rgba(248,185,61,0.25)", color: "var(--gold)" }}
-        >
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4 text-[13px] bg-[rgba(248,185,61,0.08)] border border-[rgba(248,185,61,0.25)] text-gold">
           <Icon name="schedule" size={16} style={{ color: "var(--gold)", flexShrink: 0 }} />
           <span>
             <strong>Free plan</strong>: alerts are shown with a 4-hour delay.{" "}
-            <a href="/membership" className="underline font-semibold" style={{ color: "var(--gold)" }}>Upgrade to Pro</a>{" "}
+            <a href="/membership" className="underline font-semibold text-gold">Upgrade to Pro</a>{" "}
             for live calls.
           </span>
         </div>
@@ -610,24 +594,21 @@ export function Alerts() {
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 className="font-display font-bold" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
+          <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
             Setup Alerts
           </h1>
-          <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+          <p className="text-[13px] mt-0.5 text-ink-dim">
             Live calls from Kondwani, reviewed against the SMC rulebook before posting.
           </p>
         </div>
         <div className="flex items-center gap-3">
           {activeCount > 0 && (
-            <div
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl"
-              style={{ background: "rgba(8,174,170,0.1)", border: "1px solid rgba(8,174,170,0.3)" }}
-            >
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[rgba(8,174,170,0.1)] border border-[rgba(8,174,170,0.3)]">
               <span className="relative flex size-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "var(--teal)" }} />
-                <span className="relative inline-flex rounded-full size-2" style={{ background: "var(--teal)" }} />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-teal" />
+                <span className="relative inline-flex rounded-full size-2 bg-teal" />
               </span>
-              <span className="text-[12.5px] font-semibold" style={{ color: "var(--teal)" }}>
+              <span className="text-[12.5px] font-semibold text-teal">
                 {activeCount} active {activeCount === 1 ? "alert" : "alerts"}
               </span>
             </div>
@@ -649,11 +630,11 @@ export function Alerts() {
             { label: "TP hit",       value: tpCount,        icon: "done_all",             color: "var(--teal-bright)"},
             { label: "Stop loss",    value: slCount,        icon: "cancel",               color: "var(--coral)"      },
           ].map(({ label, value, icon, color }) => (
-            <div key={label} className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
-              <span className="material-symbols-rounded shrink-0" style={{ fontSize: 18, color, fontFamily: "Material Symbols Rounded Fill" }}>{icon}</span>
+            <div key={label} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-panel border border-line">
+              <span className="material-symbols-rounded ic-fill shrink-0 text-[18px]" style={{ color }}>{icon}</span>
               <div>
                 <div className="font-display font-bold text-[20px] tabular-nums leading-none" style={{ color }}>{value}</div>
-                <div className="text-[10.5px] font-medium mt-0.5" style={{ color: "var(--ink-dim)" }}>{label}</div>
+                <div className="text-[10.5px] font-medium mt-0.5 text-ink-dim">{label}</div>
               </div>
             </div>
           ))}
@@ -662,18 +643,13 @@ export function Alerts() {
 
       {/* Filters */}
       <div className="flex items-center gap-3 mb-5 flex-wrap">
-        <div
-          className="flex items-center rounded-xl p-0.5"
-          style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
-        >
+        <div className="flex items-center rounded-xl p-0.5 bg-panel-2 border border-line">
           {STATUS_FILTERS.map(({ v, l }) => (
             <button
               key={v} type="button" onClick={() => setStatusFilter(v)}
-              className="px-3.5 py-1.5 rounded-[10px] text-[12.5px] font-semibold transition-all"
-              style={statusFilter === v
-                ? { background: "var(--panel)", color: "var(--ink-strong)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }
-                : { color: "var(--ink-dim)" }
-              }
+              className={`px-3.5 py-1.5 rounded-[10px] text-[12.5px] font-semibold transition-all ${
+                statusFilter === v ? "bg-panel text-ink-strong shadow-[0_1px_4px_rgba(0,0,0,0.12)]" : "text-ink-dim"
+              }`}
             >
               {l}
             </button>
@@ -683,11 +659,9 @@ export function Alerts() {
           {pairFilters.map((p) => (
             <button
               key={p} type="button" onClick={() => setPairFilter(p)}
-              className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all"
-              style={pairFilter === p
-                ? { background: "var(--teal)", color: "#fff" }
-                : { background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }
-              }
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+                pairFilter === p ? "bg-teal text-white" : "bg-panel-2 text-ink-dim border border-line"
+              }`}
             >
               {p}
             </button>
@@ -699,7 +673,7 @@ export function Alerts() {
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="rounded-2xl h-64 animate-pulse" style={{ background: "var(--panel)", border: "1px solid var(--line)" }} />
+            <div key={i} className="rounded-2xl h-64 animate-pulse bg-panel border border-line" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
@@ -710,10 +684,10 @@ export function Alerts() {
               size={32}
               style={{ color: "var(--ink-dim)", marginBottom: 12 }}
             />
-            <div className="font-semibold text-[15px] mb-1" style={{ color: "var(--ink-strong)" }}>
+            <div className="font-semibold text-[15px] mb-1 text-ink-strong">
               {alerts.length === 0 ? "No alerts posted yet" : "No alerts match"}
             </div>
-            <div className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
+            <div className="text-[13px] text-ink-dim">
               {alerts.length === 0
                 ? isInstructor
                   ? "Post your first trade setup using the button above."
@@ -738,14 +712,11 @@ export function Alerts() {
 
       {/* Pro plan note — students only */}
       {!isInstructor && (
-        <div
-          className="mt-6 rounded-2xl px-5 py-4 flex items-start gap-3"
-          style={{ background: "rgba(248,185,61,0.06)", border: "1px solid rgba(248,185,61,0.2)" }}
-        >
+        <div className="mt-6 rounded-2xl px-5 py-4 flex items-start gap-3 bg-[rgba(248,185,61,0.06)] border border-[rgba(248,185,61,0.2)]">
           <Icon name="workspace_premium" size={17} fill style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }} />
-          <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
-            <strong style={{ color: "var(--ink-strong)" }}>Pro & Funded Track traders</strong> receive alerts in real time via this feed and push notifications. Free plan members see alerts with a 4-hour delay. Upgrade in{" "}
-            <a href="/membership" style={{ color: "var(--gold)", textDecoration: "none" }}>Membership</a>.
+          <p className="text-[12.5px] leading-relaxed text-ink-mid">
+            <strong className="text-ink-strong">Pro & Funded Track traders</strong> receive alerts in real time via this feed and push notifications. Free plan members see alerts with a 4-hour delay. Upgrade in{" "}
+            <a href="/membership" className="text-gold no-underline">Membership</a>.
           </p>
         </div>
       )}

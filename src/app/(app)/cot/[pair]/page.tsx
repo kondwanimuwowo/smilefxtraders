@@ -153,8 +153,7 @@ export default function CotPairPage() {
       <button
         type="button"
         onClick={() => router.back()}
-        className="flex items-center gap-1.5 mb-5 text-[13px] font-semibold transition-colors hover:opacity-80 active:scale-95"
-        style={{ color: "var(--ink-dim)" }}
+        className="flex items-center gap-1.5 mb-5 text-[13px] font-semibold transition-colors hover:opacity-80 active:scale-95 text-ink-dim"
       >
         <Icon name="arrow_back" size={16} />
         COT Reports
@@ -164,16 +163,13 @@ export default function CotPairPage() {
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
           <div className="flex items-center gap-3 mb-1 flex-wrap">
-            <h1
-              className="font-display font-bold"
-              style={{ fontSize: 28, letterSpacing: "-0.025em", color: "var(--ink-strong)" }}
-            >
+            <h1 className="font-display font-bold text-[28px] tracking-[-0.025em] text-ink-strong">
               {pair.toUpperCase()}
             </h1>
             {data && (
               <>
-                <span className="text-[15px]" style={{ color: "var(--ink-dim)" }}>·</span>
-                <span className="text-[16px]" style={{ color: "var(--ink-mid)" }}>{data.label}</span>
+                <span className="text-[15px] text-ink-dim">·</span>
+                <span className="text-[16px] text-ink-mid">{data.label}</span>
                 <span
                   className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-full"
                   style={{ background: sig.bg, color: sig.color }}
@@ -182,10 +178,7 @@ export default function CotPairPage() {
                   {sig.label}
                 </span>
                 {data.usdBase && (
-                  <span
-                    className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded"
-                    style={{ background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }}
-                  >
+                  <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-panel-2 text-ink-dim border border-line">
                     USD-base · inverted
                   </span>
                 )}
@@ -193,7 +186,7 @@ export default function CotPairPage() {
             )}
           </div>
           {data && (
-            <p className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
+            <p className="text-[13px] text-ink-dim">
               CFTC report week ending {data.reportDate} · {total.toLocaleString()} weeks in database
             </p>
           )}
@@ -220,7 +213,7 @@ export default function CotPairPage() {
               >
                 {fmtNet(data.wowChange)}
               </div>
-              <div className="text-[11px]" style={{ color: "var(--ink-dim)" }}>WoW change</div>
+              <div className="text-[11px] text-ink-dim">WoW change</div>
             </div>
           </div>
         )}
@@ -241,10 +234,7 @@ export default function CotPairPage() {
 
       {/* ── Error state ── */}
       {error && (
-        <div
-          className="rounded-2xl px-5 py-4 text-[13px]"
-          style={{ background: "rgba(234,82,61,0.07)", border: "1px solid rgba(234,82,61,0.2)", color: "var(--coral)" }}
-        >
+        <div className="rounded-2xl px-5 py-4 text-[13px] bg-[rgba(234,82,61,0.07)] border border-[rgba(234,82,61,0.2)] text-coral">
           Pair not found or data unavailable. <button onClick={() => router.back()} className="underline">Go back</button>
         </div>
       )}
@@ -253,16 +243,10 @@ export default function CotPairPage() {
            Outer container has NO overflow-hidden — that would trap sticky positioning.
            Rounded corners come from the border-radius on the container border alone.  ── */}
       {!error && (
-        <div
-          className="rounded-2xl"
-          style={{ border: "1px solid var(--line)", background: "var(--panel)" }}
-        >
+        <div className="rounded-2xl border border-line bg-panel">
           {/* Color key — static, not sticky. You read it once at the top. */}
-          <div
-            className="flex items-center gap-5 px-5 py-3 text-[11.5px] flex-wrap"
-            style={{ borderBottom: "1px solid var(--line)", color: "var(--ink-dim)" }}
-          >
-            <span className="font-semibold" style={{ color: "var(--ink-mid)" }}>Color key</span>
+          <div className="flex items-center gap-5 px-5 py-3 text-[11.5px] flex-wrap border-b border-line text-ink-dim">
+            <span className="font-semibold text-ink-mid">Color key</span>
             <span className="flex items-center gap-1.5">
               <span className="inline-block w-3 h-3 rounded-sm" style={{ background: "rgba(8,174,170,0.65)" }} />
               Net long / increasing
@@ -272,7 +256,7 @@ export default function CotPairPage() {
               Net short / decreasing
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block w-3 h-3 rounded-sm" style={{ background: "var(--track)" }} />
+              <span className="inline-block w-3 h-3 rounded-sm bg-track" />
               Near zero
             </span>
             <span className="flex items-center gap-1.5 ml-auto" style={{ opacity: 0.65 }}>
@@ -282,12 +266,11 @@ export default function CotPairPage() {
             <button
               type="button"
               onClick={() => setShowSmallSpec((v) => !v)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all active:scale-95"
-              style={{
-                background: showSmallSpec ? "rgba(8,174,170,0.12)" : "var(--panel-2)",
-                color:      showSmallSpec ? "var(--teal)" : "var(--ink-dim)",
-                border:     `1px solid ${showSmallSpec ? "rgba(8,174,170,0.3)" : "var(--line)"}`,
-              }}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all active:scale-95 border ${
+                showSmallSpec
+                  ? "bg-[rgba(8,174,170,0.12)] text-teal border-[rgba(8,174,170,0.3)]"
+                  : "bg-panel-2 text-ink-dim border-line"
+              }`}
             >
               <Icon name={showSmallSpec ? "visibility" : "visibility_off"} size={12} />
               Retail
@@ -697,11 +680,8 @@ export default function CotPairPage() {
 
           {/* ── Load more (inside the rounded panel, below the table) ── */}
           {!loading && rows.length > 0 && rows.length < total && (
-            <div
-              className="flex items-center justify-between px-5 py-3.5"
-              style={{ borderTop: "1px solid var(--line)" }}
-            >
-              <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+            <div className="flex items-center justify-between px-5 py-3.5 border-t border-line">
+              <span className="text-[12px] text-ink-dim">
                 Showing {rows.length} of {total.toLocaleString()} weeks ·{" "}
                 {fmtDateShort(rows[rows.length - 1].date)} – {fmtDateShort(rows[0].date)}
               </span>
@@ -709,8 +689,7 @@ export default function CotPairPage() {
                 type="button"
                 onClick={loadMore}
                 disabled={loadingMore}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12.5px] font-semibold transition-all active:scale-95 disabled:opacity-60"
-                style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-mid)" }}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12.5px] font-semibold transition-all active:scale-95 disabled:opacity-60 bg-panel-2 border border-line text-ink-mid"
               >
                 <Icon
                   name="refresh"
@@ -724,10 +703,7 @@ export default function CotPairPage() {
 
           {/* Footer when all loaded */}
           {!loading && rows.length > 0 && rows.length >= total && (
-            <div
-              className="px-5 py-3 text-[12px] text-center"
-              style={{ borderTop: "1px solid var(--line)", color: "var(--ink-dim)" }}
-            >
+            <div className="px-5 py-3 text-[12px] text-center border-t border-line text-ink-dim">
               All {total.toLocaleString()} weeks shown ·{" "}
               {fmtDateShort(rows[rows.length - 1].date)} – {fmtDateShort(rows[0].date)}
             </div>

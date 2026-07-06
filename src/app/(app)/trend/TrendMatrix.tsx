@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Panel, Icon, Button } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { fmtDateTime } from "@/lib/date";
 import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 
@@ -44,10 +45,10 @@ const DEFAULT_NOTES: Notes = {
 
 const CYCLE: Record<Bias, Bias> = { bullish: "bearish", bearish: "ranging", ranging: "bullish" };
 
-const BIAS_CONFIG: Record<Bias, { icon: string; color: string; bg: string; barColor: string }> = {
-  bullish: { icon: "trending_up",   color: "var(--teal-bright)",  bg: "rgba(48,232,223,0.13)",  barColor: "var(--teal)"  },
-  bearish: { icon: "trending_down", color: "var(--coral-bright)", bg: "rgba(255,89,66,0.13)",   barColor: "var(--coral)" },
-  ranging: { icon: "trending_flat", color: "var(--gold)",         bg: "rgba(248,185,61,0.13)",  barColor: "var(--gold)"  },
+const BIAS_CONFIG: Record<Bias, { icon: string; textCls: string; bgCls: string; barBgCls: string }> = {
+  bullish: { icon: "trending_up",   textCls: "text-teal-bright",  bgCls: "bg-[rgba(48,232,223,0.13)]", barBgCls: "bg-teal"  },
+  bearish: { icon: "trending_down", textCls: "text-coral-bright", bgCls: "bg-[rgba(255,89,66,0.13)]",  barBgCls: "bg-coral" },
+  ranging: { icon: "trending_flat", textCls: "text-gold",         bgCls: "bg-[rgba(248,185,61,0.13)]", barBgCls: "bg-gold"  },
 };
 
 // ── Confluence helpers ────────────────────────────────────────────────────────
@@ -56,7 +57,7 @@ interface Confluence {
   bias:      Bias | "mixed";
   strength:  number;
   label:     string;
-  color:     string;
+  colorCls:  string;
 }
 
 function getConfluence(row: Record<string, Bias>): Confluence {
@@ -67,7 +68,7 @@ function getConfluence(row: Record<string, Bias>): Confluence {
   const strength = dominant ? counts[dominant] : 0;
 
   if (!dominant || strength <= 2) {
-    return { bias: "mixed", strength: 0, label: "Mixed: no clear bias", color: "var(--ink-dim)" };
+    return { bias: "mixed", strength: 0, label: "Mixed: no clear bias", colorCls: "text-ink-dim" };
   }
 
   const cfg = BIAS_CONFIG[dominant];
@@ -75,7 +76,7 @@ function getConfluence(row: Record<string, Bias>): Confluence {
     bias: dominant,
     strength,
     label: `${strength}/5 ${dominant.charAt(0).toUpperCase() + dominant.slice(1)}`,
-    color: cfg.color,
+    colorCls: cfg.textCls,
   };
 }
 
@@ -89,18 +90,9 @@ function BiasCell({ bias, onClick, readonly }: { bias: Bias; onClick: () => void
       onClick={readonly ? undefined : onClick}
       title={readonly ? bias : `${bias} (click to change)`}
       disabled={readonly}
-      className="flex items-center justify-center rounded-xl transition-all"
-      style={{
-        width: 56, height: 44,
-        background: cfg.bg,
-        flexShrink: 0,
-        cursor: readonly ? "default" : "pointer",
-      }}
+      className={cn("flex items-center justify-center rounded-xl transition-all w-14 h-11 shrink-0", cfg.bgCls, readonly ? "cursor-default" : "cursor-pointer")}
     >
-      <span
-        className="material-symbols-rounded"
-        style={{ fontSize: 20, color: cfg.color, fontFamily: "Material Symbols Rounded Fill" }}
-      >
+      <span className={cn("material-symbols-rounded ic-fill text-[20px]", cfg.textCls)}>
         {cfg.icon}
       </span>
     </button>
@@ -109,16 +101,16 @@ function BiasCell({ bias, onClick, readonly }: { bias: Bias; onClick: () => void
 
 function ConfluenceBar({ conf }: { conf: Confluence }) {
   if (conf.bias === "mixed") {
-    return <div className="flex items-center gap-2 min-w-[140px]"><span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>Mixed</span></div>;
+    return <div className="flex items-center gap-2 min-w-[140px]"><span className="text-[12px] text-ink-dim">Mixed</span></div>;
   }
   const pct = (conf.strength / 5) * 100;
   const cfg = BIAS_CONFIG[conf.bias];
   return (
     <div className="flex items-center gap-2.5 min-w-[160px]">
-      <div className="flex-1 relative h-1.5 rounded-full overflow-hidden" style={{ background: "var(--track)" }}>
-        <div className="absolute inset-y-0 left-0 rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: cfg.barColor }} />
+      <div className="flex-1 relative h-1.5 rounded-full overflow-hidden bg-track">
+        <div className={cn("absolute inset-y-0 left-0 rounded-full transition-all duration-500", cfg.barBgCls)} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-[12px] font-semibold tabular-nums whitespace-nowrap" style={{ color: conf.color }}>
+      <span className={cn("text-[12px] font-semibold tabular-nums whitespace-nowrap", conf.colorCls)}>
         {conf.label}
       </span>
     </div>
@@ -131,7 +123,7 @@ function NoteRow({ pair, value, onChange, readonly }: { pair: string; value: str
 
   if (readonly) {
     return value ? (
-      <p className="text-[11.5px] mt-0.5 leading-relaxed max-w-[300px] truncate" style={{ color: "var(--ink-dim)" }}>{value}</p>
+      <p className="text-[11.5px] mt-0.5 leading-relaxed max-w-[300px] truncate text-ink-dim">{value}</p>
     ) : null;
   }
 
@@ -139,8 +131,7 @@ function NoteRow({ pair, value, onChange, readonly }: { pair: string; value: str
     return (
       <button
         type="button"
-        className="text-[11.5px] flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5"
-        style={{ color: "var(--ink-dim)" }}
+        className="text-[11.5px] flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 text-ink-dim"
         onClick={() => { setDraft(""); setEditing(true); }}
       >
         <Icon name="add" size={13} /> Add analysis note
@@ -161,12 +152,11 @@ function NoteRow({ pair, value, onChange, readonly }: { pair: string; value: str
             if (e.key === "Escape") { setDraft(value); setEditing(false); }
           }}
           onBlur={() => { onChange(draft); setEditing(false); }}
-          className="flex-1 bg-transparent text-[12px] outline-none border-b"
-          style={{ borderColor: "var(--teal)", color: "var(--ink-strong)" }}
+          className="flex-1 bg-transparent text-[12px] outline-none border-b border-teal text-ink-strong"
           placeholder="Your HTF analysis…"
         />
         <button type="button" onClick={() => { onChange(draft); setEditing(false); }}>
-          <Icon name="check" size={14} style={{ color: "var(--teal)" }} />
+          <Icon name="check" size={14} className="text-teal" />
         </button>
       </div>
     );
@@ -175,8 +165,7 @@ function NoteRow({ pair, value, onChange, readonly }: { pair: string; value: str
   return (
     <button
       type="button"
-      className="text-left text-[11.5px] mt-0.5 leading-relaxed cursor-text max-w-[300px] truncate"
-      style={{ color: "var(--ink-dim)" }}
+      className="text-left text-[11.5px] mt-0.5 leading-relaxed cursor-text max-w-[300px] truncate text-ink-dim"
       onClick={() => { setDraft(value); setEditing(true); }}
     >
       {value}
@@ -193,9 +182,9 @@ function SummaryRow({ matrix, pairs }: { matrix: Matrix; pairs: string[] }) {
   });
 
   return (
-    <tr style={{ borderTop: "2px solid var(--line)" }}>
+    <tr className="border-t-2 border-line">
       <td className="px-5 py-3">
-        <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--ink-dim)" }}>
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">
           TF consensus
         </span>
       </td>
@@ -204,10 +193,10 @@ function SummaryRow({ matrix, pairs }: { matrix: Matrix; pairs: string[] }) {
         return (
           <td key={tf} className="px-2 py-3 text-center">
             <div className="flex flex-col items-center gap-0.5">
-              <span className="material-symbols-rounded" style={{ fontSize: 16, color: cfg.color, fontFamily: "Material Symbols Rounded Fill" }}>
+              <span className={cn("material-symbols-rounded ic-fill text-[16px]", cfg.textCls)}>
                 {cfg.icon}
               </span>
-              <span className="text-[10px]" style={{ color: "var(--ink-dim)" }}>
+              <span className="text-[10px] text-ink-dim">
                 {counts.bullish}↑ {counts.bearish}↓
               </span>
             </div>
@@ -315,10 +304,10 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
       {/* ── Header ── */}
       <div className="flex items-start justify-between mb-5 gap-4">
         <div>
-          <h1 className="font-display font-bold" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
+          <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
             Trend Matrix
           </h1>
-          <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+          <p className="text-[13px] mt-0.5 text-ink-dim">
             {isInstructor
               ? "Set weekly HTF bias for each pair and timeframe, then publish for all students."
               : "Kondwani's weekly HTF bias read. Updated every Sunday."}
@@ -327,10 +316,10 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
-          <div className="hidden sm:flex items-center gap-3 text-[12px]" style={{ color: "var(--ink-dim)" }}>
+          <div className="hidden sm:flex items-center gap-3 text-[12px] text-ink-dim">
             {(["bullish", "bearish", "ranging"] as Bias[]).map((b) => (
               <span key={b} className="flex items-center gap-1.5">
-                <span className="material-symbols-rounded" style={{ fontSize: 14, color: BIAS_CONFIG[b].color, fontFamily: "Material Symbols Rounded Fill" }}>
+                <span className={cn("material-symbols-rounded ic-fill text-[14px]", BIAS_CONFIG[b].textCls)}>
                   {BIAS_CONFIG[b].icon}
                 </span>
                 {b.charAt(0).toUpperCase() + b.slice(1)}
@@ -356,7 +345,7 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
       </div>
 
       {saveError && (
-        <div className="mb-4 px-4 py-2.5 rounded-xl text-[12.5px]" style={{ background: "rgba(234,82,61,0.1)", color: "var(--coral)" }}>
+        <div className="mb-4 px-4 py-2.5 rounded-xl text-[12.5px] bg-[rgba(234,82,61,0.1)] text-coral">
           {saveError}
         </div>
       )}
@@ -364,17 +353,16 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
       {/* ── Summary chips ── */}
       {tradeablePairs.length > 0 && (
         <div className="flex items-center gap-2 mb-4 flex-wrap">
-          <span className="text-[12px] font-semibold" style={{ color: "var(--ink-dim)" }}>Clear bias:</span>
+          <span className="text-[12px] font-semibold text-ink-dim">Clear bias:</span>
           {tradeablePairs.map((p) => {
             const conf = confluenceMap[p];
             const cfg  = BIAS_CONFIG[conf.bias as Bias];
             return (
               <span
                 key={p}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold"
-                style={{ background: cfg.bg, color: cfg.color }}
+                className={cn("flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold", cfg.bgCls, cfg.textCls)}
               >
-                <span className="material-symbols-rounded" style={{ fontSize: 13, fontFamily: "Material Symbols Rounded Fill" }}>{cfg.icon}</span>
+                <span className="material-symbols-rounded ic-fill text-[13px]">{cfg.icon}</span>
                 {p}
               </span>
             );
@@ -383,39 +371,39 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
       )}
 
       {/* ── Matrix table ── */}
-      <p className="md:hidden text-xs mb-2" style={{ color: "var(--ink-dim)" }}>← Scroll to see all timeframes</p>
+      <p className="md:hidden text-xs mb-2 text-ink-dim">← Scroll to see all timeframes</p>
       <Panel pad={0}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr style={{ borderBottom: "1px solid var(--line)" }}>
+              <tr className="border-b border-line">
                 <th className="px-5 py-3 text-left">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--ink-dim)" }}>Pair</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">Pair</span>
                 </th>
                 {TFS.map((tf) => (
                   <th key={tf} className="px-2 py-3 text-center w-[68px]">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--ink-dim)" }}>{tf}</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">{tf}</span>
                   </th>
                 ))}
                 <th className="px-5 py-3 text-left">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--ink-dim)" }}>Confluence</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">Confluence</span>
                 </th>
               </tr>
             </thead>
             <tbody>
               {loading
                 ? PAIRS.map((pair) => (
-                    <tr key={pair} style={{ borderTop: "1px solid var(--line)" }}>
+                    <tr key={pair} className="border-t border-line">
                       <td className="px-5 py-4">
-                        <div className="h-4 w-16 rounded animate-pulse" style={{ background: "var(--track)" }} />
+                        <div className="h-4 w-16 rounded animate-pulse bg-track" />
                       </td>
                       {TFS.map((tf) => (
                         <td key={tf} className="px-2 py-4">
-                          <div className="h-11 w-14 rounded-xl animate-pulse mx-auto" style={{ background: "var(--track)" }} />
+                          <div className="h-11 w-14 rounded-xl animate-pulse mx-auto bg-track" />
                         </td>
                       ))}
                       <td className="px-5 py-4">
-                        <div className="h-3 w-32 rounded animate-pulse" style={{ background: "var(--track)" }} />
+                        <div className="h-3 w-32 rounded animate-pulse bg-track" />
                       </td>
                     </tr>
                   ))
@@ -424,11 +412,10 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
                     return (
                       <tr
                         key={pair}
-                        className="group transition-colors hover:bg-[var(--hover)]"
-                        style={{ borderTop: i > 0 ? "1px solid var(--line)" : undefined }}
+                        className={cn("group transition-colors hover:bg-hover", i > 0 && "border-t border-line")}
                       >
                         <td className="px-5 py-3.5">
-                          <div className="font-display font-bold text-[14px]" style={{ color: "var(--ink-strong)" }}>{pair}</div>
+                          <div className="font-display font-bold text-[14px] text-ink-strong">{pair}</div>
                           <NoteRow pair={pair} value={notes[pair] ?? ""} onChange={(v) => setNote(pair, v)} readonly={!isInstructor} />
                         </td>
                         {TFS.map((tf) => (
@@ -452,12 +439,9 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
       </Panel>
 
       {/* ── How to use ── */}
-      <div
-        className="mt-4 rounded-2xl px-5 py-4 flex items-start gap-3"
-        style={{ background: "rgba(8,174,170,0.06)", border: "1px solid rgba(8,174,170,0.15)" }}
-      >
-        <Icon name="info" size={17} fill style={{ color: "var(--teal)", flexShrink: 0, marginTop: 1 }} />
-        <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
+      <div className="mt-4 rounded-2xl px-5 py-4 flex items-start gap-3 bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.15)]">
+        <Icon name="info" size={17} fill className="text-teal shrink-0 mt-px" />
+        <p className="text-[12.5px] leading-relaxed text-ink-mid">
           {isInstructor
             ? "Update this matrix every Sunday after your weekly chart review, then hit Publish. Students will immediately see your updated bias across all pairs and timeframes."
             : "This matrix is updated every Sunday by Kondwani after his weekly chart review. Use the bias alignment to confirm your trade direction before entering. Only trade models where the HTF bias matches, and validate in the Rules Validator first."}

@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { Panel, PanelHead, Button, DirPill, Icon, Field, Select, SegRow, MonoInput, EmptyState } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { LogTradeModal } from "@/app/(app)/journal/LogTradeModal";
 import type { Trade } from "@/lib/store";
 import {
@@ -22,8 +23,8 @@ const GRADE_BG: Record<string, string> = {
   B:    "rgba(248,185,61,0.12)", C:  "rgba(234,82,61,0.10)",
   D:    "rgba(234,82,61,0.16)",
 };
-const STATUS_ICON: Record<Status, string>  = { pass: "check_circle", fail: "cancel", warn: "warning", na: "remove_circle" };
-const STATUS_COLOR: Record<Status, string> = { pass: "var(--teal)", fail: "var(--coral)", warn: "var(--gold)", na: "var(--ink-dim)" };
+const STATUS_ICON: Record<Status, string>    = { pass: "check_circle", fail: "cancel", warn: "warning", na: "remove_circle" };
+const STATUS_TEXT_CLS: Record<Status, string> = { pass: "text-teal", fail: "text-coral", warn: "text-gold", na: "text-ink-dim" };
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -32,20 +33,15 @@ function CheckToggle({ label, checked, onChange }: { label: string; checked: boo
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className="flex items-center gap-2.5 px-3 py-2 rounded-xl border text-left w-full transition-all"
-      style={
-        checked
-          ? { borderColor: "var(--teal)", background: "rgba(8,174,170,0.08)" }
-          : { borderColor: "var(--line)", background: "var(--panel-2)" }
-      }
+      className={cn(
+        "flex items-center gap-2.5 px-3 py-2 rounded-xl border text-left w-full transition-all",
+        checked ? "border-teal bg-[rgba(8,174,170,0.08)]" : "border-line bg-panel-2"
+      )}
     >
-      <span
-        className="material-symbols-rounded shrink-0"
-        style={{ fontSize: 18, color: checked ? "var(--teal)" : "var(--ink-dim)", fontFamily: "Material Symbols Rounded Fill" }}
-      >
+      <span className={cn("material-symbols-rounded ic-fill shrink-0 text-[18px]", checked ? "text-teal" : "text-ink-dim")}>
         {checked ? "check_box" : "check_box_outline_blank"}
       </span>
-      <span className="text-[12.5px] font-medium" style={{ color: checked ? "var(--ink-strong)" : "var(--ink-mid)" }}>
+      <span className={cn("text-[12.5px] font-medium", checked ? "text-ink-strong" : "text-ink-mid")}>
         {label}
       </span>
     </button>
@@ -55,21 +51,19 @@ function CheckToggle({ label, checked, onChange }: { label: string; checked: boo
 function RuleRow({ rule }: { rule: RuleResult }) {
   return (
     <div
-      className="flex items-start gap-3 px-4 py-3 rounded-xl border transition-colors"
-      style={{
-        background:  rule.status === "fail" ? "rgba(234,82,61,0.05)" : rule.status === "warn" ? "rgba(248,185,61,0.05)" : "transparent",
-        borderColor: rule.status === "fail" ? "rgba(234,82,61,0.2)"  : rule.status === "warn" ? "rgba(248,185,61,0.2)"  : "var(--line)",
-      }}
+      className={cn(
+        "flex items-start gap-3 px-4 py-3 rounded-xl border transition-colors",
+        rule.status === "fail" ? "bg-[rgba(234,82,61,0.05)] border-[rgba(234,82,61,0.2)]"
+          : rule.status === "warn" ? "bg-[rgba(248,185,61,0.05)] border-[rgba(248,185,61,0.2)]"
+          : "bg-transparent border-line"
+      )}
     >
-      <span
-        className="material-symbols-rounded shrink-0 mt-0.5"
-        style={{ fontSize: 17, color: STATUS_COLOR[rule.status], fontFamily: "Material Symbols Rounded Fill" }}
-      >
+      <span className={cn("material-symbols-rounded ic-fill shrink-0 mt-0.5 text-[17px]", STATUS_TEXT_CLS[rule.status])}>
         {STATUS_ICON[rule.status]}
       </span>
       <div className="min-w-0 flex-1">
-        <div className="text-[13px] font-semibold" style={{ color: "var(--ink-strong)" }}>{rule.label}</div>
-        <div className="text-[12px] mt-0.5 leading-relaxed" style={{ color: "var(--ink-dim)" }}>{rule.why}</div>
+        <div className="text-[13px] font-semibold text-ink-strong">{rule.label}</div>
+        <div className="text-[12px] mt-0.5 leading-relaxed text-ink-dim">{rule.why}</div>
       </div>
     </div>
   );
@@ -82,8 +76,8 @@ function GradeRing({ grade, score }: { grade: string; score: number }) {
   const dash  = (score / 100) * circ;
   return (
     <div className="relative shrink-0" style={{ width: 96, height: 96 }}>
-      <svg width={96} height={96} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={48} cy={48} r={r} fill="none" stroke="var(--track)" strokeWidth={6} />
+      <svg width={96} height={96} className="-rotate-90">
+        <circle cx={48} cy={48} r={r} fill="none" stroke="currentColor" strokeWidth={6} className="text-track" />
         <circle
           cx={48} cy={48} r={r} fill="none"
           stroke={color} strokeWidth={6}
@@ -99,10 +93,7 @@ function GradeRing({ grade, score }: { grade: string; score: number }) {
         >
           {grade}
         </span>
-        <span
-          className="tabular-nums font-semibold"
-          style={{ fontSize: 11, color: "var(--ink-dim)", fontFamily: "var(--mono)" }}
-        >
+        <span className="tabular-nums font-semibold font-mono text-[11px] text-ink-dim">
           {score}%
         </span>
       </div>
@@ -114,17 +105,14 @@ function ModelInfoCard({ framework, model }: { framework: Framework; model: stri
   const info = MODEL_INFO[framework]?.[model];
   if (!info) return null;
   return (
-    <div
-      className="rounded-xl px-4 py-3.5 flex items-start gap-3"
-      style={{ background: "rgba(8,174,170,0.06)", border: "1px solid rgba(8,174,170,0.18)" }}
-    >
-      <Icon name="lightbulb" size={17} fill style={{ color: "var(--teal)", flexShrink: 0, marginTop: 2 }} />
+    <div className="rounded-xl px-4 py-3.5 flex items-start gap-3 bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.18)]">
+      <Icon name="lightbulb" size={17} fill className="text-teal shrink-0 mt-0.5" />
       <div>
-        <div className="text-[12px] font-semibold mb-1" style={{ color: "var(--teal)" }}>{model}</div>
-        <p className="text-[12px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>{info.tip}</p>
+        <div className="text-[12px] font-semibold mb-1 text-teal">{model}</div>
+        <p className="text-[12px] leading-relaxed text-ink-mid">{info.tip}</p>
         <div className="flex flex-wrap gap-1.5 mt-2">
           {info.need.map((n) => (
-            <span key={n} className="text-[10.5px] font-semibold px-2 py-0.5 rounded-lg" style={{ background: "rgba(8,174,170,0.12)", color: "var(--teal)" }}>
+            <span key={n} className="text-[10.5px] font-semibold px-2 py-0.5 rounded-lg bg-[rgba(8,174,170,0.12)] text-teal">
               {n}
             </span>
           ))}
@@ -197,25 +185,25 @@ function HistoryRow({ entry }: { entry: HistoryEntry }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className="font-semibold text-[13px]" style={{ color: "var(--ink-strong)" }}>{entry.pair}</span>
+          <span className="font-semibold text-[13px] text-ink-strong">{entry.pair}</span>
           <DirPill dir={entry.dir} size="sm" />
-          <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold" style={{ background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }}>
+          <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold bg-panel-2 text-ink-dim border border-line">
             {entry.framework}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: "var(--track)" }}>
+          <div className="flex-1 h-1 rounded-full overflow-hidden bg-track">
             <div
               className="h-full rounded-full transition-all"
               style={{ width: `${entry.score}%`, background: color }}
             />
           </div>
-          <span className="text-[10px] tabular-nums shrink-0" style={{ color: "var(--ink-dim)", fontFamily: "var(--mono)" }}>
+          <span className="text-[10px] tabular-nums shrink-0 font-mono text-ink-dim">
             {entry.score}%
           </span>
         </div>
       </div>
-      <span className="text-[10.5px] shrink-0" style={{ color: "var(--ink-dim)" }}>{entry.time}</span>
+      <span className="text-[10.5px] shrink-0 text-ink-dim">{entry.time}</span>
     </div>
   );
 }
@@ -327,10 +315,10 @@ export function Validator() {
       {/* ── Header ── */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 className="font-display font-bold" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
+          <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
             Rules Validator
           </h1>
-          <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+          <p className="text-[13px] mt-0.5 text-ink-dim">
             Check every condition before you press the button. No exceptions.
           </p>
         </div>
@@ -443,13 +431,13 @@ export function Validator() {
               </Field>
 
               {/* Fibonacci confluence */}
-              <div style={{ borderTop: "1px solid var(--line)", paddingTop: 16 }}>
+              <div className="border-t border-line pt-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="material-symbols-rounded" style={{ fontSize: 15, color: "var(--gold)" }}>architecture</span>
-                  <span className="text-[11.5px] font-semibold uppercase tracking-wider" style={{ color: "var(--ink-dim)" }}>
+                  <span className="material-symbols-rounded text-[15px] text-gold">architecture</span>
+                  <span className="text-[11.5px] font-semibold uppercase tracking-wider text-ink-dim">
                     Fibonacci confluence
                   </span>
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ background: "rgba(248,185,61,0.1)", color: "var(--gold)", border: "1px solid rgba(248,185,61,0.2)" }}>
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[rgba(248,185,61,0.1)] text-gold border border-[rgba(248,185,61,0.2)]">
                     optional
                   </span>
                 </div>
@@ -458,9 +446,9 @@ export function Validator() {
                   <CheckToggle label="Fibonacci level at POI" checked={setup.fibConfluence} onChange={(v) => set("fibConfluence", v)} />
                   {setup.fibConfluence && (
                     <div className="pl-1">
-                      <div className="text-[11px] mb-1.5" style={{ color: "var(--ink-dim)" }}>Which level?</div>
+                      <div className="text-[11px] mb-1.5 text-ink-dim">Which level?</div>
                       <SegRow value={setup.fibLevel} onChange={(v) => set("fibLevel", v)} options={FIB_LEVELS.map((l) => ({ v: l, l: l }))} />
-                      <p className="text-[11px] mt-2 leading-relaxed" style={{ color: "var(--ink-dim)" }}>
+                      <p className="text-[11px] mt-2 leading-relaxed text-ink-dim">
                         {setup.fibLevel === "OTE (62–79%)"
                           ? "Optimal Trade Entry: the highest-probability Fibonacci zone. Price retracing into an OB or FVG that also sits in the 62–79% retracement is the strongest possible confluence."
                           : setup.fibLevel === "61.8%"
@@ -474,11 +462,11 @@ export function Validator() {
                 </div>
 
                 {setup.fibConfluence && (
-                  <div className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5" style={{ background: "rgba(248,185,61,0.06)", border: "1px solid rgba(248,185,61,0.18)" }}>
-                    <Icon name="bolt" size={13} fill style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }} />
-                    <p className="text-[11.5px] leading-relaxed" style={{ color: "var(--ink-dim)" }}>
+                  <div className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5 bg-[rgba(248,185,61,0.06)] border border-[rgba(248,185,61,0.18)]">
+                    <Icon name="bolt" size={13} fill className="text-gold shrink-0 mt-px" />
+                    <p className="text-[11.5px] leading-relaxed text-ink-dim">
                       Fibonacci confluence is active. If all main rules pass, this{" "}
-                      <span style={{ color: "var(--gold)", fontWeight: 600 }}>boosts an A grade to A+</span>.
+                      <span className="text-gold font-semibold">boosts an A grade to A+</span>.
                       It does not fix a failing rule.
                     </p>
                   </div>
@@ -486,17 +474,17 @@ export function Validator() {
               </div>
 
               {/* Position size calculator */}
-              <div style={{ borderTop: "1px solid var(--line)", paddingTop: 16 }}>
+              <div className="border-t border-line pt-4">
                 <button
                   type="button"
                   onClick={() => setCalcOpen((o) => !o)}
                   className="flex items-center gap-2 w-full mb-2"
                 >
-                  <span className="material-symbols-rounded" style={{ fontSize: 15, color: "var(--teal)" }}>calculate</span>
-                  <span className="text-[11.5px] font-semibold uppercase tracking-wider flex-1 text-left" style={{ color: "var(--ink-dim)" }}>
+                  <span className="material-symbols-rounded text-[15px] text-teal">calculate</span>
+                  <span className="text-[11.5px] font-semibold uppercase tracking-wider flex-1 text-left text-ink-dim">
                     Position size calculator
                   </span>
-                  <span className="material-symbols-rounded" style={{ fontSize: 15, color: "var(--ink-dim)" }}>
+                  <span className="material-symbols-rounded text-[15px] text-ink-dim">
                     {calcOpen ? "expand_less" : "expand_more"}
                   </span>
                 </button>
@@ -533,42 +521,42 @@ export function Validator() {
                     </div>
 
                     {calcResult && (
-                      <div className="rounded-xl p-4" style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}>
+                      <div className="rounded-xl p-4 bg-panel-2 border border-line">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4">
                           <div>
-                            <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>
+                            <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">
                               {calcResult.isForex ? "Pip distance" : setup.pair === "XAUUSD" ? "$ distance" : "Points"}
                             </div>
-                            <div className="font-mono text-[14px] font-semibold" style={{ color: "var(--ink-strong)" }}>
+                            <div className="font-mono text-[14px] font-semibold text-ink-strong">
                               {calcResult.isForex ? calcResult.pipDist.toFixed(1) : calcResult.pipDist.toFixed(2)}
                             </div>
                           </div>
                           <div>
-                            <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>Dollar risk</div>
-                            <div className="font-mono text-[14px] font-semibold" style={{ color: "var(--coral)" }}>
+                            <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Dollar risk</div>
+                            <div className="font-mono text-[14px] font-semibold text-coral">
                               −${calcResult.dollarRisk.toFixed(2)}
                             </div>
                           </div>
                           <div className="col-span-2">
-                            <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>Lot size</div>
-                            <div className="font-mono font-bold" style={{ fontSize: 26, color: "var(--gold)", letterSpacing: "-0.02em" }}>
+                            <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Lot size</div>
+                            <div className="font-mono font-bold text-[26px] tracking-[-0.02em] text-gold">
                               {calcResult.lots < 0.01 ? calcResult.lots.toFixed(4) : calcResult.lots.toFixed(2)}
                             </div>
                           </div>
                           {calcResult.tp !== null && (
                             <div>
-                              <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>
+                              <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">
                                 TP ({setup.rr}R)
                               </div>
-                              <div className="font-mono text-[14px] font-semibold" style={{ color: setup.dir === "long" ? "var(--teal)" : "var(--coral)" }}>
+                              <div className={cn("font-mono text-[14px] font-semibold", setup.dir === "long" ? "text-teal" : "text-coral")}>
                                 {calcResult.tp.toFixed(calcResult.isForex ? 5 : setup.pair === "XAUUSD" ? 2 : 1)}
                               </div>
                             </div>
                           )}
                           {calcResult.dollarProfit !== null && (
                             <div>
-                              <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5" style={{ color: "var(--ink-dim)" }}>Expected profit</div>
-                              <div className="font-mono text-[14px] font-semibold" style={{ color: "var(--teal)" }}>
+                              <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Expected profit</div>
+                              <div className="font-mono text-[14px] font-semibold text-teal">
                                 +${calcResult.dollarProfit.toFixed(2)}
                               </div>
                             </div>
@@ -578,11 +566,11 @@ export function Validator() {
                     )}
 
                     {!calcResult && calcEntry && calcSl && (
-                      <p className="text-[11.5px]" style={{ color: "var(--coral)" }}>Enter valid entry and SL prices.</p>
+                      <p className="text-[11.5px] text-coral">Enter valid entry and SL prices.</p>
                     )}
 
                     {calcResult && (
-                      <p className="text-[11px]" style={{ color: "var(--ink-dim)" }}>
+                      <p className="text-[11px] text-ink-dim">
                         These prices will pre-fill the trade log when you click "Log this trade".
                       </p>
                     )}
@@ -607,16 +595,16 @@ export function Validator() {
                 <div className="text-[11px] font-semibold uppercase tracking-widest mb-1" style={{ color: GRADE_COLOR[result.grade] }}>
                   Overall grade
                 </div>
-                <p className="text-[14px] font-semibold leading-snug mb-2" style={{ color: "var(--ink-strong)" }}>
+                <p className="text-[14px] font-semibold leading-snug mb-2 text-ink-strong">
                   {result.verdict}
                 </p>
-                <div className="text-[11.5px]" style={{ color: "var(--ink-dim)" }}>
+                <div className="text-[11.5px] text-ink-dim">
                   {passCount}/{result.rules.length} rules passed
                 </div>
                 {setup.fibConfluence && (
                   <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className="material-symbols-rounded" style={{ fontSize: 13, color: "var(--gold)", fontFamily: "Material Symbols Rounded Fill" }}>architecture</span>
-                    <span className="text-[11px] font-semibold" style={{ color: "var(--gold)" }}>
+                    <span className="material-symbols-rounded ic-fill text-[13px] text-gold">architecture</span>
+                    <span className="text-[11px] font-semibold text-gold">
                       Fib {setup.fibLevel} active
                     </span>
                   </div>
@@ -641,10 +629,10 @@ export function Validator() {
           {/* Rules checklist */}
           <Panel pad={0}>
             <div className="px-5 pt-4 pb-2">
-              <div className="font-display font-semibold text-[15px]" style={{ color: "var(--ink-strong)" }}>
+              <div className="font-display font-semibold text-[15px] text-ink-strong">
                 Rulebook checklist
               </div>
-              <p className="text-[12px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+              <p className="text-[12px] mt-0.5 text-ink-dim">
                 Updates live as you fill in setup conditions.
               </p>
             </div>
@@ -663,10 +651,10 @@ export function Validator() {
           <div className="flex items-center gap-4 px-1">
             {(["pass", "warn", "fail"] as Status[]).map((s) => (
               <div key={s} className="flex items-center gap-1.5">
-                <span className="material-symbols-rounded" style={{ fontSize: 14, color: STATUS_COLOR[s], fontFamily: "Material Symbols Rounded Fill" }}>
+                <span className={cn("material-symbols-rounded ic-fill text-[14px]", STATUS_TEXT_CLS[s])}>
                   {STATUS_ICON[s]}
                 </span>
-                <span className="text-[11.5px] capitalize" style={{ color: "var(--ink-dim)" }}>{s}</span>
+                <span className="text-[11.5px] capitalize text-ink-dim">{s}</span>
               </div>
             ))}
           </div>
@@ -675,19 +663,18 @@ export function Validator() {
           {history.length > 0 && (
             <Panel pad={0}>
               <div className="px-5 pt-4 pb-1 flex items-center justify-between">
-                <div className="font-display font-semibold text-[15px]" style={{ color: "var(--ink-strong)" }}>
+                <div className="font-display font-semibold text-[15px] text-ink-strong">
                   Recent validations
                 </div>
                 <button
                   type="button"
-                  className="text-[11.5px] font-medium hover:underline"
-                  style={{ color: "var(--ink-dim)" }}
+                  className="text-[11.5px] font-medium hover:underline text-ink-dim"
                   onClick={() => { setHistory([]); localStorage.removeItem(HISTORY_KEY); }}
                 >
                   Clear
                 </button>
               </div>
-              <div className="px-5 pb-3 divide-y" style={{ borderColor: "var(--line)" }}>
+              <div className="px-5 pb-3 divide-y divide-line">
                 {history.map((h) => <HistoryRow key={h.id} entry={h} />)}
               </div>
             </Panel>
@@ -707,15 +694,15 @@ function KillzoneBadge({ active, session }: { active: boolean; session: string }
   if (active) {
     return (
       <div className="flex items-center gap-1.5 pl-1">
-        <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: "var(--teal)", animation: "live-pulse 2s infinite" }} />
-        <span className="text-[11px] font-semibold" style={{ color: "var(--teal)" }}>Active now</span>
+        <span className="inline-block w-1.5 h-1.5 rounded-full bg-teal animate-[live-pulse_2s_infinite]" />
+        <span className="text-[11px] font-semibold text-teal">Active now</span>
       </div>
     );
   }
   return (
     <div className="flex items-center gap-1.5 pl-1">
-      <span className="material-symbols-rounded" style={{ fontSize: 12, color: "var(--ink-dim)" }}>schedule</span>
-      <span className="text-[11px]" style={{ color: "var(--ink-dim)" }}>Opens in {timeUntilOpen(session)}</span>
+      <span className="material-symbols-rounded text-[12px] text-ink-dim">schedule</span>
+      <span className="text-[11px] text-ink-dim">Opens in {timeUntilOpen(session)}</span>
     </div>
   );
 }

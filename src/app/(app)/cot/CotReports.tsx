@@ -52,7 +52,7 @@ function PositionBar({ value, max, color }: { value: number; max: number; color:
   const pct     = Math.min(Math.abs(value) / (max || 1) * 100, 100);
   const negative = value < 0;
   return (
-    <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: "var(--track)" }}>
+    <div className="relative h-1.5 rounded-full overflow-hidden bg-track">
       <div
         className="absolute top-0 h-full rounded-full"
         style={{
@@ -63,7 +63,7 @@ function PositionBar({ value, max, color }: { value: number; max: number; color:
           transition: "width 700ms var(--ease-app)",
         }}
       />
-      <div className="absolute inset-y-0 w-px" style={{ left: "50%", background: "var(--line)" }} />
+      <div className="absolute inset-y-0 w-px bg-line" style={{ left: "50%" }} />
     </div>
   );
 }
@@ -136,7 +136,7 @@ function DivergencePanel({ entry }: { entry: CotEntry }) {
       <Icon name={cfg.icon} size={15} fill style={{ color: cfg.color, flexShrink: 0, marginTop: 1 }} />
       <div>
         <div className="text-[12px] font-semibold mb-0.5" style={{ color: cfg.color }}>{cfg.title}</div>
-        <p className="text-[12px] leading-relaxed" style={{ color: "var(--ink-dim)" }}>{cfg.body}</p>
+        <p className="text-[12px] leading-relaxed text-ink-dim">{cfg.body}</p>
       </div>
     </div>
   );
@@ -148,12 +148,11 @@ function HistoryTable({ history }: { history: CotEntry["history"] }) {
   const rows = history.slice(0, 4);
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-[11.5px]" style={{ borderCollapse: "collapse" }}>
+      <table className="w-full text-[11.5px] border-collapse">
         <thead>
-          <tr style={{ borderBottom: "1px solid var(--line)" }}>
+          <tr className="border-b border-line">
             {["Date", "Large Spec", "Commercials", "Small Spec", "WoW Chg"].map((h) => (
-              <th key={h} className="text-left py-2 px-3 font-semibold tabular-nums"
-                style={{ color: "var(--ink-dim)", whiteSpace: "nowrap" }}>{h}</th>
+              <th key={h} className="text-left py-2 px-3 font-semibold tabular-nums whitespace-nowrap text-ink-dim">{h}</th>
             ))}
           </tr>
         </thead>
@@ -162,8 +161,8 @@ function HistoryTable({ history }: { history: CotEntry["history"] }) {
             const prev = rows[i + 1];
             const chg  = prev ? w.largeSpecNet - prev.largeSpecNet : null;
             return (
-              <tr key={w.date} style={{ borderBottom: i < rows.length - 1 ? "1px solid var(--line)" : "none" }}>
-                <td className="py-2 px-3 tabular-nums" style={{ color: "var(--ink-mid)", whiteSpace: "nowrap" }}>
+              <tr key={w.date} className={i < rows.length - 1 ? "border-b border-line" : ""}>
+                <td className="py-2 px-3 tabular-nums whitespace-nowrap text-ink-mid">
                   {fmtDate(w.date)}
                 </td>
                 <td className="py-2 px-3 tabular-nums font-medium" style={{ color: w.largeSpecNet >= 0 ? "var(--teal-bright)" : "var(--coral-bright)" }}>
@@ -176,7 +175,7 @@ function HistoryTable({ history }: { history: CotEntry["history"] }) {
                 <td className="py-2 px-3 tabular-nums font-medium" style={{ color: w.commercialNet >= 0 ? "var(--teal)" : "var(--coral)" }}>
                   {fmt(w.commercialNet)}
                 </td>
-                <td className="py-2 px-3 tabular-nums" style={{ color: "var(--ink-dim)" }}>
+                <td className="py-2 px-3 tabular-nums text-ink-dim">
                   {fmt(w.smallSpecNet)}
                 </td>
                 <td className="py-2 px-3 tabular-nums font-semibold" style={{ color: chg === null ? "var(--ink-dim)" : chg >= 0 ? "var(--teal-bright)" : "var(--coral-bright)" }}>
@@ -214,16 +213,13 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
   // No DB data yet — render a placeholder card
   if (!entry.history.length) {
     return (
-      <div
-        className="rounded-2xl p-5 flex items-center gap-4"
-        style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-      >
-        <div className="size-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--panel-2)" }}>
+      <div className="rounded-2xl p-5 flex items-center gap-4 bg-panel border border-line">
+        <div className="size-10 rounded-full flex items-center justify-center shrink-0 bg-panel-2">
           <Icon name="hourglass_empty" size={18} style={{ color: "var(--ink-dim)" }} />
         </div>
         <div>
-          <div className="font-display font-bold text-[15px]" style={{ color: "var(--ink-strong)" }}>{entry.label}</div>
-          <div className="text-[12px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+          <div className="font-display font-bold text-[15px] text-ink-strong">{entry.label}</div>
+          <div className="text-[12px] mt-0.5 text-ink-dim">
             COT data not yet available. Check back after the next Tuesday sync.
           </div>
         </div>
@@ -251,23 +247,20 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
     // Outer wrapper is relative + no overflow clip so the floating dropdown can escape
     <div className="relative">
     <div
-      className="rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-150 h-full"
-      style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
+      className="rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-150 h-full bg-panel border border-line hover:border-teal"
       onClick={() => onOpen(entry.pair)}
       role="button"
       aria-label={`Open ${entry.pair} COT detail`}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "var(--teal)"; }}
-      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "var(--line)"; }}
     >
       {/* ── Card header ── */}
       <div className="px-5 pt-4 pb-3 flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="font-display font-bold text-[20px]" style={{ color: "var(--ink-strong)", letterSpacing: "-0.02em" }}>
+            <span className="font-display font-bold text-[20px] tracking-[-0.02em] text-ink-strong">
               {entry.pair}
             </span>
-            <span className="text-[11px]" style={{ color: "var(--ink-dim)" }}>·</span>
-            <span className="text-[13px]" style={{ color: "var(--ink-mid)" }}>{entry.label}</span>
+            <span className="text-[11px] text-ink-dim">·</span>
+            <span className="text-[13px] text-ink-mid">{entry.label}</span>
             {/* Signal badge */}
             <span
               className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
@@ -280,14 +273,13 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
             {entry.usdBase && (
               <span
                 title="Positions shown for the foreign currency futures (JPY/CHF/CAD). Net positive = bullish on the USD pair."
-                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded cursor-help"
-                style={{ background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }}
+                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
               >
                 USD-base · inverted
               </span>
             )}
           </div>
-          <div className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+          <div className="text-[12px] text-ink-dim">
             CFTC report week ending {entry.reportDate}
           </div>
         </div>
@@ -301,13 +293,12 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
             >
               {fmt(entry.wowChange)}
             </div>
-            <div className="text-[11px]" style={{ color: "var(--ink-dim)" }}>WoW change</div>
+            <div className="text-[11px] text-ink-dim">WoW change</div>
           </div>
           <Link
             href={`/pair/${entry.pair}`}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1 text-[11px] font-semibold transition-colors hover:opacity-80"
-            style={{ color: "var(--teal)" }}
+            className="flex items-center gap-1 text-[11px] font-semibold transition-colors hover:opacity-80 text-teal"
           >
             Overview <Icon name="open_in_new" size={11} />
           </Link>
@@ -339,8 +330,8 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
               <div key={label}>
                 <div className="flex items-start justify-between mb-1.5 gap-2">
                   <div>
-                    <div className="text-[11.5px] font-semibold leading-tight" style={{ color: "var(--ink-mid)" }}>{label}</div>
-                    <div className="text-[10.5px] leading-tight" style={{ color: "var(--ink-dim)" }}>{sub}</div>
+                    <div className="text-[11.5px] font-semibold leading-tight text-ink-mid">{label}</div>
+                    <div className="text-[10.5px] leading-tight text-ink-dim">{sub}</div>
                   </div>
                   <div className="text-right shrink-0">
                     <div className="font-semibold tabular-nums text-[13px]" style={{ color }}>
@@ -358,16 +349,16 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
         </div>
 
         {/* 8-week sparkline */}
-        <div className="flex flex-col items-center justify-center gap-1.5" style={{ minWidth: 100 }}>
-          <div className="text-[10px] font-semibold text-center mb-0.5" style={{ color: "var(--ink-dim)" }}>
+        <div className="flex flex-col items-center justify-center gap-1.5 min-w-[100px]">
+          <div className="text-[10px] font-semibold text-center mb-0.5 text-ink-dim">
             Large Spec · 8W
           </div>
           <Sparkline data={sparkData} width={100} height={48} color={sparkColor} strokeW={1.5} />
-          <div className="w-full flex justify-between text-[10px] tabular-nums" style={{ color: "var(--ink-dim)" }}>
+          <div className="w-full flex justify-between text-[10px] tabular-nums text-ink-dim">
             <span>{fmtAbs(Math.min(...sparkData))}</span>
             <span>{fmtAbs(Math.max(...sparkData))}</span>
           </div>
-          <div className="text-[10px] text-center" style={{ color: "var(--ink-dim)" }}>
+          <div className="text-[10px] text-center text-ink-dim">
             {entry.history.length >= 8 ? "8 weeks" : `${entry.history.length} weeks`}
           </div>
         </div>
@@ -377,12 +368,11 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
       <DivergencePanel entry={entry} />
 
       {/* ── History table toggle (button only — inside card so it clips correctly) ── */}
-      <div className="mt-auto" style={{ borderTop: "1px solid var(--line)" }} onClick={(e) => e.stopPropagation()}>
+      <div className="mt-auto border-t border-line" onClick={(e) => e.stopPropagation()}>
         <button
           type="button"
           onClick={() => setHistOpen((o) => !o)}
-          className="w-full flex items-center justify-between px-5 py-2.5 text-[12px] font-semibold transition-colors hover:bg-[var(--hover)]"
-          style={{ color: "var(--ink-mid)" }}
+          className="w-full flex items-center justify-between px-5 py-2.5 text-[12px] font-semibold transition-colors hover:bg-hover text-ink-mid"
         >
           <span className="flex items-center gap-1.5">
             <Icon name="table_rows" size={14} />
@@ -396,15 +386,8 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
     {/* Floating dropdown — sibling of the card so overflow-hidden doesn't clip it */}
     {histOpen && (
       <div
-        className="absolute left-0 right-0 z-20 px-2 pb-3"
-        style={{
-          top: "100%",
-          background: "var(--panel)",
-          border: "1px solid var(--line)",
-          borderTop: "none",
-          borderRadius: "0 0 16px 16px",
-          boxShadow: "0 12px 32px rgba(0,0,0,0.2)",
-        }}
+        className="absolute left-0 right-0 z-20 px-2 pb-3 bg-panel border border-t-0 border-line rounded-b-2xl shadow-[0_12px_32px_rgba(0,0,0,0.2)]"
+        style={{ top: "100%" }}
         onClick={(e) => e.stopPropagation()}
       >
         <HistoryTable history={entry.history} />
@@ -428,7 +411,7 @@ function SummaryStrip({ entries }: { entries: CotEntry[] }) {
             style={{ background: sig.bg, color: sig.color, border: `1px solid ${sig.bg}` }}
           >
             <Icon name={sig.icon} size={13} />
-            <span style={{ color: "var(--ink-strong)" }}>{e.pair}</span>
+            <span className="text-ink-strong">{e.pair}</span>
             <span>{sig.shortLabel}</span>
             <span className="tabular-nums text-[11px]" style={{ opacity: 0.75 }}>{e.cotIndex}</span>
           </div>
@@ -444,7 +427,7 @@ function LoadingSkeleton() {
   return (
     <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(520px, 100%), 1fr))" }}>
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="rounded-2xl p-5 flex flex-col gap-4" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
+        <div key={i} className="rounded-2xl p-5 flex flex-col gap-4 bg-panel border border-line">
           <div className="flex items-start justify-between">
             <div className="flex flex-col gap-2">
               <Skeleton h={22} w={120} r={6} />
@@ -516,17 +499,16 @@ export function CotReports() {
 
   if (locked) {
     return (
-      <div className="view flex flex-col items-center justify-center" style={{ minHeight: "60vh" }}>
-        <div className="rounded-3xl px-10 py-12 text-center max-w-md" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
+      <div className="view flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="rounded-3xl px-10 py-12 text-center max-w-md bg-panel border border-line">
           <Icon name="lock" size={36} fill style={{ color: "var(--gold)", marginBottom: 16 }} />
-          <h2 className="font-display font-bold text-[22px] mb-2" style={{ color: "var(--ink-strong)", letterSpacing: "-0.02em" }}>COT Reports</h2>
-          <p className="text-[13.5px] leading-relaxed mb-6" style={{ color: "var(--ink-dim)" }}>
-            CFTC Commitments of Traders data is available on the <strong style={{ color: "var(--ink-strong)" }}>Pro Trader</strong> and <strong style={{ color: "var(--ink-strong)" }}>Funded Track</strong> plans. Understand institutional positioning to align your bias with smart money.
+          <h2 className="font-display font-bold text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">COT Reports</h2>
+          <p className="text-[13.5px] leading-relaxed mb-6 text-ink-dim">
+            CFTC Commitments of Traders data is available on the <strong className="text-ink-strong">Pro Trader</strong> and <strong className="text-ink-strong">Funded Track</strong> plans. Understand institutional positioning to align your bias with smart money.
           </p>
           <a
             href="/membership"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-[13.5px]"
-            style={{ background: "var(--gold)", color: "var(--navy-deep)" }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-[13.5px] bg-gold text-navy-deep"
           >
             <Icon name="workspace_premium" size={16} fill />
             Upgrade to Pro
@@ -542,10 +524,10 @@ export function CotReports() {
       {/* ── Header ── */}
       <div className="flex items-start justify-between mb-2 gap-4">
         <div>
-          <h1 className="font-display font-bold" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
+          <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
             COT Reports
           </h1>
-          <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+          <p className="text-[13px] mt-0.5 text-ink-dim">
             CFTC Commitments of Traders · Legacy Futures-Only · Updated weekly (Tuesdays ~15:30 EST)
           </p>
         </div>
@@ -579,8 +561,7 @@ export function CotReports() {
               type="button"
               onClick={retry}
               disabled={retrying}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-all active:scale-95 disabled:opacity-60"
-              style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-mid)" }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-all active:scale-95 disabled:opacity-60 bg-panel-2 border border-line text-ink-mid"
             >
               <Icon name="refresh" size={14} style={{ animation: retrying ? "spin 0.7s linear infinite" : "none" }} />
               {retrying ? "Refreshing…" : "Refresh"}
@@ -590,15 +571,12 @@ export function CotReports() {
       </div>
 
       {/* ── How to read COT (compact) ── */}
-      <div
-        className="mb-5 rounded-xl px-4 py-3 flex items-start gap-3 text-[12px] leading-relaxed"
-        style={{ background: "rgba(248,185,61,0.05)", border: "1px solid rgba(248,185,61,0.15)", color: "var(--ink-mid)" }}
-      >
+      <div className="mb-5 rounded-xl px-4 py-3 flex items-start gap-3 text-[12px] leading-relaxed bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.15)] text-ink-mid">
         <Icon name="school" size={15} fill style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }} />
         <span>
-          <strong style={{ color: "var(--ink-strong)" }}>Signal</strong> is driven by the Large Spec net position: net long = bullish bias, net short = bearish bias, confirmed by weekly momentum direction.{" "}
-          <strong style={{ color: "var(--ink-strong)" }}>COT Index (0–100)</strong> shows where that positioning sits within its own 52-week range. Think of it as a cycle gauge, not the direction itself. Near 100 = historically max long (watch for exhaustion). Near 0 = historically max short (watch for reversal).{" "}
-          <strong style={{ color: "var(--ink-strong)" }}>Divergence</strong> between large specs and commercials adds conviction: when both groups confirm the same direction, that&apos;s your SMC HTF bias.
+          <strong className="text-ink-strong">Signal</strong> is driven by the Large Spec net position: net long = bullish bias, net short = bearish bias, confirmed by weekly momentum direction.{" "}
+          <strong className="text-ink-strong">COT Index (0–100)</strong> shows where that positioning sits within its own 52-week range. Think of it as a cycle gauge, not the direction itself. Near 100 = historically max long (watch for exhaustion). Near 0 = historically max short (watch for reversal).{" "}
+          <strong className="text-ink-strong">Divergence</strong> between large specs and commercials adds conviction: when both groups confirm the same direction, that&apos;s your SMC HTF bias.
         </span>
       </div>
 
@@ -643,52 +621,40 @@ export function CotReports() {
         <div className="grid gap-4 text-[12.5px] leading-relaxed" style={{ gridTemplateColumns: "repeat(3, 1fr)", color: "var(--ink-mid)" }}>
           <div>
             <div className="flex items-center gap-1.5 mb-2">
-              <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px]"
-                style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)" }}>1</div>
-              <span className="font-semibold" style={{ color: "var(--ink-strong)" }}>Identify the Bias</span>
+              <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">1</div>
+              <span className="font-semibold text-ink-strong">Identify the Bias</span>
             </div>
             Check whether Large Speculators are <strong>net long</strong> (positive net = bullish bias) or <strong>net short</strong> (negative net = bearish bias). Then check the WoW direction: are they adding or reducing? Adding to a net long position is the strongest bullish confirmation. The COT Index shows how extreme that positioning is within the past 52 weeks.
           </div>
           <div>
             <div className="flex items-center gap-1.5 mb-2">
-              <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px]"
-                style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)" }}>2</div>
-              <span className="font-semibold" style={{ color: "var(--ink-strong)" }}>Check Divergence</span>
+              <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">2</div>
+              <span className="font-semibold text-ink-strong">Check Divergence</span>
             </div>
             The most powerful signal is when large specs and commercials are both aligned. Commercials hedge the opposite side, so when they are heavily short while large specs go long, that&apos;s institutional conviction you want to trade with.
           </div>
           <div>
             <div className="flex items-center gap-1.5 mb-2">
-              <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px]"
-                style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)" }}>3</div>
-              <span className="font-semibold" style={{ color: "var(--ink-strong)" }}>Confirm with Price</span>
+              <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">3</div>
+              <span className="font-semibold text-ink-strong">Confirm with Price</span>
             </div>
             COT alone does not give you an entry; it gives you a directional filter. Combine a bullish COT signal with a swept liquidity pool, a valid OB or FVG on HTF, and a killzone entry window. All three together = high-probability SMC setup.
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
-          <div
-            className="rounded-xl px-4 py-3"
-            style={{ background: "rgba(8,174,170,0.05)", border: "1px solid rgba(8,174,170,0.15)" }}
-          >
-            <div className="font-semibold mb-1" style={{ color: "var(--teal)" }}>Extreme readings: reversal or continuation?</div>
+          <div className="rounded-xl px-4 py-3 bg-[rgba(8,174,170,0.05)] border border-[rgba(8,174,170,0.15)]">
+            <div className="font-semibold mb-1 text-teal">Extreme readings: reversal or continuation?</div>
             At COT Index &gt; 80, large specs are near their most bullish in a year. This can mean two things: price has already moved significantly (late to the party), OR the trend is strong and still has room (early in a cycle). Always check price structure: if price has NOT yet moved proportionally, COT is leading. If price has already run hard, the extreme may signal a top.
           </div>
-          <div
-            className="rounded-xl px-4 py-3"
-            style={{ background: "rgba(248,185,61,0.05)", border: "1px solid rgba(248,185,61,0.15)" }}
-          >
-            <div className="font-semibold mb-1" style={{ color: "var(--gold)" }}>DXY is your master bias</div>
+          <div className="rounded-xl px-4 py-3 bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.15)]">
+            <div className="font-semibold mb-1 text-gold">DXY is your master bias</div>
             When the USD Index (DXY) COT Index is low (large specs bearish on USD), that is a tailwind for EURUSD, GBPUSD, NZDUSD, AUDUSD, and XAUUSD longs simultaneously. Cross-reference DXY with your pairs: if DXY is bearish COT and EURUSD is bullish COT, that is the strongest possible EUR setup. Maximum confluence.
           </div>
         </div>
 
         {/* Data wiring note */}
-        <div
-          className="mt-4 rounded-xl px-4 py-3 text-[12px] leading-relaxed"
-          style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-dim)" }}
-        >
-          <strong style={{ color: "var(--ink-strong)" }}>Data source:</strong>{" "}
+        <div className="mt-4 rounded-xl px-4 py-3 text-[12px] leading-relaxed bg-panel-2 border border-line text-ink-dim">
+          <strong className="text-ink-strong">Data source:</strong>{" "}
           {hasData
             ? `Supabase DB, seeded from CFTC Legacy Futures-Only report (publicreporting.cftc.gov/resource/6dca-aqww.json). ${totalHistory.toLocaleString()} total weeks across ${entries.length} instruments. Synced weekly via /api/cot/sync after CFTC publishes Tuesdays ~15:30 EST. No API key required.`
             : "No data in DB yet. Run: npx tsx prisma/seed-cot.ts"}
