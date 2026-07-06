@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useStore } from "@/lib/store";
-import { navActiveIconStyle } from "@/lib/nav-active-style";
+import { navActiveIconClass } from "@/lib/nav-active-style";
+import { cn } from "@/lib/cn";
 
 interface TabDef {
   href?: string;
@@ -34,23 +35,17 @@ export function BottomTabBar() {
   );
 
   return (
-    <nav
-      className="md:hidden fixed bottom-0 inset-x-0 z-40 flex items-stretch pb-safe"
-      style={{ background: "var(--sidebar)", borderTop: "1px solid var(--line)" }}
-    >
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 flex items-stretch pb-safe bg-sidebar border-t border-line">
       {TABS.map((tab) => {
         const active = tab.isMore ? mobileSidebarOpen || !isOnPromotedRoute
           : pathname === tab.href || pathname.startsWith(tab.href + "/");
 
         const content = (
           <>
-            <span className="material-symbols-rounded" style={navActiveIconStyle(active, 22)}>
+            <span className={cn("material-symbols-rounded text-[22px]", navActiveIconClass(active))}>
               {tab.icon}
             </span>
-            <span
-              className="text-[10px] font-medium leading-none mt-0.5"
-              style={{ color: active ? "var(--teal)" : "var(--ink-mid)" }}
-            >
+            <span className={cn("text-[10px] font-medium leading-none mt-0.5", active ? "text-teal" : "text-ink-mid")}>
               {tab.label}
             </span>
           </>

@@ -1,0 +1,48 @@
+/*
+ * Self-declared (not fetched from Google's CSS endpoint at request time)
+ * Material Symbols Rounded, subsetted to only the ~130 icon ligature names
+ * actually used in this app (see the Icon component and ICON_OPTIONS in the
+ * Academy admin). The unsubsetted variable font is ~5MB; this subset is
+ * ~320KB (outline) + ~395KB (filled), which loads well inside the
+ * font-display:block grace window instead of blowing past it and falling
+ * back to visible ligature text like "menu_book".
+ *
+ * Two static (non-variable) instances stand in for the FILL axis, since
+ * Google's variable-font subsetting doesn't reduce payload size the way a
+ * fixed-axis instance does. Regenerate both kit URLs (via the CSS2 API's
+ * `text=` param) if new icon names are added to the app.
+ */
+@font-face {
+  font-family: "Material Symbols Rounded";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(https://fonts.gstatic.com/l/font?kit=syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rIelXxeRMLRQKvFr6zUORCJPG11B6QXEbj0cWMJfT79ZuwU&skey=70ddea8fe54d532e&v=v356) format("woff2");
+  unicode-range: U+2c, U+32-33, U+5f, U+61-69, U+6b-70, U+72-7a;
+}
+@font-face {
+  font-family: "Material Symbols Rounded Fill";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(https://fonts.gstatic.com/l/font?kit=syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDJ_vb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rIelXxeRMLRQKvFr6zUORCJPG11B6QXEbj0cWMJfT79ZuwU&skey=70ddea8fe54d532e&v=v356) format("woff2");
+  unicode-range: U+2c, U+32-33, U+5f, U+61-69, U+6b-70, U+72-7a;
+}
+
+/* Font-application properties only — layout/sizing/display for
+   .material-symbols-rounded is globals.css's job (it loads first but must
+   stay authoritative; this file used to also set display/font-size/
+   line-height etc., which being loaded after globals.css silently won and
+   broke the flex-centering globals.css relies on, clipping icon glyphs).
+   @layer base (not unlayered) so Tailwind utilities can still override
+   font-weight/etc. here if ever needed — unlayered CSS always beats
+   layered CSS regardless of specificity. */
+@layer base {
+  .material-symbols-rounded {
+    font-family: "Material Symbols Rounded";
+    font-weight: normal;
+    font-style: normal;
+    -webkit-font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+  }
+}

@@ -327,7 +327,7 @@ function NotifBell() {
                     >
                       <span
                         className="material-symbols-rounded"
-                        style={{ fontSize: 14, color: cfg.color, fontVariationSettings: "'FILL' 1" }}
+                        style={{ fontSize: 14, color: cfg.color, fontFamily: "Material Symbols Rounded Fill" }}
                       >
                         {n.icon || cfg.icon}
                       </span>

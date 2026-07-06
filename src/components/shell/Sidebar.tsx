@@ -8,8 +8,9 @@ import { useTransition } from "react";
 import { useStore } from "@/lib/store";
 import type { AppUser } from "@/lib/store";
 import { signoutAction } from "@/app/(auth)/actions";
-import { navActiveRowStyle, navActiveIconStyle } from "@/lib/nav-active-style";
+import { navActiveRowClass, navActiveIconClass } from "@/lib/nav-active-style";
 import { clampPosition } from "@/lib/hooks/useClampedPosition";
+import { cn } from "@/lib/cn";
 
 interface NavItem {
   href: string;
@@ -471,16 +472,18 @@ function NavLink({
       <Link
         href={item.href}
         onClick={onNavigate}
-        className="flex items-center rounded-xl text-sm font-medium transition-colors"
+        className={cn(
+          "flex items-center rounded-xl text-sm font-medium transition-colors",
+          navActiveRowClass(active)
+        )}
         style={{
           padding: collapsed ? "7px 0" : "8px 12px",
           justifyContent: collapsed ? "center" : "flex-start",
           gap: collapsed ? 0 : 10,
           transition: "padding 260ms var(--ease-app), background 150ms, box-shadow 150ms",
-          ...navActiveRowStyle(active),
         }}
       >
-        <span className="material-symbols-rounded shrink-0" style={navActiveIconStyle(active, 20)}>
+        <span className={cn("material-symbols-rounded shrink-0 text-[20px]", navActiveIconClass(active))}>
           {item.icon}
         </span>
         <span

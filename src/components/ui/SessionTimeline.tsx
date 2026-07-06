@@ -113,7 +113,7 @@ export function SessionTimeline() {
         <div className="flex items-center gap-2.5 flex-wrap">
           <span
             className="material-symbols-rounded"
-            style={{ fontSize: 15, color: "var(--ink-dim)", fontVariationSettings: "'FILL' 1" }}
+            style={{ fontSize: 15, color: "var(--ink-dim)", fontFamily: "Material Symbols Rounded Fill" }}
           >
             schedule
           </span>

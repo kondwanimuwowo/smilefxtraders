@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+/* Makes Tailwind's dark: variant target this app's [data-theme="dark"]
+   attribute (set by next-themes) instead of the default .dark class /
+   prefers-color-scheme media query. */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* Overrides Tailwind's built-in "container" utility (default: width:100% +
+   breakpoint max-widths only, no padding/centering). 20px matches
+   MarketingNav's hardcoded gutter. */
+@utility container {
+  @apply mx-auto px-5 max-w-[var(--container,1200px)];
+}
+
 /* ─── Breakpoint convention ──────────────────────────────────────────────────
    Tailwind's default scale (sm=640 md=768 lg=1024 xl=1280 — no --breakpoint-*
    overrides in the @theme block below) is the single source of truth for
@@ -26,15 +38,22 @@
   --safe-left:   env(safe-area-inset-left, 0px);
   --safe-right:  env(safe-area-inset-right, 0px);
 }
-.pt-safe { padding-top: var(--safe-top); }
-.pb-safe { padding-bottom: var(--safe-bottom); }
+/* @layer base here (and everywhere else custom rules appear below) matters:
+   unlayered CSS always beats layered CSS regardless of specificity, and
+   Tailwind utilities/@apply-based classes always live in a layer — an
+   unlayered rule for the same property can never be overridden by a
+   utility class, no matter how specific. */
+@layer base {
+  .pt-safe { padding-top: var(--safe-top); }
+  .pb-safe { padding-bottom: var(--safe-bottom); }
 
-/* ─── Touch targets ────────────────────────────────────────────────────────── *
-   Wraps the tappable hit area, not necessarily the visible icon — icon can
-   stay visually small, padding brings the tap box to 44px. Only applied on
-   coarse pointers (touch) so desktop mouse UIs don't get needlessly enlarged. */
-@media (pointer: coarse) {
-  .tap-target { min-height: 44px; min-width: 44px; }
+  /* ─── Touch targets ──────────────────────────────────────────────────────
+     Wraps the tappable hit area, not necessarily the visible icon — icon can
+     stay visually small, padding brings the tap box to 44px. Only applied on
+     coarse pointers (touch) so desktop mouse UIs don't get needlessly enlarged. */
+  @media (pointer: coarse) {
+    .tap-target { min-height: 44px; min-width: 44px; }
+  }
 }
 
 /* ─── Brand + semantic palette ──────────────────────────────────────────────── */
@@ -52,6 +71,14 @@
   --long-bright:  var(--teal-bright);
   --short:        var(--coral);
   --short-bright: var(--coral-bright);
+
+  /* Marketing card/mock shadow scale (src/app/(marketing)/marketing.css) —
+     named shadow-card-* rather than shadow-sm/md/lg/xl to avoid silently
+     overriding Tailwind's built-in shadow scale used everywhere else. */
+  --shadow-card-sm: 0 1px 5px rgba(11, 66, 93, 0.06);
+  --shadow-card-md: 0 6px 18px rgba(11, 66, 93, 0.10);
+  --shadow-card-lg: 0 14px 36px rgba(11, 66, 93, 0.16);
+  --shadow-card-xl: 0 24px 56px rgba(8, 42, 59, 0.28);
 }
 
 /* ─── Light theme surfaces (default) ────────────────────────────────────────── */
@@ -117,79 +144,116 @@
   --color-ink-mid:   var(--ink-mid);
   --color-ink-dim:   var(--ink-dim);
   --color-ink-strong: var(--ink-strong);
+  --color-line:      var(--line);
+  --color-hover:     var(--hover);
+  --color-track:     var(--track);
+  --color-row-hover: var(--row-hover);
+  --color-topbar-bg: var(--topbar-bg);
+
+  /* Direction semantics (tweakable — never hard-code teal/coral directly) */
+  --color-long:         var(--long);
+  --color-long-bright:  var(--long-bright);
+  --color-short:        var(--short);
+  --color-short-bright: var(--short-bright);
 
   /* Background Gradients */
   --background-image-navy-grad: linear-gradient(165deg, #0C4359 0%, #082A3B 78%);
 
   /* Motion */
   --ease-app: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Marketing card/mock shadow scale as Tailwind utilities (shadow-card-*) */
+  --shadow-card-sm: var(--shadow-card-sm);
+  --shadow-card-md: var(--shadow-card-md);
+  --shadow-card-lg: var(--shadow-card-lg);
+  --shadow-card-xl: var(--shadow-card-xl);
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────────── */
-html {
-  min-height: 100%;
-  overflow-x: hidden;
-}
-
-body {
-  background: var(--app-bg);
-  color: var(--ink);
-  font-family: var(--font-sans), system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  min-height: 100%;
-  overflow-y: auto;
-}
-
-/* Prevent icon reflow during font block period — icon spans keep their declared size
-   even while the font file is in-flight, so nothing jumps when icons appear */
-.material-symbols-rounded {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1em;
-  height: 1em;
-  overflow: hidden;
-  font-size: inherit;
-}
-
-/* Tabular numbers for price/stat text */
-.tabular-nums,
-[class*="tabular-nums"] {
-  font-variant-numeric: tabular-nums;
-}
-
-/* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
-::-webkit-scrollbar        { width: 6px; height: 6px; }
-::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: var(--track); border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: var(--ink-dim); }
-
-/* Sidebar nav — 3px, half the global width */
-.sidebar-scroll { scrollbar-width: thin; scrollbar-color: var(--track) transparent; }
-.sidebar-scroll::-webkit-scrollbar        { width: 3px; }
-.sidebar-scroll::-webkit-scrollbar-track  { background: transparent; }
-.sidebar-scroll::-webkit-scrollbar-thumb  { background: var(--track); border-radius: 999px; }
-.sidebar-scroll::-webkit-scrollbar-thumb:hover { background: var(--ink-dim); }
-
-/* Nav tooltip — shown when sidebar is in collapsed icon-rail mode */
-.nav-tip { position: relative; }
-.nav-tip[data-tip]::after {
-  content: attr(data-tip);
-  position: absolute;
-  left: calc(100% + 10px);
-  top: 50%; transform: translateY(-50%);
-  background: var(--teal); color: #fff;
-  font-size: 11px; font-weight: 600;
-  padding: 4px 10px; border-radius: 6px;
-  white-space: nowrap;
-  opacity: 0; pointer-events: none;
-  transition: opacity 150ms 80ms;
-  z-index: 60;
-}
-.nav-tip[data-tip]:hover::after { opacity: 1; }
-
-/* ─── Cursor: pointer on all interactive elements ────────────────────────────── */
 @layer base {
+  html {
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    background: var(--app-bg);
+    color: var(--ink);
+    font-family: var(--font-sans), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100%;
+    overflow-y: auto;
+  }
+
+  /* width: 1em locks the span's horizontal size so nothing reflows sideways
+     once the (much narrower) icon glyph replaces the wider fallback-font box
+     for the ligature text during the font's load. Deliberately NOT forcing
+     height/overflow/flex-centering here (an earlier version did, and it broke:
+     line-height: 1 already makes the line box exactly equal the 1em container,
+     so align-items: center has nothing left to redistribute — the glyph's
+     actual vertical position is purely the font's own baseline/ascent metrics,
+     and overflow: hidden was clipping whatever the flex-centering didn't
+     actually correct for). This now matches Google's own tested default CSS
+     for this font. letter-spacing/text-transform/white-space/word-wrap/
+     direction guard against inherited parent styles (e.g. an uppercase label)
+     breaking the ligature match on the icon's literal text content (e.g.
+     "menu_book"). Being in @layer base (not unlayered) means a Tailwind
+     utility like text-[32px] correctly overrides font-size: inherit here. */
+  .material-symbols-rounded {
+    display: inline-block;
+    width: 1em;
+    font-size: inherit;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+  }
+
+  /* Material Symbols "filled" variant — two separate static font files back
+     this (src/app/material-symbols.css), not a variable-font axis, so this
+     selects the filled font-family rather than setting font-variation-settings
+     (which has no effect on a static font). */
+  .ic-fill { font-family: "Material Symbols Rounded Fill"; }
+
+  /* Tabular numbers for price/stat text */
+  .tabular-nums,
+  [class*="tabular-nums"] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+  ::-webkit-scrollbar        { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track  { background: transparent; }
+  ::-webkit-scrollbar-thumb  { background: var(--track); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-dim); }
+
+  /* Sidebar nav — 3px, half the global width */
+  .sidebar-scroll { scrollbar-width: thin; scrollbar-color: var(--track) transparent; }
+  .sidebar-scroll::-webkit-scrollbar        { width: 3px; }
+  .sidebar-scroll::-webkit-scrollbar-track  { background: transparent; }
+  .sidebar-scroll::-webkit-scrollbar-thumb  { background: var(--track); border-radius: 999px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb:hover { background: var(--ink-dim); }
+
+  /* Nav tooltip — shown when sidebar is in collapsed icon-rail mode */
+  .nav-tip { position: relative; }
+  .nav-tip[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%; transform: translateY(-50%);
+    background: var(--teal); color: #fff;
+    font-size: 11px; font-weight: 600;
+    padding: 4px 10px; border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0; pointer-events: none;
+    transition: opacity 150ms 80ms;
+    z-index: 60;
+  }
+  .nav-tip[data-tip]:hover::after { opacity: 1; }
+
+  /* ─── Cursor: pointer on all interactive elements ──────────────────────────── */
   button:not(:disabled),
   a,
   [role="button"],
@@ -203,8 +267,10 @@ body {
 }
 
 /* ─── Button active micro-press ──────────────────────────────────────────────── */
-button:active {
-  transform: scale(0.98);
+@layer base {
+  button:active {
+    transform: scale(0.98);
+  }
 }
 
 /* ─── Candle chart (Classic scheme, light chart surface in both themes) ─────── */
@@ -226,7 +292,9 @@ button:active {
   0%, 100% { transform: translateY(0px); }
   50%       { transform: translateY(-7px); }
 }
-.float { animation: float 3.2s ease-in-out infinite; }
+@layer base {
+  .float { animation: float 3.2s ease-in-out infinite; }
+}
 
 @keyframes modal-pop {
   from { opacity: 0; transform: scale(0.96) translateY(4px); }
@@ -248,181 +316,49 @@ button:active {
 }
 
 /* ─── Auth page ──────────────────────────────────────────────────────────────── */
-.auth-range {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 5px;
-  border-radius: 999px;
-  background: var(--track);
-  outline: none;
-  cursor: pointer;
-}
-.auth-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--teal);
-  box-shadow: 0 0 0 3px rgba(8,174,170,0.25);
-  cursor: pointer;
-}
-
-/* ─── Lenis Smooth Scrolling ─────────────────────────────────────────────────── */
-html.lenis, html.lenis body {
-  height: auto;
-}
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-.lenis.lenis-smooth iframe {
-  pointer-events: none;
-}
-
-/* ─── Marketing Page Scroll Animations ───────────────────────────────────────── */
-.reveal {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.7s var(--ease-app);
-}
-.reveal.in {
-  opacity: 1;
-  transform: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .reveal {
-    transition: none;
-    opacity: 1;
-    transform: none;
+@layer base {
+  .auth-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--track);
+    outline: none;
+    cursor: pointer;
   }
-}
+  .auth-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 0 0 0 3px rgba(8,174,170,0.25);
+    cursor: pointer;
+  }
 
-/* ─── Marketing Shared Styles ────────────────────────────────────────────────── */
-/* Layout */
-.container { max-width: 1200px; margin: 0 auto; padding: 0 28px; }
-.section    { padding: 96px 0; }
-.section-sm { padding: 64px 0; }
-.dark { background: linear-gradient(165deg, #0C4359 0%, #082A3B 78%); color: #fff; }
-.dark h1, .dark h2, .dark h3 { color: #fff; }
-.soft { background: #F2F6F8; }
+  /* ─── Lenis Smooth Scrolling ────────────────────────────────────────────── */
+  html.lenis, html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+  .lenis.lenis-smooth iframe {
+    pointer-events: none;
+  }
 
-/* Section head */
-.eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.26em; color: var(--teal); display: inline-flex; align-items: center; gap: 8px; }
-.dark .eyebrow { color: var(--teal-bright); }
-.sec-head { max-width: 680px; }
-.sec-head.center { margin: 0 auto; text-align: center; }
-.sec-head h2 { font-size: clamp(30px, 4vw, 46px); margin: 16px 0 0; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
-.sec-head .rule { width: 56px; height: 4px; border-radius: 99px; background: var(--coral); margin: 20px 0 0; }
-.sec-head.center .rule { margin: 20px auto 0; }
-.sec-head .lead, .lead { font-size: 18px; color: var(--ink-mid); margin-top: 20px; line-height: 1.6; }
-.dark .lead { color: rgba(255,255,255,0.74); }
-.rule { width: 56px; height: 4px; border-radius: 99px; background: var(--coral); margin: 20px 0 0; }
-
-/* Buttons */
-.btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-sans); font-weight: 600; font-size: 15px; padding: 13px 24px; border-radius: 10px; border: none; cursor: pointer; transition: all 0.2s cubic-bezier(0.16,1,0.3,1); white-space: nowrap; text-decoration: none; }
-.btn:active { transform: scale(0.98); }
-.btn-primary { background: var(--teal); color: #fff; box-shadow: 0 6px 18px rgba(8,174,170,0.28); }
-.btn-primary:hover { background: #0B807C; box-shadow: 0 10px 26px rgba(8,174,170,0.36); transform: translateY(-1px); }
-.btn-gold { background: #F8B93D; color: #082A3B; }
-.btn-gold:hover { background: #D99A1E; transform: translateY(-1px); }
-.btn-ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px #E2E8EC; }
-.btn-ghost:hover { box-shadow: inset 0 0 0 1.5px var(--teal); color: #0B807C; }
-.dark .btn-ghost { color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.25); }
-.dark .btn-ghost:hover { box-shadow: inset 0 0 0 1.5px var(--teal-bright); color: var(--teal-bright); }
-.btn-lg { padding: 16px 30px; font-size: 16px; }
-.link-arrow { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: #0B807C; font-size: 15px; text-decoration: none; }
-.dark .link-arrow { color: var(--teal-bright); }
-.link-arrow .material-symbols-rounded { transition: transform 0.2s; font-size: 20px; }
-.link-arrow:hover .material-symbols-rounded { transform: translateX(4px); }
-
-/* Cards */
-.card { background: #fff; border-radius: 20px; box-shadow: 0 10px 30px rgba(11,66,93,0.10); transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s cubic-bezier(0.16,1,0.3,1); }
-.card:hover { transform: translateY(-4px); box-shadow: 0 24px 60px rgba(11,66,93,0.16); }
-
-/* Grids */
-.grid { display: grid; gap: 24px; }
-.g2 { grid-template-columns: repeat(2, 1fr); }
-.g3 { grid-template-columns: repeat(3, 1fr); }
-.g4 { grid-template-columns: repeat(4, 1fr); }
-
-/* Icon chip */
-.icon-chip { width: 52px; height: 52px; border-radius: 14px; background: #ECF4F4; display: grid; place-items: center; color: var(--teal); }
-.icon-chip .material-symbols-rounded { font-size: 26px; }
-.dark .icon-chip { background: rgba(8,174,170,0.16); color: var(--teal-bright); }
-
-/* Tool card */
-.tool-card { padding: 28px; }
-.tool-card h3 { font-size: 20px; margin: 18px 0 8px; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
-.tool-card p { font-size: 14.5px; color: var(--ink-mid); line-height: 1.6; margin-bottom: 16px; }
-
-/* Chips */
-.chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 99px; font-size: 12.5px; font-weight: 600; background: #ECF4F4; color: #0B807C; }
-.chip.coral { background: rgba(234,82,61,0.12); color: #B84030; }
-.chip.gold { background: rgba(248,185,61,0.16); color: #D99A1E; }
-.badge-long { color: #0B807C; background: rgba(8,174,170,0.12); }
-.badge-short { color: #B84030; background: rgba(234,82,61,0.12); }
-
-/* Stats */
-.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
-.stat .num { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 5vw, 44px); line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
-.dark .stat .num { color: #fff; }
-.stat .num .suf { color: var(--coral); }
-.dark .stat .num .suf { color: #F8B93D; }
-.stat .lbl { font-size: 14px; color: var(--ink-mid); margin-top: 10px; }
-.dark .stat .lbl { color: rgba(255,255,255,0.62); }
-
-/* Feature rows */
-.feature-row { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
-.feature-row.flip .feature-visual { order: -1; }
-.feature-row + .feature-row { margin-top: 88px; }
-.feature-text h3 { font-size: clamp(26px, 3vw, 34px); margin: 16px 0 0; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
-.feature-text .lead { font-size: 17px; color: var(--ink-mid); margin: 16px 0 22px; }
-.feature-list { display: flex; flex-direction: column; gap: 12px; margin: 0 0 24px; padding: 0; list-style: none; }
-.feature-list li { display: flex; gap: 11px; align-items: flex-start; font-size: 15px; color: var(--ink); }
-.feature-list .material-symbols-rounded { color: var(--teal); font-size: 22px; flex-shrink: 0; }
-
-/* Product mockups */
-.mock { background: #fff; border-radius: 18px; box-shadow: 0 40px 90px rgba(8,42,59,0.28); overflow: hidden; border: 1px solid #E2E8EC; }
-.mock-bar { display: flex; align-items: center; gap: 7px; padding: 12px 16px; border-bottom: 1px solid #E2E8EC; background: #fff; }
-.mock-dot { width: 11px; height: 11px; border-radius: 99px; }
-.mock-body { padding: 16px; }
-.mock-tile { background: #F2F6F8; border-radius: 12px; padding: 13px 15px; }
-.mock-tile .k { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-dim); font-weight: 700; }
-.mock-tile .v { font-family: var(--font-mono); font-size: 19px; font-weight: 600; margin-top: 5px; }
-.float-card { position: absolute; background: #fff; border-radius: 14px; box-shadow: 0 24px 60px rgba(11,66,93,0.16); padding: 14px 16px; border: 1px solid #E2E8EC; }
-
-/* Mono */
-.mono { font-family: var(--font-mono); font-feature-settings: "tnum"; }
-
-/* Avatars */
-.avatar { border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 700; flex-shrink: 0; }
-.avatar-ring { box-shadow: 0 0 0 3px #fff, 0 0 0 5px #F8B93D; }
-
-/* Material icons fill variant */
-.ic-fill { font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24; }
-
-/* Headings in marketing */
-main h1, main h2, main h3, main h4 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.08; margin: 0; }
-main p { margin: 0; }
-
-/* ─── Marketing Responsive ───────────────────────────────────────────────────── */
-@media (max-width: 900px) {
-  .g3, .g4 { grid-template-columns: 1fr 1fr; }
-  .g2 { grid-template-columns: 1fr; }
-  .feature-row { grid-template-columns: 1fr; gap: 32px; }
-  .feature-row.flip .feature-visual { order: 0; }
-  .stat-row { grid-template-columns: 1fr 1fr; gap: 24px; }
-  .section { padding: 68px 0; }
-  .instr-grid, .hero-grid, .comm-grid { grid-template-columns: 1fr !important; }
-}
-@media (max-width: 560px) {
-  .container { padding: 0 18px; }
-  .g3, .g4, .g2 { grid-template-columns: 1fr; }
-  .stat-row { grid-template-columns: 1fr 1fr; gap: 18px; }
+  /* Headings in marketing pages — matches globally regardless of <main>'s
+     contents; not to be confused with (marketing)/marketing.css's own
+     .marketing-theme-scoped copy of the same rule (that one's the one
+     actually cascading on marketing pages since it loads after this). This
+     copy also covers the (app) shell's <main>. */
+  main h1, main h2, main h3, main h4 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.08; margin: 0; }
+  main p { margin: 0; }
 }

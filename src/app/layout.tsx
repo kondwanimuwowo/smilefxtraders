@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
+import "./material-symbols.css";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -55,14 +56,18 @@ export default function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'light')}catch(e){}})()`,
           }}
         />
-        {/* Preconnect so the font CDN socket is ready before the stylesheet is parsed */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        {/* Preconnect so the icon font's CDN socket is warm before the preload kicks off */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        {/* display=block: browser renders blank space while loading, not raw ligature text */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
-        />
+        {/* The two icon font files (outline + filled, subsetted to only the ~130
+            icon names this app uses — see src/app/material-symbols.css) are
+            preloaded so they're fetched immediately in parallel with everything
+            else, not discovered late via CSSOM parsing. The preconnect above
+            already covers this origin; the lint rule just doesn't recognize
+            rel="preload" as satisfied by a separate preconnect tag. */}
+        {/* eslint-disable-next-line @next/next/google-font-preconnect */}
+        <link rel="preload" as="font" type="font/woff2" crossOrigin="" href="https://fonts.gstatic.com/l/font?kit=syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rIelXxeRMLRQKvFr6zUORCJPG11B6QXEbj0cWMJfT79ZuwU&skey=70ddea8fe54d532e&v=v356" />
+        {/* eslint-disable-next-line @next/next/google-font-preconnect */}
+        <link rel="preload" as="font" type="font/woff2" crossOrigin="" href="https://fonts.gstatic.com/l/font?kit=syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDJ_vb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rIelXxeRMLRQKvFr6zUORCJPG11B6QXEbj0cWMJfT79ZuwU&skey=70ddea8fe54d532e&v=v356" />
       </head>
       <body className="antialiased">
         <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem={false}>

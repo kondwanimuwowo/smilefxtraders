@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode, CSSProperties } from "react";
 import Link from "next/link";
 import { Icon } from "./Icon";
+import { cn } from "@/lib/cn";
 
 type Variant = "primary" | "ghost" | "outline" | "danger";
 type Size = "sm" | "md" | "lg" | "xl";
@@ -51,8 +52,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const { cls: sizeCls, iconSize } = SIZES[size];
-  const className = [BASE, VARIANTS[variant], sizeCls, fullWidth ? "w-full" : "", props.className ?? ""]
-    .filter(Boolean).join(" ");
+  const className = cn(BASE, VARIANTS[variant], sizeCls, fullWidth && "w-full", props.className);
 
   const content = (
     <>

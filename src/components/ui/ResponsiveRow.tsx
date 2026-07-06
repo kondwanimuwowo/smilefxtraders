@@ -29,16 +29,10 @@ export function ResponsiveRow({ gridTemplateColumns, cells, className = "", styl
         ))}
       </div>
 
-      <div
-        className="md:hidden flex flex-col gap-2 rounded-xl p-3.5 mb-2"
-        style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
-      >
+      <div className="md:hidden flex flex-col gap-2 rounded-xl p-3.5 mb-2 bg-panel-2 border border-line">
         {cells.map((c, i) => (
           <div key={i} className="flex items-center justify-between gap-3">
-            <span
-              className="text-[10.5px] font-semibold uppercase tracking-wide shrink-0"
-              style={{ color: "var(--ink-dim)" }}
-            >
+            <span className="text-[10.5px] font-semibold uppercase tracking-wide shrink-0 text-ink-dim">
               {c.label}
             </span>
             <span className="text-right min-w-0">{c.value}</span>

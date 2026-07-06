@@ -5,6 +5,7 @@ import { useRef, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "./Icon";
 import { clampPosition } from "@/lib/hooks/useClampedPosition";
+import { cn } from "@/lib/cn";
 
 // ─── Field wrapper ─────────────────────────────────────────────────────────────
 
@@ -18,19 +19,10 @@ interface FieldProps {
 
 export function Field({ label, hint, half, children, style }: FieldProps) {
   return (
-    <label
-      className="flex flex-col gap-1.5"
-      style={{ gridColumn: half ? "span 1" : "1 / -1", ...style }}
-    >
-      <span className="text-[12.5px] font-semibold" style={{ color: "var(--ink-mid)" }}>
-        {label}
-      </span>
+    <label className={cn("flex flex-col gap-1.5", half ? "col-span-1" : "col-[1/-1]")} style={style}>
+      <span className="text-[12.5px] font-semibold text-ink-mid">{label}</span>
       {children}
-      {hint && (
-        <span className="text-[11.5px]" style={{ color: "var(--ink-dim)" }}>
-          {hint}
-        </span>
-      )}
+      {hint && <span className="text-[11.5px] text-ink-dim">{hint}</span>}
     </label>
   );
 }
@@ -41,16 +33,10 @@ export function Field({ label, hint, half, children, style }: FieldProps) {
 // triggers iOS Safari's auto-zoom-on-focus, a real mobile UX bug. Buttons/labels
 // elsewhere in this file are unaffected since only focusable text fields zoom.
 const inputCls =
-  "w-full rounded-[9px] border px-3 py-2.5 text-base sm:text-[13.5px] outline-none transition-colors placeholder:text-[var(--ink-dim)] focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)]";
-
-const inputStyle = {
-  background: "var(--panel-2)",
-  borderColor: "var(--line)",
-  color: "var(--ink-strong)",
-};
+  "w-full rounded-[9px] border px-3 py-2.5 text-base sm:text-[13.5px] outline-none transition-colors placeholder:text-[var(--ink-dim)] focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong";
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={inputCls} style={inputStyle} {...props} />;
+  return <input className={inputCls} {...props} />;
 }
 
 export function MonoInput(props: InputHTMLAttributes<HTMLInputElement>) {
@@ -58,21 +44,14 @@ export function MonoInput(props: InputHTMLAttributes<HTMLInputElement>) {
     <input
       className={`${inputCls} tabular-nums`}
       inputMode="decimal"
-      style={{ ...inputStyle, fontFeatureSettings: '"tnum"' }}
+      style={{ fontFeatureSettings: '"tnum"' }}
       {...props}
     />
   );
 }
 
 export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return (
-    <textarea
-      rows={3}
-      className={inputCls}
-      style={inputStyle}
-      {...props}
-    />
-  );
+  return <textarea rows={3} className={inputCls} {...props} />;
 }
 
 // ─── Select ────────────────────────────────────────────────────────────────────
@@ -130,8 +109,6 @@ export function Select({ value, onChange, options, disabled, compact, borderless
     ? "w-full rounded-lg border px-2.5 py-1.5 text-[12px] flex items-center justify-between gap-1.5 outline-none transition-colors"
     : "w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] flex items-center justify-between gap-2 outline-none transition-colors";
 
-  const iconSize = compact ? 14 : 18;
-
   const displayLabel = selected?.l ?? placeholder ?? "—";
   const isPlaceholder = !selected;
 
@@ -142,25 +119,21 @@ export function Select({ value, onChange, options, disabled, compact, borderless
         type="button"
         disabled={disabled}
         onClick={toggle}
-        className={triggerCls}
-        style={{
-          background:  "var(--panel-2)",
-          borderColor: borderless ? "transparent" : open ? "var(--teal)" : "var(--line)",
-          color:       isPlaceholder ? "var(--ink-dim)" : "var(--ink-strong)",
-          opacity:     disabled ? 0.5 : 1,
-          cursor:      disabled ? "not-allowed" : "pointer",
-          boxShadow:   open && !borderless ? "0 0 0 3px rgba(8,174,170,0.18)" : undefined,
-        }}
+        className={cn(
+          triggerCls,
+          "bg-panel-2 disabled:opacity-50",
+          borderless ? "border-transparent" : open ? "border-teal" : "border-line",
+          isPlaceholder ? "text-ink-dim" : "text-ink-strong",
+          open && !borderless && "shadow-[0_0_0_3px_rgba(8,174,170,0.18)]"
+        )}
       >
         <span className="truncate text-left">{displayLabel}</span>
         <span
-          className="material-symbols-rounded shrink-0"
-          style={{
-            fontSize:   iconSize,
-            color:      "var(--ink-dim)",
-            transition: "transform 200ms var(--ease-app)",
-            transform:  open ? "rotate(180deg)" : "rotate(0deg)",
-          }}
+          className={cn(
+            "material-symbols-rounded shrink-0 text-ink-dim transition-transform duration-200 ease-app",
+            compact ? "text-[14px]" : "text-[18px]",
+            open ? "rotate-180" : "rotate-0"
+          )}
         >
           expand_more
         </span>
@@ -170,18 +143,12 @@ export function Select({ value, onChange, options, disabled, compact, borderless
         createPortal(
           <div
             ref={listRef}
+            className="bg-panel border border-line rounded-[10px] shadow-[0_8px_32px_rgba(0,0,0,0.22)] overflow-hidden max-h-[300px] overflow-y-auto"
             style={{
               position:     "fixed",
               ...clampPosition({ triggerRect: rect, width: compact ? 160 : (rect.width ?? 200), estimatedHeight: 300 }),
               minWidth:     compact ? 160 : (rect?.width ?? 200),
               zIndex:       9999,
-              background:   "var(--panel)",
-              border:       "1px solid var(--line)",
-              borderRadius: 10,
-              boxShadow:    "0 8px 32px rgba(0,0,0,0.22)",
-              overflow:     "hidden",
-              maxHeight:    300,
-              overflowY:    "auto",
             }}
           >
             {items.map((o, idx) => {
@@ -189,8 +156,7 @@ export function Select({ value, onChange, options, disabled, compact, borderless
                 return (
                   <div
                     key={`h-${idx}`}
-                    className="px-3.5 pt-3 pb-1 text-[10.5px] font-bold uppercase tracking-widest"
-                    style={{ color: "var(--ink-dim)" }}
+                    className="px-3.5 pt-3 pb-1 text-[10.5px] font-bold uppercase tracking-widest text-ink-dim"
                   >
                     {o.header}
                   </div>
@@ -202,27 +168,16 @@ export function Select({ value, onChange, options, disabled, compact, borderless
                   key={o.v}
                   type="button"
                   onClick={() => { onChange(o.v); setOpen(false); }}
-                  onMouseEnter={(e) => {
-                    if (!active) (e.currentTarget as HTMLElement).style.background = "var(--hover)";
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!active) (e.currentTarget as HTMLElement).style.background = "transparent";
-                  }}
-                  className="w-full text-left px-3.5 py-2 text-[13px] flex items-center justify-between gap-2 transition-colors"
-                  style={{
-                    background: active ? "rgba(8,174,170,0.10)" : "transparent",
-                    color:      active ? "var(--teal-bright)" : "var(--ink-strong)",
-                    cursor:     "pointer",
-                  }}
+                  className={cn(
+                    "w-full text-left px-3.5 py-2 text-[13px] flex items-center justify-between gap-2 transition-colors",
+                    active
+                      ? "bg-[rgba(8,174,170,0.10)] text-teal-bright"
+                      : "bg-transparent text-ink-strong hover:bg-hover"
+                  )}
                 >
-                  <span className="font-medium" style={{ fontSize: 13 }}>
-                    {o.l}
-                  </span>
+                  <span className="font-medium text-[13px]">{o.l}</span>
                   {active && (
-                    <span
-                      className="material-symbols-rounded"
-                      style={{ fontSize: 15, color: "var(--teal)", fontVariationSettings: "'FILL' 1" }}
-                    >
+                    <span className="material-symbols-rounded ic-fill text-teal text-[15px]">
                       check_circle
                     </span>
                   )}
@@ -256,22 +211,12 @@ export function SegRow({ value, onChange, options }: SegRowProps) {
             key={v}
             type="button"
             onClick={() => onChange(v)}
-            className="flex-1 py-2 text-[12.5px] font-semibold rounded-[8px] border transition-colors"
-            style={
+            className={cn(
+              "flex-1 py-2 text-[12.5px] font-semibold rounded-[8px] border transition-colors",
               active
-                ? {
-                    background: "rgba(8,174,170,0.12)",
-                    borderColor: "rgba(8,174,170,0.4)",
-                    color: "var(--teal-bright)",
-                    cursor: "pointer",
-                  }
-                : {
-                    background: "var(--panel-2)",
-                    borderColor: "var(--line)",
-                    color: "var(--ink-mid)",
-                    cursor: "pointer",
-                  }
-            }
+                ? "bg-[rgba(8,174,170,0.12)] border-[rgba(8,174,170,0.4)] text-teal-bright"
+                : "bg-panel-2 border-line text-ink-mid"
+            )}
           >
             {l}
           </button>
@@ -305,8 +250,7 @@ export function ImageDrop({ value, onChange, label = "Drop a chart screenshot" }
       onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("ring-2"); }}
       onDragLeave={(e) => e.currentTarget.classList.remove("ring-2")}
       onDrop={(e) => { e.preventDefault(); e.currentTarget.classList.remove("ring-2"); read(e.dataTransfer.files[0]); }}
-      className="rounded-xl border-2 border-dashed cursor-pointer transition-colors hover:border-[var(--teal)]"
-      style={{ borderColor: "var(--line)" }}
+      className="rounded-xl border-2 border-dashed cursor-pointer transition-colors hover:border-teal border-line"
     >
       <input
         ref={ref}
@@ -318,7 +262,7 @@ export function ImageDrop({ value, onChange, label = "Drop a chart screenshot" }
       {value ? (
         <img src={value} alt="chart" className="w-full rounded-xl block" />
       ) : (
-        <div className="flex flex-col items-center py-7 text-center" style={{ color: "var(--ink-dim)" }}>
+        <div className="flex flex-col items-center py-7 text-center text-ink-dim">
           <Icon name="add_photo_alternate" size={26} />
           <div className="text-[12.5px] mt-1.5">{label}</div>
         </div>
