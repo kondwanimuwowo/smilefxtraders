@@ -118,7 +118,7 @@ function NotFound() {
   const router = useRouter();
   return (
     <div className="view flex flex-col items-center justify-center gap-4 py-24">
-      <span className="material-symbols-rounded text-[48px] text-ink-dim">search_off</span>
+      <Icon name="search_off" size={48} className="text-ink-dim" />
       <p className="text-[14px] text-ink-dim">Trade not found.</p>
       <Button type="button" variant="ghost" icon="arrow_back" onClick={() => router.push("/journal")}>
         Back to journal
@@ -313,9 +313,7 @@ export default function TradeDetailPage() {
 
           {/* Model */}
           <div className="rounded-xl px-4 py-4 flex items-start gap-3 bg-panel border border-line">
-            <span className="material-symbols-rounded shrink-0 mt-0.5 text-xl text-teal">
-              schema
-            </span>
+            <Icon name="schema" size={20} className="shrink-0 mt-0.5 text-teal" />
             <div>
               <div className="font-semibold text-[14px] mb-0.5 text-ink-strong">
                 {t.model}
@@ -426,11 +424,11 @@ export default function TradeDetailPage() {
                 Rules followed
               </div>
               <div className="flex items-center gap-1.5">
-                <span
-                  className={`material-symbols-rounded ic-fill text-xl ${t.discipline ? "text-teal" : "text-coral"}`}
-                >
-                  {t.discipline ? "check_circle" : "cancel"}
-                </span>
+                <Icon
+                  name={t.discipline ? "check_circle" : "cancel"}
+                  size={20}
+                  className={t.discipline ? "text-teal" : "text-coral"}
+                />
                 <span className={`text-[13px] font-semibold ${t.discipline ? "text-teal" : "text-coral"}`}>
                   {t.discipline ? "Clean" : "Broken"}
                 </span>
@@ -455,7 +453,7 @@ export default function TradeDetailPage() {
                       key={tag}
                       className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[rgba(248,185,61,0.13)] border border-[rgba(248,185,61,0.3)] text-gold"
                     >
-                      <span className="material-symbols-rounded ic-fill text-[11px]">architecture</span>
+                      <Icon name="architecture" size={11} />
                       {tag}
                     </span>
                   ))}
