@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui";
+import { cn } from "@/lib/cn";
 
 const NAV = [
   { href: "/features", label: "Features" },
@@ -22,7 +23,7 @@ function BrandLogo({ scrolled }: { scrolled: boolean }) {
       alt="Smile FX Traders"
       width={38}
       height={38}
-      style={{ borderRadius: 10, objectFit: "contain", display: "block" }}
+      className="rounded-[10px] object-contain block"
     />
   );
 }
@@ -98,73 +99,46 @@ export function MarketingNav() {
   return (
     <>
       <header
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 70,
-          background: scrolled || mobileOpen ? "rgba(255,255,255,0.88)" : "transparent",
-          backdropFilter: scrolled || mobileOpen ? "blur(12px)" : "none",
-          boxShadow: scrolled ? "0 2px 8px rgba(11,66,93,0.06)" : "none",
-          transition: "background 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
+        className={cn(
+          "fixed top-0 left-0 right-0 z-[70] transition-[background,box-shadow] duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
+          scrolled || mobileOpen ? "bg-[rgba(255,255,255,0.88)] backdrop-blur-[12px]" : "bg-transparent",
+          scrolled && "shadow-[0_2px_8px_rgba(11,66,93,0.06)]"
+        )}
       >
-        <div style={{ maxWidth: "var(--container, 1200px)", margin: "0 auto", padding: "0 20px" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              height: scrolled ? "62px" : "72px",
-              transition: "height 0.3s",
-            }}
-          >
+        <div className="max-w-[var(--container,1200px)] mx-auto px-5">
+          <div className={cn("flex items-center transition-[height] duration-300", scrolled ? "h-[62px]" : "h-[72px]")}>
             {/* Brand */}
-            <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0, textDecoration: "none" }}>
+            <Link href="/" className="flex items-center gap-2.5 shrink-0 no-underline">
               <BrandLogo scrolled={scrolled || mobileOpen} />
               <div>
-                <div
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontWeight: 700,
-                    fontSize: 19,
-                    lineHeight: 1,
-                    letterSpacing: "-0.02em",
-                    color: scrolled || mobileOpen ? "var(--ink)" : "#fff",
-                    transition: "color 0.3s",
-                  }}
-                >
+                <div className={cn(
+                  "font-display font-bold text-[19px] leading-none tracking-[-0.02em] transition-colors duration-300",
+                  scrolled || mobileOpen ? "text-ink" : "text-white"
+                )}>
                   Smile FX
                 </div>
-                <div style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.2em", fontWeight: 700, color: "var(--teal)", marginTop: 2 }}>
+                <div className="text-[9px] uppercase tracking-[0.2em] font-bold text-teal mt-0.5">
                   Traders
                 </div>
               </div>
             </Link>
 
             {/* Spacer — pushes nav links toward the right */}
-            <div style={{ flex: 1 }} />
+            <div className="flex-1" />
 
             {/* Desktop nav — sits between spacer and CTA */}
-            <nav style={{ alignItems: "center", gap: 2, marginRight: 20 }} className="hidden lg:flex">
+            <nav className="hidden lg:flex items-center gap-0.5 mr-5">
               {NAV.map((n) => (
                 <Link
                   key={n.href}
                   href={n.href}
-                  style={{
-                    padding: "8px 13px",
-                    borderRadius: 8,
-                    fontSize: 14.5,
-                    fontWeight: 500,
-                    textDecoration: "none",
-                    transition: "all 0.2s",
-                    color:
-                      pathname === n.href
-                        ? scrolled ? "var(--teal-dark)" : "var(--teal-bright)"
-                        : scrolled ? "var(--ink-mid)" : "rgba(255,255,255,0.78)",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = scrolled ? "rgba(11,66,93,0.06)" : "rgba(255,255,255,0.08)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  className={cn(
+                    "px-[13px] py-2 rounded-lg text-[14.5px] font-medium no-underline transition-all duration-200",
+                    scrolled ? "hover:bg-[rgba(11,66,93,0.06)]" : "hover:bg-[rgba(255,255,255,0.08)]",
+                    pathname === n.href
+                      ? (scrolled ? "text-teal-dark" : "text-teal-bright")
+                      : (scrolled ? "text-ink-mid" : "text-[rgba(255,255,255,0.78)]")
+                  )}
                 >
                   {n.label}
                 </Link>
@@ -172,7 +146,7 @@ export function MarketingNav() {
             </nav>
 
             {/* CTA */}
-            <div className="hidden lg:flex" style={{ alignItems: "center", gap: 8 }}>
+            <div className="hidden lg:flex items-center gap-2">
               {authed ? (
                 <Button href="/dashboard" size="lg" iconRight="arrow_forward">
                   Go to Dashboard
@@ -181,15 +155,10 @@ export function MarketingNav() {
                 <>
                   <Link
                     href="/login"
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 600,
-                      padding: "8px 12px",
-                      borderRadius: 99,
-                      textDecoration: "none",
-                      transition: "color 0.2s",
-                      color: scrolled ? "var(--ink-mid)" : "rgba(255,255,255,0.8)",
-                    }}
+                    className={cn(
+                      "text-sm font-semibold px-3 py-2 rounded-full no-underline transition-colors duration-200",
+                      scrolled ? "text-ink-mid" : "text-[rgba(255,255,255,0.8)]"
+                    )}
                   >
                     Log in
                   </Link>
@@ -203,19 +172,7 @@ export function MarketingNav() {
             {/* Mobile hamburger — inline SVG, no web-font dependency */}
             <button
               type="button"
-              className="flex lg:hidden tap-target"
-              style={{
-                marginLeft: 12,
-                padding: 6,
-                borderRadius: 8,
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                alignItems: "center",
-                justifyContent: "center",
-                position: "relative",
-                zIndex: 80,
-              }}
+              className="flex lg:hidden tap-target ml-3 p-1.5 rounded-lg bg-transparent border-none cursor-pointer items-center justify-center relative z-[80]"
               onClick={() => setMobileOpen((v) => !v)}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
@@ -229,11 +186,10 @@ export function MarketingNav() {
       {/* Mobile full-screen nav — always mounted so open/close can animate;
           visibility toggled via opacity/transform + pointer-events. */}
       <div
-        className="fixed inset-0 lg:hidden flex flex-col px-6 overflow-y-auto"
+        className="fixed inset-0 lg:hidden flex flex-col px-6 overflow-y-auto bg-[radial-gradient(ellipse_at_15%_12%,rgba(8,174,170,0.32)_0%,transparent_50%),radial-gradient(ellipse_at_90%_85%,rgba(248,185,61,0.18)_0%,transparent_48%),var(--navy-deep,#082A3B)]"
         aria-hidden={!mobileOpen}
         style={{
           zIndex: 65,
-          background: "radial-gradient(ellipse at 15% 12%, rgba(8,174,170,0.32) 0%, transparent 50%), radial-gradient(ellipse at 90% 85%, rgba(248,185,61,0.18) 0%, transparent 48%), var(--navy-deep, #082A3B)",
           paddingTop: "calc(4.5rem + var(--safe-top))",
           paddingBottom: "calc(1.5rem + var(--safe-bottom))",
           opacity: mobileOpen ? 1 : 0,
@@ -252,17 +208,11 @@ export function MarketingNav() {
               <Link
                 key={n.href}
                 href={n.href}
+                className={cn(
+                  "font-display text-[25px] font-semibold py-4 px-1 border-b border-[rgba(255,255,255,0.1)] no-underline flex items-center justify-between",
+                  active ? "text-teal-bright" : "text-[rgba(255,255,255,0.9)]"
+                )}
                 style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: 25,
-                  fontWeight: 600,
-                  padding: "16px 4px",
-                  borderBottom: "1px solid rgba(255,255,255,0.1)",
-                  color: active ? "var(--teal-bright)" : "rgba(255,255,255,0.9)",
-                  textDecoration: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
                   opacity: mobileOpen ? 1 : 0,
                   transform: mobileOpen ? "translateX(0)" : "translateX(12px)",
                   transition: `opacity 320ms var(--ease-app, cubic-bezier(0.16,1,0.3,1)) ${60 + i * 45}ms, transform 320ms var(--ease-app, cubic-bezier(0.16,1,0.3,1)) ${60 + i * 45}ms`,
@@ -270,14 +220,7 @@ export function MarketingNav() {
                 onClick={() => setMobileOpen(false)}
               >
                 {n.label}
-                <span
-                  style={{
-                    width: 6, height: 6, borderRadius: 99,
-                    background: active ? "var(--teal-bright)" : "transparent",
-                    boxShadow: active ? "0 0 8px var(--teal-bright)" : "none",
-                    flexShrink: 0,
-                  }}
-                />
+                <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", active ? "bg-teal-bright shadow-[0_0_8px_var(--teal-bright)]" : "bg-transparent")} />
               </Link>
             );
           })}
@@ -309,7 +252,7 @@ export function MarketingNav() {
                 size="lg"
                 fullWidth
                 onClick={() => setMobileOpen(false)}
-                style={{ color: "#fff", borderColor: "rgba(255,255,255,0.25)" }}
+                className="text-white border-[rgba(255,255,255,0.25)]"
               >
                 Log in
               </Button>
@@ -317,14 +260,11 @@ export function MarketingNav() {
           )}
         </div>
 
-        <div style={{ flex: 1 }} />
+        <div className="flex-1" />
 
         <p
+          className="text-xs text-[rgba(255,255,255,0.4)] text-center pb-2"
           style={{
-            fontSize: 12,
-            color: "rgba(255,255,255,0.4)",
-            textAlign: "center",
-            paddingBottom: 8,
             opacity: mobileOpen ? 1 : 0,
             transition: "opacity 320ms var(--ease-app, cubic-bezier(0.16,1,0.3,1)) 340ms",
           }}
