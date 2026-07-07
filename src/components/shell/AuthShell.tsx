@@ -22,19 +22,13 @@ export async function AuthShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-[1.05fr_1fr]">
       {/* ── Brand panel — full version, desktop+ only ── */}
-      <div
-        className="hidden md:flex flex-col justify-between p-12 min-h-screen"
-        style={{ background: "linear-gradient(160deg, #0B425D 0%, #082A3B 70%)" }}
-      >
+      <div className="hidden md:flex flex-col justify-between p-12 min-h-screen bg-[linear-gradient(160deg,#0B425D_0%,#082A3B_70%)]">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <BrandMarkAuth />
-          <div style={{ lineHeight: 1.05 }}>
+          <div className="leading-[1.05]">
             <div className="font-display font-bold text-xl text-white">Smile FX</div>
-            <div
-              className="font-semibold tracking-[0.24em] uppercase mt-0.5"
-              style={{ fontSize: 10, color: "var(--teal-bright)" }}
-            >
+            <div className="font-semibold tracking-[0.24em] uppercase mt-0.5 text-[10px] text-teal-bright">
               Traders
             </div>
           </div>
@@ -42,25 +36,19 @@ export async function AuthShell({ children }: { children: ReactNode }) {
 
         {/* Headline */}
         <div>
-          <h1
-            className="font-display font-semibold text-white leading-tight"
-            style={{ fontSize: 34, letterSpacing: "-0.02em" }}
-          >
+          <h1 className="font-display font-semibold text-white leading-tight text-[34px] tracking-[-0.02em]">
             Trade smart money.<br />Together.
           </h1>
-          <p className="mt-4 leading-relaxed max-w-[380px]" style={{ fontSize: 15, color: "rgba(255,255,255,0.7)" }}>
+          <p className="mt-4 leading-relaxed max-w-[380px] text-[15px] text-[rgba(255,255,255,0.7)]">
             A professional desk for SMC &amp; Supply-and-Demand traders. Journal your edge, validate every setup, and follow live calls from Kondwani.
           </p>
 
           {/* Feature rows */}
           <div className="flex flex-col gap-3 mt-7">
             {FEATURES.map(({ icon, text }) => (
-              <div key={text} className="flex items-center gap-3" style={{ color: "rgba(255,255,255,0.88)", fontSize: 13.5 }}>
-                <span
-                  className="flex items-center justify-center rounded-[8px] shrink-0"
-                  style={{ width: 30, height: 30, background: "rgba(8,174,170,0.18)" }}
-                >
-                  <span className="material-symbols-rounded text-[17px]" style={{ color: "var(--teal-bright)" }}>
+              <div key={text} className="flex items-center gap-3 text-[13.5px] text-[rgba(255,255,255,0.88)]">
+                <span className="flex items-center justify-center rounded-[8px] shrink-0 size-[30px] bg-[rgba(8,174,170,0.18)]">
+                  <span className="material-symbols-rounded text-[17px] text-teal-bright">
                     {icon}
                   </span>
                 </span>
@@ -74,37 +62,31 @@ export async function AuthShell({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-3">
           <div className="flex">
             {AVATAR_SEEDS.map((seed, i) => (
-              <div key={seed} style={{ marginLeft: i ? -10 : 0 }}>
+              <div key={seed} className={i ? "-ml-2.5" : "ml-0"}>
                 <Avatar seed={seed} name="FX" size={30} ring="var(--navy-deep)" />
               </div>
             ))}
           </div>
-          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>
+          <span className="text-[13px] text-[rgba(255,255,255,0.7)]">
             {memberLabel}
           </span>
         </div>
       </div>
 
       {/* ── Brand header — compact version, mobile only ── */}
-      <div
-        className="flex md:hidden items-center gap-3 px-5 py-6"
-        style={{ background: "linear-gradient(160deg, #0B425D 0%, #082A3B 70%)" }}
-      >
+      <div className="flex md:hidden items-center gap-3 px-5 py-6 bg-[linear-gradient(160deg,#0B425D_0%,#082A3B_70%)]">
         <BrandMarkAuth size={38} />
-        <div style={{ lineHeight: 1.05 }}>
+        <div className="leading-[1.05]">
           <div className="font-display font-bold text-base text-white">Smile FX Traders</div>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>
+          <div className="text-xs text-[rgba(255,255,255,0.7)]">
             Trade smart money. Together.
           </div>
         </div>
       </div>
 
       {/* ── Form panel ── */}
-      <div
-        className="flex items-center justify-center px-5 sm:px-8 py-8 md:py-12 min-h-0 md:min-h-screen"
-        style={{ background: "var(--app-bg)" }}
-      >
-        <div className="w-full" style={{ maxWidth: 400 }}>
+      <div className="flex items-center justify-center px-5 sm:px-8 py-8 md:py-12 min-h-0 md:min-h-screen bg-app-bg">
+        <div className="w-full max-w-[400px]">
           {children}
         </div>
       </div>
