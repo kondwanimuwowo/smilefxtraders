@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Button } from "@/components/ui";
+import { Button, Icon } from "@/components/ui";
 import { ChartViz } from "@/components/marketing/ChartViz";
 import { CTACard } from "@/components/marketing/CTACard";
 import { MarketingPlanCard } from "@/components/pricing/MarketingPlanCard";
@@ -76,13 +76,13 @@ export default async function HomePage() {
               <div key={tool.title} className="card tool-card reveal h-full flex flex-col" data-delay={i % 3 * 80}>
                 <div className="flex items-center gap-3 mb-3">
                   <div className="icon-chip shrink-0">
-                    <span className="material-symbols-rounded text-[32px] leading-none translate-y-[2px]">{tool.icon}</span>
+                    <Icon name={tool.icon} size={32} className="leading-none" />
                   </div>
                   <h3 className="m-0 font-bold">{tool.title}</h3>
                 </div>
                 <p>{tool.desc}</p>
                 <Link href={tool.href} className="link-arrow mt-auto pt-3">
-                  Learn more <span className="material-symbols-rounded translate-y-[2px]">arrow_forward</span>
+                  Learn more <Icon name="arrow_forward" />
                 </Link>
               </div>
             ))}
@@ -100,16 +100,16 @@ export default async function HomePage() {
               <h3>Journal every trade. Find your edge.</h3>
               <p className="lead">Stop guessing what works. Tag each entry to its model, session, and confluences, then let the analytics show you which setups actually pay, and which mistakes keep costing you.</p>
               <ul className="feature-list">
-                <li><span className="material-symbols-rounded">check_circle</span> Win-rate and expectancy by SMC model</li>
-                <li><span className="material-symbols-rounded">check_circle</span> Discipline score that holds you accountable</li>
-                <li><span className="material-symbols-rounded">check_circle</span> AI trade review graded against your rules</li>
+                <li><Icon name="check_circle" /> Win-rate and expectancy by SMC model</li>
+                <li><Icon name="check_circle" /> Discipline score that holds you accountable</li>
+                <li><Icon name="check_circle" /> AI trade review graded against your rules</li>
               </ul>
               <Button href="/signup" size="lg" iconRight="arrow_forward">Open the journal</Button>
             </div>
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded text-teal text-[18px]">menu_book</span>
+                  <Icon name="menu_book" size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">Trade Journal</span>
                 </div>
                 <div className="mock-body grid gap-2.5">
@@ -131,23 +131,23 @@ export default async function HomePage() {
               <h3>Validate before you risk.</h3>
               <p className="lead">Discipline beats prediction. Walk your idea through the SMC checklist (HTF bias, liquidity, structure shift, POI, risk) and get an honest verdict. No confluence, no trade.</p>
               <ul className="feature-list">
-                <li><span className="material-symbols-rounded">check_circle</span> Built on liquidity → FVG / OB → CHoCH logic</li>
-                <li><span className="material-symbols-rounded">check_circle</span> Confluence score and clear A+ / Wait / No-Trade call</li>
-                <li><span className="material-symbols-rounded">check_circle</span> Send validated setups straight to your journal</li>
+                <li><Icon name="check_circle" /> Built on liquidity → FVG / OB → CHoCH logic</li>
+                <li><Icon name="check_circle" /> Confluence score and clear A+ / Wait / No-Trade call</li>
+                <li><Icon name="check_circle" /> Send validated setups straight to your journal</li>
               </ul>
               <Link href="/features#validator" className="link-arrow">
-                See how it works <span className="material-symbols-rounded">arrow_forward</span>
+                See how it works <Icon name="arrow_forward" />
               </Link>
             </div>
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded text-teal text-[18px]">rule</span>
+                  <Icon name="rule" size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">Rules Validator</span>
                 </div>
                 <div className="mock-body grid gap-[9px]">
                   <div className="flex items-center gap-[11px] p-[13px] bg-[rgba(8,174,170,0.1)] border border-[rgba(8,174,170,0.4)] rounded-xl">
-                    <span className="material-symbols-rounded ic-fill text-teal text-[32px]">verified</span>
+                    <Icon name="verified" size={32} className="text-teal" />
                     <div>
                       <div className="font-bold text-[17px]">A+ Setup: Take it</div>
                       <div className="text-[12.5px] text-ink-mid">XAUUSD · Long · all rules met</div>
@@ -155,7 +155,7 @@ export default async function HomePage() {
                   </div>
                   {["HTF bias clear · trading the draw", "Liquidity swept into discount FVG", "M5 CHoCH confirmed · 1:3 R:R"].map((t) => (
                     <div key={t} className="flex items-center gap-[9px] text-[13px]">
-                      <span className="material-symbols-rounded ic-fill text-teal text-[18px]">check_circle</span>
+                      <Icon name="check_circle" size={18} className="text-teal" />
                       {t}
                     </div>
                   ))}
@@ -219,7 +219,7 @@ export default async function HomePage() {
             <div className="reveal relative">
               <div className="rounded-3xl overflow-hidden aspect-[4/5] bg-[linear-gradient(165deg,#0C4359_0%,#082A3B_78%)] grid place-items-center relative shadow-[0_24px_60px_rgba(11,66,93,0.16)]">
                 <div className="text-center text-white/55 p-6">
-                  <span className="material-symbols-rounded text-[64px]">account_circle</span>
+                  <Icon name="account_circle" size={64} />
                 </div>
               </div>
             </div>
@@ -262,7 +262,7 @@ export default async function HomePage() {
           </div>
           <div className="reveal text-center mt-9">
             <Link href="/pricing" className="link-arrow text-[15px]">
-              See full pricing &amp; FAQ <span className="material-symbols-rounded">arrow_forward</span>
+              See full pricing &amp; FAQ <Icon name="arrow_forward" />
             </Link>
           </div>
         </div>
