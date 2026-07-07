@@ -5,7 +5,7 @@ import { useStore } from "@/lib/store";
 import type { Trade } from "@/lib/store";
 import { useTrades } from "@/lib/hooks/useTrades";
 import type { TradeStats } from "@/lib/hooks/useTrades";
-import { Panel, PanelHead, Avatar, DirPill, Chip, Ring, Sparkline, Button } from "@/components/ui";
+import { Panel, PanelHead, Avatar, DirPill, Chip, Ring, Sparkline, Button, Icon } from "@/components/ui";
 
 // ── Stat box ──────────────────────────────────────────────────────────────────
 
@@ -138,7 +138,7 @@ export function Profile() {
               </div>
               {streak > 0 && (
                 <div className="flex items-center gap-1.5 mt-2 text-[13px] font-semibold text-gold">
-                  <span className="material-symbols-rounded ic-fill text-[17px]">local_fire_department</span>
+                  <Icon name="local_fire_department" size={17} />
                   {streak}-day streak
                 </div>
               )}
@@ -152,7 +152,7 @@ export function Profile() {
                 ...(user?.loc ? [{ icon: "location_on", label: "Location", value: user.loc }] : []),
               ].map(({ icon, label, value }) => (
                 <div key={label} className="flex items-center gap-3 py-1.5">
-                  <span className="material-symbols-rounded text-[17px] text-teal">{icon}</span>
+                  <Icon name={icon} size={17} className="text-teal" />
                   <span className="text-[13px] flex-1 text-ink-mid">{label}</span>
                   <span className="text-[13px] font-semibold text-ink-strong">{value}</span>
                 </div>
@@ -180,9 +180,7 @@ export function Profile() {
                   }`}
                   title={b.desc}
                 >
-                  <span className={`material-symbols-rounded ic-fill text-[22px] ${b.earned ? "text-gold" : "text-ink-dim"}`}>
-                    {b.icon}
-                  </span>
+                  <Icon name={b.icon} size={22} className={b.earned ? "text-gold" : "text-ink-dim"} />
                   <span className={`text-[10.5px] font-semibold leading-tight ${b.earned ? "text-ink-strong" : "text-ink-dim"}`}>
                     {b.label}
                   </span>
