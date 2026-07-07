@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { Icon } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import type { CotSignal } from "@/app/api/cot/route";
 
 // Minimal row type — satisfied by both CotWeek and CotDetailRow
@@ -42,20 +43,29 @@ function fmtDate(iso: string): string {
   });
 }
 
-function indexColor(idx: number): string {
-  if (idx <= 20) return "var(--coral-bright)";
-  if (idx <= 35) return "var(--coral)";
-  if (idx >= 80) return "var(--teal-bright)";
-  if (idx >= 65) return "var(--teal)";
-  return "var(--gold)";
+interface IdxCls {
+  textCls:         string;
+  barBgCls:        string;
+  markerBorderCls: string;
+  badgeBgCls:      string;
+  badgeTextCls:    string;
+  badgeBorderCls:  string;
 }
 
-function indexBadge(idx: number): { bg: string; color: string } {
-  if (idx <= 20) return { bg: "rgba(255,89,66,0.12)",  color: "var(--coral-bright)" };
-  if (idx <= 35) return { bg: "rgba(234,82,61,0.10)",  color: "var(--coral)"        };
-  if (idx >= 80) return { bg: "rgba(48,232,223,0.12)", color: "var(--teal-bright)"  };
-  if (idx >= 65) return { bg: "rgba(8,174,170,0.10)",  color: "var(--teal)"         };
-  return { bg: "rgba(248,185,61,0.10)", color: "var(--gold)" };
+const IDX_CLS: Record<"coralBright" | "coral" | "tealBright" | "teal" | "gold", IdxCls> = {
+  coralBright: { textCls: "text-coral-bright", barBgCls: "bg-coral-bright", markerBorderCls: "border-coral-bright", badgeBgCls: "bg-[rgba(255,89,66,0.12)]",  badgeTextCls: "text-coral-bright", badgeBorderCls: "border-[rgba(255,89,66,0.12)]"  },
+  coral:       { textCls: "text-coral",        barBgCls: "bg-coral",        markerBorderCls: "border-coral",        badgeBgCls: "bg-[rgba(234,82,61,0.10)]",  badgeTextCls: "text-coral",        badgeBorderCls: "border-[rgba(234,82,61,0.10)]"  },
+  tealBright:  { textCls: "text-teal-bright",  barBgCls: "bg-teal-bright",  markerBorderCls: "border-teal-bright",  badgeBgCls: "bg-[rgba(48,232,223,0.12)]", badgeTextCls: "text-teal-bright",  badgeBorderCls: "border-[rgba(48,232,223,0.12)]" },
+  teal:        { textCls: "text-teal",         barBgCls: "bg-teal",         markerBorderCls: "border-teal",         badgeBgCls: "bg-[rgba(8,174,170,0.10)]",  badgeTextCls: "text-teal",         badgeBorderCls: "border-[rgba(8,174,170,0.10)]"  },
+  gold:        { textCls: "text-gold",         barBgCls: "bg-gold",         markerBorderCls: "border-gold",         badgeBgCls: "bg-[rgba(248,185,61,0.10)]", badgeTextCls: "text-gold",         badgeBorderCls: "border-[rgba(248,185,61,0.10)]" },
+};
+
+function indexCls(idx: number): IdxCls {
+  if (idx <= 20) return IDX_CLS.coralBright;
+  if (idx <= 35) return IDX_CLS.coral;
+  if (idx >= 80) return IDX_CLS.tealBright;
+  if (idx >= 65) return IDX_CLS.teal;
+  return IDX_CLS.gold;
 }
 
 function indexZoneLabel(idx: number): string {
@@ -87,7 +97,7 @@ function interpretation(index3yr: number, index52w: number, signal: CotSignal, p
 
 // ── Range track ───────────────────────────────────────────────────────────────
 
-function RangeTrack({ value, label, weeks, color }: { value: number; label: string; weeks: string; color: string }) {
+function RangeTrack({ value, label, weeks, cls }: { value: number; label: string; weeks: string; cls: IdxCls }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
@@ -97,21 +107,21 @@ function RangeTrack({ value, label, weeks, color }: { value: number; label: stri
             {weeks}
           </span>
         </div>
-        <span className="text-[13px] font-bold tabular-nums" style={{ color }}>
+        <span className={cn("text-[13px] font-bold tabular-nums", cls.textCls)}>
           {value}
           <span className="text-[10px] font-normal ml-0.5 text-ink-dim">/100</span>
         </span>
       </div>
       <div className="relative rounded-full overflow-hidden h-1.5 bg-track">
-        <div className="absolute top-0 left-0 h-full" style={{ width: "20%", background: "rgba(234,82,61,0.15)" }} />
-        <div className="absolute top-0 right-0 h-full" style={{ width: "20%", background: "rgba(8,174,170,0.15)" }} />
+        <div className="absolute top-0 left-0 h-full w-1/5 bg-[rgba(234,82,61,0.15)]" />
+        <div className="absolute top-0 right-0 h-full w-1/5 bg-[rgba(8,174,170,0.15)]" />
         <div
-          className="absolute top-0 left-0 h-full rounded-full"
-          style={{ width: `${value}%`, background: color, opacity: 0.45, transition: "width 700ms var(--ease-app)" }}
+          className={cn("absolute top-0 left-0 h-full rounded-full opacity-45 transition-[width] duration-700 ease-app", cls.barBgCls)}
+          style={{ width: `${value}%` }}
         />
         <div
-          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 w-3 h-3 bg-panel"
-          style={{ left: `${value}%`, borderColor: color, transition: "left 700ms var(--ease-app)" }}
+          className={cn("absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 w-3 h-3 bg-panel transition-[left] duration-700 ease-app", cls.markerBorderCls)}
+          style={{ left: `${value}%` }}
         />
       </div>
     </div>
@@ -133,8 +143,7 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
     return { peakNet: peak.largeSpecNet, peakDate: peak.date, troughNet: trough.largeSpecNet, troughDate: trough.date };
   }, [rows]);
 
-  const color      = indexColor(cotIndex);
-  const badge      = indexBadge(cotIndex);
+  const cls        = indexCls(cotIndex);
   const zoneLabel  = indexZoneLabel(cotIndex);
   const approxYrs  = Math.round(rows.length / 52);
   const approxLabel = approxYrs >= 2 ? `~${approxYrs}yr` : `${rows.length}w`;
@@ -144,26 +153,26 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
   if (compact) {
     return (
       <div className="flex flex-col items-center gap-1.5">
-        <div className="relative flex items-center justify-center" style={{ width: 72, height: 72 }}>
+        <div className="relative flex items-center justify-center size-[72px]">
           <svg width="72" height="72" viewBox="0 0 72 72">
             <circle cx="36" cy="36" r="29" fill="none" stroke="currentColor" strokeWidth="7" className="text-track" />
             <circle
               cx="36" cy="36" r="29" fill="none"
-              stroke={color} strokeWidth="7" strokeLinecap="round"
+              stroke="currentColor" strokeWidth="7" strokeLinecap="round"
               strokeDasharray={`${2 * Math.PI * 29}`}
               strokeDashoffset={`${2 * Math.PI * 29 * (1 - cotIndex / 100)}`}
               transform="rotate(-90 36 36)"
-              style={{ transition: "stroke-dashoffset 700ms var(--ease-app)" }}
+              className={cn("transition-[stroke-dashoffset] duration-700 ease-app", cls.textCls)}
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="font-display font-bold tabular-nums leading-none" style={{ fontSize: 18, color }}>
+            <span className={cn("font-display font-bold tabular-nums leading-none text-[18px]", cls.textCls)}>
               {cotIndex}
             </span>
             <span className="font-medium leading-none mt-0.5 text-[9px] text-ink-dim">/100</span>
           </div>
         </div>
-        <div className="text-center font-semibold leading-tight px-2 py-0.5 rounded" style={{ fontSize: 10.5, maxWidth: 80, ...badge }}>
+        <div className={cn("text-center font-semibold leading-tight px-2 py-0.5 rounded text-[10.5px] max-w-[80px]", cls.badgeBgCls, cls.badgeTextCls)}>
           {zoneLabel}
         </div>
         <div className="text-center text-[9.5px] text-ink-dim">COT Index · 3yr</div>
@@ -187,11 +196,11 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
             </span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-display font-bold tabular-nums" style={{ fontSize: 40, lineHeight: 1, color }}>
+            <span className={cn("font-display font-bold tabular-nums text-[40px] leading-none", cls.textCls)}>
               {cotIndex}
             </span>
             <span className="text-base text-ink-dim">/100</span>
-            <span className="inline-flex items-center text-[12px] font-semibold px-2.5 py-1 rounded-full" style={badge}>
+            <span className={cn("inline-flex items-center text-[12px] font-semibold px-2.5 py-1 rounded-full", cls.badgeBgCls, cls.badgeTextCls)}>
               {zoneLabel}
             </span>
           </div>
@@ -200,10 +209,10 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
         {/* Current net callout */}
         <div className="flex flex-col items-end gap-0.5 shrink-0 px-3 py-2 rounded-xl bg-panel-2 border border-line">
           <span className="text-[10px] uppercase tracking-wide font-medium text-ink-dim">Current net</span>
-          <span
-            className="font-display font-bold tabular-nums"
-            style={{ fontSize: 18, letterSpacing: "-0.01em", color: (rows[0]?.largeSpecNet ?? 0) >= 0 ? "var(--teal-bright)" : "var(--coral-bright)" }}
-          >
+          <span className={cn(
+            "font-display font-bold tabular-nums text-[18px] tracking-[-0.01em]",
+            (rows[0]?.largeSpecNet ?? 0) >= 0 ? "text-teal-bright" : "text-coral-bright"
+          )}>
             {fmtNet(rows[0]?.largeSpecNet ?? 0)}
           </span>
           <span className="text-[10px] text-ink-dim">Large Spec net</span>
@@ -212,9 +221,9 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
 
       {/* Three-range tracks */}
       <div className="px-5 py-4 flex flex-col gap-4">
-        <RangeTrack value={index52w}    label="1-year"            weeks="52w"        color={indexColor(index52w)}    />
-        <RangeTrack value={cotIndex}    label="3-year"            weeks="156w"       color={indexColor(cotIndex)}    />
-        <RangeTrack value={indexApprox} label="Available history" weeks={approxLabel} color={indexColor(indexApprox)} />
+        <RangeTrack value={index52w}    label="1-year"            weeks="52w"        cls={indexCls(index52w)}    />
+        <RangeTrack value={cotIndex}    label="3-year"            weeks="156w"       cls={indexCls(cotIndex)}    />
+        <RangeTrack value={indexApprox} label="Available history" weeks={approxLabel} cls={indexCls(indexApprox)} />
 
         {/* Zone key */}
         <div className="flex items-center justify-between pt-1">
@@ -237,7 +246,7 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
         </div>
         <div className="flex flex-col items-center">
           <div className="text-[10px] uppercase tracking-wide font-medium mb-0.5 text-ink-dim">Current</div>
-          <div className="font-semibold tabular-nums text-[13px]" style={{ color }}>{fmtNet(rows[0]?.largeSpecNet ?? 0)}</div>
+          <div className={cn("font-semibold tabular-nums text-[13px]", cls.textCls)}>{fmtNet(rows[0]?.largeSpecNet ?? 0)}</div>
           <div className="text-[10px] text-ink-dim">{fmtDate(rows[0]?.date ?? "")}</div>
         </div>
         <div className="flex flex-col items-end">
@@ -248,11 +257,8 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
       </div>
 
       {/* Interpretation */}
-      <div
-        className="mx-5 mb-4 mt-3 rounded-xl px-4 py-3 flex items-start gap-2.5"
-        style={{ background: badge.bg, border: `1px solid ${badge.bg}` }}
-      >
-        <Icon name="psychology" size={14} fill style={{ color, flexShrink: 0, marginTop: 1 }} />
+      <div className={cn("mx-5 mb-4 mt-3 rounded-xl px-4 py-3 flex items-start gap-2.5 border", cls.badgeBgCls, cls.badgeBorderCls)}>
+        <Icon name="psychology" size={14} fill className={cn("shrink-0 mt-px", cls.textCls)} />
         <p className="text-[12px] leading-relaxed text-ink-mid">{interp}</p>
       </div>
     </div>
