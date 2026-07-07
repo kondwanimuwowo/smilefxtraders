@@ -127,15 +127,14 @@ export function Select({ value, onChange, options, disabled, compact, borderless
         )}
       >
         <span className="truncate text-left">{displayLabel}</span>
-        <span
+        <Icon
+          name="expand_more"
+          size={compact ? 14 : 18}
           className={cn(
-            "material-symbols-rounded shrink-0 text-ink-dim transition-transform duration-200 ease-app",
-            compact ? "text-[14px]" : "text-[18px]",
+            "shrink-0 text-ink-dim transition-transform duration-200 ease-app",
             open ? "rotate-180" : "rotate-0"
           )}
-        >
-          expand_more
-        </span>
+        />
       </button>
 
       {open && rect && typeof window !== "undefined" &&
@@ -176,9 +175,7 @@ export function Select({ value, onChange, options, disabled, compact, borderless
                 >
                   <span className="font-medium text-[13px]">{o.l}</span>
                   {active && (
-                    <span className="material-symbols-rounded ic-fill text-teal text-[15px]">
-                      check_circle
-                    </span>
+                    <Icon name="check_circle" size={15} className="text-teal" />
                   )}
                 </button>
               );
