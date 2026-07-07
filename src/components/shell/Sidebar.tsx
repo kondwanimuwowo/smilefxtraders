@@ -101,11 +101,8 @@ export function Sidebar() {
       {/* ── Backdrop — mobile only ───────────────────────────────────────────── */}
       {isMobile && (
         <div
-          className="fixed inset-0 z-40 transition-[opacity,visibility]"
+          className="fixed inset-0 z-40 transition-[opacity,visibility] bg-[rgba(7,33,46,0.55)] backdrop-blur-[3px]"
           style={{
-            background: "rgba(7,33,46,0.55)",
-            backdropFilter: "blur(3px)",
-            WebkitBackdropFilter: "blur(3px)",
             opacity: mobileSidebarOpen ? 1 : 0,
             visibility: mobileSidebarOpen ? "visible" : "hidden",
             transitionDuration: "280ms",
@@ -121,7 +118,7 @@ export function Sidebar() {
        *          inline to override 'hidden', and the transform slides it in/out.
        */}
       <aside
-        className="hidden md:flex flex-col h-full border-r overflow-hidden shrink-0"
+        className="hidden md:flex flex-col h-full border-r overflow-hidden shrink-0 bg-sidebar border-line"
         style={isMobile ? {
           display: "flex",
           position: "fixed",
@@ -132,23 +129,16 @@ export function Sidebar() {
           zIndex: 50,
           transform: mobileSidebarOpen ? "translateX(0)" : "translateX(-100%)",
           transition: "transform 280ms var(--ease-app)",
-          background: "var(--sidebar)",
-          borderColor: "var(--line)",
           boxShadow: mobileSidebarOpen ? "8px 0 40px rgba(0,0,0,0.25)" : "none",
         } : {
           width: collapsed ? 64 : 220,
           transition: "width 260ms var(--ease-app)",
-          background: "var(--sidebar)",
-          borderColor: "var(--line)",
         }}
       >
         {/* ── Header (pinned) ─────────────────────────────────────────────────── */}
         <div
-          className="shrink-0 flex items-center border-b"
+          className="shrink-0 flex items-center border-b h-14 px-3.5 border-line"
           style={{
-            height: 56,
-            borderColor: "var(--line)",
-            padding: "0 14px",
             justifyContent: effectiveCollapsed ? "center" : "space-between",
             transition: "justify-content 260ms var(--ease-app)",
           }}
@@ -163,11 +153,11 @@ export function Sidebar() {
             }}
           >
             <BrandMark />
-            <div style={{ whiteSpace: "nowrap" }}>
-              <div className="font-display font-700 text-sm leading-none" style={{ color: "var(--ink-strong)" }}>
+            <div className="whitespace-nowrap">
+              <div className="font-display font-700 text-sm leading-none text-ink-strong">
                 Smile FX
               </div>
-              <div className="text-[10px] font-semibold tracking-widest uppercase mt-0.5" style={{ color: "var(--teal)" }}>
+              <div className="text-[10px] font-semibold tracking-widest uppercase mt-0.5 text-teal">
                 TRADERS
               </div>
             </div>
@@ -178,8 +168,7 @@ export function Sidebar() {
             <button
               type="button"
               onClick={() => setMobileSidebarOpen(false)}
-              className="shrink-0 flex items-center justify-center rounded-xl transition-colors hover:bg-[var(--hover)]"
-              style={{ width: 34, height: 34, color: "var(--ink-mid)" }}
+              className="shrink-0 flex items-center justify-center rounded-xl transition-colors hover:bg-hover size-[34px] text-ink-mid"
               aria-label="Close menu"
             >
               <span className="material-symbols-rounded text-[20px]">close</span>
@@ -192,10 +181,7 @@ export function Sidebar() {
                 localStorage.setItem("smfx_sidebar", next ? "1" : "0");
                 return next;
               })}
-              className="shrink-0 flex items-center justify-center rounded-lg transition-colors"
-              style={{ width: 28, height: 28, color: "var(--ink-dim)", background: "transparent" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(8,174,170,0.1)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
+              className="shrink-0 flex items-center justify-center rounded-lg transition-colors size-7 text-ink-dim bg-transparent hover:bg-[rgba(8,174,170,0.1)]"
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <span className="material-symbols-rounded text-[18px]">
@@ -213,14 +199,11 @@ export function Sidebar() {
           {nav.map(({ section, items }) => (
             <div key={section} className="mb-4">
               {!effectiveCollapsed && (
-                <div
-                  className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-widest"
-                  style={{ color: "var(--ink-dim)" }}
-                >
+                <div className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-ink-dim">
                   {section}
                 </div>
               )}
-              {effectiveCollapsed && <div style={{ height: 8 }} />}
+              {effectiveCollapsed && <div className="h-2" />}
               <ul className="space-y-0.5">
                 {items.map((item) => (
                   <NavLink
@@ -238,8 +221,8 @@ export function Sidebar() {
 
         {/* ── Footer (pinned) ─────────────────────────────────────────────────── */}
         <div
-          className="shrink-0 border-t overflow-x-hidden"
-          style={{ borderColor: "var(--line)", padding: effectiveCollapsed ? "8px" : "8px 10px" }}
+          className="shrink-0 border-t overflow-x-hidden border-line"
+          style={{ padding: effectiveCollapsed ? "8px" : "8px 10px" }}
         >
           {user && (
             <ProfileButton
@@ -313,15 +296,15 @@ function ProfileButton({
     router.push(href);
   }
 
-  const avatarStyle = isInstructor
-    ? { background: "linear-gradient(135deg, var(--gold), #e09b25)", color: "var(--navy-deep)" }
-    : { background: "linear-gradient(135deg, var(--teal), var(--navy))", color: "#fff" };
+  const avatarCls = isInstructor
+    ? "bg-[linear-gradient(135deg,var(--gold),#e09b25)] text-navy-deep"
+    : "bg-[linear-gradient(135deg,var(--teal),var(--navy))] text-white";
 
   const subline = isInstructor
     ? "Lead Instructor"
     : `@${user.handle.replace(/^@/, "")} · ${planLabel}`;
 
-  const sublineColor = isInstructor ? "var(--gold)" : "var(--ink-dim)";
+  const sublineCls = isInstructor ? "text-gold" : "text-ink-dim";
 
   const menuWidth = 220;
 
@@ -332,50 +315,41 @@ function ProfileButton({
         ref={triggerRef}
         type="button"
         onClick={toggle}
-        className="nav-tip w-full flex items-center rounded-xl transition-colors hover:bg-[var(--hover)]"
+        className={cn("nav-tip w-full flex items-center rounded-xl transition-colors hover:bg-hover", open && "bg-hover")}
         style={{
           padding: collapsed ? "7px 0" : "7px 8px",
           justifyContent: collapsed ? "center" : "flex-start",
           gap: collapsed ? 0 : 9,
           transition: "padding 260ms var(--ease-app)",
-          background: open ? "var(--hover)" : "transparent",
         }}
         data-tip={collapsed ? user.name : undefined}
         aria-label="Account menu"
         aria-expanded={open}
       >
-        <div
-          className="size-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-          style={avatarStyle}
-        >
+        <div className={cn("size-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0", avatarCls)}>
           {initials}
         </div>
 
         <div
+          className="overflow-hidden whitespace-nowrap text-left flex-1"
           style={{
             opacity: collapsed ? 0 : 1,
             maxWidth: collapsed ? 0 : 140,
-            overflow: "hidden",
             transition: "opacity 180ms var(--ease-app), max-width 260ms var(--ease-app)",
-            whiteSpace: "nowrap",
-            textAlign: "left",
-            flex: 1,
           }}
         >
-          <div className="text-[12px] font-semibold truncate" style={{ color: "var(--ink-strong)" }}>
+          <div className="text-[12px] font-semibold truncate text-ink-strong">
             {user.name}
           </div>
-          <div className="text-[10px] truncate" style={{ color: sublineColor }}>
+          <div className={cn("text-[10px] truncate", sublineCls)}>
             {subline}
           </div>
         </div>
 
         {!collapsed && (
           <span
-            className="material-symbols-rounded shrink-0"
+            className="material-symbols-rounded shrink-0 text-[15px] text-ink-dim"
             style={{
-              fontSize: 15,
-              color: "var(--ink-dim)",
               transform: open ? "rotate(180deg)" : "rotate(0deg)",
               transition: "transform 200ms var(--ease-app)",
             }}
@@ -389,33 +363,23 @@ function ProfileButton({
       {open && menuRect && typeof document !== "undefined" && createPortal(
         <div
           ref={menuRef}
-          className="rounded-xl overflow-hidden"
+          className="rounded-xl overflow-hidden bg-panel border border-line shadow-[0_-12px_40px_rgba(0,0,0,0.3),0_4px_20px_rgba(0,0,0,0.15)] z-[9999]"
           style={{
             position: "fixed",
             ...clampPosition({ triggerRect: menuRect, width: menuWidth, estimatedHeight: 260, direction: "up" }),
             width: menuWidth,
-            background: "var(--panel)",
-            border: "1px solid var(--line)",
-            boxShadow: "0 -12px 40px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.15)",
-            zIndex: 9999,
           }}
         >
           {/* Identity header */}
-          <div
-            className="flex items-center gap-2.5 px-3.5 py-3"
-            style={{ borderBottom: "1px solid var(--line)" }}
-          >
-            <div
-              className="size-8 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0"
-              style={avatarStyle}
-            >
+          <div className="flex items-center gap-2.5 px-3.5 py-3 border-b border-line">
+            <div className={cn("size-8 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0", avatarCls)}>
               {initials}
             </div>
             <div className="min-w-0">
-              <div className="text-[13px] font-semibold truncate" style={{ color: "var(--ink-strong)" }}>
+              <div className="text-[13px] font-semibold truncate text-ink-strong">
                 {user.name}
               </div>
-              <div className="text-[11px] truncate" style={{ color: sublineColor }}>
+              <div className={cn("text-[11px] truncate", sublineCls)}>
                 {subline}
               </div>
             </div>
@@ -427,10 +391,9 @@ function ProfileButton({
               key={href}
               type="button"
               onClick={() => navigate(href)}
-              className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-medium transition-colors hover:bg-[var(--hover)]"
-              style={{ color: "var(--ink-strong)" }}
+              className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-medium transition-colors hover:bg-hover text-ink-strong"
             >
-              <span className="material-symbols-rounded text-[17px]" style={{ color: "var(--ink-dim)" }}>
+              <span className="material-symbols-rounded text-[17px] text-ink-dim">
                 {icon}
               </span>
               {label}
@@ -438,13 +401,12 @@ function ProfileButton({
           ))}
 
           {/* Sign out */}
-          <div style={{ borderTop: "1px solid var(--line)" }}>
+          <div className="border-t border-line">
             <button
               type="button"
               onClick={() => { setOpen(false); onSignout(); }}
               disabled={signingOut}
-              className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-medium transition-colors hover:bg-[var(--hover)]"
-              style={{ color: "var(--coral)" }}
+              className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-medium transition-colors hover:bg-hover text-coral"
             >
               <span className="material-symbols-rounded text-[17px]">logout</span>
               {signingOut ? "Signing out…" : "Sign out"}
@@ -487,11 +449,10 @@ function NavLink({
           {item.icon}
         </span>
         <span
+          className="overflow-hidden whitespace-nowrap"
           style={{
             opacity: collapsed ? 0 : 1,
             maxWidth: collapsed ? 0 : 200,
-            overflow: "hidden",
-            whiteSpace: "nowrap",
             transition: "opacity 180ms var(--ease-app), max-width 260ms var(--ease-app)",
           }}
         >
@@ -506,12 +467,12 @@ function NavLink({
 
 function BrandMark() {
   return (
-    <div style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 8, overflow: "hidden" }}>
+    <div className="size-[34px] shrink-0 rounded-lg overflow-hidden">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/smile-fx-logo-wht-navy-bg.png"
         alt="Smile FX Traders"
-        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+        className="w-full h-full object-contain"
       />
     </div>
   );
