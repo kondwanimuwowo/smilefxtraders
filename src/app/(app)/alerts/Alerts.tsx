@@ -397,9 +397,7 @@ function AlertCard({
               <span
                 className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${statusCfg.bgCls} ${statusCfg.textCls}`}
               >
-                <span className="material-symbols-rounded ic-fill text-xs">
-                  {statusCfg.icon}
-                </span>
+                <Icon name={statusCfg.icon} size={12} />
                 {statusCfg.label}
               </span>
             </div>
@@ -432,7 +430,7 @@ function AlertCard({
             key={label}
             className={cn("flex flex-col items-center py-2.5 px-2 bg-panel-2", i > 0 && "border-l border-line")}
           >
-            <span className={cn("material-symbols-rounded ic-fill mb-0.5 text-[13px]", colorCls)}>{icon}</span>
+            <Icon name={icon} size={13} className={cn("mb-0.5", colorCls)} />
             <span className="text-[10px] font-semibold uppercase tracking-wider mb-0.5 text-ink-dim">{label}</span>
             <span className={cn("font-display font-bold tabular-nums text-[13px] tracking-[-0.01em]", colorCls)}>{value}</span>
           </div>
@@ -629,7 +627,7 @@ export function Alerts() {
             { label: "Stop loss",    value: slCount,        icon: "cancel",               colorCls: "text-coral"      },
           ].map(({ label, value, icon, colorCls }) => (
             <div key={label} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-panel border border-line">
-              <span className={cn("material-symbols-rounded ic-fill shrink-0 text-[18px]", colorCls)}>{icon}</span>
+              <Icon name={icon} size={18} className={cn("shrink-0", colorCls)} />
               <div>
                 <div className={cn("font-display font-bold text-[20px] tabular-nums leading-none", colorCls)}>{value}</div>
                 <div className="text-[10.5px] font-medium mt-0.5 text-ink-dim">{label}</div>
