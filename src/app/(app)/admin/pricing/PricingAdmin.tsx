@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { PLAN_META } from "@/lib/plans";
 import type { PlanPrices } from "@/lib/plans";
+import { Icon } from "@/components/ui";
 
 interface Props {
   initial: PlanPrices[];
@@ -61,9 +62,7 @@ export function PricingAdmin({ initial }: Props) {
                 {/* meta.color is a raw var(--x) string from PLAN_META consumed via
                     `${meta.color}18` alpha-suffix concatenation - stays inline. */}
                 <div className="size-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${meta.color}18` }}>
-                  <span className="material-symbols-rounded text-[20px]" style={{ color: meta.color, fontFamily: "Material Symbols Rounded Fill" }}>
-                    {meta.icon}
-                  </span>
+                  <Icon name={meta.icon} size={20} style={{ color: meta.color }} />
                 </div>
                 <div>
                   <div className="font-display font-bold text-[16px] text-ink-strong">{meta.name}</div>
@@ -124,7 +123,7 @@ export function PricingAdmin({ initial }: Props) {
                     {saving === meta.id ? (
                       <span className="size-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
                     ) : (
-                      <span className="material-symbols-rounded text-[16px]">save</span>
+                      <Icon name="save" size={16} />
                     )}
                     Save {meta.name}
                   </button>
@@ -136,7 +135,7 @@ export function PricingAdmin({ initial }: Props) {
       </div>
 
       <div className="mt-6 rounded-xl px-5 py-4 flex items-start gap-3 bg-[rgba(248,185,61,0.08)] border border-[rgba(248,185,61,0.25)]">
-        <span className="material-symbols-rounded text-[18px] mt-px text-gold">info</span>
+        <Icon name="info" size={18} className="mt-px text-gold" />
         <p className="text-[13px] leading-[1.6] text-ink-mid">
           Annual prices are per month (billed as a lump sum). Example: K239/mo annual = K2,868 charged once a year.
           Leave at 0 to show &quot;Free&quot;.
