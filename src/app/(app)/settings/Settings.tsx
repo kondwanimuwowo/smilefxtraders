@@ -56,10 +56,7 @@ function MembershipSection() {
           Your plan stays active until the end of the current billing period. No pro-rata refunds.
         </p>
         {confirmOpen ? (
-          <div
-            className="rounded-xl p-4 mb-2"
-            style={{ background: "rgba(234,82,61,0.06)", border: "1px solid rgba(234,82,61,0.2)" }}
-          >
+          <div className="rounded-xl p-4 mb-2 bg-[rgba(234,82,61,0.06)] border border-[rgba(234,82,61,0.2)]">
             <p className="text-[13px] font-semibold mb-3 text-coral">
               Cancel {planLabel}? You&apos;ll lose live alerts, AI reviews, and full Academy access.
             </p>
@@ -413,6 +410,9 @@ export function Settings() {
                       icon="mail"
                       loading={emailPending}
                       onClick={saveEmail}
+                      // overrides Button's default md-size padding/font-size — kept
+                      // inline since Tailwind utility classes of equal specificity
+                      // don't reliably override Button's own sizeCls by source order
                       style={{ padding: "5px 12px", fontSize: 12, flexShrink: 0 }}
                     >
                       Confirm change
@@ -653,10 +653,7 @@ export function Settings() {
               Deleting your account will permanently remove all your trades, journal entries, community posts, and settings. This cannot be undone, and your email address can&apos;t be used to create another account afterward.
             </p>
             {deleteConfirmOpen ? (
-              <div
-                className="rounded-xl p-4"
-                style={{ background: "rgba(234,82,61,0.06)", border: "1px solid rgba(234,82,61,0.2)" }}
-              >
+              <div className="rounded-xl p-4 bg-[rgba(234,82,61,0.06)] border border-[rgba(234,82,61,0.2)]">
                 <p className="text-[13px] font-semibold mb-3 text-coral">
                   Type your username (@{handle || "…"}) to confirm.
                 </p>
