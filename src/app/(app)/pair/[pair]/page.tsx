@@ -9,6 +9,7 @@ import type { CotSignal } from "@/app/api/cot/route";
 import type { CotDetailResponse, CotDetailRow } from "@/app/api/cot/[pair]/route";
 import type { CalEvent } from "@/app/api/calendar/route";
 import type { PriceTick } from "@/app/api/prices/route";
+import { PAIR_META } from "@/lib/pairs";
 
 // ── Pair metadata ─────────────────────────────────────────────────────────────
 
@@ -16,26 +17,10 @@ type Bias = "bullish" | "bearish" | "ranging";
 const TFS = ["MN", "W", "D", "H4", "H1"] as const;
 type TF = typeof TFS[number];
 
-interface PairMeta {
-  label:      string;
-  base:       string;   // e.g. "EUR" for EURUSD
-  quote:      string;   // e.g. "USD"
-  currencies: string[]; // for calendar filtering
-  usdBase:    boolean;
-}
-
-const PAIR_META: Record<string, PairMeta> = {
-  EURUSD: { label: "Euro FX",           base: "EUR", quote: "USD", currencies: ["EUR", "USD"], usdBase: false },
-  GBPUSD: { label: "British Pound",      base: "GBP", quote: "USD", currencies: ["GBP", "USD"], usdBase: false },
-  AUDUSD: { label: "Australian Dollar",  base: "AUD", quote: "USD", currencies: ["AUD", "USD"], usdBase: false },
-  NZDUSD: { label: "NZ Dollar",          base: "NZD", quote: "USD", currencies: ["NZD", "USD"], usdBase: false },
-  USDJPY: { label: "Japanese Yen",       base: "USD", quote: "JPY", currencies: ["USD", "JPY"], usdBase: true  },
-  USDCHF: { label: "Swiss Franc",        base: "USD", quote: "CHF", currencies: ["USD", "CHF"], usdBase: true  },
-  USDCAD: { label: "Canadian Dollar",    base: "USD", quote: "CAD", currencies: ["USD", "CAD"], usdBase: true  },
-  XAUUSD: { label: "Gold",               base: "XAU", quote: "USD", currencies: ["XAU", "USD"], usdBase: false },
-  NAS100: { label: "NASDAQ E-mini",      base: "NAS", quote: "USD", currencies: ["USD"],         usdBase: false },
-  DXY:    { label: "USD Index",          base: "USD", quote: "",    currencies: ["USD"],         usdBase: false },
-};
+// Fallback for any pair missing from the persisted trend matrix — mirrors
+// TrendMatrix.tsx's own DEFAULT_ROW exactly, so a pair absent from the last
+// publish renders identically on both pages instead of silently disagreeing.
+const DEFAULT_ROW: Record<TF, Bias> = { MN: "ranging", W: "ranging", D: "ranging", H4: "ranging", H1: "ranging" };
 
 // ── Signal config ─────────────────────────────────────────────────────────────
 
@@ -219,21 +204,13 @@ export default function PairOverviewPage() {
   const [loading,     setLoading]     = useState(true);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("smile-fx-trend-matrix");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        const mat = parsed?.matrix?.[P] as Partial<Record<TF, Bias>> | undefined;
-        if (mat) setTrendMatrix(mat);
-      }
-    } catch { /* ignore */ }
-
     Promise.allSettled([
       fetch(`/api/cot/${P}`).then((r) => r.json() as Promise<CotDetailResponse>),
       fetch(`/api/cot/DXY`).then((r)  => r.json() as Promise<CotDetailResponse>),
       fetch(`/api/calendar`).then((r) => r.json() as Promise<CalEvent[]>),
       fetch(`/api/prices`).then((r)   => r.json() as Promise<PriceTick[]>),
-    ]).then(([cot, dxy, cal, prices]) => {
+      fetch(`/api/trend-matrix`).then((r) => r.json() as Promise<{ matrix: Record<string, Record<TF, Bias>> } | null>),
+    ]).then(([cot, dxy, cal, prices, trend]) => {
       if (cot.status    === "fulfilled") setCotData(cot.value);
       if (dxy.status    === "fulfilled") setDxyData(dxy.value);
       if (cal.status    === "fulfilled") setCalEvents(cal.value);
@@ -241,9 +218,12 @@ export default function PairOverviewPage() {
         const tick = (prices.value as PriceTick[]).find((t) => t.sym === P);
         if (tick) setPriceTick(tick);
       }
+      if (trend.status === "fulfilled" && trend.value) {
+        setTrendMatrix(trend.value.matrix[P] ?? DEFAULT_ROW);
+      }
       setLoading(false);
     });
-  }, [P]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [P]);
 
   const verdict = useMemo(
     () => computeVerdict(cotData?.signal ?? null, trendMatrix, dxyData?.signal ?? null, meta?.usdBase ?? false),
