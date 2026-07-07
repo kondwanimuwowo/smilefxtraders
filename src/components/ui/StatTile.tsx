@@ -1,12 +1,13 @@
 import { Icon } from "./Icon";
+import { cn } from "@/lib/cn";
 
 type StatTone = "up" | "down" | "gold" | "neutral";
 
-const TONE_COLORS: Record<StatTone, string> = {
-  up:      "var(--teal-bright)",
-  down:    "var(--coral-bright)",
-  gold:    "var(--gold)",
-  neutral: "var(--ink-strong)",
+const TONE_TEXT_CLS: Record<StatTone, string> = {
+  up:      "text-teal-bright",
+  down:    "text-coral-bright",
+  gold:    "text-gold",
+  neutral: "text-ink-strong",
 };
 
 interface StatTileProps {
@@ -20,30 +21,24 @@ interface StatTileProps {
 export function StatTile({ label, value, sub, tone = "neutral", icon }: StatTileProps) {
   return (
     <div
-      className="rounded-2xl border p-4 transition-all"
-      style={{ 
-        background: "var(--panel)", 
-        borderColor: tone === "gold" ? "var(--gold)" : "var(--line)",
-        boxShadow: tone === "gold" ? "0 0 20px rgba(248, 185, 61, 0.15)" : "none"
-      }}
+      className={cn(
+        "rounded-2xl border p-4 transition-all bg-panel",
+        tone === "gold" ? "border-gold shadow-[0_0_20px_rgba(248,185,61,0.15)]" : "border-line shadow-none"
+      )}
     >
       <div className="flex items-center justify-between">
-        <div
-          className="text-[11px] font-semibold uppercase tracking-widest"
-          style={{ color: "var(--ink-dim)" }}
-        >
+        <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-dim">
           {label}
         </div>
-        {icon && <Icon name={icon} size={17} style={{ color: "var(--ink-dim)" }} />}
+        {icon && <Icon name={icon} size={17} className="text-ink-dim" />}
       </div>
       <div
-        className="font-display font-bold mt-2"
-        style={{ color: TONE_COLORS[tone], letterSpacing: "-0.02em", fontSize: "clamp(20px, 4vw, 26px)" }}
+        className={cn("font-display font-bold mt-2 tracking-[-0.02em] text-[clamp(20px,4vw,26px)]", TONE_TEXT_CLS[tone])}
       >
         {value}
       </div>
       {sub && (
-        <div className="text-xs mt-0.5" style={{ color: "var(--ink-dim)" }}>
+        <div className="text-xs mt-0.5 text-ink-dim">
           {sub}
         </div>
       )}
