@@ -29,7 +29,7 @@ export function PricingContent({ prices }: Props) {
       <section className="dark py-32 pb-16 bg-[radial-gradient(ellipse_at_12%_18%,rgba(8,174,170,0.45)_0%,transparent_52%),radial-gradient(ellipse_at_88%_88%,rgba(248,185,61,0.32)_0%,transparent_48%),linear-gradient(155deg,#0C4E6B_0%,#082A3B_60%)]">
         <div className="container">
           <div className="sec-head center reveal">
-            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18]" style={{ fontSize: "clamp(28px,3.8vw,46px)" }}>Simple, transparent pricing</h2>
+            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">Simple, transparent pricing</h2>
             <p className="lead mt-[18px]">Start free. Upgrade when the limits become a constraint.</p>
           </div>
           {/* Billing toggle */}
@@ -111,7 +111,7 @@ export function PricingContent({ prices }: Props) {
       <section className="section">
         <div className="container">
           <div className="reveal text-center max-w-[560px] mx-auto">
-            <h2 style={{ fontSize: "clamp(26px,3.6vw,38px)" }}>Start free, upgrade when it pays off</h2>
+            <h2 className="text-[clamp(26px,3.6vw,38px)]">Start free, upgrade when it pays off</h2>
             <p className="lead mt-3">No card required to begin. Build the habit first.</p>
             <div className="mt-6">
               <Button href="/signup" size="lg" iconRight="arrow_forward">Create your free account</Button>
