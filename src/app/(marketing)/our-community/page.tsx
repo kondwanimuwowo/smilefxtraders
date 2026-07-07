@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Button } from "@/components/ui";
+import { Button, Icon } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Community | Smile FX Traders",
@@ -30,7 +30,7 @@ export default function OurCommunityPage() {
               { icon: "diversity_3",       title: "Share & learn",         body: "Post your setups, get feedback, and learn from how others read the same chart." },
             ].map(({ icon, title, body }) => (
               <div key={title} className="card p-7">
-                <div className="icon-chip"><span className="material-symbols-rounded">{icon}</span></div>
+                <div className="icon-chip"><Icon name={icon} /></div>
                 <h3 className="text-[19px] mt-4 mb-2">{title}</h3>
                 <p className="text-[14.5px] text-ink-mid leading-[1.6]">{body}</p>
               </div>
@@ -53,7 +53,7 @@ export default function OurCommunityPage() {
             <div className="reveal">
               <div className="card p-1.5">
                 <div className="py-[13px] px-3.5 flex items-center gap-2 border-b border-line">
-                  <span className="material-symbols-rounded text-[var(--gold-dark)] text-[18px]">leaderboard</span>
+                  <Icon name="leaderboard" size={18} className="text-[var(--gold-dark)]" />
                   <span className="font-bold text-[13.5px] text-ink">Monthly Leaderboard</span>
                 </div>
                 {[
