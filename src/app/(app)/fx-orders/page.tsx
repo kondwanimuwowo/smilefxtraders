@@ -378,7 +378,7 @@ export default function FxOrdersPage() {
 
       {/* ── Stat strip ── */}
       {!loading && summaries.length > 0 && (
-        <div className="grid gap-3 mb-6" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))" }}>
+        <div className="grid gap-3 mb-6 grid-cols-[repeat(auto-fill,minmax(180px,1fr))]">
           <StatChip icon="calendar_today"       value={summaries.length} label="dates in archive"    color="var(--teal)"      />
           <StatChip icon="format_list_bulleted" value={totalLevels}      label="total levels stored" color="var(--gold)"      />
           <StatChip icon="schedule"             value={hasToday ? "Yes" : "No"} label="today synced" color={hasToday ? "var(--teal)" : "var(--coral)"} />
@@ -404,7 +404,7 @@ export default function FxOrdersPage() {
 
       {/* ── Date card grid ── */}
       {loading ? (
-        <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+        <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
           {Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
         </div>
       ) : summaries.length === 0 ? (
@@ -446,7 +446,7 @@ export default function FxOrdersPage() {
           )}
         </div>
       ) : (
-        <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+        <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
           {summaries.map((s) => (
             <DateCard key={s.date} summary={s} isToday={s.date === today} />
           ))}
