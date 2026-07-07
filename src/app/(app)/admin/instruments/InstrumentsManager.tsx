@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { cn } from "@/lib/cn";
 
 type Instrument = {
   id: string;
@@ -29,6 +30,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   commodity: "rgba(248,185,61,0.14)",
   index:     "rgba(22,114,161,0.16)",
 };
+// forex/commodity reference --teal-dark/--gold-dark, which are only defined
+// in marketing.css and not loaded on admin pages — left as raw var strings
+// (not converted) since they're silently no-ops here, matching this
+// project's precedent for other pre-existing broken-token configs.
 const CATEGORY_TEXT: Record<string, string> = {
   forex:     "var(--teal-dark)",
   commodity: "var(--gold-dark)",
@@ -157,26 +162,26 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
 
   const sorted = [...instruments].sort((a, b) => a.displayOrder - b.displayOrder);
 
-  const inputCls = "w-full rounded-xl px-3.5 py-2.5 text-[13.5px] outline-none focus:ring-2 ring-[var(--teal)] transition-shadow";
-  const inputStyle = { background: "var(--bg-input)", border: "1px solid var(--line)", color: "var(--ink)" };
-  const labelCls = "block text-[11.5px] font-semibold uppercase tracking-wide mb-1.5";
+  // --bg-input is not defined anywhere in the codebase; bg-[var(--bg-input)]
+  // preserves that pre-existing no-op exactly instead of "fixing" it.
+  const inputCls = "w-full rounded-xl px-3.5 py-2.5 text-[13.5px] outline-none focus:ring-2 ring-teal transition-shadow bg-[var(--bg-input)] border border-line text-ink";
+  const labelCls = "block text-[11.5px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim";
 
   return (
     <div className="view">
       {/* Header */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="font-display font-bold" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
+          <h1 className="font-display font-bold text-[24px] tracking-[-0.02em] text-ink-strong">
             Instruments
           </h1>
-          <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+          <p className="text-[13px] mt-0.5 text-ink-dim">
             Manage tradeable pairs. Changes propagate to all dropdowns instantly.
           </p>
         </div>
         <button
           onClick={openAdd}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all active:scale-95"
-          style={{ background: "var(--teal)", boxShadow: "0 4px 14px rgba(8,174,170,0.28)" }}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all active:scale-95 bg-teal shadow-[0_4px_14px_rgba(8,174,170,0.28)]"
         >
           <span className="material-symbols-rounded text-[18px]">add</span>
           Add instrument
@@ -184,12 +189,9 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
+      <div className="rounded-2xl overflow-hidden bg-panel border border-line">
         {/* Column headers */}
-        <div
-          className="grid gap-2 px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold border-b"
-          style={{ gridTemplateColumns: "36px 1fr 90px 60px 60px 60px 80px 80px 80px 80px", color: "var(--ink-dim)", borderColor: "var(--line)" }}
-        >
+        <div className="grid grid-cols-[36px_1fr_90px_60px_60px_60px_80px_80px_80px_80px] gap-2 px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold border-b text-ink-dim border-line">
           <span>Ord</span>
           <span>Pair</span>
           <span>Category</span>
@@ -203,7 +205,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
         </div>
 
         {sorted.length === 0 && (
-          <div className="px-5 py-12 text-center text-[13px]" style={{ color: "var(--ink-dim)" }}>
+          <div className="px-5 py-12 text-center text-[13px] text-ink-dim">
             No instruments yet. Click &quot;Add instrument&quot; to create one.
           </div>
         )}
@@ -211,8 +213,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
         {sorted.map((inst, idx) => (
           <div
             key={inst.id}
-            className="grid items-center gap-2 px-4 py-3 border-b last:border-0 hover:bg-[var(--bg-hover)] transition-colors"
-            style={{ gridTemplateColumns: "36px 1fr 90px 60px 60px 60px 80px 80px 80px 80px", borderColor: "var(--line)" }}
+            className="grid grid-cols-[36px_1fr_90px_60px_60px_60px_80px_80px_80px_80px] items-center gap-2 px-4 py-3 border-b last:border-0 border-line hover:bg-[var(--bg-hover)] transition-colors"
           >
             {/* Order arrows */}
             <div className="flex flex-col gap-0.5">
@@ -222,7 +223,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
                 className="w-[18px] h-[18px] rounded flex items-center justify-center transition-colors hover:bg-[var(--bg-soft)] disabled:opacity-20"
                 aria-label="Move up"
               >
-                <span className="material-symbols-rounded" style={{ fontSize: 14, color: "var(--ink-mid)" }}>arrow_drop_up</span>
+                <span className="material-symbols-rounded text-[14px] text-ink-mid">arrow_drop_up</span>
               </button>
               <button
                 onClick={() => moveOrder(inst, 1)}
@@ -230,16 +231,16 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
                 className="w-[18px] h-[18px] rounded flex items-center justify-center transition-colors hover:bg-[var(--bg-soft)] disabled:opacity-20"
                 aria-label="Move down"
               >
-                <span className="material-symbols-rounded" style={{ fontSize: 14, color: "var(--ink-mid)" }}>arrow_drop_down</span>
+                <span className="material-symbols-rounded text-[14px] text-ink-mid">arrow_drop_down</span>
               </button>
             </div>
 
             {/* Symbol + label */}
             <div>
-              <div className="font-semibold tabular-nums text-[13.5px]" style={{ color: "var(--ink-strong)", letterSpacing: "0.01em" }}>
+              <div className="font-semibold tabular-nums text-[13.5px] tracking-[0.01em] text-ink-strong">
                 {inst.symbol}
               </div>
-              <div className="text-[11.5px]" style={{ color: "var(--ink-dim)" }}>{inst.label}</div>
+              <div className="text-[11.5px] text-ink-dim">{inst.label}</div>
             </div>
 
             {/* Category chip */}
@@ -251,18 +252,18 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
             </span>
 
             {/* Pip size */}
-            <span className="tabular-nums text-[12.5px]" style={{ color: "var(--ink-mid)" }}>{inst.pipSize}</span>
+            <span className="tabular-nums text-[12.5px] text-ink-mid">{inst.pipSize}</span>
 
             {/* Pip value */}
-            <span className="tabular-nums text-[12.5px]" style={{ color: "var(--ink-mid)" }}>${inst.pipValue}</span>
+            <span className="tabular-nums text-[12.5px] text-ink-mid">${inst.pipValue}</span>
 
             {/* TD symbol */}
-            <span className="text-[11.5px] truncate" style={{ color: inst.tdSymbol ? "var(--ink)" : "var(--ink-dim)" }}>
+            <span className={cn("text-[11.5px] truncate", inst.tdSymbol ? "text-ink" : "text-ink-dim")}>
               {inst.tdSymbol ?? "—"}
             </span>
 
             {/* COT code */}
-            <span className="tabular-nums text-[11.5px]" style={{ color: inst.cotCode ? "var(--ink)" : "var(--ink-dim)" }}>
+            <span className={cn("tabular-nums text-[11.5px]", inst.cotCode ? "text-ink" : "text-ink-dim")}>
               {inst.cotCode ?? "—"}
             </span>
 
@@ -272,7 +273,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
               className="flex items-center gap-1.5 text-[12px] font-medium transition-colors"
               style={{ color: inst.fxoTracked ? "var(--teal-dark)" : "var(--ink-dim)" }}
             >
-              <span className={`material-symbols-rounded ${inst.fxoTracked ? "ic-fill" : ""}`} style={{ fontSize: 16, color: inst.fxoTracked ? "var(--teal)" : "var(--ink-dim)" }}>
+              <span className={cn("material-symbols-rounded text-[16px]", inst.fxoTracked ? "ic-fill text-teal" : "text-ink-dim")}>
                 {inst.fxoTracked ? "check_circle" : "radio_button_unchecked"}
               </span>
               {inst.fxoTracked ? "Yes" : "No"}
@@ -281,17 +282,11 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
             {/* Active toggle */}
             <button
               onClick={() => toggleActive(inst)}
-              className="flex items-center gap-1.5 text-[12px] font-medium transition-colors"
-              style={{ color: inst.active ? "var(--teal-dark)" : "var(--coral)" }}
+              className={cn("flex items-center gap-1.5 text-[12px] font-medium transition-colors", inst.active ? undefined : "text-coral")}
+              style={{ color: inst.active ? "var(--teal-dark)" : undefined }}
             >
-              <span
-                className="w-9 h-5 rounded-full relative transition-colors flex-shrink-0"
-                style={{ background: inst.active ? "var(--teal)" : "var(--track)" }}
-              >
-                <span
-                  className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
-                  style={{ transform: inst.active ? "translateX(16px)" : "translateX(0)" }}
-                />
+              <span className={cn("w-9 h-5 rounded-full relative transition-colors flex-shrink-0", inst.active ? "bg-teal" : "bg-track")}>
+                <span className={cn("absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform", inst.active ? "translate-x-4" : "translate-x-0")} />
               </span>
               {inst.active ? "Live" : "Off"}
             </button>
@@ -303,14 +298,14 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
                 className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-[var(--bg-soft)]"
                 aria-label="Edit"
               >
-                <span className="material-symbols-rounded" style={{ fontSize: 16, color: "var(--ink-mid)" }}>edit</span>
+                <span className="material-symbols-rounded text-[16px] text-ink-mid">edit</span>
               </button>
               <button
                 onClick={() => handleDelete(inst.id)}
                 className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-[rgba(234,82,61,0.1)]"
                 aria-label="Delete"
               >
-                <span className="material-symbols-rounded" style={{ fontSize: 16, color: "var(--coral)" }}>delete</span>
+                <span className="material-symbols-rounded text-[16px] text-coral">delete</span>
               </button>
             </div>
           </div>
@@ -320,29 +315,27 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
       {/* Add / Edit modal */}
       {showForm && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: "rgba(8,42,59,0.6)", backdropFilter: "blur(6px)" }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(8,42,59,0.6)] backdrop-blur-[6px]"
           onClick={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}
         >
           <div
-            className="w-full max-w-[520px] rounded-2xl p-6 shadow-2xl overflow-y-auto"
-            style={{ background: "var(--modal-bg, var(--panel))", border: "1px solid var(--line)", maxHeight: "90vh" }}
+            className="w-full max-w-[520px] rounded-2xl p-6 shadow-2xl overflow-y-auto max-h-[90vh] bg-panel border border-line"
           >
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-display font-bold text-[18px]" style={{ color: "var(--ink-strong)" }}>
+              <h2 className="font-display font-bold text-[18px] text-ink-strong">
                 {editId ? "Edit instrument" : "Add instrument"}
               </h2>
               <button onClick={() => setShowForm(false)} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-[var(--bg-soft)]">
-                <span className="material-symbols-rounded text-[20px]" style={{ color: "var(--ink-dim)" }}>close</span>
+                <span className="material-symbols-rounded text-[20px] text-ink-dim">close</span>
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               {/* Symbol */}
               <div>
-                <label className={labelCls} style={{ color: "var(--ink-dim)" }}>Symbol *</label>
+                <label className={labelCls}>Symbol *</label>
                 <input
-                  className={inputCls} style={inputStyle}
+                  className={inputCls}
                   placeholder="EURUSD" value={form.symbol}
                   onChange={field("symbol")}
                   disabled={!!editId}
@@ -351,9 +344,9 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
 
               {/* Label */}
               <div>
-                <label className={labelCls} style={{ color: "var(--ink-dim)" }}>Label *</label>
+                <label className={labelCls}>Label *</label>
                 <input
-                  className={inputCls} style={inputStyle}
+                  className={inputCls}
                   placeholder="EUR/USD" value={form.label}
                   onChange={field("label")}
                 />
@@ -361,8 +354,8 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
 
               {/* Category */}
               <div>
-                <label className={labelCls} style={{ color: "var(--ink-dim)" }}>Category *</label>
-                <select className={inputCls} style={inputStyle} value={form.category} onChange={field("category")}>
+                <label className={labelCls}>Category *</label>
+                <select className={inputCls} value={form.category} onChange={field("category")}>
                   <option value="forex">Forex</option>
                   <option value="commodity">Commodity</option>
                   <option value="index">Index</option>
@@ -371,9 +364,9 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
 
               {/* Pip size */}
               <div>
-                <label className={labelCls} style={{ color: "var(--ink-dim)" }}>Pip size</label>
+                <label className={labelCls}>Pip size</label>
                 <input
-                  className={inputCls} style={inputStyle} type="number" step="0.00001"
+                  className={inputCls} type="number" step="0.00001"
                   placeholder="0.0001" value={form.pipSize}
                   onChange={field("pipSize")}
                 />
@@ -381,35 +374,35 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
 
               {/* Pip value (USD) */}
               <div>
-                <label className={labelCls} style={{ color: "var(--ink-dim)" }}>Pip value (USD)</label>
+                <label className={labelCls}>Pip value (USD)</label>
                 <input
-                  className={inputCls} style={inputStyle} type="number" step="0.01"
+                  className={inputCls} type="number" step="0.01"
                   placeholder="10" value={form.pipValue}
                   onChange={field("pipValue")}
                 />
-                <p className="text-[11px] mt-1" style={{ color: "var(--ink-dim)" }}>Per pip per standard lot</p>
+                <p className="text-[11px] mt-1 text-ink-dim">Per pip per standard lot</p>
               </div>
 
               {/* TD symbol */}
               <div>
-                <label className={labelCls} style={{ color: "var(--ink-dim)" }}>Twelve Data symbol</label>
+                <label className={labelCls}>Twelve Data symbol</label>
                 <input
-                  className={inputCls} style={inputStyle}
+                  className={inputCls}
                   placeholder="EUR/USD" value={form.tdSymbol}
                   onChange={field("tdSymbol")}
                 />
-                <p className="text-[11px] mt-1" style={{ color: "var(--ink-dim)" }}>For live price feed (leave blank to exclude)</p>
+                <p className="text-[11px] mt-1 text-ink-dim">For live price feed (leave blank to exclude)</p>
               </div>
 
               {/* COT code */}
               <div className="col-span-2">
-                <label className={labelCls} style={{ color: "var(--ink-dim)" }}>COT contract code (CFTC)</label>
+                <label className={labelCls}>COT contract code (CFTC)</label>
                 <input
-                  className={inputCls} style={inputStyle}
+                  className={inputCls}
                   placeholder="099741" value={form.cotCode}
                   onChange={field("cotCode")}
                 />
-                <p className="text-[11px] mt-1" style={{ color: "var(--ink-dim)" }}>6-digit CFTC Socrata code. Leave blank to exclude from COT reports.</p>
+                <p className="text-[11px] mt-1 text-ink-dim">6-digit CFTC Socrata code. Leave blank to exclude from COT reports.</p>
               </div>
 
               {/* Toggles */}
@@ -427,14 +420,13 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
                       role="checkbox"
                       aria-checked={form[key] as boolean}
                       onClick={() => setForm((f) => ({ ...f, [key]: !f[key] }))}
-                      className="mt-0.5 w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-colors"
-                      style={{ background: (form[key] as boolean) ? "var(--teal)" : "var(--track)", border: "1px solid var(--line)" }}
+                      className={cn("mt-0.5 w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-colors border border-line", (form[key] as boolean) ? "bg-teal" : "bg-track")}
                     >
-                      {(form[key] as boolean) && <span className="material-symbols-rounded ic-fill text-white" style={{ fontSize: 14 }}>check</span>}
+                      {(form[key] as boolean) && <span className="material-symbols-rounded ic-fill text-white text-[14px]">check</span>}
                     </button>
                     <div>
-                      <div className="text-[13.5px] font-semibold" style={{ color: "var(--ink)" }}>{label}</div>
-                      <div className="text-[11.5px]" style={{ color: "var(--ink-dim)" }}>{desc}</div>
+                      <div className="text-[13.5px] font-semibold text-ink">{label}</div>
+                      <div className="text-[11.5px] text-ink-dim">{desc}</div>
                     </div>
                   </label>
                 ))}
@@ -442,7 +434,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
             </div>
 
             {error && (
-              <div className="mt-4 px-3.5 py-2.5 rounded-xl text-[13px]" style={{ background: "rgba(234,82,61,0.1)", color: "var(--coral)", border: "1px solid rgba(234,82,61,0.2)" }}>
+              <div className="mt-4 px-3.5 py-2.5 rounded-xl text-[13px] bg-[rgba(234,82,61,0.1)] text-coral border border-[rgba(234,82,61,0.2)]">
                 {error}
               </div>
             )}
@@ -450,16 +442,14 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowForm(false)}
-                className="flex-1 py-2.5 rounded-xl text-[14px] font-semibold transition-colors"
-                style={{ background: "var(--bg-soft)", color: "var(--ink-mid)" }}
+                className="flex-1 py-2.5 rounded-xl text-[14px] font-semibold transition-colors bg-[var(--bg-soft)] text-ink-mid"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={isPending}
-                className="flex-1 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all active:scale-95 disabled:opacity-60"
-                style={{ background: "var(--teal)", boxShadow: "0 4px 14px rgba(8,174,170,0.28)" }}
+                className="flex-1 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all active:scale-95 disabled:opacity-60 bg-teal shadow-[0_4px_14px_rgba(8,174,170,0.28)]"
               >
                 {isPending ? "Saving…" : editId ? "Save changes" : "Add instrument"}
               </button>
