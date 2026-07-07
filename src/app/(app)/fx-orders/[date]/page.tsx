@@ -41,33 +41,30 @@ function LevelRow({ level, spot, pair }: { level: FxLevel; spot: number | null; 
   const nm     = notionalInMillions(level);
   const huge   = nm >= 1000;
 
-  const priceColor = near
-    ? (above ? "var(--teal-bright)" : "var(--coral-bright)")
+  const priceColorCls = near
+    ? (above ? "text-teal-bright" : "text-coral-bright")
     : huge
-      ? "var(--gold)"
-      : "var(--ink-strong)";
+      ? "text-gold"
+      : "text-ink-strong";
 
-  const rowBg = near
-    ? (above ? "rgba(48,232,223,0.05)" : "rgba(255,89,66,0.05)")
-    : "transparent";
+  const dotBgCls = huge
+    ? "bg-gold"
+    : near
+      ? (above ? "bg-teal-bright" : "bg-coral-bright")
+      : "bg-track";
+
+  const rowBgCls = near
+    ? (above ? "bg-[rgba(48,232,223,0.05)]" : "bg-[rgba(255,89,66,0.05)]")
+    : "bg-transparent";
 
   return (
-    <div
-      className="flex items-center justify-between gap-3 rounded-lg px-2.5 py-1.5"
-      style={{ background: rowBg }}
-    >
+    <div className={cn("flex items-center justify-between gap-3 rounded-lg px-2.5 py-1.5", rowBgCls)}>
       {/* Large indicator dot */}
-      <div
-        className="w-1.5 h-1.5 rounded-full shrink-0"
-        style={{
-          background: huge ? "var(--gold)" : near ? priceColor : "var(--track)",
-        }}
-      />
+      <div className={cn("w-1.5 h-1.5 rounded-full shrink-0", dotBgCls)} />
 
       {/* Price */}
       <span
-        className={cn("tabular-nums text-[12.5px] flex-1 tracking-[0.01em]", level.large ? "font-bold" : "font-medium")}
-        style={{ color: priceColor }}
+        className={cn("tabular-nums text-[12.5px] flex-1 tracking-[0.01em]", priceColorCls, level.large ? "font-bold" : "font-medium")}
       >
         {level.price}
       </span>
@@ -286,17 +283,14 @@ export default function FxOrdersDatePage() {
 
       {/* ── Loading ── */}
       {loading && (
-        <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+        <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
           {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} h={180} r={16} />)}
         </div>
       )}
 
       {/* ── Pair cards grid ── */}
       {!loading && !error && (
-        <div
-          className="grid gap-4"
-          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}
-        >
+        <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
           {sortedRecords.map((rec) => (
             <PairCard key={rec.pair} record={rec} liveSpot={liveSpots[rec.pair] ?? null} />
           ))}
