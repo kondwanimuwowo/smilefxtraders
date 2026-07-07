@@ -100,11 +100,8 @@ export function ResetPasswordForm() {
   if (status === "verifying") {
     return (
       <div className="flex flex-col items-center text-center gap-5 py-10">
-        <span
-          className="rounded-full border-2 border-[var(--teal)] border-t-transparent animate-spin inline-block"
-          style={{ width: 28, height: 28 }}
-        />
-        <p style={{ fontSize: 14.5, color: "var(--ink-mid)" }}>
+        <span className="rounded-full border-2 border-teal border-t-transparent animate-spin inline-block size-7" />
+        <p className="text-[14.5px] text-ink-mid">
           {isInvite ? "Verifying your invite…" : "Verifying your reset link…"}
         </p>
       </div>
@@ -114,17 +111,14 @@ export function ResetPasswordForm() {
   if (status === "invalid") {
     return (
       <div className="flex flex-col items-center text-center gap-5">
-        <div
-          className="size-16 rounded-full flex items-center justify-center"
-          style={{ background: "rgba(234,82,61,0.10)", border: "2px solid rgba(234,82,61,0.25)" }}
-        >
-          <span className="material-symbols-rounded ic-fill" style={{ fontSize: 32, color: "var(--coral)" }}>link_off</span>
+        <div className="size-16 rounded-full flex items-center justify-center bg-[rgba(234,82,61,0.10)] border-2 border-[rgba(234,82,61,0.25)]">
+          <span className="material-symbols-rounded ic-fill text-[32px] text-coral">link_off</span>
         </div>
         <div>
-          <h1 className="font-display font-semibold mb-2" style={{ fontSize: 24, color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
+          <h1 className="font-display font-semibold mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
             Link expired or invalid
           </h1>
-          <p style={{ fontSize: 14.5, color: "var(--ink-mid)", lineHeight: 1.6 }}>
+          <p className="text-[14.5px] leading-[1.6] text-ink-mid">
             {isInvite
               ? "This invite link is no longer valid. Ask Kondwani to send you a fresh invite."
               : "This reset link is no longer valid. Links expire after one use or one hour."}
@@ -135,11 +129,7 @@ export function ResetPasswordForm() {
             Request a new link
           </Button>
         )}
-        <Link
-          href="/login"
-          className="text-[13.5px] font-semibold hover:underline"
-          style={{ color: "var(--teal)" }}
-        >
+        <Link href="/login" className="text-[13.5px] font-semibold hover:underline text-teal">
           Back to sign in
         </Link>
       </div>
@@ -149,17 +139,14 @@ export function ResetPasswordForm() {
   if (status === "success") {
     return (
       <div className="flex flex-col items-center text-center gap-5">
-        <div
-          className="size-16 rounded-full flex items-center justify-center"
-          style={{ background: "rgba(8,174,170,0.12)", border: "2px solid rgba(8,174,170,0.3)" }}
-        >
-          <span className="material-symbols-rounded ic-fill" style={{ fontSize: 32, color: "var(--teal)" }}>lock_open</span>
+        <div className="size-16 rounded-full flex items-center justify-center bg-[rgba(8,174,170,0.12)] border-2 border-[rgba(8,174,170,0.3)]">
+          <span className="material-symbols-rounded ic-fill text-[32px] text-teal">lock_open</span>
         </div>
         <div>
-          <h1 className="font-display font-semibold mb-2" style={{ fontSize: 24, color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
+          <h1 className="font-display font-semibold mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
             Password set
           </h1>
-          <p style={{ fontSize: 14.5, color: "var(--ink-mid)" }}>
+          <p className="text-[14.5px] text-ink-mid">
             {isInvite ? "Taking you to onboarding…" : "Taking you to your dashboard…"}
           </p>
         </div>
@@ -169,11 +156,11 @@ export function ResetPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
-      <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2" style={{ color: "var(--teal)" }}>
+      <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2 text-teal">
         {isInvite ? "Welcome" : "New password"}
       </div>
 
-      <h1 className="font-display font-semibold mb-6" style={{ fontSize: 26, color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
+      <h1 className="font-display font-semibold mb-6 text-[26px] tracking-[-0.01em] text-ink-strong">
         {isInvite ? "Set your password" : "Set a new password"}
       </h1>
 
@@ -202,7 +189,7 @@ export function ResetPasswordForm() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-xl px-4 py-3 text-[13px]" style={{ background: "rgba(234,82,61,0.10)", color: "var(--coral-bright)", border: "1px solid rgba(234,82,61,0.2)" }}>
+        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-bright border border-[rgba(234,82,61,0.2)]">
           {error}
         </div>
       )}
