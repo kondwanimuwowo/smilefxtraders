@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/cn";
 
 interface Lesson {
   id: string; slug: string; title: string; duration: string;
@@ -81,34 +82,28 @@ export function LessonEditorClient({ courseId, lesson }: { courseId: string; les
   return (
     <div className="flex flex-col gap-5">
       {/* Top bar */}
-      <div
-        className="rounded-2xl p-4 flex flex-wrap items-center gap-4"
-        style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-      >
+      <div className="rounded-2xl p-4 flex flex-wrap items-center gap-4 bg-panel border border-line">
         <div className="flex-1 min-w-[200px] flex flex-col gap-1">
-          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--ink-dim)" }}>Title</label>
+          <label className="text-[11px] font-semibold uppercase tracking-wide text-ink-dim">Title</label>
           <input
-            className="rounded-xl px-3 py-2 text-[14px] font-semibold outline-none"
-            style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+            className="rounded-xl px-3 py-2 text-[14px] font-semibold outline-none bg-panel-2 border border-line text-ink-strong"
             value={title} onChange={(e) => setTitle(e.target.value)}
           />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--ink-dim)" }}>Duration</label>
+          <label className="text-[11px] font-semibold uppercase tracking-wide text-ink-dim">Duration</label>
           <input
-            className="rounded-xl px-3 py-2 text-[13.5px] outline-none w-24"
-            style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+            className="rounded-xl px-3 py-2 text-[13.5px] outline-none w-24 bg-panel-2 border border-line text-ink-strong"
             placeholder="18 min"
             value={duration} onChange={(e) => setDuration(e.target.value)}
           />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--ink-dim)" }}>Video URL</label>
+          <label className="text-[11px] font-semibold uppercase tracking-wide text-ink-dim">Video URL</label>
           <input
-            className="rounded-xl px-3 py-2 text-[13.5px] outline-none w-48"
-            style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+            className="rounded-xl px-3 py-2 text-[13.5px] outline-none w-48 bg-panel-2 border border-line text-ink-strong"
             placeholder="https://…"
             value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)}
           />
@@ -116,82 +111,60 @@ export function LessonEditorClient({ courseId, lesson }: { courseId: string; les
 
         <label className="flex items-center gap-2 self-end pb-2">
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
-          <span className="text-[13px]" style={{ color: "var(--ink-mid)" }}>Published</span>
+          <span className="text-[13px] text-ink-mid">Published</span>
         </label>
 
         <button
           type="button"
           disabled={isPending}
           onClick={saveLesson}
-          className="self-end px-5 py-2 rounded-xl text-[13.5px] font-semibold transition-all"
-          style={{ background: "var(--teal)", color: "#fff", opacity: isPending ? 0.7 : 1 }}
+          className={cn("self-end px-5 py-2 rounded-xl text-[13.5px] font-semibold transition-all bg-teal text-white", isPending && "opacity-70")}
         >
           {saved ? "Saved ✓" : isPending ? "Saving…" : "Save lesson"}
         </button>
       </div>
 
       {/* Summary */}
-      <div
-        className="rounded-2xl p-4 flex flex-col gap-1.5"
-        style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-      >
-        <label className="text-[12px] font-semibold" style={{ color: "var(--ink-mid)" }}>Summary (shown on lesson card)</label>
+      <div className="rounded-2xl p-4 flex flex-col gap-1.5 bg-panel border border-line">
+        <label className="text-[12px] font-semibold text-ink-mid">Summary (shown on lesson card)</label>
         <input
-          className="rounded-xl px-3 py-2 text-[13.5px] outline-none"
-          style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+          className="rounded-xl px-3 py-2 text-[13.5px] outline-none bg-panel-2 border border-line text-ink-strong"
           value={summary} onChange={(e) => setSummary(e.target.value)}
         />
       </div>
 
       {/* Body editor */}
-      <div
-        className="rounded-2xl overflow-hidden"
-        style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-      >
+      <div className="rounded-2xl overflow-hidden bg-panel border border-line">
         {/* Tab bar */}
-        <div className="flex items-center gap-0 border-b px-4" style={{ borderColor: "var(--line)" }}>
+        <div className="flex items-center gap-0 border-b px-4 border-line">
           {(["edit", "preview"] as const).map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => setTab(t)}
-              className="px-4 py-3 text-[13px] font-semibold capitalize transition-all border-b-2"
-              style={{
-                borderColor:  tab === t ? "var(--teal)" : "transparent",
-                color:        tab === t ? "var(--teal)" : "var(--ink-dim)",
-                marginBottom: -1,
-              }}
+              className={cn(
+                "px-4 py-3 text-[13px] font-semibold capitalize transition-all border-b-2 -mb-px",
+                tab === t ? "border-teal text-teal" : "border-transparent text-ink-dim"
+              )}
             >
               {t}
             </button>
           ))}
           {isDirty && (
-            <span className="ml-auto text-[11.5px]" style={{ color: "var(--gold)" }}>Unsaved draft…</span>
+            <span className="ml-auto text-[11.5px] text-gold">Unsaved draft…</span>
           )}
         </div>
 
         {tab === "edit" ? (
           <textarea
-            className="w-full outline-none resize-none font-mono text-[13px] p-5"
-            style={{
-              background:  "var(--panel)",
-              color:       "var(--ink-strong)",
-              minHeight:   600,
-              lineHeight:  1.7,
-            }}
+            className="w-full outline-none resize-none font-mono text-[13px] p-5 min-h-[600px] leading-[1.7] bg-panel text-ink-strong"
             placeholder="Write lesson content in Markdown…"
             value={body}
             onChange={(e) => handleBodyChange(e.target.value)}
           />
         ) : (
           <div
-            className="p-6 prose-lesson"
-            style={{
-              color:        "var(--ink-mid)",
-              lineHeight:   1.8,
-              fontSize:     14,
-              minHeight:    600,
-            }}
+            className="p-6 prose-lesson min-h-[600px] leading-[1.8] text-[14px] text-ink-mid"
             dangerouslySetInnerHTML={{ __html: renderPreview(body) }}
           />
         )}
