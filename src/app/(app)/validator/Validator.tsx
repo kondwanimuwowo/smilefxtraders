@@ -18,13 +18,26 @@ const GRADE_COLOR: Record<string, string> = {
   B:    "var(--gold)",   C: "var(--coral)",
   D:    "var(--coral-bright)",
 };
-const GRADE_BG: Record<string, string> = {
-  "A+": "rgba(8,174,170,0.12)",  A:  "rgba(8,174,170,0.10)",
-  B:    "rgba(248,185,61,0.12)", C:  "rgba(234,82,61,0.10)",
-  D:    "rgba(234,82,61,0.16)",
-};
 const STATUS_ICON: Record<Status, string>    = { pass: "check_circle", fail: "cancel", warn: "warning", na: "remove_circle" };
 const STATUS_TEXT_CLS: Record<Status, string> = { pass: "text-teal", fail: "text-coral", warn: "text-gold", na: "text-ink-dim" };
+// Plain-consumption class equivalents of GRADE_COLOR/GRADE_BG — kept alongside
+// the raw-var versions because line ~590 needs GRADE_COLOR concatenated with
+// an alpha suffix (`${color}33`), which Tailwind classes can't express.
+const GRADE_TEXT_CLS: Record<string, string> = {
+  "A+": "text-teal",   A: "text-teal",
+  B:    "text-gold",   C: "text-coral",
+  D:    "text-coral-bright",
+};
+const GRADE_BG_CLS: Record<string, string> = {
+  "A+": "bg-[rgba(8,174,170,0.12)]",  A:  "bg-[rgba(8,174,170,0.10)]",
+  B:    "bg-[rgba(248,185,61,0.12)]", C:  "bg-[rgba(234,82,61,0.10)]",
+  D:    "bg-[rgba(234,82,61,0.16)]",
+};
+const GRADE_SOLID_BG_CLS: Record<string, string> = {
+  "A+": "bg-teal",   A: "bg-teal",
+  B:    "bg-gold",   C: "bg-coral",
+  D:    "bg-coral-bright",
+};
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -75,7 +88,7 @@ function GradeRing({ grade, score }: { grade: string; score: number }) {
   const circ  = 2 * Math.PI * r;
   const dash  = (score / 100) * circ;
   return (
-    <div className="relative shrink-0" style={{ width: 96, height: 96 }}>
+    <div className="relative shrink-0 w-24 h-24">
       <svg width={96} height={96} className="-rotate-90">
         <circle cx={48} cy={48} r={r} fill="none" stroke="currentColor" strokeWidth={6} className="text-track" />
         <circle
@@ -83,13 +96,12 @@ function GradeRing({ grade, score }: { grade: string; score: number }) {
           stroke={color} strokeWidth={6}
           strokeDasharray={`${dash.toFixed(1)} ${circ.toFixed(1)}`}
           strokeLinecap="round"
-          style={{ transition: "stroke-dasharray 0.7s cubic-bezier(0.16,1,0.3,1)" }}
+          className="transition-[stroke-dasharray] duration-700 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]"
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
         <span
-          className="font-display font-bold"
-          style={{ fontSize: 26, letterSpacing: "-0.02em", color, lineHeight: 1 }}
+          className={cn("font-display font-bold text-[26px] tracking-[-0.02em] leading-none", GRADE_TEXT_CLS[grade] ?? "text-teal")}
         >
           {grade}
         </span>
@@ -174,12 +186,14 @@ interface HistoryEntry {
 const HISTORY_KEY = "smfx_validator_history";
 
 function HistoryRow({ entry }: { entry: HistoryEntry }) {
-  const color = GRADE_COLOR[entry.grade] ?? "var(--teal)";
   return (
     <div className="flex items-center gap-3 py-2.5">
       <div
-        className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center font-display font-bold text-[13px]"
-        style={{ background: GRADE_BG[entry.grade], color }}
+        className={cn(
+          "shrink-0 w-9 h-9 rounded-xl flex items-center justify-center font-display font-bold text-[13px]",
+          GRADE_BG_CLS[entry.grade] ?? "bg-[rgba(8,174,170,0.10)]",
+          GRADE_TEXT_CLS[entry.grade] ?? "text-teal"
+        )}
       >
         {entry.grade}
       </div>
@@ -194,8 +208,8 @@ function HistoryRow({ entry }: { entry: HistoryEntry }) {
         <div className="flex items-center gap-2">
           <div className="flex-1 h-1 rounded-full overflow-hidden bg-track">
             <div
-              className="h-full rounded-full transition-all"
-              style={{ width: `${entry.score}%`, background: color }}
+              className={cn("h-full rounded-full transition-all", GRADE_SOLID_BG_CLS[entry.grade] ?? "bg-teal")}
+              style={{ width: `${entry.score}%` }}
             />
           </div>
           <span className="text-[10px] tabular-nums shrink-0 text-ink-dim">
@@ -586,13 +600,13 @@ export function Validator() {
 
           {/* Verdict card */}
           <div
-            className="rounded-2xl p-5"
-            style={{ background: GRADE_BG[result.grade], border: `1px solid ${GRADE_COLOR[result.grade]}33` }}
+            className={cn("rounded-2xl p-5", GRADE_BG_CLS[result.grade] ?? "bg-[rgba(8,174,170,0.10)]")}
+            style={{ border: `1px solid ${GRADE_COLOR[result.grade]}33` }}
           >
             <div className="flex items-center gap-5 mb-3">
               <GradeRing grade={result.grade} score={result.score} />
               <div className="flex-1">
-                <div className="text-[11px] font-semibold uppercase tracking-widest mb-1" style={{ color: GRADE_COLOR[result.grade] }}>
+                <div className={cn("text-[11px] font-semibold uppercase tracking-widest mb-1", GRADE_TEXT_CLS[result.grade] ?? "text-teal")}>
                   Overall grade
                 </div>
                 <p className="text-[14px] font-semibold leading-snug mb-2 text-ink-strong">
