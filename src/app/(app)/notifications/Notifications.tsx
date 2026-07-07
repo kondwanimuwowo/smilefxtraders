@@ -75,9 +75,7 @@ export function Notifications() {
                       className={`flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-hover bg-[rgba(8,174,170,0.03)] ${i > 0 ? "border-t border-line" : ""}`}
                     >
                       <div className={`size-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${cfg.bgCls}`}>
-                        <span className={`material-symbols-rounded ic-fill text-[17px] ${cfg.iconCls}`}>
-                          {n.icon || cfg.icon}
-                        </span>
+                        <Icon name={n.icon || cfg.icon} size={17} className={cfg.iconCls} />
                       </div>
                       <div className="flex-1 min-w-0">
                         {n.title && (
@@ -115,9 +113,7 @@ export function Notifications() {
                       className={`flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-hover opacity-65 ${i > 0 ? "border-t border-line" : ""}`}
                     >
                       <div className={`size-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${cfg.bgCls}`}>
-                        <span className={`material-symbols-rounded ic-fill text-[17px] ${cfg.iconCls}`}>
-                          {n.icon || cfg.icon}
-                        </span>
+                        <Icon name={n.icon || cfg.icon} size={17} className={cfg.iconCls} />
                       </div>
                       <div className="flex-1 min-w-0">
                         {n.title && (
