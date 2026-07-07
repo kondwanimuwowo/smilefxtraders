@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui";
 import { CTACard } from "@/components/marketing/CTACard";
+import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
   title: "About | Smile FX Traders",
@@ -15,7 +16,7 @@ export default function AboutPage() {
       <section className="dark py-32 pb-24 bg-[radial-gradient(ellipse_at_12%_18%,rgba(8,174,170,0.45)_0%,transparent_52%),radial-gradient(ellipse_at_88%_88%,rgba(248,185,61,0.32)_0%,transparent_48%),linear-gradient(155deg,#0C4E6B_0%,#082A3B_60%)]">
         <div className="container">
           <div className="sec-head reveal">
-            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18]" style={{ fontSize: "clamp(28px,3.8vw,46px)" }}>Built for traders who refuse to gamble</h2>
+            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">Built for traders who refuse to gamble</h2>
             <p className="lead mt-[18px]">Smile FX Traders exists to give African traders what most never get starting out: real tools, an honest method, and a community that holds them to their rules.</p>
           </div>
         </div>
@@ -35,7 +36,7 @@ export default function AboutPage() {
             </div>
             <div>
               <div className="eyebrow reveal">Lead Instructor</div>
-              <h2 className="reveal mt-3.5" data-delay="60" style={{ fontSize: "clamp(28px,3.4vw,40px)" }}>Kondwani</h2>
+              <h2 className="reveal mt-3.5 text-[clamp(28px,3.4vw,40px)]" data-delay="60">Kondwani</h2>
               <div className="rule reveal" data-delay="80" />
               <p className="reveal text-[15px] text-ink-mid mt-[22px] leading-[1.75]" data-delay="120">
                 Kondwani learned to trade the hard way: through blown accounts, recycled YouTube &quot;strategies,&quot; and signal groups that taught him nothing. The turning point was smart money: liquidity, fair-value gaps, order blocks, premium and discount. Not magic. Structure. A way to read what price was actually doing.
@@ -101,17 +102,17 @@ export default function AboutPage() {
           </div>
           <div className="reveal mt-9 flex flex-col gap-0">
             {[
-              { year: "2023", yearCol: "var(--teal-dark)", dot: "var(--teal)", title: "A WhatsApp group", body: "A handful of Lusaka traders sharing setups and learning smart money together.", last: false },
-              { year: "2024", yearCol: "var(--teal-dark)", dot: "var(--teal)", title: "The Academy takes shape", body: "Kondwani structures the method into a six-level curriculum, taught in order.", last: false },
-              { year: "2025 to today", yearCol: "var(--gold-dark)", dot: "var(--gold)", title: "The full platform", body: "Tools, teaching, and community brought together in one desk. Growing across Zambia and the continent.", last: true },
-            ].map(({ year, yearCol, dot, title, body, last }) => (
+              { year: "2023", yearColCls: "text-[var(--teal-dark)]", dotCls: "bg-teal", title: "A WhatsApp group", body: "A handful of Lusaka traders sharing setups and learning smart money together.", last: false },
+              { year: "2024", yearColCls: "text-[var(--teal-dark)]", dotCls: "bg-teal", title: "The Academy takes shape", body: "Kondwani structures the method into a six-level curriculum, taught in order.", last: false },
+              { year: "2025 to today", yearColCls: "text-[var(--gold-dark)]", dotCls: "bg-gold", title: "The full platform", body: "Tools, teaching, and community brought together in one desk. Growing across Zambia and the continent.", last: true },
+            ].map(({ year, yearColCls, dotCls, title, body, last }) => (
               <div key={year} className="flex gap-5">
                 <div className="flex flex-col items-center">
-                  <span className="w-3.5 h-3.5 rounded-full shrink-0 mt-1.5" style={{ background: dot }} />
+                  <span className={cn("w-3.5 h-3.5 rounded-full shrink-0 mt-1.5", dotCls)} />
                   {!last && <span className="w-0.5 flex-1 bg-line" />}
                 </div>
                 <div className={last ? "pb-0" : "pb-8"}>
-                  <div className="mono text-[13px] font-semibold" style={{ color: yearCol }}>{year}</div>
+                  <div className={cn("mono text-[13px] font-semibold", yearColCls)}>{year}</div>
                   <h3 className="text-[19px] mt-1">{title}</h3>
                   <p className="text-[14.5px] text-ink-mid leading-[1.6] mt-1.5">{body}</p>
                 </div>
