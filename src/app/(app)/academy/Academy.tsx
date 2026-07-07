@@ -162,7 +162,7 @@ function CourseCard({
             className="size-10 rounded-xl flex items-center justify-center shrink-0"
             style={{ background: `${course.color}20` }}
           >
-            <span className="material-symbols-rounded text-[22px]" style={{ color: course.color }}>{course.icon}</span>
+            <Icon name={course.icon} size={22} style={{ color: course.color }} />
           </div>
           <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${tierCfg.badgeCls}`}>
             {tierCfg.label}
@@ -262,7 +262,7 @@ function LessonList({
           className="size-12 rounded-xl flex items-center justify-center shrink-0"
           style={{ background: `${course.color}20` }}
         >
-          <span className="material-symbols-rounded text-[26px]" style={{ color: course.color }}>{course.icon}</span>
+          <Icon name={course.icon} size={26} style={{ color: course.color }} />
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="font-display font-bold text-[22px] tracking-[-0.02em] text-ink-strong">
@@ -333,9 +333,7 @@ function LessonList({
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <span className="text-[12px] text-ink-dim">{lesson.duration}</span>
-                  <span className="material-symbols-rounded text-[18px] text-ink-dim">
-                    {isPlaying ? "expand_less" : "chevron_right"}
-                  </span>
+                  <Icon name={isPlaying ? "expand_less" : "chevron_right"} size={18} className="text-ink-dim" />
                 </div>
               </button>
 
