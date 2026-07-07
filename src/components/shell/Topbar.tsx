@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 import { useStore } from "@/lib/store";
 import { useMarkNotifsRead } from "@/lib/hooks/useNotifications";
 import { Icon } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { SearchModal } from "@/components/search/SearchModal";
 import { clampPosition } from "@/lib/hooks/useClampedPosition";
 import type { PriceTick } from "@/app/api/prices/route";
@@ -90,45 +91,29 @@ export function Topbar() {
   }, [openSearch]);
 
   return (
-    <header
-      className="flex items-center h-[48px] shrink-0 px-5 gap-4 border-b sticky top-0 z-40"
-      style={{
-        background: "var(--topbar-bg)",
-        borderColor: "var(--line)",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
-      }}
-    >
+    <header className="flex items-center h-[48px] shrink-0 px-5 gap-4 border-b sticky top-0 z-40 bg-topbar-bg border-line backdrop-blur-[8px]">
       {/* Live price ticker */}
       <div className="flex-1 min-w-0 overflow-hidden relative">
         {/* Fade masks */}
-        <div className="absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to right, var(--topbar-bg), transparent)" }} />
-        <div className="absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to left, var(--topbar-bg), transparent)" }} />
+        <div className="absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none bg-[linear-gradient(to_right,var(--topbar-bg),transparent)]" />
+        <div className="absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none bg-[linear-gradient(to_left,var(--topbar-bg),transparent)]" />
 
-        <div className="flex items-center gap-3 md:gap-5 overflow-x-auto px-2" style={{ scrollbarWidth: "none" }}>
+        <div className="flex items-center gap-3 md:gap-5 overflow-x-auto px-2 [scrollbar-width:none]">
           {/* Live indicator dot */}
           {live && (
             <div className="flex items-center gap-1.5 shrink-0">
-              <span
-                className="size-1.5 rounded-full"
-                style={{ background: "var(--teal)", animation: "var(--animate-live)" }}
-              />
-              <span className="text-[10px] font-semibold" style={{ color: "var(--teal)", letterSpacing: "0.05em" }}>LIVE</span>
+              <span className="size-1.5 rounded-full bg-teal animate-live" />
+              <span className="text-[10px] font-semibold tracking-[0.05em] text-teal">LIVE</span>
             </div>
           )}
 
           {ticks.map((item) => (
             <div key={item.sym} className="flex items-center gap-2 shrink-0">
-              <span className="text-xs font-semibold" style={{ color: "var(--ink-mid)" }}>{item.sym}</span>
-              <span className="text-xs font-medium tabular-nums" style={{ color: "var(--ink-strong)" }}>
+              <span className="text-xs font-semibold text-ink-mid">{item.sym}</span>
+              <span className="text-xs font-medium tabular-nums text-ink-strong">
                 {item.price}
               </span>
-              <span
-                className="text-[11px] font-medium tabular-nums"
-                style={{ color: item.chg >= 0 ? "var(--teal-bright)" : "var(--coral-bright)" }}
-              >
+              <span className={cn("text-[11px] font-medium tabular-nums", item.chg >= 0 ? "text-teal-bright" : "text-coral-bright")}>
                 {item.chg >= 0 ? "+" : ""}{item.chg}%
               </span>
             </div>
@@ -142,15 +127,11 @@ export function Topbar() {
         <button
           type="button"
           onClick={openSearch}
-          className="tap-target flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-[var(--bg-hover)]"
-          style={{ background: "var(--panel-2)", color: "var(--ink-mid)", border: "1px solid var(--line)" }}
+          className="tap-target flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-[var(--bg-hover)] bg-panel-2 text-ink-mid border border-line"
         >
           <Icon name="search" size={16} />
           <span className="hidden sm:inline">Search</span>
-          <kbd
-            className="hidden sm:inline-flex items-center rounded px-1 text-[10px]"
-            style={{ background: "var(--track)", color: "var(--ink-dim)" }}
-          >
+          <kbd className="hidden sm:inline-flex items-center rounded px-1 text-[10px] bg-track text-ink-dim">
             ⌘K
           </kbd>
         </button>
@@ -160,26 +141,22 @@ export function Topbar() {
 
         <NotifBell />
 
-        <div className="w-px h-5 mx-0.5" style={{ background: "var(--line)" }} />
+        <div className="w-px h-5 mx-0.5 bg-line" />
 
         {/* User chip */}
         <button
           type="button"
           onClick={() => router.push("/profile")}
-          className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 transition-colors hover:bg-[var(--hover)]"
-          style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
+          className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 transition-colors hover:bg-hover bg-panel-2 border border-line"
         >
-          <div
-            className="size-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-            style={{ background: "linear-gradient(135deg, var(--teal), var(--navy))", color: "#fff" }}
-          >
+          <div className="size-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-[linear-gradient(135deg,var(--teal),var(--navy))] text-white">
             {user?.name?.[0] ?? "Y"}
           </div>
           <div className="hidden sm:block text-left">
-            <div className="text-xs font-semibold leading-none" style={{ color: "var(--ink-strong)" }}>
+            <div className="text-xs font-semibold leading-none text-ink-strong">
               You
             </div>
-            <div className="text-[10px] leading-none mt-0.5" style={{ color: "var(--ink-dim)" }}>
+            <div className="text-[10px] leading-none mt-0.5 text-ink-dim">
               Level {user?.level ?? 1} · {user?.streak ?? 0}🔥
             </div>
           </div>
@@ -191,10 +168,10 @@ export function Topbar() {
 
 // ── NotifBell ─────────────────────────────────────────────────────────────────
 
-const TONE_CONFIG: Record<string, { icon: string; color: string; bg: string }> = {
-  teal:  { icon: "notifications_active", color: "var(--teal)",  bg: "rgba(8,174,170,0.1)"  },
-  gold:  { icon: "workspace_premium",    color: "var(--gold)",  bg: "rgba(248,185,61,0.1)" },
-  coral: { icon: "warning",              color: "var(--coral)", bg: "rgba(234,82,61,0.1)"  },
+const TONE_CONFIG: Record<string, { icon: string; textCls: string; bgCls: string }> = {
+  teal:  { icon: "notifications_active", textCls: "text-teal",  bgCls: "bg-[rgba(8,174,170,0.1)]"  },
+  gold:  { icon: "workspace_premium",    textCls: "text-gold",  bgCls: "bg-[rgba(248,185,61,0.1)]" },
+  coral: { icon: "warning",              textCls: "text-coral", bgCls: "bg-[rgba(234,82,61,0.1)]"  },
 };
 
 import { fmtRelative } from "@/lib/date";
@@ -238,47 +215,34 @@ function NotifBell() {
         ref={triggerRef}
         type="button"
         onClick={toggle}
-        className="tap-target relative p-1.5 rounded-lg transition-colors hover:bg-[var(--hover)] flex items-center justify-center"
-        style={{ color: open ? "var(--ink-strong)" : "var(--ink-mid)", background: open ? "var(--hover)" : undefined }}
+        className={cn(
+          "tap-target relative p-1.5 rounded-lg transition-colors hover:bg-hover flex items-center justify-center",
+          open ? "text-ink-strong bg-hover" : "text-ink-mid"
+        )}
         aria-label="Notifications"
         aria-expanded={open}
       >
         <Icon name="notifications" size={20} />
         {unreadCount > 0 && (
-          <span
-            className="absolute top-1 right-1 size-2 rounded-full"
-            style={{ background: "var(--coral)", animation: "var(--animate-live)" }}
-          />
+          <span className="absolute top-1 right-1 size-2 rounded-full bg-coral animate-live" />
         )}
       </button>
 
       {open && rect && typeof document !== "undefined" && createPortal(
         <div
           ref={panelRef}
-          className="rounded-2xl overflow-hidden"
+          className="rounded-2xl overflow-hidden w-[340px] max-w-[calc(100vw-16px)] bg-panel border border-line shadow-[0_12px_40px_rgba(0,0,0,0.25)] z-[9999]"
           style={{
             position: "fixed",
             ...clampPosition({ triggerRect: rect, width: 340, estimatedHeight: 420, align: "right" }),
-            width: 340,
-            maxWidth: "calc(100vw - 16px)",
-            background: "var(--panel)",
-            border: "1px solid var(--line)",
-            boxShadow: "0 12px 40px rgba(0,0,0,0.25)",
-            zIndex: 9999,
           }}
         >
           {/* Header */}
-          <div
-            className="flex items-center justify-between px-4 py-3"
-            style={{ borderBottom: "1px solid var(--line)" }}
-          >
-            <span className="text-[13.5px] font-semibold" style={{ color: "var(--ink-strong)" }}>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-line">
+            <span className="text-[13.5px] font-semibold text-ink-strong">
               Notifications
               {unreadCount > 0 && (
-                <span
-                  className="ml-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold"
-                  style={{ background: "var(--coral)", color: "#fff" }}
-                >
+                <span className="ml-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-coral text-white">
                   {unreadCount}
                 </span>
               )}
@@ -287,8 +251,7 @@ function NotifBell() {
               <button
                 type="button"
                 onClick={() => markRead.mutate({ all: true })}
-                className="text-[11.5px] font-semibold transition-colors hover:opacity-80"
-                style={{ color: "var(--teal)" }}
+                className="text-[11.5px] font-semibold transition-colors hover:opacity-80 text-teal"
               >
                 Mark all read
               </button>
@@ -298,10 +261,10 @@ function NotifBell() {
           {/* Notif list */}
           {preview.length === 0 ? (
             <div className="flex flex-col items-center py-10 text-center px-4">
-              <span className="material-symbols-rounded mb-2" style={{ fontSize: 28, color: "var(--ink-dim)" }}>
+              <span className="material-symbols-rounded mb-2 text-[28px] text-ink-dim">
                 notifications
               </span>
-              <div className="text-[13px]" style={{ color: "var(--ink-dim)" }}>No notifications yet</div>
+              <div className="text-[13px] text-ink-dim">No notifications yet</div>
             </div>
           ) : (
             <div>
@@ -315,41 +278,35 @@ function NotifBell() {
                       setOpen(false);
                       if (n.unread) markRead.mutate({ id: n.id });
                     }}
-                    className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-[var(--hover)]"
-                    style={{
-                      borderTop: i > 0 ? "1px solid var(--line)" : undefined,
-                      background: n.unread ? "rgba(8,174,170,0.03)" : undefined,
-                    }}
+                    className={cn(
+                      "flex items-start gap-3 px-4 py-3 transition-colors hover:bg-hover",
+                      i > 0 && "border-t border-line",
+                      n.unread && "bg-[rgba(8,174,170,0.03)]"
+                    )}
                   >
-                    <div
-                      className="size-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                      style={{ background: cfg.bg }}
-                    >
+                    <div className={cn("size-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5", cfg.bgCls)}>
                       <span
-                        className="material-symbols-rounded"
-                        style={{ fontSize: 14, color: cfg.color, fontFamily: "Material Symbols Rounded Fill" }}
+                        className={cn("material-symbols-rounded text-[14px]", cfg.textCls)}
+                        style={{ fontFamily: "Material Symbols Rounded Fill" }}
                       >
                         {n.icon || cfg.icon}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       {n.title && (
-                        <div className="text-[12.5px] font-semibold leading-snug" style={{ color: "var(--ink-strong)" }}>
+                        <div className="text-[12.5px] font-semibold leading-snug text-ink-strong">
                           {n.title}
                         </div>
                       )}
-                      <div
-                        className="text-[12.5px] leading-snug"
-                        style={{ color: n.title ? "var(--ink-mid)" : "var(--ink-strong)" }}
-                      >
+                      <div className={cn("text-[12.5px] leading-snug", n.title ? "text-ink-mid" : "text-ink-strong")}>
                         {n.body}
                       </div>
-                      <div className="text-[11px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+                      <div className="text-[11px] mt-0.5 text-ink-dim">
                         {timeAgo(n.time)}
                       </div>
                     </div>
                     {n.unread && (
-                      <div className="size-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--teal)" }} />
+                      <div className="size-1.5 rounded-full mt-1.5 shrink-0 bg-teal" />
                     )}
                   </Link>
                 );
@@ -361,11 +318,10 @@ function NotifBell() {
           <Link
             href="/notifications"
             onClick={() => setOpen(false)}
-            className="flex items-center justify-center gap-1.5 py-3 text-[12.5px] font-semibold transition-colors hover:bg-[var(--hover)]"
-            style={{ borderTop: "1px solid var(--line)", color: "var(--teal)" }}
+            className="flex items-center justify-center gap-1.5 py-3 text-[12.5px] font-semibold transition-colors hover:bg-hover border-t border-line text-teal"
           >
             See all notifications
-            <span className="material-symbols-rounded" style={{ fontSize: 15 }}>arrow_forward</span>
+            <span className="material-symbols-rounded text-[15px]">arrow_forward</span>
           </Link>
         </div>,
         document.body
@@ -382,15 +338,14 @@ function ThemeToggle() {
   const isDark = theme === "dark";
 
   if (!mounted) {
-    return <span className="inline-block p-1.5 rounded-lg" style={{ width: 32, height: 32 }} />;
+    return <span className="inline-block p-1.5 rounded-lg w-8 h-8" />;
   }
 
   return (
     <button
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="tap-target p-1.5 rounded-lg transition-colors hover:bg-[var(--hover)] flex items-center justify-center"
-      style={{ color: "var(--ink-mid)" }}
+      className="tap-target p-1.5 rounded-lg transition-colors hover:bg-hover flex items-center justify-center text-ink-mid"
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       <Icon name={isDark ? "dark_mode" : "light_mode"} size={20} />
