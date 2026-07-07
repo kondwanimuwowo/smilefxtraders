@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Input, Field, Button } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { loginAction, demoLoginAction } from "../actions";
 
 // Friendly copy for the ?error= codes /auth/callback redirects here with —
@@ -22,19 +23,13 @@ function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onC
       type="button"
       disabled={loading}
       onClick={onClick}
-      className="flex items-center justify-center gap-3 w-full rounded-full font-semibold transition-all active:scale-[0.98]"
-      style={{
-        height: 46,
-        fontSize: 14.5,
-        background: "var(--panel-2)",
-        border: "1px solid var(--line)",
-        color: "var(--ink-strong)",
-        cursor: loading ? "not-allowed" : "pointer",
-        opacity: loading ? 0.6 : 1,
-      }}
+      className={cn(
+        "flex items-center justify-center gap-3 w-full rounded-full font-semibold transition-all active:scale-[0.98] h-[46px] text-[14.5px] bg-panel-2 border border-line text-ink-strong",
+        loading ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100"
+      )}
     >
       {loading ? (
-        <span className="material-symbols-rounded text-[18px] animate-spin" style={{ color: "var(--ink-dim)" }}>progress_activity</span>
+        <span className="material-symbols-rounded text-[18px] animate-spin text-ink-dim">progress_activity</span>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={icon} alt="" width={18} height={18} />
@@ -107,17 +102,11 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
       {/* Eyebrow */}
-      <div
-        className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2"
-        style={{ color: "var(--teal)" }}
-      >
+      <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2 text-teal">
         Welcome back
       </div>
 
-      <h1
-        className="font-display font-semibold mb-6"
-        style={{ fontSize: 26, color: "var(--ink-strong)", letterSpacing: "-0.01em" }}
-      >
+      <h1 className="font-display font-semibold mb-6 text-[26px] tracking-[-0.01em] text-ink-strong">
         Sign in to your desk
       </h1>
 
@@ -128,9 +117,9 @@ export function LoginForm() {
 
       {/* Divider */}
       <div className="flex items-center gap-3 my-5">
-        <div className="flex-1 h-px" style={{ background: "var(--line)" }} />
-        <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>or</span>
-        <div className="flex-1 h-px" style={{ background: "var(--line)" }} />
+        <div className="flex-1 h-px bg-line" />
+        <span className="text-[12px] text-ink-dim">or</span>
+        <div className="flex-1 h-px bg-line" />
       </div>
 
       {/* Fields */}
@@ -145,18 +134,18 @@ export function LoginForm() {
 
       {/* Remember + forgot */}
       <div className="flex items-center justify-between mb-5">
-        <label className="flex items-center gap-2 text-[13px] cursor-pointer" style={{ color: "var(--ink-mid)" }}>
-          <input type="checkbox" name="remember" defaultChecked style={{ accentColor: "var(--teal)" }} />
+        <label className="flex items-center gap-2 text-[13px] cursor-pointer text-ink-mid">
+          <input type="checkbox" name="remember" defaultChecked className="accent-teal" />
           Remember me
         </label>
-        <Link href="/forgot-password" className="text-[13px] font-medium hover:underline" style={{ color: "var(--teal)" }}>
+        <Link href="/forgot-password" className="text-[13px] font-medium hover:underline text-teal">
           Forgot password?
         </Link>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mb-4 rounded-xl px-4 py-3 text-[13px]" style={{ background: "rgba(234,82,61,0.10)", color: "var(--coral-bright)", border: "1px solid rgba(234,82,61,0.2)" }}>
+        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-bright border border-[rgba(234,82,61,0.2)]">
           {error}
         </div>
       )}
@@ -167,9 +156,9 @@ export function LoginForm() {
 
       {/* Divider */}
       <div className="flex items-center gap-3 my-5">
-        <div className="flex-1 h-px" style={{ background: "var(--line)" }} />
-        <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>or</span>
-        <div className="flex-1 h-px" style={{ background: "var(--line)" }} />
+        <div className="flex-1 h-px bg-line" />
+        <span className="text-[12px] text-ink-dim">or</span>
+        <div className="flex-1 h-px bg-line" />
       </div>
 
       <Button
@@ -180,14 +169,14 @@ export function LoginForm() {
         loading={isPending && isDemo}
         icon="bolt"
         onClick={handleDemo}
-        style={{ borderColor: "var(--line)", color: "var(--ink-mid)" }}
+        className="border-line text-ink-mid"
       >
         Continue as demo trader
       </Button>
 
-      <p className="text-center text-[13.5px] mt-6" style={{ color: "var(--ink-mid)" }}>
+      <p className="text-center text-[13.5px] mt-6 text-ink-mid">
         New here?{" "}
-        <Link href="/signup" className="font-semibold hover:underline" style={{ color: "var(--teal)" }}>
+        <Link href="/signup" className="font-semibold hover:underline text-teal">
           Create an account
         </Link>
       </p>
