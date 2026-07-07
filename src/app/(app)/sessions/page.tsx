@@ -115,7 +115,7 @@ export default function SessionsPage() {
           Key characteristics and pairs for each global session.
         </p>
 
-        <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+        <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
           {SESSION_GUIDE.map((s) => (
             <div key={s.name} className={cn("rounded-2xl p-4 border", s.bgCls, s.borderCls)}>
               {/* Session name + time */}
@@ -160,7 +160,7 @@ export default function SessionsPage() {
           High-probability windows when institutional order flow is strongest. All times GMT+2.
         </p>
 
-        <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
+        <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
           {KILLZONES.map((k) => (
             <div key={k.name} className="rounded-2xl p-4 flex gap-3 bg-panel border border-line">
               {/* Color accent bar */}
