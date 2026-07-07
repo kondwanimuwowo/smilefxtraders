@@ -149,12 +149,12 @@ export function MarketingNav() {
             {/* CTA */}
             <div className="hidden lg:flex items-center gap-2">
               {authed ? (
-                <Button href="/dashboard" size="lg" iconRight="arrow_forward">
+                <Button href="/dashboard" hardNav size="lg" iconRight="arrow_forward">
                   Go to Dashboard
                 </Button>
               ) : (
                 <>
-                  <Link
+                  <a
                     href="/login"
                     className={cn(
                       "text-sm font-semibold px-3 py-2 rounded-full no-underline transition-colors duration-200",
@@ -162,8 +162,8 @@ export function MarketingNav() {
                     )}
                   >
                     Log in
-                  </Link>
-                  <Button href="/signup" size="lg" iconRight="arrow_forward">
+                  </a>
+                  <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">
                     Start free
                   </Button>
                 </>
@@ -233,16 +233,17 @@ export function MarketingNav() {
           }}
         >
           {authed ? (
-            <Button href="/dashboard" size="lg" fullWidth onClick={() => setMobileOpen(false)} iconRight="arrow_forward">
+            <Button href="/dashboard" hardNav size="lg" fullWidth onClick={() => setMobileOpen(false)} iconRight="arrow_forward">
               Go to Dashboard
             </Button>
           ) : (
             <>
-              <Button href="/signup" size="lg" fullWidth onClick={() => setMobileOpen(false)}>
+              <Button href="/signup" hardNav size="lg" fullWidth onClick={() => setMobileOpen(false)}>
                 Start free
               </Button>
               <Button
                 href="/login"
+                hardNav
                 variant="ghost"
                 size="lg"
                 fullWidth

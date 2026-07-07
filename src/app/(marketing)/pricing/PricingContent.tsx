@@ -114,7 +114,7 @@ export function PricingContent({ prices }: Props) {
             <h2 className="text-[clamp(26px,3.6vw,38px)]">Start free, upgrade when it pays off</h2>
             <p className="lead mt-3">No card required to begin. Build the habit first.</p>
             <div className="mt-6">
-              <Button href="/signup" size="lg" iconRight="arrow_forward">Create your free account</Button>
+              <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Create your free account</Button>
             </div>
           </div>
         </div>

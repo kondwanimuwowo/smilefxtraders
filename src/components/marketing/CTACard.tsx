@@ -5,6 +5,7 @@ interface CTACardProps {
   sub: string;
   primaryLabel: string;
   primaryHref: string;
+  primaryHardNav?: boolean;
   secondaryLabel?: string;
   secondaryHref?: string;
   secondaryStyle?: React.CSSProperties;
@@ -15,6 +16,7 @@ export function CTACard({
   sub,
   primaryLabel,
   primaryHref,
+  primaryHardNav = false,
   secondaryLabel,
   secondaryHref,
   secondaryStyle,
@@ -34,7 +36,7 @@ export function CTACard({
         </h2>
         <p className="text-[15px] text-white/88 mt-4">{sub}</p>
         <div className="flex gap-3.5 justify-center mt-7 flex-wrap">
-          <Button href={primaryHref} size="lg" iconRight="arrow_forward">
+          <Button href={primaryHref} hardNav={primaryHardNav} size="lg" iconRight="arrow_forward">
             {primaryLabel}
           </Button>
           {secondaryLabel && secondaryHref && (

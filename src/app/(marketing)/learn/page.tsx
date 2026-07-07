@@ -164,7 +164,7 @@ export default function LearnPage() {
             <h2 className="text-[clamp(28px,4vw,40px)]">Start at Level 1 today</h2>
             <p className="lead mt-3.5">Foundations is free on the Starter plan. Climb at your own pace.</p>
             <div className="flex gap-3.5 justify-center mt-[26px] flex-wrap">
-              <Button href="/signup" size="lg" iconRight="arrow_forward">Begin learning</Button>
+              <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Begin learning</Button>
               <Button href="/pricing" size="lg" variant="ghost">Compare plans</Button>
             </div>
           </div>

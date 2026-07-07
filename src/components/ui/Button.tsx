@@ -16,6 +16,16 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode;
   href?: string;
   style?: CSSProperties;
+  // Renders a plain <a> instead of next/link's <Link>. Needed for any link
+  // that crosses from the marketing apex to the app subdomain (login,
+  // signup, dashboard): Link treats a relative href as an internal route
+  // and does a client-side RSC fetch to transition, but the proxy's
+  // cross-host redirect for those paths then gets blocked by the browser's
+  // CORS policy (a cross-origin redirect can't carry Next's RSC request
+  // headers). A plain <a> always triggers a normal top-level browser
+  // navigation, which follows cross-origin redirects with no CORS
+  // involved at all.
+  hardNav?: boolean;
 }
 
 const BASE =
@@ -49,6 +59,7 @@ export function Button({
   children,
   style,
   href,
+  hardNav = false,
   ...props
 }: ButtonProps) {
   const { cls: sizeCls, iconSize } = SIZES[size];
@@ -63,6 +74,13 @@ export function Button({
   );
 
   if (href) {
+    if (hardNav) {
+      return (
+        <a href={href} className={className} style={style}>
+          {content}
+        </a>
+      );
+    }
     return (
       <Link href={href} className={className} style={style}>
         {content}

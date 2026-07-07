@@ -131,7 +131,7 @@ export default function OurCommunityPage() {
             <h2 className="text-[clamp(28px,4vw,40px)]">Pull up a seat at the desk</h2>
             <p className="lead mt-3.5">The Starter plan is free. Introduce yourself in the feed and start your streak today.</p>
             <div className="flex gap-3.5 justify-center mt-[26px] flex-wrap">
-              <Button href="/signup" size="lg" iconRight="arrow_forward">Join the community</Button>
+              <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Join the community</Button>
               <Button href="/about" size="lg" variant="ghost">Meet Kondwani</Button>
             </div>
           </div>

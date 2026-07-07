@@ -395,6 +395,7 @@ export default function FeaturesPage() {
             sub="Free to start. No credit card. Upgrade when you're ready for live alerts and AI review."
             primaryLabel="Create your free account"
             primaryHref="/signup"
+            primaryHardNav
             secondaryLabel="See pricing"
             secondaryHref="/pricing"
           />

@@ -130,6 +130,7 @@ export default function AboutPage() {
             sub="Join free and see what a disciplined desk feels like."
             primaryLabel="Start free"
             primaryHref="/signup"
+            primaryHardNav
             secondaryLabel="See the community"
             secondaryHref="/our-community"
             secondaryStyle={{ color: "var(--gold)", borderColor: "var(--gold)" }}

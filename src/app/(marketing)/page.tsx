@@ -39,7 +39,7 @@ export default async function HomePage() {
                 A professional trading desk for SMC and Supply &amp; Demand traders. Journal your edge, validate every setup, and follow live calls from Kondwani.
               </p>
               <div className="reveal flex gap-3.5 mt-8 flex-wrap" data-delay="180">
-                <Button href="/signup" size="lg" iconRight="arrow_forward">Start for free</Button>
+                <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Start for free</Button>
               </div>
             </div>
 
@@ -104,7 +104,7 @@ export default async function HomePage() {
                 <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> Discipline score that holds you accountable</li>
                 <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> AI trade review graded against your rules</li>
               </ul>
-              <Button href="/signup" size="lg" iconRight="arrow_forward">Open the journal</Button>
+              <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Open the journal</Button>
             </div>
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
@@ -186,7 +186,7 @@ export default async function HomePage() {
               <div className="eyebrow">Stay focused</div>
               <h3>Tune out the noise. Trade your plan.</h3>
               <p className="lead">The market throws a hundred pairs and a thousand opinions at you every day. Smile FX keeps you anchored to the setups that fit your edge, and nothing else.</p>
-              <Button href="/signup" size="lg" iconRight="arrow_forward">Start focused</Button>
+              <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Start focused</Button>
             </div>
             <div className="feature-visual reveal" data-delay="120">
               <div className="fx-wrap">
@@ -276,6 +276,7 @@ export default async function HomePage() {
             sub="The Starter plan is free, forever. No credit card required."
             primaryLabel="Create your free account"
             primaryHref="/signup"
+            primaryHardNav
             secondaryLabel="See pricing"
             secondaryHref="/pricing"
           />
