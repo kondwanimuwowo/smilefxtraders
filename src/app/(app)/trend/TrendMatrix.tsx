@@ -92,9 +92,7 @@ function BiasCell({ bias, onClick, readonly }: { bias: Bias; onClick: () => void
       disabled={readonly}
       className={cn("flex items-center justify-center rounded-xl transition-all w-14 h-11 shrink-0", cfg.bgCls, readonly ? "cursor-default" : "cursor-pointer")}
     >
-      <span className={cn("material-symbols-rounded ic-fill text-[20px]", cfg.textCls)}>
-        {cfg.icon}
-      </span>
+      <Icon name={cfg.icon} size={20} className={cfg.textCls} />
     </button>
   );
 }
@@ -193,9 +191,7 @@ function SummaryRow({ matrix, pairs }: { matrix: Matrix; pairs: string[] }) {
         return (
           <td key={tf} className="px-2 py-3 text-center">
             <div className="flex flex-col items-center gap-0.5">
-              <span className={cn("material-symbols-rounded ic-fill text-[16px]", cfg.textCls)}>
-                {cfg.icon}
-              </span>
+              <Icon name={cfg.icon} size={16} className={cfg.textCls} />
               <span className="text-[10px] text-ink-dim">
                 {counts.bullish}↑ {counts.bearish}↓
               </span>
@@ -319,9 +315,7 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
           <div className="hidden sm:flex items-center gap-3 text-[12px] text-ink-dim">
             {(["bullish", "bearish", "ranging"] as Bias[]).map((b) => (
               <span key={b} className="flex items-center gap-1.5">
-                <span className={cn("material-symbols-rounded ic-fill text-[14px]", BIAS_CONFIG[b].textCls)}>
-                  {BIAS_CONFIG[b].icon}
-                </span>
+                <Icon name={BIAS_CONFIG[b].icon} size={14} className={BIAS_CONFIG[b].textCls} />
                 {b.charAt(0).toUpperCase() + b.slice(1)}
               </span>
             ))}
@@ -362,7 +356,7 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
                 key={p}
                 className={cn("flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold", cfg.bgCls, cfg.textCls)}
               >
-                <span className="material-symbols-rounded ic-fill text-[13px]">{cfg.icon}</span>
+                <Icon name={cfg.icon} size={13} />
                 {p}
               </span>
             );

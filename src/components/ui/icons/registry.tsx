@@ -36,6 +36,7 @@ import {
   ChevronUpIcon,
   ClipboardDocumentCheckIcon,
   ClockIcon,
+  CloudArrowUpIcon,
   Cog6ToothIcon,
   CpuChipIcon,
   CreditCardIcon,
@@ -156,6 +157,7 @@ export const ICON_REGISTRY: Record<string, IconComponent> = {
   progress_activity: ArrowPathIcon,
   currency_exchange: ArrowsRightLeftIcon,
   upload_file: ArrowUpTrayIcon,
+  publish: CloudArrowUpIcon,
 
   // Status / feedback
   check: CheckIcon,
