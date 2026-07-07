@@ -22,15 +22,15 @@ export default async function LessonEditorPage({
   return (
     <div className="view">
       <div className="mb-6 flex items-center gap-2 flex-wrap text-[13px]">
-        <Link href="/admin/academy" className="hover:opacity-70 transition-opacity" style={{ color: "var(--ink-dim)" }}>
+        <Link href="/admin/academy" className="hover:opacity-70 transition-opacity text-ink-dim">
           Course Builder
         </Link>
-        <span style={{ color: "var(--line)" }}>›</span>
-        <Link href={`/admin/academy/courses/${id}`} className="hover:opacity-70 transition-opacity" style={{ color: "var(--ink-dim)" }}>
+        <span className="text-line">›</span>
+        <Link href={`/admin/academy/courses/${id}`} className="hover:opacity-70 transition-opacity text-ink-dim">
           {course.title}
         </Link>
-        <span style={{ color: "var(--line)" }}>›</span>
-        <span style={{ color: "var(--ink-strong)" }}>{lesson.title}</span>
+        <span className="text-line">›</span>
+        <span className="text-ink-strong">{lesson.title}</span>
       </div>
 
       <LessonEditorClient courseId={id} lesson={lesson} />
