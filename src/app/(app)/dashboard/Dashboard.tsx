@@ -545,9 +545,7 @@ function SessionCard() {
         {/* Header row */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-rounded ic-fill text-[14px] text-ink-dim">
-              schedule
-            </span>
+            <Icon name="schedule" size={14} className="text-ink-dim" />
             <span className="text-[12px] font-semibold text-ink-strong font-display">
               Sessions
             </span>
@@ -604,9 +602,7 @@ function SessionCard() {
         <div className="flex items-center justify-between gap-2">
           {closed ? (
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-rounded text-[13px] text-ink-dim">
-                arrow_forward
-              </span>
+              <Icon name="arrow_forward" size={13} className="text-ink-dim" />
               <span className="text-[12px] text-ink-dim">
                 Reopens in{" "}
                 <span className="font-semibold tabular-nums text-ink-strong">
@@ -616,9 +612,7 @@ function SessionCard() {
             </div>
           ) : next ? (
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-rounded text-[13px] text-ink-dim">
-                arrow_forward
-              </span>
+              <Icon name="arrow_forward" size={13} className="text-ink-dim" />
               <span className="text-xs">{next.flag}</span>
               <span className="text-[12px] text-ink-dim">
                 {next.name} in{" "}
