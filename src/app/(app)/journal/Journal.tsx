@@ -8,6 +8,7 @@ import { useTrades, useDeleteTrade } from "@/lib/hooks/useTrades";
 import {
   Button, DirPill, Chip, StatTile, Stars, Icon, EmptyState, Panel, Sparkline,
 } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { LogTradeModal } from "./LogTradeModal";
 import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 
@@ -16,10 +17,15 @@ import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 const FILTERS = ["All", "Wins", "Losses", "Open"] as const;
 type Filter   = typeof FILTERS[number];
 
-const SESSION_COLORS: Record<string, string> = {
-  London:     "var(--teal)",
-  "New York": "var(--coral)",
-  Asia:       "var(--gold)",
+const SESSION_BG_CLS: Record<string, string> = {
+  London:     "bg-teal",
+  "New York": "bg-coral",
+  Asia:       "bg-gold",
+};
+const SESSION_TEXT_CLS: Record<string, string> = {
+  London:     "text-teal",
+  "New York": "text-coral",
+  Asia:       "text-gold",
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -29,9 +35,11 @@ function pnlLabel(t: Trade) {
   if (t.pnlR > 0)  return `+${t.pnlR.toFixed(1)}R`;
   return `${t.pnlR.toFixed(1)}R`;
 }
-function pnlColor(t: Trade) {
-  if (t.result === "open") return "var(--gold)";
-  return t.pnlR >= 0 ? "var(--teal-bright)" : "var(--coral-bright)";
+function pnlCls(t: Trade): { textCls: string; bgCls: string; shadowCls: string } {
+  if (t.result === "open") return { textCls: "text-gold", bgCls: "bg-gold", shadowCls: "shadow-[0_0_4px_var(--gold)]" };
+  return t.pnlR >= 0
+    ? { textCls: "text-teal-bright", bgCls: "bg-teal-bright", shadowCls: "shadow-[0_0_4px_var(--teal-bright)]" }
+    : { textCls: "text-coral-bright", bgCls: "bg-coral-bright", shadowCls: "shadow-[0_0_4px_var(--coral-bright)]" };
 }
 
 function currentStreak(trades: Trade[]) {
@@ -111,8 +119,8 @@ function SessionBar({ session, count, max }: { session: string; count: number; m
       <span className="text-[11.5px] font-medium text-ink-mid w-[72px]">{session}</span>
       <div className="flex-1 relative h-1.5 rounded-full overflow-hidden bg-track">
         <div
-          className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
-          style={{ width: `${pct}%`, background: SESSION_COLORS[session] ?? "var(--teal)" }}
+          className={cn("absolute inset-y-0 left-0 rounded-full transition-all duration-700", SESSION_BG_CLS[session] ?? "bg-teal")}
+          style={{ width: `${pct}%` }}
         />
       </div>
       <span className="text-[11px] tabular-nums font-semibold text-ink-dim w-4 text-right">
@@ -300,7 +308,7 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
         <Panel>
           <div className="px-4 pt-4 pb-4">
             <div className="flex items-center gap-2 mb-3">
-              <Icon name="warning" size={15} fill style={{ color: "var(--coral)" }} />
+              <Icon name="warning" size={15} fill className="text-coral" />
               <span className="font-display font-semibold text-[14px] text-ink-strong">
                 Recurring leaks
               </span>
@@ -334,11 +342,7 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
       <td className="px-4 py-3 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <span
-            className="shrink-0 rounded-full w-1.5 h-1.5"
-            style={{
-              background: pnlColor(trade),
-              boxShadow: trade.result !== "open" ? `0 0 4px ${pnlColor(trade)}` : "none",
-            }}
+            className={cn("shrink-0 rounded-full w-1.5 h-1.5", pnlCls(trade).bgCls, trade.result !== "open" && pnlCls(trade).shadowCls)}
           />
           <div className="text-[12.5px] font-medium tabular-nums text-ink-dim">
             {trade.date}
@@ -352,7 +356,7 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
           </span>
           <DirPill dir={trade.dir} size="sm" />
           {trade.fromAlert && (
-            <Icon name="notifications_active" size={13} fill style={{ color: "var(--gold)", flexShrink: 0 }} />
+            <Icon name="notifications_active" size={13} fill className="text-gold shrink-0" />
           )}
         </div>
       </td>
@@ -363,7 +367,7 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
       </td>
       <td className="px-4 py-3 hidden xl:table-cell">
         {trade.session && (
-          <span className="text-[11.5px] font-medium" style={{ color: SESSION_COLORS[trade.session] ?? "var(--ink-dim)" }}>
+          <span className={cn("text-[11.5px] font-medium", SESSION_TEXT_CLS[trade.session] ?? "text-ink-dim")}>
             {trade.session}
           </span>
         )}
@@ -374,10 +378,7 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
         </span>
       </td>
       <td className="px-4 py-3 text-right">
-        <span
-          className="font-display font-bold tabular-nums text-[14px] tracking-[-0.01em]"
-          style={{ color: pnlColor(trade) }}
-        >
+        <span className={cn("font-display font-bold tabular-nums text-[14px] tracking-[-0.01em]", pnlCls(trade).textCls)}>
           {pnlLabel(trade)}
         </span>
       </td>
@@ -523,7 +524,7 @@ export function Journal() {
                   name={streak.type === "win" ? "local_fire_department" : "trending_down"}
                   size={12}
                   fill
-                  style={{ color: "inherit" }}
+                  className="text-inherit"
                 />
                 {streak.n}{streak.type === "win" ? "W" : "L"} streak
               </span>
@@ -618,7 +619,7 @@ export function Journal() {
 
             {/* Search */}
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl flex-1 min-w-0 bg-panel-2 border border-line">
-              <Icon name="search" size={15} style={{ color: "var(--ink-dim)", flexShrink: 0 }} />
+              <Icon name="search" size={15} className="text-ink-dim shrink-0" />
               <input
                 type="text"
                 value={search}
