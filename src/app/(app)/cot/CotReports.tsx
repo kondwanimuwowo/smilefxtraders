@@ -4,25 +4,26 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Panel, PanelHead, Sparkline, Skeleton, Icon } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import type { CotEntry, CotSignal } from "@/app/api/cot/route";
 
 // ── Signal config ─────────────────────────────────────────────────────────────
 
 interface SignalCfg {
-  label:     string;
+  label:      string;
   shortLabel: string;
-  color:     string;
-  bg:        string;
-  icon:      string;
+  textCls:    string;
+  bgCls:      string;
+  icon:       string;
 }
 
 const SIGNAL_CFG: Record<CotSignal, SignalCfg> = {
-  strong_bull: { label: "Strong Bullish Setup",  shortLabel: "S.Bull",  color: "var(--teal-bright)",  bg: "rgba(48,232,223,0.12)",  icon: "trending_up"   },
-  bull:        { label: "Bullish Bias",           shortLabel: "Bull",    color: "var(--teal)",         bg: "rgba(8,174,170,0.10)",   icon: "arrow_upward"  },
-  neutral:     { label: "Neutral / Mixed",        shortLabel: "Neutral", color: "var(--ink-dim)",      bg: "var(--panel-2)",         icon: "remove"        },
-  bear:        { label: "Bearish Bias",           shortLabel: "Bear",    color: "var(--coral)",        bg: "rgba(234,82,61,0.10)",   icon: "arrow_downward"},
-  strong_bear: { label: "Strong Bearish Setup",   shortLabel: "S.Bear",  color: "var(--coral-bright)", bg: "rgba(255,89,66,0.12)",   icon: "trending_down" },
+  strong_bull: { label: "Strong Bullish Setup",  shortLabel: "S.Bull",  textCls: "text-teal-bright",  bgCls: "bg-[rgba(48,232,223,0.12)]", icon: "trending_up"   },
+  bull:        { label: "Bullish Bias",           shortLabel: "Bull",    textCls: "text-teal",         bgCls: "bg-[rgba(8,174,170,0.10)]",  icon: "arrow_upward"  },
+  neutral:     { label: "Neutral / Mixed",        shortLabel: "Neutral", textCls: "text-ink-dim",      bgCls: "bg-panel-2",                 icon: "remove"        },
+  bear:        { label: "Bearish Bias",           shortLabel: "Bear",    textCls: "text-coral",        bgCls: "bg-[rgba(234,82,61,0.10)]",  icon: "arrow_downward"},
+  strong_bear: { label: "Strong Bearish Setup",   shortLabel: "S.Bear",  textCls: "text-coral-bright",  bgCls: "bg-[rgba(255,89,66,0.12)]", icon: "trending_down" },
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -48,22 +49,20 @@ function fmtDate(iso: string): string {
 
 // ── Position bar (centred, extends left or right from midpoint) ───────────────
 
-function PositionBar({ value, max, color }: { value: number; max: number; color: string }) {
+function PositionBar({ value, max, barCls }: { value: number; max: number; barCls: string }) {
   const pct     = Math.min(Math.abs(value) / (max || 1) * 100, 100);
   const negative = value < 0;
   return (
     <div className="relative h-1.5 rounded-full overflow-hidden bg-track">
       <div
-        className="absolute top-0 h-full rounded-full"
+        className={cn("absolute top-0 h-full rounded-full transition-[width] duration-700 ease-app", barCls)}
         style={{
           width: `${pct / 2}%`,
-          background: color,
           left:  negative ? undefined : "50%",
           right: negative ? "50%" : undefined,
-          transition: "width 700ms var(--ease-app)",
         }}
       />
-      <div className="absolute inset-y-0 w-px bg-line" style={{ left: "50%" }} />
+      <div className="absolute inset-y-0 left-1/2 w-px bg-line" />
     </div>
   );
 }
@@ -99,27 +98,28 @@ function DivergencePanel({ entry }: { entry: CotEntry }) {
     }
   }
 
+  const goldCls = { textCls: "text-gold", bgCls: "bg-[rgba(248,185,61,0.06)]", borderCls: "border-[rgba(248,185,61,0.2)]" };
   const configs = {
     aligned: {
-      color:  lsBull ? (flowMatchesStructure ? "var(--teal)" : "var(--gold)") : (flowMatchesStructure ? "var(--coral)" : "var(--gold)"),
-      bg:     lsBull ? (flowMatchesStructure ? "rgba(8,174,170,0.06)" : "rgba(248,185,61,0.06)") : (flowMatchesStructure ? "rgba(234,82,61,0.06)" : "rgba(248,185,61,0.06)"),
-      border: lsBull ? (flowMatchesStructure ? "rgba(8,174,170,0.2)" : "rgba(248,185,61,0.2)") : (flowMatchesStructure ? "rgba(234,82,61,0.2)" : "rgba(248,185,61,0.2)"),
+      ...(lsBull
+        ? (flowMatchesStructure
+            ? { textCls: "text-teal",  bgCls: "bg-[rgba(8,174,170,0.06)]", borderCls: "border-[rgba(8,174,170,0.2)]" }
+            : goldCls)
+        : (flowMatchesStructure
+            ? { textCls: "text-coral", bgCls: "bg-[rgba(234,82,61,0.06)]", borderCls: "border-[rgba(234,82,61,0.2)]" }
+            : goldCls)),
       icon:   flowMatchesStructure ? "bolt" : "trending_flat",
       title:  flowMatchesStructure ? "Groups Aligned: High Conviction" : "Weekly Flow vs Structure: Watch Carefully",
       body:   alignedBody(),
     },
     mixed: {
-      color:  "var(--gold)",
-      bg:     "rgba(248,185,61,0.06)",
-      border: "rgba(248,185,61,0.2)",
+      ...goldCls,
       icon:   "warning_amber",
       title:  "Mixed: Consolidation or Transition",
       body:   `Position change this week (${fmt(wowChange)}) is small, so the market may be consolidating. COT Index at ${cotIndex}. Wait for clearer directional conviction before placing higher-timeframe bias.`,
     },
     counter: {
-      color:  "var(--gold)",
-      bg:     "rgba(248,185,61,0.06)",
-      border: "rgba(248,185,61,0.2)",
+      ...goldCls,
       icon:   "sync_alt",
       title:  "Counter-Movement: Watch for Reversal",
       body:   `Large specs and commercials moving in opposite directions (LS: ${fmt(lsChange)}, C: ${fmt(cChange)}). COT Index at ${cotIndex}. Counter-divergence often precedes a structure shift. Stay patient and wait for CHoCH confirmation.`,
@@ -129,13 +129,10 @@ function DivergencePanel({ entry }: { entry: CotEntry }) {
   const cfg = configs[divergenceType];
 
   return (
-    <div
-      className="mx-5 mb-4 rounded-xl px-4 py-3 flex items-start gap-2.5"
-      style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}
-    >
-      <Icon name={cfg.icon} size={15} fill style={{ color: cfg.color, flexShrink: 0, marginTop: 1 }} />
+    <div className={cn("mx-5 mb-4 rounded-xl px-4 py-3 flex items-start gap-2.5 border", cfg.bgCls, cfg.borderCls)}>
+      <Icon name={cfg.icon} size={15} fill className={cn("shrink-0 mt-px", cfg.textCls)} />
       <div>
-        <div className="text-[12px] font-semibold mb-0.5" style={{ color: cfg.color }}>{cfg.title}</div>
+        <div className={cn("text-[12px] font-semibold mb-0.5", cfg.textCls)}>{cfg.title}</div>
         <p className="text-[12px] leading-relaxed text-ink-dim">{cfg.body}</p>
       </div>
     </div>
@@ -165,20 +162,20 @@ function HistoryTable({ history }: { history: CotEntry["history"] }) {
                 <td className="py-2 px-3 tabular-nums whitespace-nowrap text-ink-mid">
                   {fmtDate(w.date)}
                 </td>
-                <td className="py-2 px-3 tabular-nums font-medium" style={{ color: w.largeSpecNet >= 0 ? "var(--teal-bright)" : "var(--coral-bright)" }}>
+                <td className={cn("py-2 px-3 tabular-nums font-medium", w.largeSpecNet >= 0 ? "text-teal-bright" : "text-coral-bright")}>
                   {fmt(w.largeSpecNet)}
                   {prev && (
                     <Icon name={w.largeSpecNet > prev.largeSpecNet ? "arrow_upward" : "arrow_downward"}
-                      size={11} style={{ color: "inherit", marginLeft: 2, opacity: 0.7 }} />
+                      size={11} className="text-current ml-0.5 opacity-70" />
                   )}
                 </td>
-                <td className="py-2 px-3 tabular-nums font-medium" style={{ color: w.commercialNet >= 0 ? "var(--teal)" : "var(--coral)" }}>
+                <td className={cn("py-2 px-3 tabular-nums font-medium", w.commercialNet >= 0 ? "text-teal" : "text-coral")}>
                   {fmt(w.commercialNet)}
                 </td>
                 <td className="py-2 px-3 tabular-nums text-ink-dim">
                   {fmt(w.smallSpecNet)}
                 </td>
-                <td className="py-2 px-3 tabular-nums font-semibold" style={{ color: chg === null ? "var(--ink-dim)" : chg >= 0 ? "var(--teal-bright)" : "var(--coral-bright)" }}>
+                <td className={cn("py-2 px-3 tabular-nums font-semibold", chg === null ? "text-ink-dim" : chg >= 0 ? "text-teal-bright" : "text-coral-bright")}>
                   {chg === null ? "—" : fmt(chg)}
                 </td>
               </tr>
@@ -195,10 +192,7 @@ function HistoryTable({ history }: { history: CotEntry["history"] }) {
 function HistoryBadge({ weeks }: { weeks: number }) {
   const years = (weeks / 52).toFixed(0);
   return (
-    <span
-      className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded"
-      style={{ background: "rgba(8,174,170,0.08)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.18)" }}
-    >
+    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-[rgba(8,174,170,0.08)] text-teal border border-[rgba(8,174,170,0.18)]">
       <Icon name="history" size={11} />
       {weeks > 52 ? `${years}yr history` : `${weeks}wk`}
     </span>
@@ -215,7 +209,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
     return (
       <div className="rounded-2xl p-5 flex items-center gap-4 bg-panel border border-line">
         <div className="size-10 rounded-full flex items-center justify-center shrink-0 bg-panel-2">
-          <Icon name="hourglass_empty" size={18} style={{ color: "var(--ink-dim)" }} />
+          <Icon name="hourglass_empty" size={18} className="text-ink-dim" />
         </div>
         <div>
           <div className="font-display font-bold text-[15px] text-ink-strong">{entry.label}</div>
@@ -262,10 +256,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
             <span className="text-[11px] text-ink-dim">·</span>
             <span className="text-[13px] text-ink-mid">{entry.label}</span>
             {/* Signal badge */}
-            <span
-              className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
-              style={{ background: sig.bg, color: sig.color }}
-            >
+            <span className={cn("inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full", sig.bgCls, sig.textCls)}>
               <Icon name={sig.icon} size={12} />
               {sig.label}
             </span>
@@ -287,10 +278,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
         {/* WoW change + overview link */}
         <div className="flex flex-col items-end gap-1 shrink-0">
           <div className="text-right">
-            <div
-              className="font-display font-bold tabular-nums text-[18px]"
-              style={{ color: entry.wowChange >= 0 ? "var(--teal-bright)" : "var(--coral-bright)", letterSpacing: "-0.01em" }}
-            >
+            <div className={cn("font-display font-bold tabular-nums text-[18px] tracking-[-0.01em]", entry.wowChange >= 0 ? "text-teal-bright" : "text-coral-bright")}>
               {fmt(entry.wowChange)}
             </div>
             <div className="text-[11px] text-ink-dim">WoW change</div>
@@ -306,7 +294,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
       </div>
 
       {/* ── COT Index + Position bars + Sparkline ── */}
-      <div className="px-5 pb-4 grid gap-5" style={{ gridTemplateColumns: "auto 1fr auto" }}>
+      <div className="px-5 pb-4 grid gap-5 grid-cols-[auto_1fr_auto]">
 
         {/* COT Index — compact display with zone label + lookback */}
         <CotIndexDisplay
@@ -321,10 +309,10 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
         {/* Position breakdown */}
         <div className="flex flex-col justify-center gap-3.5">
           {[
-            { label: "Large Speculators", sub: "Smart Money: institutions", value: cur.largeSpecNet,  prev: prev.largeSpecNet,  color: cur.largeSpecNet  >= 0 ? "var(--teal)" : "var(--coral)" },
-            { label: "Commercials",       sub: "Hedgers: contrarian signal", value: cur.commercialNet, prev: prev.commercialNet, color: cur.commercialNet >= 0 ? "var(--teal)" : "var(--coral)" },
-            { label: "Small Speculators", sub: "Retail: fade at extremes",   value: cur.smallSpecNet,  prev: prev.smallSpecNet,  color: "var(--ink-dim)" },
-          ].map(({ label, sub, value, prev: p, color }) => {
+            { label: "Large Speculators", sub: "Smart Money: institutions", value: cur.largeSpecNet,  prev: prev.largeSpecNet,  colorCls: cur.largeSpecNet  >= 0 ? "text-teal" : "text-coral", barCls: cur.largeSpecNet  >= 0 ? "bg-teal" : "bg-coral" },
+            { label: "Commercials",       sub: "Hedgers: contrarian signal", value: cur.commercialNet, prev: prev.commercialNet, colorCls: cur.commercialNet >= 0 ? "text-teal" : "text-coral", barCls: cur.commercialNet >= 0 ? "bg-teal" : "bg-coral" },
+            { label: "Small Speculators", sub: "Retail: fade at extremes",   value: cur.smallSpecNet,  prev: prev.smallSpecNet,  colorCls: "text-ink-dim", barCls: "bg-ink-dim" },
+          ].map(({ label, sub, value, prev: p, colorCls, barCls }) => {
             const chg = value - p;
             return (
               <div key={label}>
@@ -334,15 +322,15 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
                     <div className="text-[10.5px] leading-tight text-ink-dim">{sub}</div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-semibold tabular-nums text-[13px]" style={{ color }}>
+                    <div className={cn("font-semibold tabular-nums text-[13px]", colorCls)}>
                       {fmt(value)}
                     </div>
-                    <div className="text-[10px] tabular-nums" style={{ color: chg >= 0 ? "var(--teal-bright)" : "var(--coral-bright)" }}>
+                    <div className={cn("text-[10px] tabular-nums", chg >= 0 ? "text-teal-bright" : "text-coral-bright")}>
                       {fmt(chg)} WoW
                     </div>
                   </div>
                 </div>
-                <PositionBar value={value} max={maxPos} color={color} />
+                <PositionBar value={value} max={maxPos} barCls={barCls} />
               </div>
             );
           })}
@@ -407,13 +395,12 @@ function SummaryStrip({ entries }: { entries: CotEntry[] }) {
         return (
           <div
             key={e.pair}
-            className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[12px] font-semibold"
-            style={{ background: sig.bg, color: sig.color, border: `1px solid ${sig.bg}` }}
+            className={cn("flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[12px] font-semibold border", sig.bgCls, sig.textCls, sig.bgCls.replace("bg-", "border-"))}
           >
             <Icon name={sig.icon} size={13} />
             <span className="text-ink-strong">{e.pair}</span>
             <span>{sig.shortLabel}</span>
-            <span className="tabular-nums text-[11px]" style={{ opacity: 0.75 }}>{e.cotIndex}</span>
+            <span className="tabular-nums text-[11px] opacity-75">{e.cotIndex}</span>
           </div>
         );
       })}
@@ -425,7 +412,7 @@ function SummaryStrip({ entries }: { entries: CotEntry[] }) {
 
 function LoadingSkeleton() {
   return (
-    <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(520px, 100%), 1fr))" }}>
+    <div className="grid gap-5 grid-cols-[repeat(auto-fill,minmax(min(520px,100%),1fr))]">
       {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="rounded-2xl p-5 flex flex-col gap-4 bg-panel border border-line">
           <div className="flex items-start justify-between">
@@ -501,7 +488,7 @@ export function CotReports() {
     return (
       <div className="view flex flex-col items-center justify-center min-h-[60vh]">
         <div className="rounded-3xl px-10 py-12 text-center max-w-md bg-panel border border-line">
-          <Icon name="lock" size={36} fill style={{ color: "var(--gold)", marginBottom: 16 }} />
+          <Icon name="lock" size={36} fill className="text-gold mb-4" />
           <h2 className="font-display font-bold text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">COT Reports</h2>
           <p className="text-[13.5px] leading-relaxed mb-6 text-ink-dim">
             CFTC Commitments of Traders data is available on the <strong className="text-ink-strong">Pro Trader</strong> and <strong className="text-ink-strong">Funded Track</strong> plans. Understand institutional positioning to align your bias with smart money.
@@ -534,19 +521,19 @@ export function CotReports() {
         <div className="flex items-center gap-2 shrink-0">
           {/* Status badge */}
           <div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-[12px]"
-            style={{
-              background: allLoaded ? "rgba(8,174,170,0.08)" : hasData ? "rgba(248,185,61,0.08)" : "var(--panel-2)",
-              border: `1px solid ${allLoaded ? "rgba(8,174,170,0.2)" : hasData ? "rgba(248,185,61,0.2)" : "var(--line)"}`,
-              color: allLoaded ? "var(--teal)" : hasData ? "var(--gold)" : "var(--ink-dim)",
-            }}
+            className={cn(
+              "flex items-center gap-2 px-3 py-1.5 rounded-xl text-[12px] border",
+              allLoaded ? "bg-[rgba(8,174,170,0.08)] border-[rgba(8,174,170,0.2)] text-teal"
+                : hasData ? "bg-[rgba(248,185,61,0.08)] border-[rgba(248,185,61,0.2)] text-gold"
+                  : "bg-panel-2 border-line text-ink-dim"
+            )}
           >
             <span
-              className="size-1.5 rounded-full"
-              style={{
-                background: allLoaded ? "var(--teal)" : hasData ? "var(--gold)" : "var(--ink-dim)",
-                animation: hasData ? "var(--animate-live)" : "none",
-              }}
+              className={cn(
+                "size-1.5 rounded-full",
+                allLoaded ? "bg-teal" : hasData ? "bg-gold" : "bg-ink-dim",
+                hasData && "animate-live"
+              )}
             />
             {allLoaded
               ? `${lastDate} · ${(totalHistory / 52).toFixed(0)}yr avg history`
@@ -563,7 +550,7 @@ export function CotReports() {
               disabled={retrying}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-all active:scale-95 disabled:opacity-60 bg-panel-2 border border-line text-ink-mid"
             >
-              <Icon name="refresh" size={14} style={{ animation: retrying ? "spin 0.7s linear infinite" : "none" }} />
+              <Icon name="refresh" size={14} className={retrying ? "animate-[spin_0.7s_linear_infinite]" : undefined} />
               {retrying ? "Refreshing…" : "Refresh"}
             </button>
           )}
@@ -572,7 +559,7 @@ export function CotReports() {
 
       {/* ── How to read COT (compact) ── */}
       <div className="mb-5 rounded-xl px-4 py-3 flex items-start gap-3 text-[12px] leading-relaxed bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.15)] text-ink-mid">
-        <Icon name="school" size={15} fill style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }} />
+        <Icon name="school" size={15} fill className="text-gold shrink-0 mt-px" />
         <span>
           <strong className="text-ink-strong">Signal</strong> is driven by the Large Spec net position: net long = bullish bias, net short = bearish bias, confirmed by weekly momentum direction.{" "}
           <strong className="text-ink-strong">COT Index (0–100)</strong> shows where that positioning sits within its own 52-week range. Think of it as a cycle gauge, not the direction itself. Near 100 = historically max long (watch for exhaustion). Near 0 = historically max short (watch for reversal).{" "}
@@ -591,12 +578,10 @@ export function CotReports() {
               key={p}
               type="button"
               onClick={() => setSelected(p)}
-              className="px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all active:scale-95"
-              style={
-                selected === p
-                  ? { background: "var(--teal)", color: "#fff" }
-                  : { background: "var(--panel-2)", color: "var(--ink-dim)", border: "1px solid var(--line)" }
-              }
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all active:scale-95",
+                selected === p ? "bg-teal text-white" : "bg-panel-2 text-ink-dim border border-line"
+              )}
             >
               {p}
             </button>
@@ -608,7 +593,7 @@ export function CotReports() {
       {loading ? (
         <LoadingSkeleton />
       ) : (
-        <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(520px, 100%), 1fr))" }}>
+        <div className="grid gap-5 grid-cols-[repeat(auto-fill,minmax(min(520px,100%),1fr))]">
           {visible.map((e) => (
             <CotCard key={e.pair} entry={e} onOpen={(p) => router.push(`/cot/${p}`)} />
           ))}
@@ -616,9 +601,9 @@ export function CotReports() {
       )}
 
       {/* ── Educational panel ── */}
-      <Panel style={{ marginTop: 24 }}>
+      <Panel className="mt-6">
         <PanelHead title="How to use COT data in SMC trading" icon="school" />
-        <div className="grid gap-4 text-[12.5px] leading-relaxed" style={{ gridTemplateColumns: "repeat(3, 1fr)", color: "var(--ink-mid)" }}>
+        <div className="grid gap-4 text-[12.5px] leading-relaxed grid-cols-3 text-ink-mid">
           <div>
             <div className="flex items-center gap-1.5 mb-2">
               <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">1</div>
@@ -641,7 +626,7 @@ export function CotReports() {
             COT alone does not give you an entry; it gives you a directional filter. Combine a bullish COT signal with a swept liquidity pool, a valid OB or FVG on HTF, and a killzone entry window. All three together = high-probability SMC setup.
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-[12.5px] leading-relaxed text-ink-mid">
           <div className="rounded-xl px-4 py-3 bg-[rgba(8,174,170,0.05)] border border-[rgba(8,174,170,0.15)]">
             <div className="font-semibold mb-1 text-teal">Extreme readings: reversal or continuation?</div>
             At COT Index &gt; 80, large specs are near their most bullish in a year. This can mean two things: price has already moved significantly (late to the party), OR the trend is strong and still has room (early in a cycle). Always check price structure: if price has NOT yet moved proportionally, COT is leading. If price has already run hard, the extreme may signal a top.
