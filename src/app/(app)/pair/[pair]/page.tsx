@@ -39,14 +39,16 @@ const PAIR_META: Record<string, PairMeta> = {
 
 // ── Signal config ─────────────────────────────────────────────────────────────
 
-interface SigCfg { label: string; color: string; bg: string; border: string; icon: string }
+interface SigCfg { label: string; textCls: string; bgCls: string; borderCls: string; icon: string; strokeColor: string }
 
+// strokeColor is a raw var(--x) string kept solely for the Ring/Sparkline SVG
+// stroke prop below (a component prop, not a className - can't be a Tailwind class).
 const SIGNAL_CFG: Record<CotSignal, SigCfg> = {
-  strong_bull: { label: "Strong Bullish Setup", color: "var(--teal-bright)",  bg: "rgba(48,232,223,0.10)",  border: "rgba(48,232,223,0.22)",  icon: "trending_up"    },
-  bull:        { label: "Bullish Bias",          color: "var(--teal)",         bg: "rgba(8,174,170,0.08)",   border: "rgba(8,174,170,0.20)",   icon: "arrow_upward"   },
-  neutral:     { label: "Neutral / Mixed",       color: "var(--gold)",         bg: "rgba(248,185,61,0.08)",  border: "rgba(248,185,61,0.20)",  icon: "remove"         },
-  bear:        { label: "Bearish Bias",          color: "var(--coral)",        bg: "rgba(234,82,61,0.08)",   border: "rgba(234,82,61,0.20)",   icon: "arrow_downward" },
-  strong_bear: { label: "Strong Bearish Setup",  color: "var(--coral-bright)", bg: "rgba(255,89,66,0.10)",   border: "rgba(255,89,66,0.22)",   icon: "trending_down"  },
+  strong_bull: { label: "Strong Bullish Setup", textCls: "text-teal-bright",  bgCls: "bg-[rgba(48,232,223,0.10)]", borderCls: "border-[rgba(48,232,223,0.22)]", icon: "trending_up",    strokeColor: "var(--teal-bright)"  },
+  bull:        { label: "Bullish Bias",          textCls: "text-teal",         bgCls: "bg-[rgba(8,174,170,0.08)]",  borderCls: "border-[rgba(8,174,170,0.20)]",  icon: "arrow_upward",   strokeColor: "var(--teal)"         },
+  neutral:     { label: "Neutral / Mixed",       textCls: "text-gold",         bgCls: "bg-[rgba(248,185,61,0.08)]", borderCls: "border-[rgba(248,185,61,0.20)]", icon: "remove",         strokeColor: "var(--gold)"         },
+  bear:        { label: "Bearish Bias",          textCls: "text-coral",        bgCls: "bg-[rgba(234,82,61,0.08)]",  borderCls: "border-[rgba(234,82,61,0.20)]",  icon: "arrow_downward", strokeColor: "var(--coral)"        },
+  strong_bear: { label: "Strong Bearish Setup",  textCls: "text-coral-bright", bgCls: "bg-[rgba(255,89,66,0.10)]",  borderCls: "border-[rgba(255,89,66,0.22)]",  icon: "trending_down",  strokeColor: "var(--coral-bright)" },
 };
 
 // ── Bias verdict ──────────────────────────────────────────────────────────────
@@ -54,17 +56,18 @@ const SIGNAL_CFG: Record<CotSignal, SigCfg> = {
 type VerdictTone = "confirmed_bull" | "lean_bull" | "mixed" | "lean_bear" | "confirmed_bear";
 
 interface Verdict {
-  tone:     VerdictTone;
-  label:    string;
-  desc:     string;
-  color:    string;
-  bg:       string;
-  border:   string;
-  icon:     string;
-  cotScore: number;
-  htfScore: number;
-  dxyScore: number;
-  total:    number;
+  tone:       VerdictTone;
+  label:      string;
+  desc:       string;
+  textCls:    string;
+  bgCls:      string;
+  borderCls:  string;
+  iconBgCls:  string;
+  icon:       string;
+  cotScore:   number;
+  htfScore:   number;
+  dxyScore:   number;
+  total:      number;
 }
 
 function sigToScore(s: CotSignal | null): number {
@@ -93,11 +96,11 @@ function computeVerdict(
   const dxy = usdBase ? rawDxy : -rawDxy;
   const total = cot + htf + dxy;
 
-  if (total >= 2)  return { tone: "confirmed_bull", label: "Confirmed Bullish", desc: "All three factors confirm bullish institutional bias. Trade longs with full confluence.", color: "var(--teal-bright)",  bg: "rgba(48,232,223,0.07)", border: "rgba(48,232,223,0.22)", icon: "trending_up",   cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  if (total === 1) return { tone: "lean_bull",       label: "Bullish Lean",      desc: "Two of three factors lean bullish. Good directional edge. Seek HTF structure confirmation.", color: "var(--teal)",         bg: "rgba(8,174,170,0.06)",  border: "rgba(8,174,170,0.18)",  icon: "arrow_upward",  cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  if (total === 0) return { tone: "mixed",           label: "No Clear Bias",     desc: "Factors are divided. No statistical edge from COT or trend alignment this week. Wait for clarity.", color: "var(--gold)",         bg: "rgba(248,185,61,0.06)", border: "rgba(248,185,61,0.18)", icon: "remove",        cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  if (total === -1)return { tone: "lean_bear",       label: "Bearish Lean",      desc: "Two of three factors lean bearish. Good directional edge. Wait for a structure shift on HTF.", color: "var(--coral)",        bg: "rgba(234,82,61,0.06)",  border: "rgba(234,82,61,0.18)",  icon: "arrow_downward",cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  return               { tone: "confirmed_bear",  label: "Confirmed Bearish", desc: "All three factors confirm bearish institutional bias. Trade shorts with full confluence.", color: "var(--coral-bright)", bg: "rgba(255,89,66,0.07)",  border: "rgba(255,89,66,0.22)",  icon: "trending_down", cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total >= 2)  return { tone: "confirmed_bull", label: "Confirmed Bullish", desc: "All three factors confirm bullish institutional bias. Trade longs with full confluence.", textCls: "text-teal-bright",  bgCls: "bg-[rgba(48,232,223,0.07)]", borderCls: "border-[rgba(48,232,223,0.22)]", iconBgCls: "bg-[rgba(48,232,223,0.22)]", icon: "trending_up",   cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total === 1) return { tone: "lean_bull",       label: "Bullish Lean",      desc: "Two of three factors lean bullish. Good directional edge. Seek HTF structure confirmation.", textCls: "text-teal",         bgCls: "bg-[rgba(8,174,170,0.06)]",  borderCls: "border-[rgba(8,174,170,0.18)]",  iconBgCls: "bg-[rgba(8,174,170,0.18)]",  icon: "arrow_upward",  cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total === 0) return { tone: "mixed",           label: "No Clear Bias",     desc: "Factors are divided. No statistical edge from COT or trend alignment this week. Wait for clarity.", textCls: "text-gold",         bgCls: "bg-[rgba(248,185,61,0.06)]", borderCls: "border-[rgba(248,185,61,0.18)]", iconBgCls: "bg-[rgba(248,185,61,0.18)]", icon: "remove",        cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total === -1)return { tone: "lean_bear",       label: "Bearish Lean",      desc: "Two of three factors lean bearish. Good directional edge. Wait for a structure shift on HTF.", textCls: "text-coral",        bgCls: "bg-[rgba(234,82,61,0.06)]",  borderCls: "border-[rgba(234,82,61,0.18)]",  iconBgCls: "bg-[rgba(234,82,61,0.18)]",  icon: "arrow_downward",cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  return               { tone: "confirmed_bear",  label: "Confirmed Bearish", desc: "All three factors confirm bearish institutional bias. Trade shorts with full confluence.", textCls: "text-coral-bright", bgCls: "bg-[rgba(255,89,66,0.07)]",  borderCls: "border-[rgba(255,89,66,0.22)]",  iconBgCls: "bg-[rgba(255,89,66,0.22)]",  icon: "trending_down", cotScore: cot, htfScore: htf, dxyScore: dxy, total };
 }
 
 // ── Bias cell ─────────────────────────────────────────────────────────────────
@@ -162,14 +165,13 @@ function FactorBadge({ label: factorLabel, score }: { label: string; score: numb
 
 // ── Impact dots ───────────────────────────────────────────────────────────────
 
-const IMPACT_COLOR: Record<number, string> = { 1: "var(--ink-dim)", 2: "var(--gold)", 3: "var(--coral)" };
+const IMPACT_CLS: Record<number, string> = { 1: "bg-ink-dim", 2: "bg-gold", 3: "bg-coral" };
 
 function ImpactDots({ level }: { level: 1 | 2 | 3 }) {
   return (
     <div className="flex items-center gap-0.5">
       {[1, 2, 3].map((i) => (
-        <div key={i} className="w-1.5 h-1.5 rounded-full"
-          style={{ background: i <= level ? IMPACT_COLOR[level] : "var(--track)" }} />
+        <div key={i} className={cn("w-1.5 h-1.5 rounded-full", i <= level ? IMPACT_CLS[level] : "bg-track")} />
       ))}
     </div>
   );
@@ -263,7 +265,8 @@ export default function PairOverviewPage() {
   const bearCount  = tfs.filter((b) => b === "bearish").length;
   const confBias   = bullCount > bearCount ? "bullish" : bearCount > bullCount ? "bearish" : "ranging";
   const confCount  = Math.max(bullCount, bearCount);
-  const confColor  = confBias === "bullish" ? "var(--teal)" : confBias === "bearish" ? "var(--coral)" : "var(--gold)";
+  const confTextCls = confBias === "bullish" ? "text-teal" : confBias === "bearish" ? "text-coral" : "text-gold";
+  const confBgCls    = confBias === "bullish" ? "bg-teal"   : confBias === "bearish" ? "bg-coral"   : "bg-gold";
 
   const cotSig = cotData ? SIGNAL_CFG[cotData.signal] : null;
 
@@ -318,16 +321,10 @@ export default function PairOverviewPage() {
         {/* Live price */}
         {priceTick ? (
           <div className="flex flex-col items-end shrink-0">
-            <span
-              className="font-display font-bold tabular-nums text-[24px]"
-              style={{ color: "var(--ink-strong)", letterSpacing: "-0.025em", fontFeatureSettings: '"tnum"' }}
-            >
+            <span className="font-display font-bold tabular-nums text-[24px] tracking-[-0.025em] text-ink-strong">
               {priceTick.price}
             </span>
-            <span
-              className="text-[12.5px] font-semibold tabular-nums flex items-center gap-1"
-              style={{ color: priceTick.chg >= 0 ? "var(--teal-bright)" : "var(--coral-bright)" }}
-            >
+            <span className={cn("text-[12.5px] font-semibold tabular-nums flex items-center gap-1", priceTick.chg >= 0 ? "text-teal-bright" : "text-coral-bright")}>
               <Icon name={priceTick.chg >= 0 ? "arrow_upward" : "arrow_downward"} size={12} />
               {Math.abs(priceTick.chg)}% today
             </span>
@@ -338,10 +335,7 @@ export default function PairOverviewPage() {
       </div>
 
       {/* ── Weekly Bias Card ── */}
-      <div
-        className="rounded-2xl px-6 py-5 mb-6"
-        style={{ background: verdict.bg, border: `2px solid ${verdict.border}` }}
-      >
+      <div className={cn("rounded-2xl px-6 py-5 mb-6 border-2", verdict.bgCls, verdict.borderCls)}>
         <div className="text-[10.5px] font-semibold uppercase tracking-widest mb-3 text-ink-dim">
           Weekly Bias · Three-Factor Confluence
         </div>
@@ -349,16 +343,10 @@ export default function PairOverviewPage() {
           {/* Verdict label */}
           <div>
             <div className="flex items-center gap-2.5 mb-2">
-              <div
-                className="flex items-center justify-center rounded-xl"
-                style={{ width: 36, height: 36, background: verdict.border, flexShrink: 0 }}
-              >
-                <Icon name={verdict.icon} size={20} fill style={{ color: verdict.color }} />
+              <div className={cn("flex items-center justify-center rounded-xl size-9 shrink-0", verdict.iconBgCls)}>
+                <Icon name={verdict.icon} size={20} fill className={verdict.textCls} />
               </div>
-              <span
-                className="font-display font-bold"
-                style={{ fontSize: 22, color: verdict.color, letterSpacing: "-0.02em" }}
-              >
+              <span className={cn("font-display font-bold text-[22px] tracking-[-0.02em]", verdict.textCls)}>
                 {verdict.label}
               </span>
             </div>
@@ -377,7 +365,7 @@ export default function PairOverviewPage() {
       </div>
 
       {/* ── 2-column content ── */}
-      <div className="grid gap-5" style={{ gridTemplateColumns: "minmax(0,1.6fr) minmax(0,1fr)" }}>
+      <div className="grid gap-5 grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
 
         {/* ═══ LEFT ═══ */}
         <div className="flex flex-col gap-5">
@@ -418,13 +406,10 @@ export default function PairOverviewPage() {
                   {/* Confluence score */}
                   <div className="ml-auto flex flex-col items-end gap-1">
                     <div className="text-[10.5px] text-ink-dim">Confluence</div>
-                    <div
-                      className="font-display font-bold tabular-nums"
-                      style={{ fontSize: 22, color: confColor, letterSpacing: "-0.02em" }}
-                    >
+                    <div className={cn("font-display font-bold tabular-nums text-[22px] tracking-[-0.02em]", confTextCls)}>
                       {confCount}<span className="text-[13px] text-ink-dim">/5</span>
                     </div>
-                    <div className="text-[11px] font-semibold capitalize" style={{ color: confColor }}>
+                    <div className={cn("text-[11px] font-semibold capitalize", confTextCls)}>
                       {confBias}
                     </div>
                   </div>
@@ -432,8 +417,8 @@ export default function PairOverviewPage() {
                 {/* Confluence bar */}
                 <div className="h-[5px] rounded-[3px] bg-track overflow-hidden">
                   <div
-                    className="h-full rounded-[3px]"
-                    style={{ width: `${(confCount / 5) * 100}%`, background: confColor, transition: "width 700ms var(--ease-app)" }}
+                    className={cn("h-full rounded-[3px] transition-[width] duration-700 ease-app", confBgCls)}
+                    style={{ width: `${(confCount / 5) * 100}%` }}
                   />
                 </div>
               </div>
@@ -475,11 +460,7 @@ export default function PairOverviewPage() {
                 {relevantEvents.map((ev, i) => (
                   <div
                     key={ev.id}
-                    className="flex items-center gap-3 px-5 py-3"
-                    style={{
-                      borderBottom: i < relevantEvents.length - 1 ? "1px solid var(--line)" : "none",
-                      background: ev.impact === 3 ? "rgba(234,82,61,0.025)" : "transparent",
-                    }}
+                    className={cn("flex items-center gap-3 px-5 py-3", i < relevantEvents.length - 1 && "border-b border-line", ev.impact === 3 && "bg-[rgba(234,82,61,0.025)]")}
                   >
                     <ImpactDots level={ev.impact} />
                     <div className="flex-1 min-w-0">
@@ -545,12 +526,9 @@ export default function PairOverviewPage() {
             ) : cotData && cotSig ? (
               <>
                 {/* Signal */}
-                <div
-                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 mb-4"
-                  style={{ background: cotSig.bg, border: `1px solid ${cotSig.border}` }}
-                >
-                  <Icon name={cotSig.icon} size={16} fill style={{ color: cotSig.color }} />
-                  <span className="font-semibold text-[13px]" style={{ color: cotSig.color }}>
+                <div className={cn("flex items-center gap-2.5 rounded-xl px-3 py-2.5 mb-4 border", cotSig.bgCls, cotSig.borderCls)}>
+                  <Icon name={cotSig.icon} size={16} fill className={cotSig.textCls} />
+                  <span className={cn("font-semibold text-[13px]", cotSig.textCls)}>
                     {cotSig.label}
                   </span>
                   {meta.usdBase && (
@@ -562,12 +540,9 @@ export default function PairOverviewPage() {
 
                 {/* Ring + stats */}
                 <div className="flex items-start gap-4 mb-4">
-                  <Ring value={cotData.cotIndex} size={60} stroke={6} color={cotSig.color}>
+                  <Ring value={cotData.cotIndex} size={60} stroke={6} color={cotSig.strokeColor}>
                     <div className="text-center">
-                      <div
-                        className="font-display font-bold tabular-nums leading-none"
-                        style={{ fontSize: 16, color: cotSig.color }}
-                      >
+                      <div className={cn("font-display font-bold tabular-nums leading-none text-[16px]", cotSig.textCls)}>
                         {cotData.cotIndex}
                       </div>
                       <div className="text-[9px] leading-none mt-0.5 text-ink-dim">/100</div>
@@ -576,10 +551,7 @@ export default function PairOverviewPage() {
                   <div className="flex-1">
                     <div className="text-[10.5px] mb-1.5 text-ink-dim">COT Index · 52-week range</div>
                     <div className="flex items-baseline gap-1.5 mb-1">
-                      <span
-                        className="font-display font-bold tabular-nums"
-                        style={{ fontSize: 20, color: cotData.wowChange >= 0 ? "var(--teal-bright)" : "var(--coral-bright)", letterSpacing: "-0.02em" }}
-                      >
+                      <span className={cn("font-display font-bold tabular-nums text-[20px] tracking-[-0.02em]", cotData.wowChange >= 0 ? "text-teal-bright" : "text-coral-bright")}>
                         {fmtNet(cotData.wowChange)}
                       </span>
                       <span className="text-[11px] text-ink-dim">WoW</span>
@@ -632,14 +604,11 @@ export default function PairOverviewPage() {
                 return (
                   <>
                     <div className="flex items-stretch gap-2 mb-3">
-                      <div
-                        className="flex items-center gap-2 rounded-xl px-3 py-2.5 flex-1"
-                        style={{ background: dxySig.bg, border: `1px solid ${dxySig.border}` }}
-                      >
-                        <Icon name={dxySig.icon} size={14} fill style={{ color: dxySig.color }} />
+                      <div className={cn("flex items-center gap-2 rounded-xl px-3 py-2.5 flex-1 border", dxySig.bgCls, dxySig.borderCls)}>
+                        <Icon name={dxySig.icon} size={14} fill className={dxySig.textCls} />
                         <div>
                           <div className="text-[10px] uppercase tracking-wide font-semibold text-ink-dim">DXY COT</div>
-                          <div className="text-[12.5px] font-semibold" style={{ color: dxySig.color }}>{dxySig.label}</div>
+                          <div className={cn("text-[12.5px] font-semibold", dxySig.textCls)}>{dxySig.label}</div>
                         </div>
                       </div>
                       <div
