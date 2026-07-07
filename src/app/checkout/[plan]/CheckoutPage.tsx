@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ZM_OPERATORS, detectZmOperator, type ZmOperator } from "@/lib/mobile-money";
 import { NetworkLogo } from "@/components/checkout/NetworkLogo";
+import { cn } from "@/lib/cn";
 
 // ── Plan config ───────────────────────────────────────────────────────────────
 
@@ -289,7 +290,7 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
 
           {/* Amount display */}
           <div className="flex items-center justify-center mb-4 py-3 rounded-xl bg-panel-2 border border-line">
-            <span className="font-display font-bold tabular-nums" style={{ fontSize: 32, color: plan.color, letterSpacing: "-0.03em" }}>
+            <span className="font-display font-bold tabular-nums text-[32px] tracking-[-0.03em]" style={{ color: plan.color }}>
               {symbol}{price.toLocaleString()}
             </span>
             <span className="text-[13px] ml-2 mt-1 text-ink-dim">/{cycle === "annual" ? "yr" : "mo"}</span>
@@ -351,8 +352,11 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
 
             <button
               type="submit"
-              className="w-full py-3.5 rounded-xl font-semibold text-[14px] transition-all active:scale-98"
-              style={{ background: plan.color, color: planId === "funded" ? "var(--navy-deep)" : "#fff" }}
+              className={cn(
+                "w-full py-3.5 rounded-xl font-semibold text-[14px] transition-all active:scale-98",
+                planId === "funded" ? "text-[var(--navy-deep)]" : "text-white"
+              )}
+              style={{ background: plan.color }}
             >
               Pay {symbol}{price.toLocaleString()} · Activate {plan.name}
             </button>
