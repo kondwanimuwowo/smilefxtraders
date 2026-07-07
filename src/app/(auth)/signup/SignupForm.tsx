@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Input, Field, Button } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { signupAction } from "../actions";
 
 function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onClick: () => void; icon: string; label: string }) {
@@ -12,19 +13,13 @@ function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onC
       type="button"
       disabled={loading}
       onClick={onClick}
-      className="flex items-center justify-center gap-3 w-full rounded-full font-semibold transition-all active:scale-[0.98]"
-      style={{
-        height: 46,
-        fontSize: 14.5,
-        background: "var(--panel-2)",
-        border: "1px solid var(--line)",
-        color: "var(--ink-strong)",
-        cursor: loading ? "not-allowed" : "pointer",
-        opacity: loading ? 0.6 : 1,
-      }}
+      className={cn(
+        "flex items-center justify-center gap-3 w-full rounded-full font-semibold transition-all active:scale-[0.98] h-[46px] text-[14.5px] bg-panel-2 border border-line text-ink-strong",
+        loading ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100"
+      )}
     >
       {loading ? (
-        <span className="material-symbols-rounded text-[18px] animate-spin" style={{ color: "var(--ink-dim)" }}>progress_activity</span>
+        <span className="material-symbols-rounded text-[18px] animate-spin text-ink-dim">progress_activity</span>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={icon} alt="" width={18} height={18} />
@@ -100,24 +95,21 @@ export function SignupForm() {
   if (pendingEmail) {
     return (
       <div className="flex flex-col items-center text-center py-6">
-        <div
-          className="size-14 rounded-2xl flex items-center justify-center mb-5"
-          style={{ background: "rgba(8,174,170,0.08)", border: "1px solid rgba(8,174,170,0.2)" }}
-        >
-          <span className="material-symbols-rounded" style={{ fontSize: 28, color: "var(--teal)" }}>
+        <div className="size-14 rounded-2xl flex items-center justify-center mb-5 bg-[rgba(8,174,170,0.08)] border border-[rgba(8,174,170,0.2)]">
+          <span className="material-symbols-rounded text-[28px] text-teal">
             mark_email_unread
           </span>
         </div>
-        <h1 className="font-display font-semibold mb-2" style={{ fontSize: 24, color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
+        <h1 className="font-display font-semibold mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
           Check your email
         </h1>
-        <p className="text-[14px] leading-relaxed mb-1" style={{ color: "var(--ink-mid)" }}>
+        <p className="text-[14px] leading-relaxed mb-1 text-ink-mid">
           We sent a confirmation link to
         </p>
-        <p className="text-[14.5px] font-semibold mb-5" style={{ color: "var(--teal)" }}>
+        <p className="text-[14.5px] font-semibold mb-5 text-teal">
           {pendingEmail}
         </p>
-        <p className="text-[13px] leading-relaxed mb-6" style={{ color: "var(--ink-dim)", maxWidth: 320 }}>
+        <p className="text-[13px] leading-relaxed mb-6 max-w-[320px] text-ink-dim">
           Click the link in the email to activate your account. If you don&apos;t see it within a minute, check your spam folder.
         </p>
         <Button
@@ -130,9 +122,9 @@ export function SignupForm() {
         >
           {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend email"}
         </Button>
-        <p className="text-center text-[13.5px] mt-6" style={{ color: "var(--ink-mid)" }}>
+        <p className="text-center text-[13.5px] mt-6 text-ink-mid">
           Already verified?{" "}
-          <Link href="/login" className="font-semibold hover:underline" style={{ color: "var(--teal)" }}>
+          <Link href="/login" className="font-semibold hover:underline text-teal">
             Sign in
           </Link>
         </p>
@@ -142,11 +134,11 @@ export function SignupForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
-      <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2" style={{ color: "var(--teal)" }}>
+      <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2 text-teal">
         Join the community
       </div>
 
-      <h1 className="font-display font-semibold mb-6" style={{ fontSize: 26, color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
+      <h1 className="font-display font-semibold mb-6 text-[26px] tracking-[-0.01em] text-ink-strong">
         Create your account
       </h1>
 
@@ -157,9 +149,9 @@ export function SignupForm() {
 
       {/* Divider */}
       <div className="flex items-center gap-3 my-5">
-        <div className="flex-1 h-px" style={{ background: "var(--line)" }} />
-        <span className="text-[12px]" style={{ color: "var(--ink-dim)" }}>or sign up with email</span>
-        <div className="flex-1 h-px" style={{ background: "var(--line)" }} />
+        <div className="flex-1 h-px bg-line" />
+        <span className="text-[12px] text-ink-dim">or sign up with email</span>
+        <div className="flex-1 h-px bg-line" />
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
@@ -178,7 +170,7 @@ export function SignupForm() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-xl px-4 py-3 text-[13px]" style={{ background: "rgba(234,82,61,0.10)", color: "var(--coral-bright)", border: "1px solid rgba(234,82,61,0.2)" }}>
+        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-bright border border-[rgba(234,82,61,0.2)]">
           {error}
         </div>
       )}
@@ -187,9 +179,9 @@ export function SignupForm() {
         Create account &amp; continue
       </Button>
 
-      <p className="text-center text-[13.5px] mt-6" style={{ color: "var(--ink-mid)" }}>
+      <p className="text-center text-[13.5px] mt-6 text-ink-mid">
         Already a member?{" "}
-        <Link href="/login" className="font-semibold hover:underline" style={{ color: "var(--teal)" }}>
+        <Link href="/login" className="font-semibold hover:underline text-teal">
           Sign in
         </Link>
       </p>
