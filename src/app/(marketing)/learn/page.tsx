@@ -23,7 +23,7 @@ export default function LearnPage() {
       <section className="dark py-32 pb-24 bg-[radial-gradient(ellipse_at_12%_18%,rgba(8,174,170,0.45)_0%,transparent_52%),radial-gradient(ellipse_at_88%_88%,rgba(248,185,61,0.32)_0%,transparent_48%),linear-gradient(155deg,#0C4E6B_0%,#082A3B_60%)]">
         <div className="container">
           <div className="sec-head reveal">
-            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18]" style={{ fontSize: "clamp(28px,3.8vw,46px)" }}>From your first candle to a funded account</h2>
+            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">From your first candle to a funded account</h2>
             <p className="lead mt-[18px]">Six levels, taught in order. Master each before the next unlocks, so nothing is skipped and nothing is rushed. This is the same path Kondwani walks every new trader through.</p>
           </div>
           <div className="flex gap-7 mt-[34px] flex-wrap">
@@ -54,8 +54,8 @@ export default function LearnPage() {
           <div className="mt-12 flex flex-col gap-[18px]">
             {LEVELS.map(({ num, title, desc, state, lessons }) => {
               const icon = state === "done" ? "verified" : state === "current" ? "play_circle" : "lock";
-              const iconColor = state === "done" ? "var(--teal)" : state === "current" ? "var(--gold)" : "var(--ink-dim)";
-              const iconBg = state === "current" ? "rgba(248,185,61,0.16)" : state === "done" ? "rgba(8,174,170,0.14)" : "var(--bg-soft)";
+              const iconColorCls = state === "done" ? "text-teal" : state === "current" ? "text-gold" : "text-ink-dim";
+              const iconBgCls = state === "current" ? "bg-[rgba(248,185,61,0.16)]" : state === "done" ? "bg-[rgba(8,174,170,0.14)]" : "bg-[var(--bg-soft)]";
               const tag = state === "done"
                 ? <span className="chip text-[11px]">Complete</span>
                 : state === "current"
@@ -64,8 +64,8 @@ export default function LearnPage() {
               return (
                 <div key={num} className={`card reveal flex items-center gap-5 py-[22px] px-[26px] ${state === "locked" ? "opacity-[0.62]" : ""}`}>
                   <div className="font-display text-2xl font-bold text-ink-dim w-[38px] shrink-0">{num}</div>
-                  <div className="w-12 h-12 rounded-[13px] grid place-items-center shrink-0" style={{ background: iconBg }}>
-                    <span className={`material-symbols-rounded text-2xl ${state !== "locked" ? "ic-fill" : ""}`} style={{ color: iconColor }}>{icon}</span>
+                  <div className={`w-12 h-12 rounded-[13px] grid place-items-center shrink-0 ${iconBgCls}`}>
+                    <span className={`material-symbols-rounded text-2xl ${iconColorCls} ${state !== "locked" ? "ic-fill" : ""}`}>{icon}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5 flex-wrap">
@@ -114,7 +114,7 @@ export default function LearnPage() {
                       <span className="material-symbols-rounded ic-fill text-[var(--navy-deep)] text-[30px]">play_arrow</span>
                     </div>
                     <div className="absolute left-3.5 right-3.5 bottom-3.5 h-1 rounded-full bg-white/25">
-                      <div className="h-full rounded-full bg-gold" style={{ width: "32%" }} />
+                      <div className="h-full rounded-full bg-gold w-[32%]" />
                     </div>
                     <span className="mono absolute bottom-6 right-4 text-[11px] text-white/80">3:04 / 16:55</span>
                   </div>
@@ -161,7 +161,7 @@ export default function LearnPage() {
       <section className="section soft">
         <div className="container">
           <div className="reveal text-center max-w-[600px] mx-auto">
-            <h2 style={{ fontSize: "clamp(28px,4vw,40px)" }}>Start at Level 1 today</h2>
+            <h2 className="text-[clamp(28px,4vw,40px)]">Start at Level 1 today</h2>
             <p className="lead mt-3.5">Foundations is free on the Starter plan. Climb at your own pace.</p>
             <div className="flex gap-3.5 justify-center mt-[26px] flex-wrap">
               <Button href="/signup" size="lg" iconRight="arrow_forward">Begin learning</Button>
