@@ -9,7 +9,7 @@ function TradaysWidget({ theme }: { theme: 0 | 1 }) {
   return (
     <iframe
       src={src}
-      style={{ width: "100%", height: "100%", border: "none", display: "block" }}
+      className="w-full h-full border-none block"
       title="Economic Calendar"
     />
   );
@@ -23,23 +23,17 @@ export function Calendar() {
   const widgetTheme: 0 | 1 | null = !mounted ? null : resolvedTheme === "light" ? 0 : 1;
 
   return (
-    <div className="view" style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 60px)" }}>
+    <div className="view flex flex-col min-h-[calc(100vh-60px)]">
       <div className="mb-5">
-        <h1
-          className="font-display font-bold"
-          style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}
-        >
+        <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
           Economic Calendar
         </h1>
-        <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+        <p className="text-[13px] mt-0.5 text-ink-dim">
           High-impact events that move the pairs: USD, EUR, GBP, NZD. All times UTC.
         </p>
       </div>
 
-      <div
-        className="rounded-2xl overflow-hidden"
-        style={{ height: "calc(100vh - 220px)", minHeight: 600, border: "1px solid var(--line)" }}
-      >
+      <div className="rounded-2xl overflow-hidden h-[calc(100vh-220px)] min-h-[600px] border border-line">
         {widgetTheme !== null && <TradaysWidget key={widgetTheme} theme={widgetTheme} />}
       </div>
     </div>
