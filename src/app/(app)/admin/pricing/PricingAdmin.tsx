@@ -61,7 +61,7 @@ export function PricingAdmin({ initial }: Props) {
                 {/* meta.color is a raw var(--x) string from PLAN_META consumed via
                     `${meta.color}18` alpha-suffix concatenation - stays inline. */}
                 <div className="size-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${meta.color}18` }}>
-                  <span className="material-symbols-rounded" style={{ fontSize: 20, color: meta.color, fontFamily: "Material Symbols Rounded Fill" }}>
+                  <span className="material-symbols-rounded text-[20px]" style={{ color: meta.color, fontFamily: "Material Symbols Rounded Fill" }}>
                     {meta.icon}
                   </span>
                 </div>
@@ -124,7 +124,7 @@ export function PricingAdmin({ initial }: Props) {
                     {saving === meta.id ? (
                       <span className="size-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
                     ) : (
-                      <span className="material-symbols-rounded" style={{ fontSize: 16 }}>save</span>
+                      <span className="material-symbols-rounded text-[16px]">save</span>
                     )}
                     Save {meta.name}
                   </button>
