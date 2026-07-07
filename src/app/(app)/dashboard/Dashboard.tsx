@@ -435,7 +435,7 @@ function ActiveTradesPanel() {
 
               {/* Price levels */}
               <div
-                className="flex-1 grid grid-cols-[repeat(3,auto)] gap-x-4 gap-y-0.5 tabular-nums text-[11px] font-mono text-ink-dim"
+                className="flex-1 grid grid-cols-[repeat(3,auto)] gap-x-4 gap-y-0.5 tabular-nums text-[11px] text-ink-dim"
               >
                 <span className="font-semibold" style={{ color: dirColor }}>
                   {t.entryPrice ?? "—"}
@@ -451,11 +451,11 @@ function ActiveTradesPanel() {
               {/* Right: R:R + date */}
               <div className="flex flex-col items-end gap-1.5 shrink-0">
                 {t.rr != null && (
-                  <span className="text-[11px] font-bold tabular-nums text-gold font-mono">
+                  <span className="text-[11px] font-bold tabular-nums text-gold">
                     {t.rr}R
                   </span>
                 )}
-                <span className="text-[10px] tabular-nums text-ink-dim font-mono">
+                <span className="text-[10px] tabular-nums text-ink-dim">
                   {t.openedAt ? fmtMonthDay(t.openedAt) : t.date}
                 </span>
               </div>
@@ -562,7 +562,7 @@ function SessionCard() {
             )}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] tabular-nums font-semibold text-ink-strong font-mono">
+            <span className="text-[11px] tabular-nums font-semibold text-ink-strong">
               {timeLabel}
             </span>
             <span className="text-[8.5px] font-bold uppercase tracking-[0.08em] px-1 py-0.5 rounded bg-panel-2 text-ink-dim border border-line">
@@ -596,7 +596,7 @@ function SessionCard() {
                     open
                   </span>
                 </div>
-                <span className="text-[11px] tabular-nums text-ink-dim font-mono">
+                <span className="text-[11px] tabular-nums text-ink-dim">
                   closes {s.closeL}
                 </span>
               </div>
@@ -616,7 +616,7 @@ function SessionCard() {
               </span>
               <span className="text-[12px] text-ink-dim">
                 Reopens in{" "}
-                <span className="font-semibold tabular-nums text-ink-strong font-mono">
+                <span className="font-semibold tabular-nums text-ink-strong">
                   {fmtCountdown(reopenH)}
                 </span>
               </span>
@@ -629,7 +629,7 @@ function SessionCard() {
               <span className="text-xs">{next.flag}</span>
               <span className="text-[12px] text-ink-dim">
                 {next.name} in{" "}
-                <span className="font-semibold tabular-nums text-ink-strong font-mono">
+                <span className="font-semibold tabular-nums text-ink-strong">
                   {fmtCountdown(sessionHoursUntil(next.open, gmt2))}
                 </span>
               </span>

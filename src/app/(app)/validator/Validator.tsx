@@ -93,7 +93,7 @@ function GradeRing({ grade, score }: { grade: string; score: number }) {
         >
           {grade}
         </span>
-        <span className="tabular-nums font-semibold font-mono text-[11px] text-ink-dim">
+        <span className="tabular-nums font-semibold text-[11px] text-ink-dim">
           {score}%
         </span>
       </div>
@@ -198,7 +198,7 @@ function HistoryRow({ entry }: { entry: HistoryEntry }) {
               style={{ width: `${entry.score}%`, background: color }}
             />
           </div>
-          <span className="text-[10px] tabular-nums shrink-0 font-mono text-ink-dim">
+          <span className="text-[10px] tabular-nums shrink-0 text-ink-dim">
             {entry.score}%
           </span>
         </div>
@@ -527,19 +527,19 @@ export function Validator() {
                             <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">
                               {calcResult.isForex ? "Pip distance" : setup.pair === "XAUUSD" ? "$ distance" : "Points"}
                             </div>
-                            <div className="font-mono text-[14px] font-semibold text-ink-strong">
+                            <div className="text-[14px] font-semibold text-ink-strong">
                               {calcResult.isForex ? calcResult.pipDist.toFixed(1) : calcResult.pipDist.toFixed(2)}
                             </div>
                           </div>
                           <div>
                             <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Dollar risk</div>
-                            <div className="font-mono text-[14px] font-semibold text-coral">
+                            <div className="text-[14px] font-semibold text-coral">
                               −${calcResult.dollarRisk.toFixed(2)}
                             </div>
                           </div>
                           <div className="col-span-2">
                             <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Lot size</div>
-                            <div className="font-mono font-bold text-[26px] tracking-[-0.02em] text-gold">
+                            <div className="font-bold text-[26px] tracking-[-0.02em] text-gold">
                               {calcResult.lots < 0.01 ? calcResult.lots.toFixed(4) : calcResult.lots.toFixed(2)}
                             </div>
                           </div>
@@ -548,7 +548,7 @@ export function Validator() {
                               <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">
                                 TP ({setup.rr}R)
                               </div>
-                              <div className={cn("font-mono text-[14px] font-semibold", setup.dir === "long" ? "text-teal" : "text-coral")}>
+                              <div className={cn("text-[14px] font-semibold", setup.dir === "long" ? "text-teal" : "text-coral")}>
                                 {calcResult.tp.toFixed(calcResult.isForex ? 5 : setup.pair === "XAUUSD" ? 2 : 1)}
                               </div>
                             </div>
@@ -556,7 +556,7 @@ export function Validator() {
                           {calcResult.dollarProfit !== null && (
                             <div>
                               <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Expected profit</div>
-                              <div className="font-mono text-[14px] font-semibold text-teal">
+                              <div className="text-[14px] font-semibold text-teal">
                                 +${calcResult.dollarProfit.toFixed(2)}
                               </div>
                             </div>

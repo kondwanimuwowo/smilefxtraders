@@ -297,7 +297,7 @@ export function LogTradeModal({ open, onClose, edit, preset }: Props) {
             type="datetime-local"
             value={f.openedAt}
             onChange={(e) => set("openedAt", e.target.value)}
-            className="w-full rounded-lg px-3 py-2 text-[13px] font-mono bg-transparent border border-line text-ink-strong outline-none"
+            className="w-full rounded-lg px-3 py-2 text-[13px] bg-transparent border border-line text-ink-strong outline-none"
           />
         </Field>
         <Field
@@ -369,7 +369,7 @@ export function LogTradeModal({ open, onClose, edit, preset }: Props) {
                 type="datetime-local"
                 value={f.closedAt}
                 onChange={(e) => set("closedAt", e.target.value)}
-                className="w-full rounded-lg px-3 py-2 text-[13px] font-mono bg-transparent border border-line text-ink-strong outline-none"
+                className="w-full rounded-lg px-3 py-2 text-[13px] bg-transparent border border-line text-ink-strong outline-none"
               />
             </Field>
           </>

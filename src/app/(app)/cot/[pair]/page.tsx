@@ -65,9 +65,9 @@ function TableSkeleton() {
 
 const thBase   = "align-middle whitespace-nowrap uppercase font-bold text-ink-dim bg-panel border-b border-line";
 const thSub    = "align-middle whitespace-nowrap uppercase font-semibold border-b-2 border-line";
-const cellCls  = "px-3.5 py-2 whitespace-nowrap font-mono [font-feature-settings:'tnum'] text-[12px]";
+const cellCls  = "px-3.5 py-2 whitespace-nowrap [font-feature-settings:'tnum'] text-[12px]";
 const dimCellCls = cn(cellCls, "text-right text-ink-dim font-normal");
-const avgCellCls = "px-3.5 py-2 whitespace-nowrap font-mono [font-feature-settings:'tnum'] text-[11.5px] text-ink-dim font-medium border-b-2 border-line";
+const avgCellCls = "px-3.5 py-2 whitespace-nowrap [font-feature-settings:'tnum'] text-[11.5px] text-ink-dim font-medium border-b-2 border-line";
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
@@ -392,7 +392,7 @@ export default function CotPairPage() {
                           <span className="flex items-center gap-2">
                             13W Avg
                             <span className={cn(
-                              "text-[9.5px] font-semibold px-1.5 py-0.5 rounded font-mono bg-panel-2",
+                              "text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-panel-2",
                               deltaLS >= 0 ? "text-teal-bright" : "text-coral-bright"
                             )}>
                               now {fmtNet(deltaLS)} vs avg
@@ -526,7 +526,7 @@ export default function CotPairPage() {
                                 style={{ width: `${rangeIdx}%` }}
                               />
                             </div>
-                            <span className="font-mono text-[11px] text-ink-dim min-w-[24px] text-right">
+                            <span className="text-[11px] text-ink-dim min-w-[24px] text-right">
                               {rangeIdx}
                             </span>
                           </div>

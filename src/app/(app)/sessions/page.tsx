@@ -124,7 +124,7 @@ export default function SessionsPage() {
                   <div className={cn("font-display font-bold text-[15px] tracking-[-0.01em]", s.textCls)}>
                     {s.name}
                   </div>
-                  <div className="text-[11px] font-semibold mt-0.5 tabular-nums font-mono text-ink-dim">
+                  <div className="text-[11px] font-semibold mt-0.5 tabular-nums text-ink-dim">
                     {s.time} GMT+2
                   </div>
                 </div>
@@ -135,7 +135,7 @@ export default function SessionsPage() {
                 {s.pairs.map((p) => (
                   <span
                     key={p}
-                    className="text-[10px] font-semibold px-2 py-0.5 rounded-lg tabular-nums font-mono bg-panel text-ink-mid border border-line"
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded-lg tabular-nums bg-panel text-ink-mid border border-line"
                   >
                     {p}
                   </span>
@@ -170,7 +170,7 @@ export default function SessionsPage() {
                   <span className="font-display font-bold text-[13.5px] tracking-[-0.01em] text-ink-strong">
                     {k.name}
                   </span>
-                  <span className={cn("text-[10.5px] font-semibold tabular-nums font-mono", k.textCls)}>
+                  <span className={cn("text-[10.5px] font-semibold tabular-nums", k.textCls)}>
                     {k.time}
                   </span>
                 </div>

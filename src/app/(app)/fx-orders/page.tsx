@@ -196,7 +196,7 @@ function DateCard({ summary, isToday }: { summary: FxDateSummary; isToday: boole
             <span className={cn("text-[10px] font-semibold uppercase tracking-wider", isToday ? "text-teal" : "text-ink-dim")}>
               {isToday ? "Today" : "NY Cut"}
             </span>
-            <span className="tabular-nums text-[11px] mt-0.5 font-mono text-ink-dim">
+            <span className="tabular-nums text-[11px] mt-0.5 text-ink-dim">
               10:00 AM
             </span>
           </div>
@@ -237,7 +237,7 @@ function DateCard({ summary, isToday }: { summary: FxDateSummary; isToday: boole
         {summary.pairs.map((pair) => (
           <span
             key={pair}
-            className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-panel-2 border border-line text-ink-dim font-mono tracking-[0.01em]"
+            className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-panel-2 border border-line text-ink-dim tracking-[0.01em]"
           >
             {PAIR_LABELS[pair] ?? pair}
           </span>

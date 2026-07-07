@@ -175,7 +175,6 @@ export default async function HomePage() {
           .fx-wrap { position: relative; }
           .fx-float {
             position: absolute;
-            font-family: 'IBM Plex Mono', ui-monospace, monospace;
             font-weight: 600; color: var(--navy, #0B425D);
             font-feature-settings: "tnum";
             white-space: nowrap; animation: fxfloat 5s ease-in-out infinite;

@@ -85,7 +85,7 @@ function ModelBar({ model, pct, n }: { model: string; pct: number; n: number }) 
 function PairBar({ pair, pct, n }: { pair: string; pct: number; n: number }) {
   return (
     <div className="flex items-center gap-2.5">
-      <span className="text-[11px] font-bold tabular-nums shrink-0 text-ink-mid w-14 font-mono">
+      <span className="text-[11px] font-bold tabular-nums shrink-0 text-ink-mid w-14">
         {pair}
       </span>
       <div className="flex-1 relative h-1.5 rounded-full overflow-hidden bg-track">
@@ -204,10 +204,10 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
               />
             </div>
             <div className="flex justify-between mt-1.5">
-              <span className="text-[9.5px] tabular-nums text-ink-dim font-mono">
+              <span className="text-[9.5px] tabular-nums text-ink-dim">
                 {Math.min(...stats.equity).toFixed(1)}R
               </span>
-              <span className="text-[9.5px] tabular-nums text-ink-dim font-mono">
+              <span className="text-[9.5px] tabular-nums text-ink-dim">
                 {Math.max(...stats.equity).toFixed(1)}R
               </span>
             </div>

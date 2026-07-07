@@ -118,7 +118,7 @@ export function OnboardingFlow() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             onBlur={() => setPhoneTouched(true)}
-            className={`w-full px-4 py-3 rounded-xl border text-[15px] font-mono bg-panel-2 text-ink-strong ${
+            className={`w-full px-4 py-3 rounded-xl border text-[15px] bg-panel-2 text-ink-strong ${
               phoneTouched && !phoneValid ? "border-coral" : "border-line"
             }`}
           />

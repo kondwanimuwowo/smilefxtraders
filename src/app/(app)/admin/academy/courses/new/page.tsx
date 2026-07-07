@@ -68,7 +68,7 @@ export default function NewCoursePage() {
 
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] font-semibold text-ink-mid">Slug</span>
-          <input className="rounded-xl px-3 py-2 text-[14px] outline-none font-mono bg-panel-2 border border-line text-ink-strong"
+          <input className="rounded-xl px-3 py-2 text-[14px] outline-none bg-panel-2 border border-line text-ink-strong"
             value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="advanced-smc-models" />
         </label>
 

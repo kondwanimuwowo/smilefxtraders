@@ -119,13 +119,13 @@ export default function PairsPage() {
                     <div className="px-5 py-3.5 flex items-center justify-between gap-3">
                       {/* Base / quote chips */}
                       <div className="flex items-center gap-1.5">
-                        <span className={cn("text-[10.5px] font-bold px-2 py-0.5 rounded-md font-mono border", accent.chipBgCls, accent.chipTextCls, accent.chipBorderCls)}>
+                        <span className={cn("text-[10.5px] font-bold px-2 py-0.5 rounded-md border", accent.chipBgCls, accent.chipTextCls, accent.chipBorderCls)}>
                           {base}
                         </span>
                         {quote && (
                           <>
                             <span className="text-[10px] text-ink-dim">/</span>
-                            <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-md font-mono bg-panel-2 text-ink-dim border border-line">
+                            <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-panel-2 text-ink-dim border border-line">
                               {quote}
                             </span>
                           </>

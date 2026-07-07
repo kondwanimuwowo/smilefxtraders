@@ -490,7 +490,7 @@ export default function PairOverviewPage() {
                         {ev.date} · {fmtTime(ev.time)}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 shrink-0 text-[11.5px] font-mono">
+                    <div className="flex items-center gap-3 shrink-0 text-[11.5px]">
                       {ev.forecast && (
                         <span className="text-ink-dim">F: {ev.forecast}{ev.unit}</span>
                       )}
@@ -586,8 +586,7 @@ export default function PairOverviewPage() {
                     </div>
                     {cotData.rows[0] && (
                       <div
-                        className="text-[12.5px] font-semibold tabular-nums"
-                        style={{ fontFamily: "var(--mono)", color: cotData.rows[0].largeSpecNet >= 0 ? "var(--teal)" : "var(--coral)" }}
+                        className={cn("text-[12.5px] font-semibold tabular-nums", cotData.rows[0].largeSpecNet >= 0 ? "text-teal" : "text-coral")}
                       >
                         {fmtNet(cotData.rows[0].largeSpecNet)} net
                       </div>
@@ -686,7 +685,7 @@ export default function PairOverviewPage() {
                   className={cn("flex items-center justify-between py-2.5 text-[12.5px]", i < arr.length - 1 && "border-b border-line")}
                 >
                   <span>{label}</span>
-                  <span className="tabular-nums font-mono text-ink-dim">—</span>
+                  <span className="tabular-nums text-ink-dim">—</span>
                 </div>
               ))}
             </div>

@@ -309,7 +309,7 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
                   type="text" value={(form as unknown as Record<string, string>)[key]}
                   onChange={(e) => set(key, e.target.value)}
                   placeholder={label}
-                  className="w-full px-3 py-2 rounded-xl text-[13px] font-mono bg-panel-2 border border-line text-ink-strong"
+                  className="w-full px-3 py-2 rounded-xl text-[13px] bg-panel-2 border border-line text-ink-strong"
                 />
               </div>
             ))}

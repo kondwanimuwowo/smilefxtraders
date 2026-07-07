@@ -66,7 +66,7 @@ function LevelRow({ level, spot, pair }: { level: FxLevel; spot: number | null; 
 
       {/* Price */}
       <span
-        className={cn("tabular-nums text-[12.5px] flex-1 font-mono tracking-[0.01em]", level.large ? "font-bold" : "font-medium")}
+        className={cn("tabular-nums text-[12.5px] flex-1 tracking-[0.01em]", level.large ? "font-bold" : "font-medium")}
         style={{ color: priceColor }}
       >
         {level.price}
@@ -82,7 +82,7 @@ function LevelRow({ level, spot, pair }: { level: FxLevel; spot: number | null; 
       {/* Pip distance */}
       {near && dist !== null && (
         <span
-          className={cn("text-[10px] font-semibold shrink-0 rounded-md px-1.5 py-0.5 font-mono", above ? "text-teal bg-[rgba(8,174,170,0.1)]" : "text-coral bg-[rgba(234,82,61,0.1)]")}
+          className={cn("text-[10px] font-semibold shrink-0 rounded-md px-1.5 py-0.5", above ? "text-teal bg-[rgba(8,174,170,0.1)]" : "text-coral bg-[rgba(234,82,61,0.1)]")}
         >
           {Math.round(dist)}p
         </span>
@@ -120,7 +120,7 @@ function PairCard({ record, liveSpot }: { record: FxOrderRecord; liveSpot: strin
         {/* Spot price — live from Twelve Data if available, else image snapshot */}
         {spot !== null && (
           <div className="flex flex-col items-end">
-            <span className="tabular-nums text-[12px] font-semibold font-mono text-ink-mid">
+            <span className="tabular-nums text-[12px] font-semibold text-ink-mid">
               {liveSpot ?? record.spotPrice}
             </span>
             <span className="text-[9px] uppercase tracking-wider text-ink-dim">
@@ -269,7 +269,7 @@ export default function FxOrdersDatePage() {
             Large ≥$1bn notional
           </div>
           <div className="flex items-center gap-1.5 text-[11.5px] text-ink-dim">
-            <span className="text-[10px] font-bold rounded-md px-1 py-0.5 bg-[rgba(8,174,170,0.1)] text-teal font-mono">
+            <span className="text-[10px] font-bold rounded-md px-1 py-0.5 bg-[rgba(8,174,170,0.1)] text-teal">
               25p
             </span>
             pip distance from spot

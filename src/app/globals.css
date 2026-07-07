@@ -123,7 +123,6 @@
   /* Fonts */
   --font-sans:    var(--font-inter);
   --font-display: var(--font-space-grotesk);
-  --font-mono:    var(--font-plex-mono), ui-monospace, monospace;
 
   /* Brand colors as Tailwind utilities */
   --color-teal:         var(--teal);

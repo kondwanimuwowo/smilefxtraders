@@ -54,7 +54,7 @@ export function ChartViz({ seed = 7, n = 40, drift = 0.04, h = 300, annot = true
     const upBody = "#08AEAA", upLine = "#30E8DF", dnBody = "#EA523D", dnLine = "#FF5942";
     const gridC = "rgba(14,17,22,0.06)";
 
-    let svg = `<svg viewBox="0 0 ${W} ${h}" width="100%" height="${h}" style="display:block" font-family="IBM Plex Mono,monospace">`;
+    let svg = `<svg viewBox="0 0 ${W} ${h}" width="100%" height="${h}" style="display:block">`;
     svg += `<rect x="0" y="0" width="${plotW}" height="${h}" rx="8" fill="#F6F8F5"/>`;
     for (let g = 0; g <= 4; g++) {
       const gy = padT + (g / 4) * (h - padT - padB);

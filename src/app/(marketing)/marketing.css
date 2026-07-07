@@ -53,7 +53,7 @@
   .marketing-theme a { @apply no-underline; }
   .marketing-theme img { @apply max-w-full block; }
 
-  .mono { @apply font-mono; font-feature-settings: "tnum"; }
+  .mono { @apply tabular-nums; }
 
   /* ---------- layout ---------- */
   /* .container itself is defined globally via @utility in globals.css, not
@@ -151,7 +151,7 @@
   .mock-body { @apply p-4; }
   .mock-tile { @apply bg-[var(--bg-soft)] rounded-xl py-[13px] px-[15px]; }
   .mock-tile .k { @apply text-[10px] uppercase tracking-[0.1em] text-ink-dim font-bold; }
-  .mock-tile .v { @apply font-mono text-[19px] font-semibold mt-[5px]; }
+  .mock-tile .v { @apply tabular-nums text-[19px] font-semibold mt-[5px]; }
   .float-card { @apply absolute bg-white rounded-[14px] shadow-card-lg py-[14px] px-4 border border-line; }
 
   /* avatars */

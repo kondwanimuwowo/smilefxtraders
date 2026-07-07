@@ -103,7 +103,7 @@ function MetaBox({ label, value, mono }: { label: string; value: string; mono?: 
         {label}
       </span>
       <span
-        className={`text-ink-strong ${mono ? "font-mono tabular-nums text-[15px] font-semibold" : "font-display font-bold text-[20px] tracking-[-0.01em]"}`}
+        className={`text-ink-strong ${mono ? "tabular-nums text-[15px] font-semibold" : "font-display font-bold text-[20px] tracking-[-0.01em]"}`}
       >
         {value}
       </span>
@@ -274,7 +274,7 @@ export default function TradeDetailPage() {
           {pipMove && (
             <div className="flex flex-col items-end rounded-2xl px-4 py-3.5 shrink-0 bg-panel-2 border border-line">
               <span
-                className={`font-mono font-bold tabular-nums text-[20px] ${t.result === "win" ? "text-teal-bright" : "text-coral-bright"}`}
+                className={`font-bold tabular-nums text-[20px] ${t.result === "win" ? "text-teal-bright" : "text-coral-bright"}`}
               >
                 {pipMove}
               </span>
@@ -344,7 +344,7 @@ export default function TradeDetailPage() {
                 {t.entryPrice != null && (
                   <div>
                     <div className="text-[11px] mb-0.5 text-ink-dim">Entry</div>
-                    <div className="font-mono font-semibold text-[15px] text-ink-strong">
+                    <div className="font-semibold text-[15px] text-ink-strong">
                       {fmtPrice(t.entryPrice, t.pair)}
                     </div>
                   </div>
@@ -352,7 +352,7 @@ export default function TradeDetailPage() {
                 {t.stopLoss != null && (
                   <div>
                     <div className="text-[11px] mb-0.5 text-ink-dim">Stop loss</div>
-                    <div className="font-mono font-semibold text-[15px] text-coral">
+                    <div className="font-semibold text-[15px] text-coral">
                       {fmtPrice(t.stopLoss, t.pair)}
                     </div>
                   </div>
@@ -360,7 +360,7 @@ export default function TradeDetailPage() {
                 {t.takeProfit != null && (
                   <div>
                     <div className="text-[11px] mb-0.5 text-ink-dim">Take profit</div>
-                    <div className="font-mono font-semibold text-[15px] text-teal">
+                    <div className="font-semibold text-[15px] text-teal">
                       {fmtPrice(t.takeProfit, t.pair)}
                     </div>
                   </div>
@@ -369,7 +369,7 @@ export default function TradeDetailPage() {
                   <div>
                     <div className="text-[11px] mb-0.5 text-ink-dim">Closed at</div>
                     <div
-                      className={`font-mono font-semibold text-[15px] ${t.result === "win" ? "text-teal-bright" : "text-coral-bright"}`}
+                      className={`font-semibold text-[15px] ${t.result === "win" ? "text-teal-bright" : "text-coral-bright"}`}
                     >
                       {fmtPrice(t.closePrice, t.pair)}
                     </div>
@@ -389,7 +389,7 @@ export default function TradeDetailPage() {
                 {t.openedAt && (
                   <div>
                     <div className="text-[11px] mb-0.5 text-ink-dim">Opened</div>
-                    <div className="font-mono text-[13px] font-semibold text-ink-strong">
+                    <div className="text-[13px] font-semibold text-ink-strong">
                       {fmtDateTime(t.openedAt)}
                     </div>
                   </div>
@@ -397,7 +397,7 @@ export default function TradeDetailPage() {
                 {t.closedAt && (
                   <div>
                     <div className="text-[11px] mb-0.5 text-ink-dim">Closed</div>
-                    <div className="font-mono text-[13px] font-semibold text-ink-strong">
+                    <div className="text-[13px] font-semibold text-ink-strong">
                       {fmtDateTime(t.closedAt)}
                     </div>
                   </div>
@@ -405,7 +405,7 @@ export default function TradeDetailPage() {
                 {duration && (
                   <div>
                     <div className="text-[11px] mb-0.5 text-ink-dim">Duration</div>
-                    <div className="font-mono text-[13px] font-semibold text-ink-strong">
+                    <div className="text-[13px] font-semibold text-ink-strong">
                       {duration}
                     </div>
                   </div>

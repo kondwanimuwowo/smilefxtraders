@@ -96,7 +96,7 @@ export function PricingAdmin({ initial }: Props) {
                           {labels[field]}
                         </label>
                         <div className="flex items-center rounded-xl overflow-hidden border border-line bg-panel-2">
-                          <span className="px-3 text-[13px] font-mono font-semibold py-2.5 border-r border-line bg-panel text-ink-dim">
+                          <span className="px-3 text-[13px] font-semibold py-2.5 border-r border-line bg-panel text-ink-dim">
                             {prefixes[field]}
                           </span>
                           <input
@@ -104,7 +104,7 @@ export function PricingAdmin({ initial }: Props) {
                             min={0}
                             value={p[field]}
                             onChange={(e) => update(meta.id, field, e.target.value)}
-                            className="flex-1 px-3 py-2.5 text-[13.5px] font-mono bg-transparent outline-none text-ink-strong"
+                            className="flex-1 px-3 py-2.5 text-[13.5px] bg-transparent outline-none text-ink-strong"
                           />
                         </div>
                       </div>

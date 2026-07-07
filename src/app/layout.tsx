@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import "./material-symbols.css";
@@ -15,13 +15,6 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
   weight: ["500", "600", "700", "800"],
-  display: "swap",
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  variable: "--font-plex-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -46,7 +39,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${plusJakartaSans.variable} ${ibmPlexMono.variable}`}
+      className={`${inter.variable} ${plusJakartaSans.variable}`}
     >
       <head>
         <link rel="icon" href="/favicon.png" type="image/png" />

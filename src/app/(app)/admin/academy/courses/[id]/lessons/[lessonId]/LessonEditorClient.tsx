@@ -157,7 +157,7 @@ export function LessonEditorClient({ courseId, lesson }: { courseId: string; les
 
         {tab === "edit" ? (
           <textarea
-            className="w-full outline-none resize-none font-mono text-[13px] p-5 min-h-[600px] leading-[1.7] bg-panel text-ink-strong"
+            className="w-full outline-none resize-none text-[13px] p-5 min-h-[600px] leading-[1.7] bg-panel text-ink-strong"
             placeholder="Write lesson content in Markdown…"
             value={body}
             onChange={(e) => handleBodyChange(e.target.value)}

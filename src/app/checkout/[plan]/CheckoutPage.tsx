@@ -305,7 +305,7 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
                 onChange={(e) => handlePhoneChange(e.target.value)}
                 placeholder="+260 97 123 4567"
                 required
-                className="w-full px-4 py-3 rounded-xl text-[14px] font-mono bg-panel-2 border border-line text-ink-strong"
+                className="w-full px-4 py-3 rounded-xl text-[14px] bg-panel-2 border border-line text-ink-strong"
               />
             </div>
 
