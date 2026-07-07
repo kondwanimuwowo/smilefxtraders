@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Input, Field, Button } from "@/components/ui";
+import { Input, Field, Button, Icon } from "@/components/ui";
 
 type Status = "verifying" | "ready" | "invalid" | "success";
 
@@ -112,7 +112,7 @@ export function ResetPasswordForm() {
     return (
       <div className="flex flex-col items-center text-center gap-5">
         <div className="size-16 rounded-full flex items-center justify-center bg-[rgba(234,82,61,0.10)] border-2 border-[rgba(234,82,61,0.25)]">
-          <span className="material-symbols-rounded ic-fill text-[32px] text-coral">link_off</span>
+          <Icon name="link_off" size={32} className="text-coral" />
         </div>
         <div>
           <h1 className="font-display font-semibold mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
@@ -140,7 +140,7 @@ export function ResetPasswordForm() {
     return (
       <div className="flex flex-col items-center text-center gap-5">
         <div className="size-16 rounded-full flex items-center justify-center bg-[rgba(8,174,170,0.12)] border-2 border-[rgba(8,174,170,0.3)]">
-          <span className="material-symbols-rounded ic-fill text-[32px] text-teal">lock_open</span>
+          <Icon name="lock_open" size={32} className="text-teal" />
         </div>
         <div>
           <h1 className="font-display font-semibold mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
