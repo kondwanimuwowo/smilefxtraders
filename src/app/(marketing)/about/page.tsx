@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Button } from "@/components/ui";
+import { Button, Icon } from "@/components/ui";
 import { CTACard } from "@/components/marketing/CTACard";
 import { cn } from "@/lib/cn";
 
@@ -29,7 +29,7 @@ export default function AboutPage() {
             <div className="reveal relative">
               <div className="rounded-3xl overflow-hidden aspect-[4/5] bg-navy-grad grid place-items-center relative shadow-[var(--shadow-lg)]">
                 <div className="text-center text-white/55 p-6">
-                  <span className="material-symbols-rounded text-[64px]">account_circle</span>
+                  <Icon name="account_circle" size={64} />
                   <div className="text-[13px] mt-2.5">Instructor portrait</div>
                 </div>
               </div>
@@ -81,7 +81,7 @@ export default function AboutPage() {
               { icon: "public", title: "Built in Africa, for Africa", delay: 80, body: "Kwacha pricing, local payment methods, and a community that understands where our traders are coming from." },
             ].map(({ icon, title, body, delay }) => (
               <div key={title} className="card reveal p-[30px] flex gap-[18px]" data-delay={delay || undefined}>
-                <div className="icon-chip shrink-0"><span className="material-symbols-rounded">{icon}</span></div>
+                <div className="icon-chip shrink-0"><Icon name={icon} /></div>
                 <div>
                   <h3 className="text-xl">{title}</h3>
                   <p className="text-[15px] text-ink-mid leading-[1.65] mt-2">{body}</p>
