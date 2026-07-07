@@ -29,49 +29,39 @@ export function Modal({ open, onClose, title, sub, width = 560, footer, children
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(7,33,46,0.55)", backdropFilter: "blur(4px)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(7,33,46,0.55)] backdrop-blur-[4px]"
       onMouseDown={onClose}
     >
       <div
-        className="relative w-full rounded-[18px] flex flex-col animate-modal-pop"
-        style={{
-          maxWidth: width,
-          background: "var(--panel)",
-          boxShadow: "0 24px 70px rgba(0,0,0,0.4)",
-          border: "1px solid var(--line)",
-        }}
+        className="relative w-full rounded-[18px] flex flex-col animate-modal-pop bg-panel shadow-[0_24px_70px_rgba(0,0,0,0.4)] border border-line"
+        style={{ maxWidth: width }}
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 px-6 pt-5 pb-4 border-b" style={{ borderColor: "var(--line)" }}>
+        <div className="flex items-start justify-between gap-4 px-6 pt-5 pb-4 border-b border-line">
           <div className="min-w-0">
-            <div className="font-display text-[19px] font-semibold" style={{ color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
+            <div className="font-display text-[19px] font-semibold text-ink-strong tracking-[-0.01em]">
               {title}
             </div>
-            {sub && <div className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>{sub}</div>}
+            {sub && <div className="text-[13px] mt-0.5 text-ink-dim">{sub}</div>}
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 p-1.5 rounded-lg hover:bg-[var(--hover)] transition-colors mt-0.5"
-            style={{ color: "var(--ink-mid)" }}
+            className="shrink-0 p-1.5 rounded-lg hover:bg-[var(--hover)] transition-colors mt-0.5 text-ink-mid"
           >
             <Icon name="close" size={20} />
           </button>
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 overflow-y-auto" style={{ maxHeight: "70vh" }}>
+        <div className="px-6 py-5 overflow-y-auto max-h-[70vh]">
           {children}
         </div>
 
         {/* Footer */}
         {footer && (
-          <div
-            className="flex items-center justify-end gap-3 px-6 pt-4 border-t"
-            style={{ borderColor: "var(--line)", paddingBottom: "calc(1rem + var(--safe-bottom))" }}
-          >
+          <div className="flex items-center justify-end gap-3 px-6 pt-4 border-t border-line pb-[calc(1rem+var(--safe-bottom))]">
             {footer}
           </div>
         )}
