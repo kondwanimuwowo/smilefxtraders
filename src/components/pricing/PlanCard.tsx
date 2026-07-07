@@ -55,8 +55,8 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
             style={{ background: `${meta.color}18` }}
           >
             <span
-              className="material-symbols-rounded"
-              style={{ fontSize: 22, color: meta.color, fontFamily: "Material Symbols Rounded Fill" }}
+              className="material-symbols-rounded text-[22px]"
+              style={{ color: meta.color, fontFamily: "Material Symbols Rounded Fill" }}
             >
               {meta.icon}
             </span>
@@ -76,7 +76,7 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
             <>
               {showUsd && usd > 0 && (
                 <div className="flex items-end gap-1.5">
-                  <span className="font-display font-bold text-[34px]" style={{ color: meta.color, letterSpacing: "-0.03em" }}>
+                  <span className="font-display font-bold text-[34px] tracking-[-0.03em]" style={{ color: meta.color }}>
                     ${usd}
                   </span>
                   <span className="text-[14px] mb-2 text-ink-dim">/mo</span>
@@ -84,8 +84,8 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
               )}
               <div className="flex items-end gap-1.5">
                 <span
-                  className={`font-display font-bold ${showUsd ? "text-[22px]" : "text-[34px]"}`}
-                  style={{ color: showUsd ? "var(--ink-dim)" : meta.color, letterSpacing: "-0.03em" }}
+                  className={cn("font-display font-bold tracking-[-0.03em]", showUsd ? "text-[22px]" : "text-[34px]")}
+                  style={{ color: showUsd ? "var(--ink-dim)" : meta.color }}
                 >
                   K{zmw}
                 </span>
