@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
+import { Icon } from "@/components/ui";
 
 const TIER_OPTIONS  = [{ value: "free", label: "Free" }, { value: "pro", label: "Pro" }, { value: "funded", label: "Funded Track" }];
 // COLOR_OPTIONS values feed runtime string concatenation below (`${color}20`
@@ -50,7 +51,7 @@ export default function NewCoursePage() {
     <div className="view">
       <div className="mb-6 flex items-center gap-3">
         <Link href="/admin/academy" className="flex items-center gap-1.5 text-[13px] font-medium hover:opacity-70 text-ink-dim">
-          <span className="material-symbols-rounded text-[17px]">arrow_back</span>
+          <Icon name="arrow_back" size={17} />
           Course Builder
         </Link>
         <span className="text-line">›</span>
@@ -93,7 +94,7 @@ export default function NewCoursePage() {
               <button key={ic} type="button" onClick={() => setIcon(ic)}
                 className="size-9 rounded-xl flex items-center justify-center"
                 style={{ background: icon === ic ? `${color}20` : "var(--panel-2)", border: `1px solid ${icon === ic ? color : "var(--line)"}` }}>
-                <span className="material-symbols-rounded text-[18px]" style={{ color: icon === ic ? color : "var(--ink-dim)" }}>{ic}</span>
+                <Icon name={ic} size={18} style={{ color: icon === ic ? color : "var(--ink-dim)" }} />
               </button>
             ))}
           </div>
