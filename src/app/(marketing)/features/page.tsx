@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Button } from "@/components/ui";
+import { Button, Icon } from "@/components/ui";
 import { ChartViz } from "@/components/marketing/ChartViz";
 import { CTACard } from "@/components/marketing/CTACard";
 
@@ -34,7 +34,7 @@ export default function FeaturesPage() {
           <div className="feature-row scroll-mt-[90px]" id="journal">
             <div className="feature-text reveal">
               <div className="flex items-center gap-3">
-                <div className="icon-chip"><span className="material-symbols-rounded">menu_book</span></div>
+                <div className="icon-chip"><Icon name="menu_book" /></div>
                 <span className="chip text-[11px]">Core tool</span>
               </div>
               <h3>Trade Journal</h3>
@@ -47,13 +47,13 @@ export default function FeaturesPage() {
                   "Discipline score that tracks how often you followed all 8 rules",
                   "AI review from Gavo: a structured debrief on any trade",
                   "Equity curve built automatically from your closed trades",
-                ].map(f => <li key={f}><span className="material-symbols-rounded">check_circle</span>{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded text-teal text-[18px]">menu_book</span>
+                  <Icon name="menu_book" size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">Trade Journal</span>
                   <span className="chip ml-auto text-[11px]">+12.4R</span>
                 </div>
@@ -88,7 +88,7 @@ export default function FeaturesPage() {
           <div className="feature-row flip scroll-mt-[90px] mt-24" id="validator">
             <div className="feature-text reveal">
               <div className="flex items-center gap-3">
-                <div className="icon-chip"><span className="material-symbols-rounded">rule</span></div>
+                <div className="icon-chip"><Icon name="rule" /></div>
                 <span className="chip text-[11px]">Pre-trade checklist</span>
               </div>
               <h3>Rules Validator</h3>
@@ -100,19 +100,19 @@ export default function FeaturesPage() {
                   "Pip calculator auto-fills from your account size and risk %",
                   "One-click export to journal, pre-filled with pair, direction, model, R:R",
                   "Grade-based result (A+ to D) with a pass/fail badge",
-                ].map(f => <li key={f}><span className="material-symbols-rounded">check_circle</span>{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded text-teal text-[18px]">rule</span>
+                  <Icon name="rule" size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">Rules Validator</span>
                   <span className="chip ml-auto text-[11px]">8 rules</span>
                 </div>
                 <div className="mock-body grid gap-[9px]">
                   <div className="flex items-center gap-[11px] p-[13px] bg-[rgba(8,174,170,0.1)] border border-[rgba(8,174,170,0.4)] rounded-xl">
-                    <span className="material-symbols-rounded ic-fill text-teal text-[32px]">verified</span>
+                    <Icon name="verified" size={32} className="text-teal" />
                     <div>
                       <div className="font-bold text-[17px]">A+ · Pass</div>
                       <div className="text-[12.5px] text-ink-mid">XAUUSD · Long · 8 / 8 rules met</div>
@@ -125,7 +125,7 @@ export default function FeaturesPage() {
                   <div className="grid gap-[7px]">
                     {["HTF bias clear · trading the draw","POI confluence · OB + FVG overlap","Within London killzone · risk 0.5%"].map(r => (
                       <div key={r} className="flex items-center gap-[9px] text-[13px]">
-                        <span className="material-symbols-rounded ic-fill text-teal text-[18px]">check_circle</span> {r}
+                        <Icon name="check_circle" size={18} className="text-teal" /> {r}
                       </div>
                     ))}
                   </div>
@@ -138,7 +138,7 @@ export default function FeaturesPage() {
           <div className="feature-row scroll-mt-[90px] mt-24" id="alerts">
             <div className="feature-text reveal">
               <div className="flex items-center gap-3">
-                <div className="icon-chip"><span className="material-symbols-rounded">notifications_active</span></div>
+                <div className="icon-chip"><Icon name="notifications_active" /></div>
                 <span className="chip text-[11px]">Instructor calls</span>
               </div>
               <h3>Live Setup Alerts</h3>
@@ -150,7 +150,7 @@ export default function FeaturesPage() {
                   "Tap 'Copy to journal' to log any alert as your own trade",
                   "Filter by pair or model",
                   "Free plan shows a 4-hour delay; Pro subscribers see alerts live",
-                ].map(f => <li key={f}><span className="material-symbols-rounded">check_circle</span>{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">
@@ -166,7 +166,7 @@ export default function FeaturesPage() {
                 <div className="mock-body">
                   <div className="flex items-center gap-2 mb-2.5">
                     <span className="mono text-[15px] font-bold">XAUUSD</span>
-                    <span className="chip badge-long text-[11px]"><span className="material-symbols-rounded text-[13px]">trending_up</span> Long</span>
+                    <span className="chip badge-long text-[11px]"><Icon name="trending_up" size={13} /> Long</span>
                     <span className="chip text-[11px]">FVG sweep</span>
                   </div>
                   <ChartViz seed={42} n={32} drift={0.05} h={150} />
@@ -185,7 +185,7 @@ export default function FeaturesPage() {
           <div className="feature-row flip scroll-mt-[90px] mt-24" id="cot">
             <div className="feature-text reveal">
               <div className="flex items-center gap-3">
-                <div className="icon-chip"><span className="material-symbols-rounded">groups</span></div>
+                <div className="icon-chip"><Icon name="groups" /></div>
                 <span className="chip text-[11px]">Institutional data</span>
               </div>
               <h3>COT Reports</h3>
@@ -197,13 +197,13 @@ export default function FeaturesPage() {
                   "52-week range bar to show when specs are near historical extremes",
                   "Bullish / bearish / neutral signal per instrument",
                   "Inverted pairs (USDJPY, USDCHF) handled correctly",
-                ].map(f => <li key={f}><span className="material-symbols-rounded">check_circle</span>{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded text-teal text-[18px]">groups</span>
+                  <Icon name="groups" size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">COT Reports</span>
                   <span className="chip ml-auto text-[11px]">Tue update</span>
                 </div>
@@ -229,7 +229,7 @@ export default function FeaturesPage() {
           <div className="feature-row scroll-mt-[90px] mt-24" id="gavo">
             <div className="feature-text reveal">
               <div className="flex items-center gap-3">
-                <div className="icon-chip"><span className="material-symbols-rounded">auto_awesome</span></div>
+                <div className="icon-chip"><Icon name="auto_awesome" /></div>
                 <span className="chip gold text-[11px]">AI coaching</span>
               </div>
               <h3>Gavo AI Trade Review</h3>
@@ -241,14 +241,14 @@ export default function FeaturesPage() {
                   "What you did well vs what to improve",
                   "One actionable tip per review",
                   "Re-runnable on any closed trade at any time",
-                ].map(f => <li key={f}><span className="material-symbols-rounded">check_circle</span>{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">
               <div className="card p-5 bg-[linear-gradient(165deg,rgba(8,174,170,0.1),rgba(22,114,161,0.05))]">
                 <div className="flex items-center gap-[11px] mb-3.5">
                   <div className="w-[34px] h-[34px] rounded-[10px] bg-[linear-gradient(135deg,var(--teal),var(--navy))] text-white grid place-items-center">
-                    <span className="material-symbols-rounded ic-fill text-[18px]">auto_awesome</span>
+                    <Icon name="auto_awesome" size={18} />
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-bold">Gavo AI Review</div>
@@ -270,7 +270,7 @@ export default function FeaturesPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-2 mt-3 py-[11px] px-[13px] bg-white rounded-[11px]">
-                  <span className="material-symbols-rounded ic-fill text-gold text-[18px]">lightbulb</span>
+                  <Icon name="lightbulb" size={18} className="text-gold" />
                   <span className="text-[13px] text-ink leading-[1.5]">Tip: mark the opposing liquidity before entry to plan your runner target.</span>
                 </div>
               </div>
@@ -281,7 +281,7 @@ export default function FeaturesPage() {
           <div className="feature-row flip scroll-mt-[90px] mt-24" id="academy">
             <div className="feature-text reveal">
               <div className="flex items-center gap-3">
-                <div className="icon-chip"><span className="material-symbols-rounded">school</span></div>
+                <div className="icon-chip"><Icon name="school" /></div>
                 <span className="chip text-[11px]">Full curriculum</span>
               </div>
               <h3>Academy</h3>
@@ -294,14 +294,14 @@ export default function FeaturesPage() {
                   "Course 4: Supply & Demand Framework",
                   "Course 5: Risk Management & Psychology",
                   "Course 6: Prop Firm Readiness",
-                ].map(f => <li key={f}><span className="material-symbols-rounded">check_circle</span>{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
               </ul>
-              <Link className="link-arrow" href="/academy">Explore the Academy <span className="material-symbols-rounded">arrow_forward</span></Link>
+              <Link className="link-arrow" href="/academy">Explore the Academy <Icon name="arrow_forward" /></Link>
             </div>
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded text-teal text-[18px]">school</span>
+                  <Icon name="school" size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">Academy</span>
                   <span className="chip ml-auto text-[11px]">27 lessons</span>
                 </div>
@@ -320,13 +320,11 @@ export default function FeaturesPage() {
                           state === "current" ? "bg-gold" : state === "done" ? "bg-[rgba(8,174,170,0.14)]" : "bg-[var(--bg-tint)]"
                         }`}
                       >
-                        <span
-                          className={`material-symbols-rounded text-[17px] ${state !== "locked" ? "ic-fill" : ""} ${
-                            state === "current" ? "text-navy-deep" : state === "done" ? "text-teal" : "text-ink-dim"
-                          }`}
-                        >
-                          {state === "done" ? "verified" : state === "current" ? "play_arrow" : "lock"}
-                        </span>
+                        <Icon
+                          name={state === "done" ? "verified" : state === "current" ? "play_arrow" : "lock"}
+                          size={17}
+                          className={state === "current" ? "text-navy-deep" : state === "done" ? "text-teal" : "text-ink-dim"}
+                        />
                       </span>
                       <div className="flex-1">
                         <div className="text-[13.5px] font-semibold">{label}</div>
@@ -343,7 +341,7 @@ export default function FeaturesPage() {
           <div className="feature-row scroll-mt-[90px] mt-24" id="expiries">
             <div className="feature-text reveal">
               <div className="flex items-center gap-3">
-                <div className="icon-chip"><span className="material-symbols-rounded">calendar_month</span></div>
+                <div className="icon-chip"><Icon name="calendar_month" /></div>
                 <span className="chip text-[11px]">Market intelligence</span>
               </div>
               <h3>FX Option Expiries</h3>
@@ -354,13 +352,13 @@ export default function FeaturesPage() {
                   "Synced automatically from a third-party data source",
                   "Displayed on a calendar view by pair and date",
                   "Highlight expiries near key POIs",
-                ].map(f => <li key={f}><span className="material-symbols-rounded">check_circle</span>{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded text-teal text-[18px]">calendar_month</span>
+                  <Icon name="calendar_month" size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">FX Option Expiries</span>
                   <span className="chip ml-auto text-[11px]">10:00 NY cut</span>
                 </div>
