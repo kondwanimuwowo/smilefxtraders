@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { useTrades } from "@/lib/hooks/useTrades";
 import { cn } from "@/lib/cn";
+import { Icon } from "@/components/ui";
 import type { Trade, FeedPost } from "@/lib/store";
 
 type Result = { type: "trade" | "alert" | "post"; label: string; sub: string; href: string };
@@ -77,7 +78,7 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
       <div className="w-full rounded-2xl overflow-hidden shadow-2xl max-w-[560px] bg-panel border border-line">
         {/* Input */}
         <div className="flex items-center gap-2.5 px-[18px] py-3.5 border-b border-line">
-          <span className="material-symbols-rounded text-[20px] text-ink-dim">search</span>
+          <Icon name="search" size={20} className="text-ink-dim" />
           <input
             ref={inputRef}
             value={q}
@@ -107,7 +108,7 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
                   i < results.length - 1 && "border-b border-line"
                 )}
               >
-                <span className="material-symbols-rounded text-[18px] text-teal shrink-0">{TYPE_ICON[r.type]}</span>
+                <Icon name={TYPE_ICON[r.type]} size={18} className="text-teal shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-ink whitespace-nowrap overflow-hidden text-ellipsis">{r.label}</div>
                   <div className="text-xs mt-0.5 text-ink-dim">{r.sub}</div>
@@ -132,7 +133,7 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
                 onClick={() => { router.push(s.href); onClose(); }}
                 className="flex items-center gap-1.5 text-[13.5px] font-medium px-3.5 py-2 rounded-[10px] border-none cursor-pointer bg-[var(--bg-soft)] text-ink-mid"
               >
-                <span className="material-symbols-rounded text-[17px] text-teal">{s.icon}</span>
+                <Icon name={s.icon} size={17} className="text-teal" />
                 {s.label}
               </button>
             ))}
