@@ -19,17 +19,15 @@ export default async function HomePage() {
     <main>
       {/* ===== HERO ===== */}
       <section
-        className="dark"
-        style={{ padding: "128px 0 96px", background: "radial-gradient(ellipse at 12% 18%, rgba(8,174,170,0.45) 0%, transparent 52%), radial-gradient(ellipse at 88% 88%, rgba(248,185,61,0.32) 0%, transparent 48%), linear-gradient(155deg, #0C4E6B 0%, #082A3B 60%)" }}
+        className="dark py-32 pb-24 bg-[radial-gradient(ellipse_at_12%_18%,rgba(8,174,170,0.45)_0%,transparent_52%),radial-gradient(ellipse_at_88%_88%,rgba(248,185,61,0.32)_0%,transparent_48%),linear-gradient(155deg,#0C4E6B_0%,#082A3B_60%)]"
       >
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "1.05fr 1fr", gap: "56px", alignItems: "center" }} className="hero-grid">
+          <div className="hero-grid grid grid-cols-[1.05fr_1fr] gap-14 items-center">
             {/* Left */}
             <div>
               <h1
-                className="reveal mt-[18px] leading-[1.18] text-white font-display font-extrabold tracking-[-0.01em]"
+                className="reveal mt-[18px] leading-[1.18] text-white font-display font-extrabold tracking-[-0.01em] text-[clamp(32px,4vw,54px)]"
                 data-delay="60"
-                style={{ fontSize: "clamp(32px,4vw,54px)" }}
               >
                 Trade Smart Money<br />
                 <span className="text-teal-bright">Together</span>
@@ -66,7 +64,7 @@ export default async function HomePage() {
             <div className="rule" />
             <p className="lead">Built for SMC and Supply &amp; Demand traders who take their craft seriously.</p>
           </div>
-          <div className="grid g3 auto-rows-fr" style={{ marginTop: 56 }}>
+          <div className="grid g3 auto-rows-fr mt-14">
             {[
               { icon: "menu_book",            title: "Trade Journal",       desc: "Log every trade with full context: entry, SL, TP, model, session, R:R. Find your edge through session analytics and model win-rates.", href: "/features#journal" },
               { icon: "rule",                 title: "Rules Validator",     desc: "Walk any idea through the SMC checklist before you click. Get a clear A+ / Wait / No-Trade verdict.", href: "/features#validator" },
@@ -192,20 +190,20 @@ export default async function HomePage() {
             </div>
             <div className="feature-visual reveal" data-delay="120">
               <div className="fx-wrap">
-                <img src="/focus-illustration.svg" alt="" aria-hidden="true" style={{ width: "100%", height: "auto", display: "block" }} />
-                <div className="fx-float hidden sm:block" style={{ top: "4%", left: "4%", fontSize: 15, animationDelay: "0s" }}>
+                <img src="/focus-illustration.svg" alt="" aria-hidden="true" className="w-full h-auto block" />
+                <div className="fx-float hidden sm:block top-[4%] left-[4%] text-[15px] [animation-delay:0s]">
                   EUR/USD <span className="up">▲ 0.4%</span>
                 </div>
-                <div className="fx-float hidden sm:block" style={{ top: "12%", right: "2%", fontSize: 13, animationDelay: "1.2s" }}>
+                <div className="fx-float hidden sm:block top-[12%] right-[2%] text-[13px] [animation-delay:1.2s]">
                   GBP/USD <span className="down">▼ 0.2%</span>
                 </div>
-                <div className="fx-float hidden sm:block" style={{ top: "40%", left: "0%", fontSize: 14, animationDelay: "0.6s" }}>
+                <div className="fx-float hidden sm:block top-[40%] left-0 text-[14px] [animation-delay:0.6s]">
                   XAU/USD <span className="up">▲ 1.1%</span>
                 </div>
-                <div className="fx-float hidden sm:block" style={{ top: "48%", right: "0%", fontSize: 15, animationDelay: "1.8s" }}>
+                <div className="fx-float hidden sm:block top-[48%] right-0 text-[15px] [animation-delay:1.8s]">
                   NZD/USD <span className="up">▲ 0.3%</span>
                 </div>
-                <div className="fx-float hidden sm:block" style={{ bottom: "14%", left: "8%", fontSize: 13, animationDelay: "2.4s" }}>
+                <div className="fx-float hidden sm:block bottom-[14%] left-[8%] text-[13px] [animation-delay:2.4s]">
                   NAS100 <span className="up">▲ 0.7%</span>
                 </div>
               </div>
@@ -227,7 +225,7 @@ export default async function HomePage() {
             </div>
             <div>
               <div className="eyebrow reveal">Lead Instructor</div>
-              <h2 className="reveal mt-4" data-delay="60" style={{ fontSize: "clamp(28px,3.4vw,40px)" }}>Kondwani</h2>
+              <h2 className="reveal mt-4 text-[clamp(28px,3.4vw,40px)]" data-delay="60">Kondwani</h2>
               <div className="reveal w-14 h-1 rounded-full bg-coral mt-[18px]" data-delay="80" />
               <p className="reveal text-[17px] text-ink-mid mt-[22px] leading-[1.7]" data-delay="120">
                 Live calls posted every trading day. Every alert is validated against the SMC rulebook before posting, so you know exactly why the setup qualifies. Kondwani teaches pure smart money: liquidity, fair-value gaps, order blocks, premium and discount, from first principles.
