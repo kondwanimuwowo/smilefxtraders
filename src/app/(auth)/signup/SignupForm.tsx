@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { Input, Field, Button } from "@/components/ui";
+import { Input, Field, Button, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { signupAction } from "../actions";
 
@@ -19,7 +19,7 @@ function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onC
       )}
     >
       {loading ? (
-        <span className="material-symbols-rounded text-[18px] animate-spin text-ink-dim">progress_activity</span>
+        <Icon name="progress_activity" size={18} className="animate-spin text-ink-dim" />
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={icon} alt="" width={18} height={18} />
@@ -96,9 +96,7 @@ export function SignupForm() {
     return (
       <div className="flex flex-col items-center text-center py-6">
         <div className="size-14 rounded-2xl flex items-center justify-center mb-5 bg-[rgba(8,174,170,0.08)] border border-[rgba(8,174,170,0.2)]">
-          <span className="material-symbols-rounded text-[28px] text-teal">
-            mark_email_unread
-          </span>
+          <Icon name="mark_email_unread" size={28} className="text-teal" />
         </div>
         <h1 className="font-display font-semibold mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
           Check your email

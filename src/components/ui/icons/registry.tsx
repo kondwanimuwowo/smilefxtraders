@@ -234,6 +234,7 @@ export const ICON_REGISTRY: Record<string, IconComponent> = {
   mail: EnvelopeIcon,
   email: EnvelopeIcon,
   mark_email_read: EnvelopeOpenIcon,
+  mark_email_unread: EnvelopeIcon,
   rss_feed: RssIcon,
   campaign: MegaphoneIcon,
   podcasts: RadioIcon,
