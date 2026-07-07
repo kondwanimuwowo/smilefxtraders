@@ -51,9 +51,11 @@ function CheckToggle({ label, checked, onChange }: { label: string; checked: boo
         checked ? "border-teal bg-[rgba(8,174,170,0.08)]" : "border-line bg-panel-2"
       )}
     >
-      <span className={cn("material-symbols-rounded ic-fill shrink-0 text-[18px]", checked ? "text-teal" : "text-ink-dim")}>
-        {checked ? "check_box" : "check_box_outline_blank"}
-      </span>
+      <Icon
+        name={checked ? "check_box" : "check_box_outline_blank"}
+        size={18}
+        className={cn("shrink-0", checked ? "text-teal" : "text-ink-dim")}
+      />
       <span className={cn("text-[12.5px] font-medium", checked ? "text-ink-strong" : "text-ink-mid")}>
         {label}
       </span>
@@ -71,9 +73,11 @@ function RuleRow({ rule }: { rule: RuleResult }) {
           : "bg-transparent border-line"
       )}
     >
-      <span className={cn("material-symbols-rounded ic-fill shrink-0 mt-0.5 text-[17px]", STATUS_TEXT_CLS[rule.status])}>
-        {STATUS_ICON[rule.status]}
-      </span>
+      <Icon
+        name={STATUS_ICON[rule.status]}
+        size={17}
+        className={cn("shrink-0 mt-0.5", STATUS_TEXT_CLS[rule.status])}
+      />
       <div className="min-w-0 flex-1">
         <div className="text-[13px] font-semibold text-ink-strong">{rule.label}</div>
         <div className="text-[12px] mt-0.5 leading-relaxed text-ink-dim">{rule.why}</div>
@@ -447,7 +451,7 @@ export function Validator() {
               {/* Fibonacci confluence */}
               <div className="border-t border-line pt-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="material-symbols-rounded text-[15px] text-gold">architecture</span>
+                  <Icon name="architecture" size={15} className="text-gold" />
                   <span className="text-[11.5px] font-semibold uppercase tracking-wider text-ink-dim">
                     Fibonacci confluence
                   </span>
@@ -494,13 +498,11 @@ export function Validator() {
                   onClick={() => setCalcOpen((o) => !o)}
                   className="flex items-center gap-2 w-full mb-2"
                 >
-                  <span className="material-symbols-rounded text-[15px] text-teal">calculate</span>
+                  <Icon name="calculate" size={15} className="text-teal" />
                   <span className="text-[11.5px] font-semibold uppercase tracking-wider flex-1 text-left text-ink-dim">
                     Position size calculator
                   </span>
-                  <span className="material-symbols-rounded text-[15px] text-ink-dim">
-                    {calcOpen ? "expand_less" : "expand_more"}
-                  </span>
+                  <Icon name={calcOpen ? "expand_less" : "expand_more"} size={15} className="text-ink-dim" />
                 </button>
 
                 {calcOpen && (
@@ -617,7 +619,7 @@ export function Validator() {
                 </div>
                 {setup.fibConfluence && (
                   <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className="material-symbols-rounded ic-fill text-[13px] text-gold">architecture</span>
+                    <Icon name="architecture" size={13} className="text-gold" />
                     <span className="text-[11px] font-semibold text-gold">
                       Fib {setup.fibLevel} active
                     </span>
@@ -665,9 +667,7 @@ export function Validator() {
           <div className="flex items-center gap-4 px-1">
             {(["pass", "warn", "fail"] as Status[]).map((s) => (
               <div key={s} className="flex items-center gap-1.5">
-                <span className={cn("material-symbols-rounded ic-fill text-[14px]", STATUS_TEXT_CLS[s])}>
-                  {STATUS_ICON[s]}
-                </span>
+                <Icon name={STATUS_ICON[s]} size={14} className={STATUS_TEXT_CLS[s]} />
                 <span className="text-[11.5px] capitalize text-ink-dim">{s}</span>
               </div>
             ))}
@@ -715,7 +715,7 @@ function KillzoneBadge({ active, session }: { active: boolean; session: string }
   }
   return (
     <div className="flex items-center gap-1.5 pl-1">
-      <span className="material-symbols-rounded text-[12px] text-ink-dim">schedule</span>
+      <Icon name="schedule" size={12} className="text-ink-dim" />
       <span className="text-[11px] text-ink-dim">Opens in {timeUntilOpen(session)}</span>
     </div>
   );

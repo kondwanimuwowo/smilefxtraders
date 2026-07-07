@@ -62,6 +62,7 @@ import {
   MagnifyingGlassIcon,
   MapPinIcon,
   MegaphoneIcon,
+  MinusCircleIcon,
   MinusIcon,
   MoonIcon,
   NewspaperIcon,
@@ -196,6 +197,9 @@ export const ICON_REGISTRY: Record<string, IconComponent> = {
   tune: AdjustmentsHorizontalIcon,
   palette: SwatchIcon,
   calculate: CalculatorIcon,
+  check_box: CheckCircleIcon,
+  check_box_outline_blank: RadioButtonUncheckedIcon,
+  remove_circle: MinusCircleIcon,
 
   // Visibility / auth
   visibility: EyeIcon,
