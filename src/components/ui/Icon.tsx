@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { ICON_REGISTRY } from "./icons/registry";
 
 interface IconProps {
   name: string;
@@ -8,22 +9,17 @@ interface IconProps {
   style?: CSSProperties;
 }
 
-// Outline and filled states are two separate subsetted static font files
-// (src/app/material-symbols.css), not one variable font switched via
-// fontVariationSettings — the variable Material Symbols font is ~5MB
-// unsubsetted, which caused a visible flash of raw ligature text
-// ("menu_book") before it finished loading.
-export function Icon({ name, size = 20, fill = false, className = "", style }: IconProps) {
+// `fill` is accepted but unused — every icon in ICON_REGISTRY is a single
+// solid/bold SVG (no separate outline variant), so there's nothing left for
+// it to toggle. Kept only so the ~40 existing call sites that still pass it
+// don't need editing; it's a no-op, not a bug.
+export function Icon({ name, size = 20, className = "", style }: IconProps) {
+  const Component = ICON_REGISTRY[name];
   return (
-    <span
-      className={`material-symbols-rounded select-none leading-none ${className}`}
-      style={{
-        fontSize: size,
-        fontFamily: fill ? '"Material Symbols Rounded Fill"' : '"Material Symbols Rounded"',
-        ...style,
-      }}
-    >
-      {name}
-    </span>
+    <Component
+      className={className}
+      style={{ width: size, height: size, ...style }}
+      aria-hidden="true"
+    />
   );
 }
