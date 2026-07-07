@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getUTCHours, getUTCMinutes, isForexClosed } from "@/lib/date";
 import { cn } from "@/lib/cn";
 import { fmtCityTime, fmtCityDay } from "@/lib/date";
+import { Icon } from "./Icon";
 
 // ── Sessions in GMT+2 (SAST / Zambia — always UTC+2, no DST) ─────────────────
 const SESSIONS = [
@@ -108,12 +109,7 @@ export function SessionTimeline() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-5 gap-2 flex-wrap">
         <div className="flex items-center gap-2.5 flex-wrap">
-          <span
-            className="material-symbols-rounded text-[15px] text-ink-dim"
-            style={{ fontFamily: "Material Symbols Rounded Fill" }}
-          >
-            schedule
-          </span>
+          <Icon name="schedule" size={15} className="text-ink-dim" />
           <span className="text-[13px] font-semibold font-display text-ink-strong">
             Session Timeline
           </span>

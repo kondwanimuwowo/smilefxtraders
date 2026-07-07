@@ -158,9 +158,7 @@ export function OnboardingFlow() {
                       selected ? iconBoxCls : "bg-track"
                     )}
                   >
-                    <span className={cn("material-symbols-rounded ic-fill text-xl", selected ? iconCls : "text-ink-dim")}>
-                      {icon}
-                    </span>
+                    <Icon name={icon} size={20} className={selected ? iconCls : "text-ink-dim"} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-[14.5px] text-ink-strong">

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { navActiveIconClass } from "@/lib/nav-active-style";
 import { cn } from "@/lib/cn";
+import { Icon } from "@/components/ui";
 
 interface TabDef {
   href?: string;
@@ -42,9 +43,7 @@ export function BottomTabBar() {
 
         const content = (
           <>
-            <span className={cn("material-symbols-rounded text-[22px]", navActiveIconClass(active))}>
-              {tab.icon}
-            </span>
+            <Icon name={tab.icon} size={22} className={navActiveIconClass(active)} />
             <span className={cn("text-[10px] font-medium leading-none mt-0.5", active ? "text-teal" : "text-ink-mid")}>
               {tab.label}
             </span>

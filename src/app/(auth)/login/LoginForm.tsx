@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Input, Field, Button } from "@/components/ui";
+import { Input, Field, Button, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { loginAction, demoLoginAction } from "../actions";
 
@@ -29,7 +29,7 @@ function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onC
       )}
     >
       {loading ? (
-        <span className="material-symbols-rounded text-[18px] animate-spin text-ink-dim">progress_activity</span>
+        <Icon name="progress_activity" size={18} className="animate-spin text-ink-dim" />
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={icon} alt="" width={18} height={18} />

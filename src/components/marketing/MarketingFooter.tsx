@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Icon } from "@/components/ui";
 
 export function MarketingFooter() {
   const year = new Date().getFullYear();
@@ -40,7 +41,7 @@ export function MarketingFooter() {
                   aria-label={s.label}
                   className="w-[38px] h-[38px] rounded-[10px] grid place-items-center transition-all hover:-translate-y-0.5 bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.8)]"
                 >
-                  <span className="material-symbols-rounded text-[18px]">{s.icon}</span>
+                  <Icon name={s.icon} size={18} />
                 </a>
               ))}
             </div>

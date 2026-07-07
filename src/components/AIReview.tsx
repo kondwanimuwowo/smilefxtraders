@@ -105,7 +105,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
       {/* Header */}
       <div className={cn("flex items-center gap-3 px-4 py-3.5 bg-panel-2", state !== "idle" && "border-b border-line")}>
         <div className="size-9 rounded-xl flex items-center justify-center shrink-0 bg-[linear-gradient(135deg,var(--teal),var(--navy))]">
-          <span className="material-symbols-rounded text-white text-[18px]">robot_2</span>
+          <Icon name="robot_2" size={18} className="text-white" />
         </div>
 
         <div className="flex-1 min-w-0">

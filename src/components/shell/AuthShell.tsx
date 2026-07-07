@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Avatar } from "@/components/ui";
+import { Avatar, Icon } from "@/components/ui";
 import { prisma } from "@/lib/prisma";
 
 const FEATURES = [
@@ -48,9 +48,7 @@ export async function AuthShell({ children }: { children: ReactNode }) {
             {FEATURES.map(({ icon, text }) => (
               <div key={text} className="flex items-center gap-3 text-[13.5px] text-[rgba(255,255,255,0.88)]">
                 <span className="flex items-center justify-center rounded-[8px] shrink-0 size-[30px] bg-[rgba(8,174,170,0.18)]">
-                  <span className="material-symbols-rounded text-[17px] text-teal-bright">
-                    {icon}
-                  </span>
+                  <Icon name={icon} size={17} className="text-teal-bright" />
                 </span>
                 {text}
               </div>

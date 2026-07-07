@@ -61,7 +61,7 @@ export default async function AdminPage() {
         {stats.map((s) => (
           <div key={s.label} className="rounded-2xl p-4 bg-panel border border-line">
             <div className="flex items-center gap-2 mb-2">
-              <span className={cn("material-symbols-rounded text-[18px]", s.colorCls)}>{s.icon}</span>
+              <Icon name={s.icon} size={18} className={s.colorCls} />
               <span className="text-[11px] uppercase tracking-wide font-semibold text-ink-dim">
                 {s.label}
               </span>

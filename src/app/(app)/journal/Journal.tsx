@@ -386,11 +386,11 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
         <Stars value={trade.rating ?? 0} size={13} />
       </td>
       <td className="px-4 py-3 hidden lg:table-cell text-center">
-        <span
-          className={`material-symbols-rounded ic-fill text-[16px] ${trade.discipline ? "text-teal" : "text-coral"}`}
-        >
-          {trade.discipline ? "check_circle" : "cancel"}
-        </span>
+        <Icon
+          name={trade.discipline ? "check_circle" : "cancel"}
+          size={16}
+          className={trade.discipline ? "text-teal" : "text-coral"}
+        />
       </td>
       <td className="px-4 py-3">
         <div
