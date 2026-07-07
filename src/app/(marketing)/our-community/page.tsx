@@ -14,7 +14,7 @@ export default function OurCommunityPage() {
       <section className="dark py-32 pb-24 bg-[radial-gradient(ellipse_at_12%_18%,rgba(8,174,170,0.45)_0%,transparent_52%),radial-gradient(ellipse_at_88%_88%,rgba(248,185,61,0.32)_0%,transparent_48%),linear-gradient(155deg,#0C4E6B_0%,#082A3B_60%)]">
         <div className="container">
           <div className="sec-head reveal">
-            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18]" style={{ fontSize: "clamp(28px,3.8vw,46px)" }}>Discipline is easier together</h2>
+            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">Discipline is easier together</h2>
             <p className="lead mt-[18px]">Share setups, climb the monthly leaderboard, and keep your streak alive alongside traders who take this as seriously as you do.</p>
           </div>
         </div>
@@ -57,14 +57,14 @@ export default function OurCommunityPage() {
                   <span className="font-bold text-[13.5px] text-ink">Monthly Leaderboard</span>
                 </div>
                 {[
-                  { rank: 1, init: "—", name: "Top trader", loc: "Lusaka", pnl: "+R", streak: "—", rankBg: "var(--gold)", rankFg: "var(--navy-deep)" },
-                  { rank: 2, init: "—", name: "2nd place",  loc: "Kitwe",  pnl: "+R", streak: "—", rankBg: "#C7D0D6",    rankFg: "var(--navy-deep)" },
-                  { rank: 3, init: "—", name: "3rd place",  loc: "Ndola",  pnl: "+R", streak: "—", rankBg: "#C8855A",    rankFg: "#fff" },
-                  { rank: 4, init: "—", name: "4th place",  loc: "—",      pnl: "+R", streak: "—", rankBg: "var(--bg-soft)", rankFg: "var(--ink-mid)" },
-                  { rank: 5, init: "—", name: "5th place",  loc: "—",      pnl: "+R", streak: "—", rankBg: "var(--bg-soft)", rankFg: "var(--ink-mid)" },
+                  { rank: 1, init: "—", name: "Top trader", loc: "Lusaka", pnl: "+R", streak: "—", rankBgCls: "bg-gold", rankFgCls: "text-[var(--navy-deep)]" },
+                  { rank: 2, init: "—", name: "2nd place",  loc: "Kitwe",  pnl: "+R", streak: "—", rankBgCls: "bg-[#C7D0D6]", rankFgCls: "text-[var(--navy-deep)]" },
+                  { rank: 3, init: "—", name: "3rd place",  loc: "Ndola",  pnl: "+R", streak: "—", rankBgCls: "bg-[#C8855A]", rankFgCls: "text-white" },
+                  { rank: 4, init: "—", name: "4th place",  loc: "—",      pnl: "+R", streak: "—", rankBgCls: "bg-[var(--bg-soft)]", rankFgCls: "text-ink-mid" },
+                  { rank: 5, init: "—", name: "5th place",  loc: "—",      pnl: "+R", streak: "—", rankBgCls: "bg-[var(--bg-soft)]", rankFgCls: "text-ink-mid" },
                 ].map((m, i) => (
                   <div key={m.rank} className={`flex items-center gap-[13px] py-[13px] px-3.5 ${i ? "border-t border-line" : ""}`}>
-                    <span className="w-7 h-7 rounded-lg grid place-items-center font-bold text-[13px]" style={{ background: m.rankBg, color: m.rankFg }}>{m.rank}</span>
+                    <span className={`w-7 h-7 rounded-lg grid place-items-center font-bold text-[13px] ${m.rankBgCls} ${m.rankFgCls}`}>{m.rank}</span>
                     <span className="avatar w-9 h-9 text-[13px] bg-[var(--bg-soft)] text-ink-dim">?</span>
                     <div className="flex-1 min-w-0">
                       <div className="text-[13.5px] font-semibold text-ink">{m.name}</div>
@@ -128,7 +128,7 @@ export default function OurCommunityPage() {
       <section className="section">
         <div className="container">
           <div className="reveal text-center max-w-[560px] mx-auto">
-            <h2 style={{ fontSize: "clamp(28px,4vw,40px)" }}>Pull up a seat at the desk</h2>
+            <h2 className="text-[clamp(28px,4vw,40px)]">Pull up a seat at the desk</h2>
             <p className="lead mt-3.5">The Starter plan is free. Introduce yourself in the feed and start your streak today.</p>
             <div className="flex gap-3.5 justify-center mt-[26px] flex-wrap">
               <Button href="/signup" size="lg" iconRight="arrow_forward">Join the community</Button>
