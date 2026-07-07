@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Button } from "@/components/ui";
+import { Button, Icon } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Academy | Smile FX Traders",
@@ -65,7 +65,7 @@ export default function LearnPage() {
                 <div key={num} className={`card reveal flex items-center gap-5 py-[22px] px-[26px] ${state === "locked" ? "opacity-[0.62]" : ""}`}>
                   <div className="font-display text-2xl font-bold text-ink-dim w-[38px] shrink-0">{num}</div>
                   <div className={`w-12 h-12 rounded-[13px] grid place-items-center shrink-0 ${iconBgCls}`}>
-                    <span className={`material-symbols-rounded text-2xl ${iconColorCls} ${state !== "locked" ? "ic-fill" : ""}`}>{icon}</span>
+                    <Icon name={icon} size={24} className={iconColorCls} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5 flex-wrap">
@@ -98,20 +98,20 @@ export default function LearnPage() {
                   "Written summary & numbered key takeaways",
                   "Live markups on real XAUUSD & EURUSD setups",
                   "Mark complete to unlock the next lesson",
-                ].map(f => <li key={f}><span className="material-symbols-rounded">check_circle</span>{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="material-symbols-rounded text-teal text-[18px]">play_lesson</span>
+                  <Icon name="play_lesson" size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">FVG + OB Confluence Entries</span>
                   <span className="chip gold ml-auto text-[10px]">Lesson 4</span>
                 </div>
                 <div className="mock-body">
                   <div className="aspect-video rounded-xl bg-navy-grad grid place-items-center relative overflow-hidden">
                     <div className="w-[58px] h-[58px] rounded-full bg-gold grid place-items-center shadow-[0_8px_26px_rgba(248,185,61,0.4)]">
-                      <span className="material-symbols-rounded ic-fill text-[var(--navy-deep)] text-[30px]">play_arrow</span>
+                      <Icon name="play_arrow" size={30} className="text-[var(--navy-deep)]" />
                     </div>
                     <div className="absolute left-3.5 right-3.5 bottom-3.5 h-1 rounded-full bg-white/25">
                       <div className="h-full rounded-full bg-gold w-[32%]" />
@@ -139,17 +139,17 @@ export default function LearnPage() {
         <div className="container">
           <div className="grid g3 reveal">
             <div className="card p-7">
-              <div className="icon-chip"><span className="material-symbols-rounded">groups_3</span></div>
+              <div className="icon-chip"><Icon name="groups_3" /></div>
               <h3 className="text-[19px] mt-4 mb-2">Weekly live calls</h3>
               <p className="text-[14.5px] text-ink-mid leading-[1.6]">Join Kondwani live to mark up the week&apos;s setups and ask questions in real time. <span className="text-[var(--gold-dark)] font-semibold">Funded Track</span></p>
             </div>
             <div className="card p-7">
-              <div className="icon-chip"><span className="material-symbols-rounded">reviews</span></div>
+              <div className="icon-chip"><Icon name="reviews" /></div>
               <h3 className="text-[19px] mt-4 mb-2">1-on-1 journal reviews</h3>
               <p className="text-[14.5px] text-ink-mid leading-[1.6]">Send your journal for a personal teardown and find the leaks faster with a mentor&apos;s eye.</p>
             </div>
             <div className="card p-7">
-              <div className="icon-chip"><span className="material-symbols-rounded">workspace_premium</span></div>
+              <div className="icon-chip"><Icon name="workspace_premium" /></div>
               <h3 className="text-[19px] mt-4 mb-2">Prop-firm playbook</h3>
               <p className="text-[14.5px] text-ink-mid leading-[1.6]">The exact rules and risk model to pass a challenge and trade a funded account responsibly.</p>
             </div>
