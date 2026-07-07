@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { PlanMeta, PlanPrices } from "@/lib/plans";
 import { cn } from "@/lib/cn";
+import { Icon } from "@/components/ui";
 
 export interface PlanCardProps {
   meta: PlanMeta;
@@ -15,12 +16,11 @@ export interface PlanCardProps {
 function FeatureRow({ text, included }: { text: string; included: boolean }) {
   return (
     <div className="flex items-start gap-3 py-1.5">
-      <span
-        className={cn("material-symbols-rounded shrink-0 mt-0.5 text-[16px]", included ? "text-teal" : "text-track")}
-        style={{ fontFamily: "Material Symbols Rounded Fill" }}
-      >
-        {included ? "check_circle" : "cancel"}
-      </span>
+      <Icon
+        name={included ? "check_circle" : "cancel"}
+        size={16}
+        className={cn("shrink-0 mt-0.5", included ? "text-teal" : "text-track")}
+      />
       <span className={cn("text-[13px] leading-snug", included ? "text-ink-mid opacity-100" : "text-ink-dim opacity-55")}>
         {text}
       </span>
@@ -54,12 +54,7 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
             className="size-10 rounded-xl flex items-center justify-center shrink-0"
             style={{ background: `${meta.color}18` }}
           >
-            <span
-              className="material-symbols-rounded text-[22px]"
-              style={{ color: meta.color, fontFamily: "Material Symbols Rounded Fill" }}
-            >
-              {meta.icon}
-            </span>
+            <Icon name={meta.icon} size={22} style={{ color: meta.color }} />
           </div>
           <div className="font-display font-bold text-[17px] text-ink-strong">
             {meta.name}
