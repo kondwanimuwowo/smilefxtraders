@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Icon, Button } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { fmtMonthDay } from "@/lib/date";
 import {
   PostAlertModal,
@@ -13,6 +14,10 @@ import type { InstructorAlert, AlertStatusApp } from "@/app/(app)/alerts/Alerts"
 
 // ── Status config ──────────────────────────────────────────────────────────────
 
+// Kept as raw var-string/rgba values (not converted to classes): color is
+// consumed both directly via style and via `${color}33` alpha-suffix string
+// concatenation below (status transition buttons), which only works with
+// raw CSS values, not Tailwind class names.
 const STATUS_STYLE: Record<AlertStatusApp, { bg: string; color: string; label: string }> = {
   active:    { bg: "rgba(8,174,170,0.12)",   color: "var(--teal)",        label: "Active"    },
   tp1:       { bg: "rgba(8,174,170,0.08)",   color: "var(--teal-bright)", label: "TP1 Hit"   },
@@ -70,10 +75,10 @@ export function AlertsManager() {
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="font-display font-bold" style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--ink-strong)" }}>
+          <h1 className="font-display font-bold text-[24px] tracking-[-0.02em] text-ink-strong">
             Alerts Manager
           </h1>
-          <p className="text-[13px] mt-0.5" style={{ color: "var(--ink-dim)" }}>
+          <p className="text-[13px] mt-0.5 text-ink-dim">
             Post and manage setup alerts. Students receive them in real-time.
           </p>
         </div>
@@ -85,32 +90,24 @@ export function AlertsManager() {
       {/* Summary stats */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
         {[
-          { label: "Total",    value: total,   color: "var(--ink-strong)",  sub: null },
-          { label: "Active",   value: active,  color: "var(--teal)",        sub: null },
-          { label: "TP Hit",   value: tpHits,  color: "var(--teal-bright)", sub: total > 0 ? `${hitRate}% hit rate` : null },
-          { label: "SL Hit",   value: slHits,  color: "var(--coral)",       sub: null },
-          { label: "Win rate", value: total > 0 ? `${hitRate}%` : "—", color: hitRate >= 50 ? "var(--teal)" : "var(--coral)", sub: "tp hits / total" },
-        ].map(({ label, value, color, sub }) => (
-          <div key={label} className="rounded-2xl p-4" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
-            <div className="text-[11px] uppercase tracking-wide font-semibold mb-1" style={{ color: "var(--ink-dim)" }}>{label}</div>
-            <div className="font-display font-bold tabular-nums text-[24px]" style={{ color, letterSpacing: "-0.03em" }}>{value}</div>
-            {sub && <div className="text-[11px] mt-0.5" style={{ color: "var(--ink-dim)" }}>{sub}</div>}
+          { label: "Total",    value: total,   colorCls: "text-ink-strong", sub: null },
+          { label: "Active",   value: active,  colorCls: "text-teal",       sub: null },
+          { label: "TP Hit",   value: tpHits,  colorCls: "text-teal-bright", sub: total > 0 ? `${hitRate}% hit rate` : null },
+          { label: "SL Hit",   value: slHits,  colorCls: "text-coral",      sub: null },
+          { label: "Win rate", value: total > 0 ? `${hitRate}%` : "—", colorCls: hitRate >= 50 ? "text-teal" : "text-coral", sub: "tp hits / total" },
+        ].map(({ label, value, colorCls, sub }) => (
+          <div key={label} className="rounded-2xl p-4 bg-panel border border-line">
+            <div className="text-[11px] uppercase tracking-wide font-semibold mb-1 text-ink-dim">{label}</div>
+            <div className={cn("font-display font-bold tabular-nums text-[24px] tracking-[-0.03em]", colorCls)}>{value}</div>
+            {sub && <div className="text-[11px] mt-0.5 text-ink-dim">{sub}</div>}
           </div>
         ))}
       </div>
 
       {/* Alerts list */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: "var(--panel)", border: "1px solid var(--line)" }}>
+      <div className="rounded-2xl overflow-hidden bg-panel border border-line">
         {/* Table header */}
-        <div
-          className="hidden sm:grid px-5 py-2.5 text-[11px] uppercase tracking-wide font-semibold"
-          style={{
-            gridTemplateColumns: "80px 44px 1fr 90px 80px 60px 80px 40px",
-            borderBottom: "1px solid var(--line)",
-            color: "var(--ink-dim)",
-            background: "var(--panel-2)",
-          }}
-        >
+        <div className="hidden sm:grid grid-cols-[80px_44px_1fr_90px_80px_60px_80px_40px] px-5 py-2.5 text-[11px] uppercase tracking-wide font-semibold border-b border-line text-ink-dim bg-panel-2">
           <span>Pair</span><span>Dir</span><span>Model</span>
           <span>Status</span><span className="text-right">Entry</span>
           <span className="text-right">R:R</span><span className="text-right">Posted</span>
@@ -118,30 +115,29 @@ export function AlertsManager() {
         </div>
 
         {isLoading ? (
-          <div className="divide-y" style={{ borderColor: "var(--line)" }}>
+          <div className="divide-y divide-line">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="px-5 py-4 animate-pulse flex gap-3">
-                <div className="h-4 w-16 rounded" style={{ background: "var(--track)" }} />
-                <div className="h-4 flex-1 rounded" style={{ background: "var(--track)" }} />
+                <div className="h-4 w-16 rounded bg-track" />
+                <div className="h-4 flex-1 rounded bg-track" />
               </div>
             ))}
           </div>
         ) : alerts.length === 0 ? (
           <div className="px-5 py-14 text-center">
-            <div className="text-[13px]" style={{ color: "var(--ink-dim)" }}>
+            <div className="text-[13px] text-ink-dim">
               No alerts posted yet.
             </div>
             <button
               type="button"
               onClick={() => setShowPostModal(true)}
-              className="mt-3 text-[13px] font-semibold"
-              style={{ color: "var(--teal)" }}
+              className="mt-3 text-[13px] font-semibold text-teal"
             >
               Post your first setup →
             </button>
           </div>
         ) : (
-          <div className="divide-y" style={{ borderColor: "var(--line)" }}>
+          <div className="divide-y divide-line">
             {alerts.map((a) => {
               const s = STATUS_STYLE[a.status] ?? STATUS_STYLE.closed;
               const isExpanded = expandedId === a.id;
@@ -151,47 +147,41 @@ export function AlertsManager() {
                 <div key={a.id}>
                   {/* Main row */}
                   <div
-                    className="hidden sm:grid items-center px-5 py-3"
-                    style={{
-                      gridTemplateColumns: "80px 44px 1fr 90px 80px 60px 80px 40px",
-                      background: a.status === "active" ? "rgba(8,174,170,0.02)" : undefined,
-                    }}
+                    className={cn("hidden sm:grid grid-cols-[80px_44px_1fr_90px_80px_60px_80px_40px] items-center px-5 py-3", a.status === "active" && "bg-[rgba(8,174,170,0.02)]")}
                   >
-                    <span className="font-semibold text-[13px]" style={{ color: "var(--ink-strong)" }}>
+                    <span className="font-semibold text-[13px] text-ink-strong">
                       {a.pair}
                     </span>
                     <span
-                      className="text-[10.5px] font-bold uppercase px-1.5 py-0.5 rounded-full w-fit"
-                      style={a.dir === "long"
-                        ? { background: "rgba(8,174,170,0.12)", color: "var(--teal)" }
-                        : { background: "rgba(234,82,61,0.1)",  color: "var(--coral)" }
-                      }
+                      className={cn(
+                        "text-[10.5px] font-bold uppercase px-1.5 py-0.5 rounded-full w-fit",
+                        a.dir === "long" ? "bg-[rgba(8,174,170,0.12)] text-teal" : "bg-[rgba(234,82,61,0.1)] text-coral"
+                      )}
                     >
                       {a.dir === "long" ? "L" : "S"}
                     </span>
-                    <span className="text-[12px] truncate pr-2" style={{ color: "var(--ink-mid)" }}>{a.model}</span>
+                    <span className="text-[12px] truncate pr-2 text-ink-mid">{a.model}</span>
                     <span
                       className="text-[11px] font-semibold px-2 py-0.5 rounded-full w-fit"
                       style={{ background: s.bg, color: s.color }}
                     >
                       {s.label}
                     </span>
-                    <span className="text-right tabular-nums text-[12px]" style={{ color: "var(--ink-mid)" }}>
+                    <span className="text-right tabular-nums text-[12px] text-ink-mid">
                       {a.entry}
                     </span>
-                    <span className="text-right tabular-nums text-[12.5px] font-semibold" style={{ color: "var(--gold)" }}>
+                    <span className="text-right tabular-nums text-[12.5px] font-semibold text-gold">
                       {a.rr}R
                     </span>
-                    <span className="text-right text-[11.5px]" style={{ color: "var(--ink-dim)" }}>
+                    <span className="text-right text-[11.5px] text-ink-dim">
                       {postedDate}
                     </span>
                     <button
                       type="button"
                       onClick={() => setExpandedId(isExpanded ? null : a.id)}
-                      className="flex items-center justify-center rounded-lg p-1 transition-colors hover:bg-[var(--hover)]"
-                      style={{ color: "var(--ink-dim)" }}
+                      className="flex items-center justify-center rounded-lg p-1 transition-colors hover:bg-hover text-ink-dim"
                     >
-                      <span className="material-symbols-rounded" style={{ fontSize: 16 }}>
+                      <span className="material-symbols-rounded text-[16px]">
                         {isExpanded ? "expand_less" : "expand_more"}
                       </span>
                     </button>
@@ -204,13 +194,12 @@ export function AlertsManager() {
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className="font-semibold text-[13px]" style={{ color: "var(--ink-strong)" }}>{a.pair}</span>
+                        <span className="font-semibold text-[13px] text-ink-strong">{a.pair}</span>
                         <span
-                          className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full"
-                          style={a.dir === "long"
-                            ? { background: "rgba(8,174,170,0.12)", color: "var(--teal)" }
-                            : { background: "rgba(234,82,61,0.1)",  color: "var(--coral)" }
-                          }
+                          className={cn(
+                            "text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full",
+                            a.dir === "long" ? "bg-[rgba(8,174,170,0.12)] text-teal" : "bg-[rgba(234,82,61,0.1)] text-coral"
+                          )}
                         >
                           {a.dir}
                         </span>
@@ -218,35 +207,32 @@ export function AlertsManager() {
                           {s.label}
                         </span>
                       </div>
-                      <div className="text-[11.5px] truncate" style={{ color: "var(--ink-dim)" }}>{a.model}</div>
+                      <div className="text-[11.5px] truncate text-ink-dim">{a.model}</div>
                     </div>
-                    <span className="material-symbols-rounded" style={{ fontSize: 16, color: "var(--ink-dim)" }}>
+                    <span className="material-symbols-rounded text-[16px] text-ink-dim">
                       {isExpanded ? "expand_less" : "expand_more"}
                     </span>
                   </div>
 
                   {/* Expanded controls */}
                   {isExpanded && (
-                    <div
-                      className="px-5 py-4 flex flex-col gap-3"
-                      style={{ borderTop: "1px solid var(--line)", background: "var(--panel-2)" }}
-                    >
+                    <div className="px-5 py-4 flex flex-col gap-3 border-t border-line bg-panel-2">
                       {/* Level summary */}
-                      <div className="flex flex-wrap gap-4 text-[12px]" style={{ color: "var(--ink-mid)" }}>
-                        <span>Entry <strong style={{ color: "var(--ink-strong)" }}>{a.entry}</strong></span>
-                        <span>SL <strong style={{ color: "var(--coral-bright)" }}>{a.sl}</strong></span>
-                        <span>TP1 <strong style={{ color: "var(--teal-bright)" }}>{a.tp1}</strong></span>
-                        {a.tp2 && <span>TP2 <strong style={{ color: "var(--teal-bright)" }}>{a.tp2}</strong></span>}
-                        <span>R:R <strong style={{ color: "var(--gold)" }}>{a.rr}R</strong></span>
-                        <span>Session <strong style={{ color: "var(--ink-strong)" }}>{a.session}</strong></span>
+                      <div className="flex flex-wrap gap-4 text-[12px] text-ink-mid">
+                        <span>Entry <strong className="text-ink-strong">{a.entry}</strong></span>
+                        <span>SL <strong className="text-coral-bright">{a.sl}</strong></span>
+                        <span>TP1 <strong className="text-teal-bright">{a.tp1}</strong></span>
+                        {a.tp2 && <span>TP2 <strong className="text-teal-bright">{a.tp2}</strong></span>}
+                        <span>R:R <strong className="text-gold">{a.rr}R</strong></span>
+                        <span>Session <strong className="text-ink-strong">{a.session}</strong></span>
                       </div>
                       {a.note && (
-                        <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-dim)" }}>{a.note}</p>
+                        <p className="text-[12.5px] leading-relaxed text-ink-dim">{a.note}</p>
                       )}
 
                       {/* Status controls */}
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--ink-dim)" }}>
+                        <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-dim">
                           Update status:
                         </span>
                         {STATUS_TRANSITIONS.filter((s) => s !== a.status).map((status) => (
@@ -267,8 +253,7 @@ export function AlertsManager() {
                         <button
                           type="button"
                           onClick={() => { if (confirm("Delete this alert permanently?")) deleteAlert(a.id); }}
-                          className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11.5px] font-semibold transition-all hover:opacity-80"
-                          style={{ background: "rgba(234,82,61,0.08)", color: "var(--coral)", border: "1px solid rgba(234,82,61,0.2)" }}
+                          className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11.5px] font-semibold transition-all hover:opacity-80 bg-[rgba(234,82,61,0.08)] text-coral border border-[rgba(234,82,61,0.2)]"
                         >
                           <Icon name="delete" size={13} />
                           Delete
