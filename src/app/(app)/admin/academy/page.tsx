@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireInstructor } from "@/lib/admin-guard";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/cn";
+import { Icon } from "@/components/ui";
 
 export default async function AdminAcademyPage() {
   await requireInstructor();
@@ -39,7 +40,7 @@ export default async function AdminAcademyPage() {
           href="/admin/academy/courses/new"
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-semibold transition-all bg-teal text-white"
         >
-          <span className="material-symbols-rounded text-[16px]">add</span>
+          <Icon name="add" size={16} />
           New course
         </Link>
       </div>
@@ -79,7 +80,7 @@ export default async function AdminAcademyPage() {
                     className="size-9 rounded-xl flex items-center justify-center shrink-0"
                     style={{ background: `${course.color}20` }}
                   >
-                    <span className="material-symbols-rounded text-[18px]" style={{ color: course.color }}>{course.icon}</span>
+                    <Icon name={course.icon} size={18} style={{ color: course.color }} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
@@ -102,7 +103,7 @@ export default async function AdminAcademyPage() {
                   href={`/admin/academy/courses/${course.id}`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all hover:opacity-80 bg-panel-2 text-ink-mid border border-line"
                 >
-                  <span className="material-symbols-rounded text-[15px]">edit</span>
+                  <Icon name="edit" size={15} />
                   Edit
                 </Link>
               </div>
@@ -136,7 +137,7 @@ export default async function AdminAcademyPage() {
                         href={`/admin/academy/courses/${course.id}/lessons/${lesson.id}`}
                         className="shrink-0 p-1 rounded-lg hover:opacity-70 transition-opacity text-ink-dim"
                       >
-                        <span className="material-symbols-rounded text-[16px]">edit</span>
+                        <Icon name="edit" size={16} />
                       </Link>
                     </div>
                   );
