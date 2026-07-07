@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { useTrades } from "@/lib/hooks/useTrades";
+import { cn } from "@/lib/cn";
 import type { Trade, FeedPost } from "@/lib/store";
 
 type Result = { type: "trade" | "alert" | "post"; label: string; sub: string; href: string };
@@ -70,32 +71,28 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[200] flex items-start justify-center pt-[15vh]"
-      style={{ background: "rgba(8,42,59,0.55)", backdropFilter: "blur(6px)" }}
+      className="fixed inset-0 z-[200] flex items-start justify-center pt-[15vh] bg-[rgba(8,42,59,0.55)] backdrop-blur-[6px]"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div
-        className="w-full rounded-2xl overflow-hidden shadow-2xl"
-        style={{ maxWidth: 560, background: "var(--panel)", border: "1px solid var(--line)" }}
-      >
+      <div className="w-full rounded-2xl overflow-hidden shadow-2xl max-w-[560px] bg-panel border border-line">
         {/* Input */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", borderBottom: "1px solid var(--line)" }}>
-          <span className="material-symbols-rounded" style={{ fontSize: 20, color: "var(--ink-dim)" }}>search</span>
+        <div className="flex items-center gap-2.5 px-[18px] py-3.5 border-b border-line">
+          <span className="material-symbols-rounded text-[20px] text-ink-dim">search</span>
           <input
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search trades, posts…"
-            style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: 16, color: "var(--ink)", fontFamily: "var(--font-sans)" }}
+            className="flex-1 border-none outline-none bg-transparent text-base text-ink font-sans"
           />
-          <kbd style={{ fontSize: 11, padding: "2px 6px", borderRadius: 5, background: "var(--track)", color: "var(--ink-dim)", flexShrink: 0 }}>Esc</kbd>
+          <kbd className="text-[11px] px-1.5 py-0.5 rounded-[5px] shrink-0 bg-track text-ink-dim">Esc</kbd>
         </div>
 
         {/* Results */}
         {q.trim() && (
-          <div style={{ maxHeight: 360, overflowY: "auto" }}>
+          <div className="max-h-[360px] overflow-y-auto">
             {results.length === 0 ? (
-              <div style={{ padding: "28px 18px", textAlign: "center", fontSize: 14, color: "var(--ink-dim)" }}>
+              <div className="px-[18px] py-7 text-center text-sm text-ink-dim">
                 No results for &quot;{q}&quot;
               </div>
             ) : results.map((r, i) => (
@@ -104,22 +101,25 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
                 type="button"
                 onClick={() => { router.push(r.href); onClose(); }}
                 onMouseEnter={() => setSel(i)}
-                className="w-full text-left"
-                style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 18px", background: i === sel ? "var(--bg-hover)" : "transparent", borderBottom: i < results.length - 1 ? "1px solid var(--line-faint, var(--line))" : "none" }}
+                className={cn(
+                  "w-full text-left flex items-center gap-3 px-[18px] py-3",
+                  i === sel ? "bg-[var(--bg-hover)]" : "bg-transparent",
+                  i < results.length - 1 && "border-b border-line"
+                )}
               >
-                <span className="material-symbols-rounded" style={{ fontSize: 18, color: "var(--teal)", flexShrink: 0 }}>{TYPE_ICON[r.type]}</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 500, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.label}</div>
-                  <div style={{ fontSize: 12, color: "var(--ink-dim)", marginTop: 2 }}>{r.sub}</div>
+                <span className="material-symbols-rounded text-[18px] text-teal shrink-0">{TYPE_ICON[r.type]}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-ink whitespace-nowrap overflow-hidden text-ellipsis">{r.label}</div>
+                  <div className="text-xs mt-0.5 text-ink-dim">{r.sub}</div>
                 </div>
-                <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: "var(--bg-soft)", color: "var(--ink-dim)", flexShrink: 0 }}>{TYPE_LABEL[r.type]}</span>
+                <span className="text-[11px] px-2 py-0.5 rounded-md shrink-0 bg-[var(--bg-soft)] text-ink-dim">{TYPE_LABEL[r.type]}</span>
               </button>
             ))}
           </div>
         )}
 
         {!q.trim() && (
-          <div style={{ padding: "18px 18px", display: "flex", gap: 20, flexWrap: "wrap" }}>
+          <div className="px-[18px] py-[18px] flex gap-5 flex-wrap">
             {[
               { label: "Journal",   href: "/journal",   icon: "menu_book" },
               { label: "Validator", href: "/validator", icon: "rule" },
@@ -130,9 +130,9 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
                 key={s.href}
                 type="button"
                 onClick={() => { router.push(s.href); onClose(); }}
-                style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13.5, fontWeight: 500, color: "var(--ink-mid)", padding: "8px 13px", borderRadius: 10, background: "var(--bg-soft)", border: "none", cursor: "pointer" }}
+                className="flex items-center gap-1.5 text-[13.5px] font-medium px-3.5 py-2 rounded-[10px] border-none cursor-pointer bg-[var(--bg-soft)] text-ink-mid"
               >
-                <span className="material-symbols-rounded" style={{ fontSize: 17, color: "var(--teal)" }}>{s.icon}</span>
+                <span className="material-symbols-rounded text-[17px] text-teal">{s.icon}</span>
                 {s.label}
               </button>
             ))}
