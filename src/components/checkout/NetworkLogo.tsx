@@ -5,10 +5,10 @@ import type { ZmOperator } from "@/lib/mobile-money";
 // recognisable network logo. Drop-in real PNG/SVG logos later if brand assets
 // become available — keep the same `op` → mark mapping.
 
-const BRAND: Record<ZmOperator, { bg: string; fg: string; mark: string }> = {
-  airtel: { bg: "#E40000", fg: "#FFFFFF", mark: "airtel" },
-  mtn:    { bg: "#FFCB05", fg: "#1A1A1A", mark: "MTN"    },
-  zamtel: { bg: "#009A44", fg: "#FFFFFF", mark: "zamtel" },
+const BRAND: Record<ZmOperator, { bgCls: string; fgCls: string; mark: string }> = {
+  airtel: { bgCls: "bg-[#E40000]",   fgCls: "text-white",     mark: "airtel" },
+  mtn:    { bgCls: "bg-[#FFCB05]",   fgCls: "text-[#1A1A1A]", mark: "MTN"    },
+  zamtel: { bgCls: "bg-[#009A44]",   fgCls: "text-white",     mark: "zamtel" },
 };
 
 export function NetworkLogo({ op, size = 28 }: { op: ZmOperator; size?: number }) {
@@ -16,16 +16,12 @@ export function NetworkLogo({ op, size = 28 }: { op: ZmOperator; size?: number }
   return (
     <span
       aria-hidden
-      className="inline-flex items-center justify-center rounded-lg font-bold shrink-0 select-none"
+      className={`inline-flex items-center justify-center rounded-lg font-bold font-display shrink-0 select-none tracking-[-0.02em] ${b.bgCls} ${b.fgCls}`}
       style={{
-        width:        size,
-        height:       size,
-        background:   b.bg,
-        color:        b.fg,
+        width:    size,
+        height:   size,
         // MTN's wordmark is lowercase; Airtel/Zamtel render as compact lowercase too
-        fontSize:     op === "mtn" ? size * 0.32 : size * 0.26,
-        letterSpacing: "-0.02em",
-        fontFamily:   "var(--font-display)",
+        fontSize: op === "mtn" ? size * 0.32 : size * 0.26,
       }}
     >
       {b.mark}

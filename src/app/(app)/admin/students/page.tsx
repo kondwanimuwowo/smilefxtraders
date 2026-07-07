@@ -41,7 +41,7 @@ export default async function AdminStudentsPage() {
 
       <div className="rounded-2xl overflow-hidden bg-panel border border-line">
         {/* Table header — desktop only, mobile cards show labels inline */}
-        <div className="hidden md:grid px-5 py-2.5 text-[11px] uppercase tracking-wide font-semibold border-b border-line text-ink-dim bg-panel-2" style={{ gridTemplateColumns: GRID_COLS }}>
+        <div className="hidden md:grid px-5 py-2.5 text-[11px] uppercase tracking-wide font-semibold border-b border-line text-ink-dim bg-panel-2 grid-cols-[1fr_1fr_80px_60px_60px_80px]">
           <span>Name</span>
           <span>Email</span>
           <span>Plan</span>

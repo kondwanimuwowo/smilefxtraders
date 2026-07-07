@@ -33,7 +33,7 @@ function BrandLogo({ scrolled }: { scrolled: boolean }) {
 // or blocked on a given connection. The three bars morph into an X on open.
 function MenuGlyph({ open, color }: { open: boolean; color: string }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" style={{ display: "block" }}>
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" className="block">
       <line
         x1="3" y1={open ? 11 : 6} x2="19" y2={open ? 11 : 6}
         stroke={color} strokeWidth="2" strokeLinecap="round"
@@ -186,12 +186,9 @@ export function MarketingNav() {
       {/* Mobile full-screen nav — always mounted so open/close can animate;
           visibility toggled via opacity/transform + pointer-events. */}
       <div
-        className="fixed inset-0 lg:hidden flex flex-col px-6 overflow-y-auto bg-[radial-gradient(ellipse_at_15%_12%,rgba(8,174,170,0.32)_0%,transparent_50%),radial-gradient(ellipse_at_90%_85%,rgba(248,185,61,0.18)_0%,transparent_48%),var(--navy-deep,#082A3B)]"
+        className="fixed inset-0 lg:hidden flex flex-col px-6 overflow-y-auto bg-[radial-gradient(ellipse_at_15%_12%,rgba(8,174,170,0.32)_0%,transparent_50%),radial-gradient(ellipse_at_90%_85%,rgba(248,185,61,0.18)_0%,transparent_48%),var(--navy-deep,#082A3B)] z-[65] pt-[calc(4.5rem+var(--safe-top))] pb-[calc(1.5rem+var(--safe-bottom))]"
         aria-hidden={!mobileOpen}
         style={{
-          zIndex: 65,
-          paddingTop: "calc(4.5rem + var(--safe-top))",
-          paddingBottom: "calc(1.5rem + var(--safe-bottom))",
           opacity: mobileOpen ? 1 : 0,
           transform: mobileOpen ? "translateY(0)" : "translateY(-12px)",
           visibility: mobileOpen ? "visible" : "hidden",
@@ -201,7 +198,7 @@ export function MarketingNav() {
           transitionTimingFunction: "var(--ease-app, cubic-bezier(0.16,1,0.3,1))",
         }}
       >
-        <nav className="flex flex-col" style={{ marginTop: 8 }}>
+        <nav className="flex flex-col mt-2">
           {NAV.map((n, i) => {
             const active = pathname === n.href;
             return (
@@ -227,11 +224,8 @@ export function MarketingNav() {
         </nav>
 
         <div
+          className="flex flex-col gap-3 mt-7"
           style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 12,
-            marginTop: 28,
             opacity: mobileOpen ? 1 : 0,
             transform: mobileOpen ? "translateY(0)" : "translateY(8px)",
             transition: `opacity 320ms var(--ease-app, cubic-bezier(0.16,1,0.3,1)) ${60 + NAV.length * 45}ms, transform 320ms var(--ease-app, cubic-bezier(0.16,1,0.3,1)) ${60 + NAV.length * 45}ms`,

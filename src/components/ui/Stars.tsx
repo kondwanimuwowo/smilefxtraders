@@ -1,4 +1,5 @@
 import { Icon } from "./Icon";
+import { cn } from "@/lib/cn";
 
 interface StarsProps {
   value: number;
@@ -14,18 +15,13 @@ export function Stars({ value, onChange, size = 18 }: StarsProps) {
           key={n}
           type="button"
           onClick={() => onChange?.(n)}
-          className="p-0 leading-none"
-          style={{
-            background: "none",
-            border: "none",
-            cursor: onChange ? "pointer" : "default",
-          }}
+          className={cn("p-0 leading-none bg-transparent border-none", onChange ? "cursor-pointer" : "cursor-default")}
         >
           <Icon
             name="star"
             size={size}
             fill={n <= value}
-            style={{ color: n <= value ? "var(--gold)" : "var(--ink-dim)" }}
+            className={n <= value ? "text-gold" : "text-ink-dim"}
           />
         </button>
       ))}

@@ -1,7 +1,18 @@
 "use client";
 
-import { useStore } from "@/lib/store";
+import { useStore, type ToastTone } from "@/lib/store";
 import { Icon } from "./Icon";
+import { cn } from "@/lib/cn";
+
+// gold has no "-bright" variant registered (only teal-bright/coral-bright
+// exist) — var(--gold-bright) was already a silent no-op pre-migration;
+// kept as an arbitrary-value class referencing the same undefined token
+// rather than "fixed" to a real color.
+const TONE_TEXT_CLS: Record<ToastTone, string> = {
+  teal:  "text-[var(--teal-bright)]",
+  gold:  "text-[var(--gold-bright)]",
+  coral: "text-[var(--coral-bright)]",
+};
 
 export function ToastHost() {
   const toasts = useStore((s) => s.toasts);
@@ -11,19 +22,13 @@ export function ToastHost() {
       {toasts.map((t) => (
         <div
           key={t.id}
-          className="flex items-center gap-2.5 px-4 py-3 rounded-2xl text-[13.5px] font-medium animate-toast-in pointer-events-auto"
-          style={{
-            background: "var(--panel)",
-            border: "1px solid var(--line)",
-            boxShadow: "0 12px 36px rgba(0,0,0,0.35)",
-            color: "var(--ink-strong)",
-          }}
+          className="flex items-center gap-2.5 px-4 py-3 rounded-2xl text-[13.5px] font-medium animate-toast-in pointer-events-auto bg-panel border border-line shadow-[0_12px_36px_rgba(0,0,0,0.35)] text-ink-strong"
         >
           <Icon
             name={t.icon}
             size={18}
             fill
-            style={{ color: `var(--${t.tone}-bright)`, flexShrink: 0 }}
+            className={cn("shrink-0", TONE_TEXT_CLS[t.tone])}
           />
           <span>{t.msg}</span>
         </div>

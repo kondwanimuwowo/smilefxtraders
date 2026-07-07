@@ -37,7 +37,7 @@ export function Sparkline({
   const area = `${d} L ${width} ${height} L 0 ${height} Z`;
 
   return (
-    <svg width={width} height={height} style={{ display: "block", overflow: "visible" }}>
+    <svg width={width} height={height} className="block overflow-visible">
       <defs>
         <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.28" />

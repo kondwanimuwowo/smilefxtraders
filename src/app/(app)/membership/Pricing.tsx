@@ -40,7 +40,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
     <div className="border-b border-line">
       <button type="button" onClick={() => setOpen((o) => !o)} className="flex items-center justify-between w-full py-4 text-left gap-4">
         <span className="font-semibold text-[14px] text-ink-strong">{q}</span>
-        <Icon name={open ? "expand_less" : "expand_more"} size={20} style={{ color: "var(--ink-dim)", flexShrink: 0 }} />
+        <Icon name={open ? "expand_less" : "expand_more"} size={20} className="text-ink-dim shrink-0" />
       </button>
       {open && <div className="pb-4 text-[13px] leading-relaxed text-ink-mid">{a}</div>}
     </div>
@@ -142,7 +142,7 @@ export function Pricing() {
       <div
         className="rounded-2xl px-6 py-5 flex items-center gap-4 mb-10 bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.2)]"
       >
-        <Icon name="verified_user" size={30} fill style={{ color: "var(--teal)", flexShrink: 0 }} />
+        <Icon name="verified_user" size={30} fill className="text-teal shrink-0" />
         <div>
           <div className="font-display font-semibold text-[15px] mb-0.5 text-ink-strong">
             7-day money-back guarantee

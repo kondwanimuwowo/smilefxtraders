@@ -117,17 +117,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <Providers>
-      <div className="flex h-screen overflow-hidden" style={{ background: "var(--app-bg)" }}>
+      <div className="flex h-screen overflow-hidden bg-app-bg">
         <StoreHydrator user={appUser} trades={trades} />
         <NotificationsPoller />
         <Sidebar />
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           <Topbar />
           <main className="flex-1 overflow-y-auto overflow-x-hidden">
-            <div
-              className="mx-auto w-full px-4 sm:px-6 pt-5 pb-24 md:pb-12"
-              style={{ maxWidth: 1320 }}
-            >
+            <div className="mx-auto w-full px-4 sm:px-6 pt-5 pb-24 md:pb-12 max-w-[1320px]">
               {children}
             </div>
           </main>

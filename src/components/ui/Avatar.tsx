@@ -26,14 +26,12 @@ export function Avatar({ seed = 1, name = "?", size = 36, ring, className = "" }
 
   return (
     <div
-      className={`shrink-0 rounded-full grid place-items-center font-bold ${className}`}
+      className={`shrink-0 rounded-full grid place-items-center font-bold text-white tracking-[-0.02em] ${className}`}
       style={{
         width: size,
         height: size,
         background: `linear-gradient(135deg, ${from}, ${to})`,
-        color: "#fff",
         fontSize: size * 0.38,
-        letterSpacing: "-0.02em",
         boxShadow: ring ? `0 0 0 2px var(--app-bg), 0 0 0 4px ${ring}` : undefined,
       }}
     >

@@ -613,7 +613,7 @@ export function Community() {
 
           {error instanceof Error ? (
             <div className="rounded-2xl px-5 py-10 text-center bg-panel border border-line">
-              <Icon name="wifi_off" size={28} style={{ color: "var(--ink-dim)", marginBottom: 8 }} />
+              <Icon name="wifi_off" size={28} className="text-ink-dim mb-2" />
               <p className="text-[13px] font-medium mb-1 text-ink-strong">Could not load posts</p>
               <p className="text-[12.5px] text-ink-dim">{error.message}</p>
             </div>
@@ -666,7 +666,7 @@ export function Community() {
                 "Tag your pair and direction when posting a trade.",
               ].map((rule) => (
                 <li key={rule} className="flex items-start gap-2">
-                  <Icon name="check" size={14} style={{ color: "var(--teal)", flexShrink: 0, marginTop: 1 }} />
+                  <Icon name="check" size={14} className="text-teal shrink-0 mt-px" />
                   {rule}
                 </li>
               ))}

@@ -89,7 +89,7 @@ export default function PairsPage() {
               </div>
 
               {/* Pair cards */}
-              <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+              <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
                 {group.pairs.map(({ pair, label, base, quote }) => (
                   <Link
                     key={pair}

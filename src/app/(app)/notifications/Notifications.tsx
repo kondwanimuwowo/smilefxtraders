@@ -48,7 +48,7 @@ export function Notifications() {
       {notifs.length === 0 ? (
         <div className="rounded-2xl flex flex-col items-center py-20 text-center bg-panel border border-line">
           <div className="size-14 rounded-2xl flex items-center justify-center mb-4 bg-[rgba(8,174,170,0.08)] border border-[rgba(8,174,170,0.15)]">
-            <Icon name="notifications" size={26} style={{ color: "var(--teal)" }} />
+            <Icon name="notifications" size={26} className="text-teal" />
           </div>
           <div className="font-semibold text-[15px] mb-1 text-ink-strong">
             All clear

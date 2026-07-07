@@ -97,24 +97,18 @@ export async function AuthShell({ children }: { children: ReactNode }) {
 function BrandMarkAuth({ size = 48 }: { size?: number }) {
   return (
     <div
+      className="overflow-hidden shrink-0 bg-[linear-gradient(135deg,#08AEAA,#0B425D)]"
       style={{
         width: size,
         height: size,
         borderRadius: Math.round(size * 0.27),
-        overflow: "hidden",
-        background: "linear-gradient(135deg, #08AEAA, #0B425D)",
-        flexShrink: 0,
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/smile-fx-logo-wht.png"
         alt=""
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "contain",
-        }}
+        className="w-full h-full object-contain"
       />
     </div>
   );

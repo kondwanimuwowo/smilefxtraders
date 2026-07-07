@@ -374,8 +374,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
     {/* Floating dropdown — sibling of the card so overflow-hidden doesn't clip it */}
     {histOpen && (
       <div
-        className="absolute left-0 right-0 z-20 px-2 pb-3 bg-panel border border-t-0 border-line rounded-b-2xl shadow-[0_12px_32px_rgba(0,0,0,0.2)]"
-        style={{ top: "100%" }}
+        className="absolute left-0 right-0 top-full z-20 px-2 pb-3 bg-panel border border-t-0 border-line rounded-b-2xl shadow-[0_12px_32px_rgba(0,0,0,0.2)]"
         onClick={(e) => e.stopPropagation()}
       >
         <HistoryTable history={entry.history} />

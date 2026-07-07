@@ -27,6 +27,25 @@ const STATUS_STYLE: Record<AlertStatusApp, { bg: string; color: string; label: s
   closed:    { bg: "rgba(154,154,154,0.08)", color: "var(--ink-dim)",     label: "Closed"    },
 };
 
+// Plain-consumption class equivalents for the two badge usages that don't
+// need the alpha-suffix concatenation above.
+const STATUS_BG_CLS: Record<AlertStatusApp, string> = {
+  active:    "bg-[rgba(8,174,170,0.12)]",
+  tp1:       "bg-[rgba(8,174,170,0.08)]",
+  tp2:       "bg-[rgba(8,174,170,0.12)]",
+  sl:        "bg-[rgba(234,82,61,0.1)]",
+  cancelled: "bg-[rgba(154,154,154,0.08)]",
+  closed:    "bg-[rgba(154,154,154,0.08)]",
+};
+const STATUS_TEXT_CLS: Record<AlertStatusApp, string> = {
+  active:    "text-teal",
+  tp1:       "text-teal-bright",
+  tp2:       "text-teal-bright",
+  sl:        "text-coral",
+  cancelled: "text-ink-dim",
+  closed:    "text-ink-dim",
+};
+
 const STATUS_TRANSITIONS: AlertStatusApp[] = ["active", "tp1", "tp2", "sl", "cancelled", "closed"];
 
 // ── Data ───────────────────────────────────────────────────────────────────────
@@ -162,8 +181,7 @@ export function AlertsManager() {
                     </span>
                     <span className="text-[12px] truncate pr-2 text-ink-mid">{a.model}</span>
                     <span
-                      className="text-[11px] font-semibold px-2 py-0.5 rounded-full w-fit"
-                      style={{ background: s.bg, color: s.color }}
+                      className={cn("text-[11px] font-semibold px-2 py-0.5 rounded-full w-fit", STATUS_BG_CLS[a.status] ?? STATUS_BG_CLS.closed, STATUS_TEXT_CLS[a.status] ?? STATUS_TEXT_CLS.closed)}
                     >
                       {s.label}
                     </span>
@@ -203,7 +221,7 @@ export function AlertsManager() {
                         >
                           {a.dir}
                         </span>
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: s.bg, color: s.color }}>
+                        <span className={cn("text-[11px] font-semibold px-2 py-0.5 rounded-full", STATUS_BG_CLS[a.status] ?? STATUS_BG_CLS.closed, STATUS_TEXT_CLS[a.status] ?? STATUS_TEXT_CLS.closed)}>
                           {s.label}
                         </span>
                       </div>

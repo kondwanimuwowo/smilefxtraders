@@ -44,7 +44,6 @@ export function MonoInput(props: InputHTMLAttributes<HTMLInputElement>) {
     <input
       className={`${inputCls} tabular-nums`}
       inputMode="decimal"
-      style={{ fontFeatureSettings: '"tnum"' }}
       {...props}
     />
   );

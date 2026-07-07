@@ -555,7 +555,7 @@ export default function CotPairPage() {
                 <Icon
                   name="refresh"
                   size={14}
-                  style={{ animation: loadingMore ? "spin 0.7s linear infinite" : "none" }}
+                  className={cn(loadingMore && "animate-[spin_0.7s_linear_infinite]")}
                 />
                 {loadingMore ? "Loading…" : `Load ${Math.min(104, total - rows.length)} older weeks`}
               </button>
