@@ -11,6 +11,7 @@ import {
   Panel, PanelHead, StatTile, DirPill, Chip, Avatar,
   Button, Ring, Sparkline, Icon, CandleChart, EmptyState,
 } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
 import type { InstructorAlert } from "@/app/(app)/alerts/Alerts";
 import type { CalEvent } from "@/app/api/calendar/route";
@@ -185,7 +186,7 @@ function FeaturedAlertCard() {
               <span className="font-semibold text-[13.5px] text-ink-strong">
                 Kondwani
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-gold text-[var(--navy-deep)]">
+              <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-gold text-navy-deep">
                 Lead Trader
               </span>
             </div>
@@ -223,17 +224,17 @@ function FeaturedAlertCard() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
           {(
             [
-              ["Entry", alert.entry,           alert.dir === "long" ? "var(--teal)" : "var(--coral)"],
-              ["Stop",  alert.sl,              "var(--coral-bright)"],
-              ["TP1",   alert.tp1,             "var(--teal-bright)"],
-              ["R:R",   alert.rr + "R",        "var(--gold)"],
+              ["Entry", alert.entry,           alert.dir === "long" ? "text-teal" : "text-coral"],
+              ["Stop",  alert.sl,              "text-coral-bright"],
+              ["TP1",   alert.tp1,             "text-teal-bright"],
+              ["R:R",   alert.rr + "R",        "text-gold"],
             ] as [string, string, string][]
-          ).map(([label, val, color]) => (
+          ).map(([label, val, colorCls]) => (
             <div key={label} className="rounded-xl p-3 bg-panel-2">
               <div className="text-[10px] uppercase tracking-widest font-semibold mb-1 text-ink-dim">
                 {label}
               </div>
-              <div className="font-semibold text-[14.5px] tabular-nums" style={{ color }}>
+              <div className={cn("font-semibold text-[14.5px] tabular-nums", colorCls)}>
                 {val}
               </div>
             </div>
@@ -255,7 +256,7 @@ function FeaturedAlertCard() {
           </Link>
           <div className="ml-auto flex items-center gap-4 text-[12px] text-ink-dim">
             <span className="flex items-center gap-1.5">
-              <Icon name="favorite" size={14} fill style={{ color: "var(--coral)" }} />
+              <Icon name="favorite" size={14} fill className="text-coral" />
               {alert.reactions ?? 0}
             </span>
             <span className="flex items-center gap-1.5">
@@ -272,7 +273,7 @@ function FeaturedAlertCard() {
 
 // ── Today's high-impact events ────────────────────────────────────────────────
 
-const IMPACT_COLOR: Record<number, string> = { 3: "var(--coral)", 2: "var(--gold)", 1: "var(--ink-dim)" };
+const IMPACT_CLS: Record<number, string> = { 3: "bg-coral", 2: "bg-gold", 1: "bg-ink-dim" };
 
 function useTodayEvents() {
   return useQuery({
@@ -368,8 +369,8 @@ function fmtR(r: number) {
   return (r > 0 ? "+" : "") + r.toFixed(1) + "R";
 }
 
-function rColor(r: number) {
-  return r > 0 ? "var(--teal-bright)" : r < 0 ? "var(--coral-bright)" : "var(--ink-mid)";
+function rColorCls(r: number) {
+  return r > 0 ? "text-teal-bright" : r < 0 ? "text-coral-bright" : "text-ink-mid";
 }
 
 // ── Responsive Sparkline wrapper ──────────────────────────────────────────────
@@ -406,17 +407,15 @@ function ActiveTradesPanel() {
       <div className="flex flex-col">
         {active.map((t, i) => {
           const isLong = t.dir.toLowerCase() === "long";
-          const dirColor = isLong ? "var(--teal)" : "var(--coral)";
+          const dirColorCls = isLong ? "text-teal" : "text-coral";
+          const dirBgCls = isLong ? "bg-teal" : "bg-coral";
           return (
             <div
               key={t.id}
-              className={`relative flex items-center gap-4 px-5 py-3.5 ${i > 0 ? "border-t border-line" : ""} ${i % 2 === 0 ? "bg-transparent" : "bg-white/[0.01]"}`}
+              className={cn("relative flex items-center gap-4 px-5 py-3.5", i > 0 && "border-t border-line", i % 2 === 0 ? "bg-transparent" : "bg-white/[0.01]")}
             >
               {/* Direction accent bar */}
-              <div
-                className="absolute left-0 top-3 bottom-3 rounded-r-full w-[3px] opacity-70"
-                style={{ background: dirColor }}
-              />
+              <div className={cn("absolute left-0 top-3 bottom-3 rounded-r-full w-[3px] opacity-70", dirBgCls)} />
 
               {/* Pair + direction */}
               <div className="flex flex-col gap-1 min-w-[90px] shrink-0">
@@ -437,7 +436,7 @@ function ActiveTradesPanel() {
               <div
                 className="flex-1 grid grid-cols-[repeat(3,auto)] gap-x-4 gap-y-0.5 tabular-nums text-[11px] text-ink-dim"
               >
-                <span className="font-semibold" style={{ color: dirColor }}>
+                <span className={cn("font-semibold", dirColorCls)}>
                   {t.entryPrice ?? "—"}
                 </span>
                 <span>{t.stopLoss ?? "—"}</span>
@@ -466,10 +465,7 @@ function ActiveTradesPanel() {
 
       {/* Footer pulse */}
       <div className="flex items-center gap-2 px-5 py-2.5 border-t border-line bg-[rgba(248,185,61,0.03)]">
-        <span
-          className="inline-block w-1.5 h-1.5 rounded-full bg-gold shadow-[0_0_6px_var(--gold)]"
-          style={{ animation: "live-pulse 2s infinite" }}
-        />
+        <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold shadow-[0_0_6px_var(--gold)] animate-[live-pulse_2s_infinite]" />
         <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-gold">
           {active.length} position{active.length !== 1 ? "s" : ""} live
         </span>
@@ -481,11 +477,11 @@ function ActiveTradesPanel() {
 // ── Session status card (compact, for right-column) ──────────────────────────
 
 const SESSION_DEFS = [
-  { name: "Sydney",    flag: "🇦🇺", open: 23, close: 8,  color: "var(--ink-mid)",      closeL: "08:00" },
-  { name: "Tokyo",     flag: "🇯🇵", open: 2,  close: 11, color: "var(--gold)",          closeL: "11:00" },
-  { name: "Frankfurt", flag: "🇩🇪", open: 8,  close: 17, color: "var(--teal)",          closeL: "17:00" },
-  { name: "London",    flag: "🇬🇧", open: 9,  close: 18, color: "var(--teal-bright)",   closeL: "18:00" },
-  { name: "New York",  flag: "🇺🇸", open: 14, close: 23, color: "var(--coral-bright)",  closeL: "23:00" },
+  { name: "Sydney",    flag: "🇦🇺", open: 23, close: 8,  textCls: "text-ink-mid",      dotBgCls: "bg-ink-mid",      glowShadowCls: "shadow-[0_0_4px_var(--ink-mid)]",      closeL: "08:00" },
+  { name: "Tokyo",     flag: "🇯🇵", open: 2,  close: 11, textCls: "text-gold",          dotBgCls: "bg-gold",          glowShadowCls: "shadow-[0_0_4px_var(--gold)]",          closeL: "11:00" },
+  { name: "Frankfurt", flag: "🇩🇪", open: 8,  close: 17, textCls: "text-teal",          dotBgCls: "bg-teal",          glowShadowCls: "shadow-[0_0_4px_var(--teal)]",          closeL: "17:00" },
+  { name: "London",    flag: "🇬🇧", open: 9,  close: 18, textCls: "text-teal-bright",   dotBgCls: "bg-teal-bright",   glowShadowCls: "shadow-[0_0_4px_var(--teal-bright)]",   closeL: "18:00" },
+  { name: "New York",  flag: "🇺🇸", open: 14, close: 23, textCls: "text-coral-bright",  dotBgCls: "bg-coral-bright",  glowShadowCls: "shadow-[0_0_4px_var(--coral-bright)]",  closeL: "23:00" },
 ] as const;
 
 function nowGMT2() {
@@ -584,15 +580,12 @@ function SessionCard() {
             {open.map((s) => (
               <div key={s.name} className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5">
-                  <span
-                    className="size-1.5 rounded-full shrink-0"
-                    style={{ background: s.color, boxShadow: `0 0 4px ${s.color}` }}
-                  />
+                  <span className={cn("size-1.5 rounded-full shrink-0", s.dotBgCls, s.glowShadowCls)} />
                   <span className="text-xs">{s.flag}</span>
-                  <span className="text-[12.5px] font-semibold" style={{ color: s.color }}>
+                  <span className={cn("text-[12.5px] font-semibold", s.textCls)}>
                     {s.name}
                   </span>
-                  <span className="text-[9.5px] font-bold uppercase tracking-widest opacity-70" style={{ color: s.color }}>
+                  <span className={cn("text-[9.5px] font-bold uppercase tracking-widest opacity-70", s.textCls)}>
                     open
                   </span>
                 </div>
@@ -742,10 +735,7 @@ export function Dashboard() {
                     sub={`Cumulative R · ${stats.closed} closed trades`}
                     icon="monitoring"
                     action={
-                      <div
-                        className="font-display font-bold text-[19px]"
-                        style={{ color: rColor(stats.netR), fontFeatureSettings: '"tnum"' }}
-                      >
+                      <div className={cn("font-display font-bold text-[19px] tabular-nums", rColorCls(stats.netR))}>
                         {fmtR(stats.netR)}
                       </div>
                     }
@@ -766,10 +756,7 @@ export function Dashboard() {
             <div className="flex items-center gap-4">
               <Ring value={stats.discFollowed} max={100} size={92} stroke={8} color="var(--gold)">
                 <div className="text-center">
-                  <div
-                    className="font-display font-bold text-[22px] leading-none text-ink-strong"
-                    style={{ fontFeatureSettings: '"tnum"' }}
-                  >
+                  <div className="font-display font-bold text-[22px] leading-none text-ink-strong tabular-nums">
                     {stats.discFollowed}
                   </div>
                   <div className="text-[10px] uppercase tracking-widest mt-0.5 text-ink-dim">
@@ -792,7 +779,7 @@ export function Dashboard() {
                         name={t.discipline ? "check_circle" : "cancel"}
                         size={14}
                         fill
-                        style={{ color: t.discipline ? "var(--teal-bright)" : "var(--coral-bright)", flexShrink: 0 }}
+                        className={cn("shrink-0", t.discipline ? "text-teal-bright" : "text-coral-bright")}
                       />
                       <span className="truncate">{t.pair} · {t.model}</span>
                     </div>
@@ -833,10 +820,7 @@ export function Dashboard() {
                     key={ev.id}
                     className={`flex items-center gap-2.5 py-2.5 ${i < todayEvents.length - 1 ? "border-b border-line" : ""}`}
                   >
-                    <span
-                      className="size-2 rounded-full shrink-0"
-                      style={{ background: IMPACT_COLOR[ev.impact] ?? "var(--ink-dim)" }}
-                    />
+                    <span className={cn("size-2 rounded-full shrink-0", IMPACT_CLS[ev.impact] ?? "bg-ink-dim")} />
                     <span className="text-[11px] shrink-0 tabular-nums text-ink-dim w-9">
                       {ev.time}
                     </span>
