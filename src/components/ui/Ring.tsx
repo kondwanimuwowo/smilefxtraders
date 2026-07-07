@@ -25,7 +25,7 @@ export function Ring({
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+      <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track} strokeWidth={stroke} />
         <circle
           cx={size / 2}
@@ -37,7 +37,7 @@ export function Ring({
           strokeDasharray={c}
           strokeDashoffset={c * (1 - pct)}
           strokeLinecap="round"
-          style={{ transition: "stroke-dashoffset 900ms var(--ease-app)" }}
+          className="transition-[stroke-dashoffset] duration-[900ms] ease-app"
         />
       </svg>
       {children && (
