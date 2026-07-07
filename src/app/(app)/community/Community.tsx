@@ -212,7 +212,7 @@ function PostCard({ post }: { post: ApiPost }) {
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-[14px] text-ink-strong">{post.name}</span>
             {post.isInstructor && (
-              <span className="material-symbols-rounded ic-fill text-[15px] text-gold">verified</span>
+              <Icon name="verified" size={15} className="text-gold" />
             )}
             <span className="text-[12px] text-ink-dim">@{post.handle}</span>
             <span className="text-[12px] text-ink-dim">· {relativeTime(post.time)}</span>
@@ -240,7 +240,7 @@ function PostCard({ post }: { post: ApiPost }) {
           onClick={() => toggleLike()}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors hover:bg-hover ${post.likedByMe ? "text-teal" : "text-ink-dim"}`}
         >
-          <span className={`material-symbols-rounded text-[18px] ${post.likedByMe ? "ic-fill" : ""}`}>favorite</span>
+          <Icon name="favorite" size={18} />
           {post.likes}
         </button>
 
@@ -557,7 +557,7 @@ function CommunityStats() {
       <div className="grid grid-cols-2 gap-3">
         {stats.map(({ label, value, icon }) => (
           <div key={label} className="rounded-xl px-3 py-3 flex flex-col gap-1 bg-panel-2 border border-line">
-            <span className="material-symbols-rounded text-[16px] text-teal">{icon}</span>
+            <Icon name={icon} size={16} className="text-teal" />
             <div className="font-display font-bold text-[18px] text-ink-strong">{value}</div>
             <div className="text-[11px] text-ink-dim">{label}</div>
           </div>
