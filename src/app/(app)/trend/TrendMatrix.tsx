@@ -17,6 +17,12 @@ const TFS   = ["MN", "W", "D", "H4", "H1"] as const;
 
 // ── Defaults (shown before first publish) ─────────────────────────────────────
 
+// Fallback for any pair present in PAIRS (derived live from the instruments
+// table) but missing from the persisted matrix — e.g. an instrument added
+// after the matrix was last published. Without this, every matrix[pair]
+// access below would crash on a fresh/never-saved pair.
+const DEFAULT_ROW: Record<string, Bias> = { MN: "ranging", W: "ranging", D: "ranging", H4: "ranging", H1: "ranging" };
+
 const DEFAULT: Matrix = {
   EURUSD: { MN: "bullish",  W: "bullish",  D: "bearish", H4: "bullish", H1: "bullish"  },
   GBPUSD: { MN: "bullish",  W: "ranging",  D: "ranging", H4: "bearish", H1: "bearish"  },
@@ -244,7 +250,7 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
   }, [matrix, notes]);
 
   const confluenceMap = useMemo(
-    () => Object.fromEntries(PAIRS.map((p) => [p, getConfluence(matrix[p])])),
+    () => Object.fromEntries(PAIRS.map((p) => [p, getConfluence(matrix[p] ?? DEFAULT_ROW)])),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [matrix, PAIRS.join(",")]
   );
@@ -256,7 +262,10 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
   );
 
   function toggleCell(pair: string, tf: string) {
-    setMatrix((m) => ({ ...m, [pair]: { ...m[pair], [tf]: CYCLE[m[pair][tf]] } }));
+    setMatrix((m) => {
+      const row = m[pair] ?? DEFAULT_ROW;
+      return { ...m, [pair]: { ...row, [tf]: CYCLE[row[tf]] } };
+    });
   }
 
   function setNote(pair: string, note: string) {
@@ -415,7 +424,7 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
                         {TFS.map((tf) => (
                           <td key={tf} className="px-2 py-3 text-center">
                             <div className="flex justify-center">
-                              <BiasCell bias={matrix[pair][tf]} onClick={() => toggleCell(pair, tf)} readonly={!isInstructor} />
+                              <BiasCell bias={(matrix[pair] ?? DEFAULT_ROW)[tf]} onClick={() => toggleCell(pair, tf)} readonly={!isInstructor} />
                             </div>
                           </td>
                         ))}
