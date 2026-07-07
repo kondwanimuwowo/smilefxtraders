@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useStore } from "@/lib/store";
 import { ZM_OPERATORS, detectZmOperator, type ZmOperator } from "@/lib/mobile-money";
 import { NetworkLogo } from "./NetworkLogo";
+import { Icon } from "@/components/ui";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -179,7 +180,7 @@ export function CheckoutModal({
             onClick={onClose}
             className="size-8 flex items-center justify-center rounded-lg hover:opacity-70 transition-opacity text-ink-dim"
           >
-            <span className="material-symbols-rounded text-[20px]">close</span>
+            <Icon name="close" size={20} />
           </button>
         </div>
 
@@ -265,9 +266,7 @@ export function CheckoutModal({
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-4 py-4 text-center">
-                  <span className="material-symbols-rounded text-[40px] text-ink-dim">
-                    credit_card
-                  </span>
+                  <Icon name="credit_card" size={40} className="text-ink-dim" />
                   <div>
                     <div className="font-semibold text-[14.5px] mb-1 text-ink-strong">
                       Card payments coming soon
@@ -292,9 +291,7 @@ export function CheckoutModal({
           {screen === "waiting" && (
             <div className="flex flex-col items-center gap-5 py-4">
               <div className="size-16 rounded-full flex items-center justify-center bg-[rgba(8,174,170,0.1)] border-2 border-[rgba(8,174,170,0.3)]">
-                <span className="material-symbols-rounded ic-fill text-[32px] text-teal">
-                  smartphone
-                </span>
+                <Icon name="smartphone" size={32} className="text-teal" />
               </div>
 
               <div className="text-center">
@@ -344,9 +341,7 @@ export function CheckoutModal({
           {screen === "success" && (
             <div className="flex flex-col items-center gap-4 py-6">
               <div className="size-20 rounded-full flex items-center justify-center bg-[rgba(8,174,170,0.12)] border-2 border-[rgba(8,174,170,0.4)]">
-                <span className="material-symbols-rounded ic-fill text-[40px] text-teal">
-                  check_circle
-                </span>
+                <Icon name="check_circle" size={40} className="text-teal" />
               </div>
               <div className="text-center">
                 <div className="font-display font-bold text-[18px] mb-1 text-ink-strong">
