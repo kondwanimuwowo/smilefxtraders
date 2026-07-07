@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useStore } from "@/lib/store";
 import { Panel, DirPill, Chip, Icon, Button, CandleChart, Select, Avatar } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { useAddTrade } from "@/lib/hooks/useTrades";
 import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
 import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
@@ -244,13 +245,9 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(0,0,0,0.5)] backdrop-blur-[4px]"
     >
-      <div
-        className="w-full max-w-lg rounded-2xl p-6 overflow-y-auto bg-panel border border-line shadow-[0_24px_70px_rgba(0,0,0,0.4)]"
-        style={{ maxHeight: "90vh" }}
-      >
+      <div className="w-full max-w-lg rounded-2xl p-6 overflow-y-auto bg-panel border border-line shadow-[0_24px_70px_rgba(0,0,0,0.4)] max-h-[90vh]">
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-display font-bold text-[18px] text-ink-strong">Post Alert</h2>
           <button type="button" onClick={onClose} className="text-ink-dim">
@@ -382,10 +379,11 @@ function AlertCard({
 
   return (
     <div
-      className={`rounded-2xl overflow-hidden bg-panel ${
-        alert.status === "sl" || alert.status === "cancelled" || alert.status === "closed" ? "opacity-75" : ""
-      }`}
-      style={{ border: `1px solid ${alert.status === "active" ? "rgba(8,174,170,0.25)" : "var(--line)"}` }}
+      className={cn(
+        "rounded-2xl overflow-hidden bg-panel border",
+        alert.status === "active" ? "border-[rgba(8,174,170,0.25)]" : "border-line",
+        (alert.status === "sl" || alert.status === "cancelled" || alert.status === "closed") && "opacity-75"
+      )}
     >
       {/* Card header */}
       <div className="px-5 pt-4 pb-3">
@@ -425,26 +423,26 @@ function AlertCard({
       {/* Levels grid */}
       <div className="mx-5 mb-3 grid grid-cols-2 sm:grid-cols-4 rounded-xl overflow-hidden border border-line">
         {[
-          { label: "Entry", value: alert.entry, color: alert.dir === "long" ? "var(--teal)" : "var(--coral)", icon: "login" },
-          { label: "Stop",  value: alert.sl,    color: "var(--coral-bright)", icon: "stop_circle" },
-          { label: "TP 1",  value: alert.tp1,   color: "var(--teal-bright)",  icon: "flag" },
-          { label: "TP 2",  value: alert.tp2 ?? "—", color: alert.tp2 ? "var(--teal-bright)" : "var(--ink-dim)", icon: "flag_2" },
-        ].map(({ label, value, color, icon }, i) => (
+          { label: "Entry", value: alert.entry, colorCls: alert.dir === "long" ? "text-teal" : "text-coral", icon: "login" },
+          { label: "Stop",  value: alert.sl,    colorCls: "text-coral-bright", icon: "stop_circle" },
+          { label: "TP 1",  value: alert.tp1,   colorCls: "text-teal-bright",  icon: "flag" },
+          { label: "TP 2",  value: alert.tp2 ?? "—", colorCls: alert.tp2 ? "text-teal-bright" : "text-ink-dim", icon: "flag_2" },
+        ].map(({ label, value, colorCls, icon }, i) => (
           <div
             key={label}
-            className={`flex flex-col items-center py-2.5 px-2 bg-panel-2 ${i > 0 ? "border-l border-line" : ""}`}
+            className={cn("flex flex-col items-center py-2.5 px-2 bg-panel-2", i > 0 && "border-l border-line")}
           >
-            <span className="material-symbols-rounded ic-fill mb-0.5 text-[13px]" style={{ color }}>{icon}</span>
+            <span className={cn("material-symbols-rounded ic-fill mb-0.5 text-[13px]", colorCls)}>{icon}</span>
             <span className="text-[10px] font-semibold uppercase tracking-wider mb-0.5 text-ink-dim">{label}</span>
-            <span className="font-display font-bold tabular-nums text-[13px] tracking-[-0.01em]" style={{ color }}>{value}</span>
+            <span className={cn("font-display font-bold tabular-nums text-[13px] tracking-[-0.01em]", colorCls)}>{value}</span>
           </div>
         ))}
       </div>
 
       {/* Chart */}
       <div
-        className="mx-5 mb-3 rounded-xl overflow-hidden cursor-pointer border border-line"
-        style={{ height: expanded ? 180 : 100, transition: "height 300ms var(--ease-app)" }}
+        className="mx-5 mb-3 rounded-xl overflow-hidden cursor-pointer border border-line transition-[height] duration-300 ease-app"
+        style={{ height: expanded ? 180 : 100 }}
         onClick={() => setExpanded((e) => !e)}
         title={expanded ? "Collapse chart" : "Expand chart"}
       >
@@ -582,7 +580,7 @@ export function Alerts() {
       {/* Free-plan delay warning */}
       {user?.plan === "free" && (
         <div className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4 text-[13px] bg-[rgba(248,185,61,0.08)] border border-[rgba(248,185,61,0.25)] text-gold">
-          <Icon name="schedule" size={16} style={{ color: "var(--gold)", flexShrink: 0 }} />
+          <Icon name="schedule" size={16} className="text-gold shrink-0" />
           <span>
             <strong>Free plan</strong>: alerts are shown with a 4-hour delay.{" "}
             <a href="/membership" className="underline font-semibold text-gold">Upgrade to Pro</a>{" "}
@@ -625,15 +623,15 @@ export function Alerts() {
       {alerts.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
           {[
-            { label: "Total alerts", value: alerts.length,  icon: "notifications",        color: "var(--ink-strong)" },
-            { label: "Active",       value: activeCount,    icon: "radio_button_checked", color: "var(--teal)"       },
-            { label: "TP hit",       value: tpCount,        icon: "done_all",             color: "var(--teal-bright)"},
-            { label: "Stop loss",    value: slCount,        icon: "cancel",               color: "var(--coral)"      },
-          ].map(({ label, value, icon, color }) => (
+            { label: "Total alerts", value: alerts.length,  icon: "notifications",        colorCls: "text-ink-strong" },
+            { label: "Active",       value: activeCount,    icon: "radio_button_checked", colorCls: "text-teal"       },
+            { label: "TP hit",       value: tpCount,        icon: "done_all",             colorCls: "text-teal-bright"},
+            { label: "Stop loss",    value: slCount,        icon: "cancel",               colorCls: "text-coral"      },
+          ].map(({ label, value, icon, colorCls }) => (
             <div key={label} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-panel border border-line">
-              <span className="material-symbols-rounded ic-fill shrink-0 text-[18px]" style={{ color }}>{icon}</span>
+              <span className={cn("material-symbols-rounded ic-fill shrink-0 text-[18px]", colorCls)}>{icon}</span>
               <div>
-                <div className="font-display font-bold text-[20px] tabular-nums leading-none" style={{ color }}>{value}</div>
+                <div className={cn("font-display font-bold text-[20px] tabular-nums leading-none", colorCls)}>{value}</div>
                 <div className="text-[10.5px] font-medium mt-0.5 text-ink-dim">{label}</div>
               </div>
             </div>
@@ -682,7 +680,7 @@ export function Alerts() {
             <Icon
               name={alerts.length === 0 ? "notifications_active" : "filter_list_off"}
               size={32}
-              style={{ color: "var(--ink-dim)", marginBottom: 12 }}
+              className="text-ink-dim mb-3"
             />
             <div className="font-semibold text-[15px] mb-1 text-ink-strong">
               {alerts.length === 0 ? "No alerts posted yet" : "No alerts match"}
@@ -713,7 +711,7 @@ export function Alerts() {
       {/* Pro plan note — students only */}
       {!isInstructor && (
         <div className="mt-6 rounded-2xl px-5 py-4 flex items-start gap-3 bg-[rgba(248,185,61,0.06)] border border-[rgba(248,185,61,0.2)]">
-          <Icon name="workspace_premium" size={17} fill style={{ color: "var(--gold)", flexShrink: 0, marginTop: 1 }} />
+          <Icon name="workspace_premium" size={17} fill className="text-gold shrink-0 mt-px" />
           <p className="text-[12.5px] leading-relaxed text-ink-mid">
             <strong className="text-ink-strong">Pro & Funded Track traders</strong> receive alerts in real time via this feed and push notifications. Free plan members see alerts with a 4-hour delay. Upgrade in{" "}
             <a href="/membership" className="text-gold no-underline">Membership</a>.
