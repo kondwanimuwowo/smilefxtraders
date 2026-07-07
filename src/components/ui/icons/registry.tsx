@@ -41,6 +41,7 @@ import {
   CpuChipIcon,
   CreditCardIcon,
   DevicePhoneMobileIcon,
+  DocumentDuplicateIcon,
   EllipsisHorizontalIcon,
   EnvelopeIcon,
   EnvelopeOpenIcon,
@@ -158,6 +159,7 @@ export const ICON_REGISTRY: Record<string, IconComponent> = {
   currency_exchange: ArrowsRightLeftIcon,
   upload_file: ArrowUpTrayIcon,
   publish: CloudArrowUpIcon,
+  content_copy: DocumentDuplicateIcon,
 
   // Status / feedback
   check: CheckIcon,
