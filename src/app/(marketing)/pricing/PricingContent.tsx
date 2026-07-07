@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui";
+import { Button, Icon } from "@/components/ui";
 import { MarketingPlanCard } from "@/components/pricing/MarketingPlanCard";
 import { PLAN_META } from "@/lib/plans";
 import type { PlanPrices } from "@/lib/plans";
@@ -68,7 +68,7 @@ export function PricingContent({ prices }: Props) {
 
           {/* Money-back */}
           <div className="reveal flex items-center gap-4 mt-10 mx-auto max-w-[640px] py-5 px-6 bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.2)] rounded-[18px]">
-            <span className="material-symbols-rounded ic-fill text-teal text-[28px] shrink-0">verified_user</span>
+            <Icon name="verified_user" size={28} className="text-teal shrink-0" />
             <div>
               <div className="font-bold text-[15px] text-ink-strong">7-day money-back guarantee</div>
               <p className="text-[13px] text-ink-dim mt-1">Not satisfied in your first 7 days? Email us and we&apos;ll refund in full, no questions asked.</p>
@@ -96,7 +96,7 @@ export function PricingContent({ prices }: Props) {
                   className="w-full text-left bg-transparent border-none py-5 flex items-center justify-between gap-4 cursor-pointer font-display text-[17px] font-semibold text-ink"
                 >
                   {q}
-                  <span className={`material-symbols-rounded text-teal shrink-0 transition-transform duration-[250ms] ${openFaq === i ? "rotate-45" : "rotate-0"}`}>add</span>
+                  <Icon name="add" className={`text-teal shrink-0 transition-transform duration-[250ms] ${openFaq === i ? "rotate-45" : "rotate-0"}`} />
                 </button>
                 <div className="overflow-hidden transition-[max-height] duration-300 ease-app" style={{ maxHeight: openFaq === i ? 200 : 0 }}>
                   <p className="pb-5 text-[14.5px] text-ink-mid leading-[1.65]">{a}</p>
