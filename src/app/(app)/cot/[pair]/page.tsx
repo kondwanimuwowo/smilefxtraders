@@ -4,20 +4,23 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Icon, Skeleton } from "@/components/ui";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
+import { cn } from "@/lib/cn";
 import type { CotSignal } from "@/app/api/cot/route";
 import type { CotDetailRow, CotDetailResponse } from "@/app/api/cot/[pair]/route";
 
 // ── Signal config ─────────────────────────────────────────────────────────────
 
-const SIGNAL_CFG: Record<CotSignal, { label: string; color: string; bg: string; icon: string }> = {
-  strong_bull: { label: "Strong Bullish Setup", color: "var(--teal-bright)",  bg: "rgba(48,232,223,0.12)",  icon: "trending_up"    },
-  bull:        { label: "Bullish Bias",          color: "var(--teal)",         bg: "rgba(8,174,170,0.10)",   icon: "arrow_upward"   },
-  neutral:     { label: "Neutral / Mixed",       color: "var(--gold)",         bg: "rgba(248,185,61,0.10)",  icon: "remove"         },
-  bear:        { label: "Bearish Bias",          color: "var(--coral)",        bg: "rgba(234,82,61,0.10)",   icon: "arrow_downward" },
-  strong_bear: { label: "Strong Bearish Setup",  color: "var(--coral-bright)", bg: "rgba(255,89,66,0.12)",   icon: "trending_down"  },
+const SIGNAL_CFG: Record<CotSignal, { label: string; bgCls: string; textCls: string; icon: string }> = {
+  strong_bull: { label: "Strong Bullish Setup", bgCls: "bg-[rgba(48,232,223,0.12)]", textCls: "text-teal-bright",  icon: "trending_up"    },
+  bull:        { label: "Bullish Bias",          bgCls: "bg-[rgba(8,174,170,0.10)]",  textCls: "text-teal",         icon: "arrow_upward"   },
+  neutral:     { label: "Neutral / Mixed",       bgCls: "bg-[rgba(248,185,61,0.10)]", textCls: "text-gold",         icon: "remove"         },
+  bear:        { label: "Bearish Bias",          bgCls: "bg-[rgba(234,82,61,0.10)]",  textCls: "text-coral",        icon: "arrow_downward" },
+  strong_bear: { label: "Strong Bearish Setup",  bgCls: "bg-[rgba(255,89,66,0.12)]",  textCls: "text-coral-bright", icon: "trending_down"  },
 };
 
 // ── Heat map ──────────────────────────────────────────────────────────────────
+// Per-cell background intensity computed from live row data — inherently
+// dynamic (continuous 0-1 range per cell), can't be a static Tailwind class.
 
 function heatBg(value: number, min: number, max: number): string {
   if (value >= 0) {
@@ -57,6 +60,14 @@ function TableSkeleton() {
     </div>
   );
 }
+
+// ── Shared cell classes (static parts only — dynamic backgrounds/colors stay inline) ──
+
+const thBase   = "align-middle whitespace-nowrap uppercase font-bold text-ink-dim bg-panel border-b border-line";
+const thSub    = "align-middle whitespace-nowrap uppercase font-semibold border-b-2 border-line";
+const cellCls  = "px-3.5 py-2 whitespace-nowrap font-mono [font-feature-settings:'tnum'] text-[12px]";
+const dimCellCls = cn(cellCls, "text-right text-ink-dim font-normal");
+const avgCellCls = "px-3.5 py-2 whitespace-nowrap font-mono [font-feature-settings:'tnum'] text-[11.5px] text-ink-dim font-medium border-b-2 border-line";
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
@@ -170,10 +181,7 @@ export default function CotPairPage() {
               <>
                 <span className="text-[15px] text-ink-dim">·</span>
                 <span className="text-[16px] text-ink-mid">{data.label}</span>
-                <span
-                  className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-full"
-                  style={{ background: sig.bg, color: sig.color }}
-                >
+                <span className={cn("inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-full", sig.bgCls, sig.textCls)}>
                   <Icon name={sig.icon} size={13} />
                   {sig.label}
                 </span>
@@ -207,10 +215,7 @@ export default function CotPairPage() {
 
             {/* WoW change */}
             <div className="text-right">
-              <div
-                className="font-display font-bold tabular-nums text-[22px]"
-                style={{ color: data.wowChange >= 0 ? "var(--teal-bright)" : "var(--coral-bright)", letterSpacing: "-0.02em" }}
-              >
+              <div className={cn("font-display font-bold tabular-nums text-[22px] tracking-[-0.02em]", data.wowChange >= 0 ? "text-teal-bright" : "text-coral-bright")}>
                 {fmtNet(data.wowChange)}
               </div>
               <div className="text-[11px] text-ink-dim">WoW change</div>
@@ -248,29 +253,30 @@ export default function CotPairPage() {
           <div className="flex items-center gap-5 px-5 py-3 text-[11.5px] flex-wrap border-b border-line text-ink-dim">
             <span className="font-semibold text-ink-mid">Color key</span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block w-3 h-3 rounded-sm" style={{ background: "rgba(8,174,170,0.65)" }} />
+              <span className="inline-block w-3 h-3 rounded-sm bg-[rgba(8,174,170,0.65)]" />
               Net long / increasing
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block w-3 h-3 rounded-sm" style={{ background: "rgba(234,82,61,0.65)" }} />
+              <span className="inline-block w-3 h-3 rounded-sm bg-[rgba(234,82,61,0.65)]" />
               Net short / decreasing
             </span>
             <span className="flex items-center gap-1.5">
               <span className="inline-block w-3 h-3 rounded-sm bg-track" />
               Near zero
             </span>
-            <span className="flex items-center gap-1.5 ml-auto" style={{ opacity: 0.65 }}>
+            <span className="flex items-center gap-1.5 ml-auto opacity-65">
               <Icon name="info" size={12} />
               Index = position within displayed range
             </span>
             <button
               type="button"
               onClick={() => setShowSmallSpec((v) => !v)}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all active:scale-95 border ${
+              className={cn(
+                "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all active:scale-95 border",
                 showSmallSpec
                   ? "bg-[rgba(8,174,170,0.12)] text-teal border-[rgba(8,174,170,0.3)]"
                   : "bg-panel-2 text-ink-dim border-line"
-              }`}
+              )}
             >
               <Icon name={showSmallSpec ? "visibility" : "visibility_off"} size={12} />
               Retail
@@ -280,65 +286,37 @@ export default function CotPairPage() {
           {loading ? (
             <TableSkeleton />
           ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, minWidth: showSmallSpec ? 1020 : 780 }}>
+            <div className="overflow-x-auto">
+              <table className={cn("w-full border-separate border-spacing-0", showSmallSpec ? "min-w-[1020px]" : "min-w-[780px]")}>
                 <thead>
                   {/* Group row */}
                   <tr>
-                    <th
-                      rowSpan={2}
-                      style={{
-                        width: 130, padding: "8px 16px",
-                        textAlign: "left", fontSize: 10.5, fontWeight: 700,
-                        textTransform: "uppercase", letterSpacing: "0.07em",
-                        color: "var(--ink-dim)", whiteSpace: "nowrap",
-                        background: "var(--panel)", borderBottom: "1px solid var(--line)",
-                      }}
-                    >
+                    <th rowSpan={2} className={cn(thBase, "w-[130px] px-4 py-2 text-left text-[10.5px] tracking-[0.07em]")}>
                       Week Ending
                     </th>
                     {/* Large Spec group — colspan 4: Long, Short, Net, % Long */}
                     <th
                       colSpan={4}
-                      style={{
-                        padding: "7px 16px 5px",
-                        textAlign: "center", fontSize: 10, fontWeight: 700,
-                        textTransform: "uppercase", letterSpacing: "0.07em",
-                        color: "var(--teal)", whiteSpace: "nowrap",
-                        background: "rgba(8,174,170,0.05)",
-                        borderBottom: "1px solid var(--line)",
-                        borderLeft: "1px solid rgba(8,174,170,0.2)",
-                        borderRight: "1px solid rgba(8,174,170,0.2)",
-                      }}
+                      className={cn(
+                        thBase,
+                        "px-4 pt-[7px] pb-[5px] text-center text-[10px] tracking-[0.07em] text-teal",
+                        "bg-[rgba(8,174,170,0.05)] border-l border-l-[rgba(8,174,170,0.2)] border-r border-r-[rgba(8,174,170,0.2)]"
+                      )}
                     >
                       Large Spec
                     </th>
                     {/* WoW Δ */}
-                    <th
-                      rowSpan={2}
-                      style={{
-                        width: 88, padding: "8px 14px",
-                        textAlign: "right", fontSize: 10.5, fontWeight: 700,
-                        textTransform: "uppercase", letterSpacing: "0.07em",
-                        color: "var(--ink-dim)", whiteSpace: "nowrap",
-                        background: "var(--panel)", borderBottom: "1px solid var(--line)",
-                      }}
-                    >
+                    <th rowSpan={2} className={cn(thBase, "w-[88px] px-3.5 py-2 text-right text-[10.5px] tracking-[0.07em]")}>
                       WoW Δ
                     </th>
                     {/* Commercial group */}
                     <th
                       colSpan={3}
-                      style={{
-                        padding: "7px 16px 5px",
-                        textAlign: "center", fontSize: 10, fontWeight: 700,
-                        textTransform: "uppercase", letterSpacing: "0.07em",
-                        color: "var(--gold)", whiteSpace: "nowrap",
-                        background: "rgba(248,185,61,0.05)",
-                        borderBottom: "1px solid var(--line)",
-                        borderLeft: "1px solid rgba(248,185,61,0.2)",
-                        borderRight: "1px solid rgba(248,185,61,0.2)",
-                      }}
+                      className={cn(
+                        thBase,
+                        "px-4 pt-[7px] pb-[5px] text-center text-[10px] tracking-[0.07em] text-gold",
+                        "bg-[rgba(248,185,61,0.05)] border-l border-l-[rgba(248,185,61,0.2)] border-r border-r-[rgba(248,185,61,0.2)]"
+                      )}
                     >
                       Commercial
                     </th>
@@ -346,31 +324,13 @@ export default function CotPairPage() {
                     {showSmallSpec && (
                       <th
                         colSpan={3}
-                        style={{
-                          padding: "7px 16px 5px",
-                          textAlign: "center", fontSize: 10, fontWeight: 700,
-                          textTransform: "uppercase", letterSpacing: "0.07em",
-                          color: "var(--ink-mid)", whiteSpace: "nowrap",
-                          background: "var(--panel)",
-                          borderBottom: "1px solid var(--line)",
-                          borderLeft: "1px solid var(--line)",
-                        }}
+                        className={cn(thBase, "px-4 pt-[7px] pb-[5px] text-center text-[10px] tracking-[0.07em] text-ink-mid border-l border-l-line")}
                       >
                         Retail
                       </th>
                     )}
                     {/* Index */}
-                    <th
-                      rowSpan={2}
-                      style={{
-                        width: 110, padding: "8px 16px",
-                        textAlign: "left", fontSize: 10.5, fontWeight: 700,
-                        textTransform: "uppercase", letterSpacing: "0.07em",
-                        color: "var(--ink-dim)", whiteSpace: "nowrap",
-                        background: "var(--panel)", borderBottom: "1px solid var(--line)",
-                        borderLeft: "1px solid var(--line)",
-                      }}
-                    >
+                    <th rowSpan={2} className={cn(thBase, "w-[110px] px-4 py-2 text-left text-[10.5px] tracking-[0.07em] border-l border-l-line")}>
                       Index
                     </th>
                   </tr>
@@ -380,17 +340,13 @@ export default function CotPairPage() {
                     {(["Long", "Short", "Net", "% Long"] as const).map((label, idx) => (
                       <th
                         key={`ls-${label}`}
-                        style={{
-                          padding: "5px 14px 8px",
-                          textAlign: "right", fontSize: 9.5, fontWeight: 600,
-                          textTransform: "uppercase", letterSpacing: "0.06em",
-                          color: label === "Net" || label === "% Long" ? "var(--teal)" : "var(--ink-dim)",
-                          whiteSpace: "nowrap",
-                          background: "rgba(8,174,170,0.05)",
-                          borderBottom: "2px solid var(--line)",
-                          borderLeft: idx === 0 ? "1px solid rgba(8,174,170,0.2)" : undefined,
-                          borderRight: idx === 3 ? "1px solid rgba(8,174,170,0.2)" : undefined,
-                        }}
+                        className={cn(
+                          thSub,
+                          "px-3.5 pt-[5px] pb-2 text-right text-[9.5px] tracking-[0.06em] bg-[rgba(8,174,170,0.05)]",
+                          label === "Net" || label === "% Long" ? "text-teal" : "text-ink-dim",
+                          idx === 0 && "border-l border-l-[rgba(8,174,170,0.2)]",
+                          idx === 3 && "border-r border-r-[rgba(8,174,170,0.2)]"
+                        )}
                       >
                         {label}
                       </th>
@@ -399,17 +355,13 @@ export default function CotPairPage() {
                     {(["Long", "Short", "Net"] as const).map((label, idx) => (
                       <th
                         key={`c-${label}`}
-                        style={{
-                          padding: "5px 14px 8px",
-                          textAlign: "right", fontSize: 9.5, fontWeight: 600,
-                          textTransform: "uppercase", letterSpacing: "0.06em",
-                          color: label === "Net" ? "var(--gold)" : "var(--ink-dim)",
-                          whiteSpace: "nowrap",
-                          background: "rgba(248,185,61,0.05)",
-                          borderBottom: "2px solid var(--line)",
-                          borderLeft: idx === 0 ? "1px solid rgba(248,185,61,0.2)" : undefined,
-                          borderRight: idx === 2 ? "1px solid rgba(248,185,61,0.2)" : undefined,
-                        }}
+                        className={cn(
+                          thSub,
+                          "px-3.5 pt-[5px] pb-2 text-right text-[9.5px] tracking-[0.06em] bg-[rgba(248,185,61,0.05)]",
+                          label === "Net" ? "text-gold" : "text-ink-dim",
+                          idx === 0 && "border-l border-l-[rgba(248,185,61,0.2)]",
+                          idx === 2 && "border-r border-r-[rgba(248,185,61,0.2)]"
+                        )}
                       >
                         {label}
                       </th>
@@ -418,16 +370,12 @@ export default function CotPairPage() {
                     {showSmallSpec && (["Long", "Short", "Net"] as const).map((label, idx) => (
                       <th
                         key={`ss-${label}`}
-                        style={{
-                          padding: "5px 14px 8px",
-                          textAlign: "right", fontSize: 9.5, fontWeight: 600,
-                          textTransform: "uppercase", letterSpacing: "0.06em",
-                          color: label === "Net" ? "var(--ink-mid)" : "var(--ink-dim)",
-                          whiteSpace: "nowrap",
-                          background: "var(--panel)",
-                          borderBottom: "2px solid var(--line)",
-                          borderLeft: idx === 0 ? "1px solid var(--line)" : undefined,
-                        }}
+                        className={cn(
+                          thSub,
+                          "px-3.5 pt-[5px] pb-2 text-right text-[9.5px] tracking-[0.06em] bg-panel",
+                          label === "Net" ? "text-ink-mid" : "text-ink-dim",
+                          idx === 0 && "border-l border-l-line"
+                        )}
                       >
                         {label}
                       </th>
@@ -437,57 +385,42 @@ export default function CotPairPage() {
                 <tbody>
                   {/* 13-week average — pinned reference row */}
                   {avg13 && (() => {
-                    const avgCell: React.CSSProperties = {
-                      padding: "8px 14px",
-                      borderBottom: "2px solid var(--line)",
-                      fontFamily: "var(--mono)",
-                      fontFeatureSettings: '"tnum"',
-                      whiteSpace: "nowrap",
-                      fontSize: 11.5,
-                      textAlign: "right",
-                      color: "var(--ink-dim)",
-                      fontWeight: 500,
-                    };
                     const deltaLS = rows[0] ? rows[0].largeSpecNet - avg13.largeSpecNet : 0;
                     return (
-                      <tr style={{ background: "rgba(8,174,170,0.025)" }}>
-                        <td style={{ ...avgCell, textAlign: "left", fontFamily: "inherit", color: "var(--teal)", fontWeight: 700 }}>
+                      <tr className="bg-[rgba(8,174,170,0.025)]">
+                        <td className={cn(avgCellCls, "text-left font-sans text-teal font-bold")}>
                           <span className="flex items-center gap-2">
                             13W Avg
-                            <span
-                              className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded"
-                              style={{
-                                background: "var(--panel-2)",
-                                color: deltaLS >= 0 ? "var(--teal-bright)" : "var(--coral-bright)",
-                                fontFamily: "var(--mono)",
-                              }}
-                            >
+                            <span className={cn(
+                              "text-[9.5px] font-semibold px-1.5 py-0.5 rounded font-mono bg-panel-2",
+                              deltaLS >= 0 ? "text-teal-bright" : "text-coral-bright"
+                            )}>
                               now {fmtNet(deltaLS)} vs avg
                             </span>
                           </span>
                         </td>
-                        <td style={{ ...avgCell, borderLeft: "1px solid rgba(8,174,170,0.15)" }}>{fmtRaw(avg13.largeSpecLong)}</td>
-                        <td style={avgCell}>{fmtRaw(avg13.largeSpecShort)}</td>
-                        <td style={{ ...avgCell, fontWeight: 700, color: "var(--ink-mid)" }}>{fmtNet(avg13.largeSpecNet)}</td>
-                        <td style={{ ...avgCell, borderRight: "1px solid rgba(8,174,170,0.15)" }}>
+                        <td className={cn(avgCellCls, "text-right border-l border-l-[rgba(8,174,170,0.15)]")}>{fmtRaw(avg13.largeSpecLong)}</td>
+                        <td className={cn(avgCellCls, "text-right")}>{fmtRaw(avg13.largeSpecShort)}</td>
+                        <td className={cn(avgCellCls, "text-right font-bold text-ink-mid")}>{fmtNet(avg13.largeSpecNet)}</td>
+                        <td className={cn(avgCellCls, "text-right border-r border-r-[rgba(8,174,170,0.15)]")}>
                           {avg13.pctLong != null ? `${avg13.pctLong}%` : "—"}
                         </td>
-                        <td style={{ ...avgCell, fontWeight: 600, color: "var(--ink-mid)" }}>
+                        <td className={cn(avgCellCls, "text-right font-semibold text-ink-mid")}>
                           {avg13.avgWow != null ? fmtNet(avg13.avgWow) : "—"}
                         </td>
-                        <td style={{ ...avgCell, borderLeft: "1px solid rgba(248,185,61,0.15)" }}>{fmtRaw(avg13.commercialLong)}</td>
-                        <td style={avgCell}>{fmtRaw(avg13.commercialShort)}</td>
-                        <td style={{ ...avgCell, fontWeight: 600, color: "var(--ink-mid)", borderRight: "1px solid rgba(248,185,61,0.15)" }}>
+                        <td className={cn(avgCellCls, "text-right border-l border-l-[rgba(248,185,61,0.15)]")}>{fmtRaw(avg13.commercialLong)}</td>
+                        <td className={cn(avgCellCls, "text-right")}>{fmtRaw(avg13.commercialShort)}</td>
+                        <td className={cn(avgCellCls, "text-right font-semibold text-ink-mid border-r border-r-[rgba(248,185,61,0.15)]")}>
                           {fmtNet(avg13.commercialNet)}
                         </td>
                         {showSmallSpec && (
                           <>
-                            <td style={{ ...avgCell, borderLeft: "1px solid var(--line)" }}>{fmtRaw(avg13.smallSpecLong)}</td>
-                            <td style={avgCell}>{fmtRaw(avg13.smallSpecShort)}</td>
-                            <td style={avgCell}>{fmtNet(avg13.smallSpecNet)}</td>
+                            <td className={cn(avgCellCls, "text-right border-l border-l-line")}>{fmtRaw(avg13.smallSpecLong)}</td>
+                            <td className={cn(avgCellCls, "text-right")}>{fmtRaw(avg13.smallSpecShort)}</td>
+                            <td className={cn(avgCellCls, "text-right")}>{fmtNet(avg13.smallSpecNet)}</td>
                           </>
                         )}
-                        <td style={{ ...avgCell, borderLeft: "1px solid var(--line)" }}>—</td>
+                        <td className={cn(avgCellCls, "text-right border-l border-l-line")}>—</td>
                       </tr>
                     );
                   })()}
@@ -502,43 +435,26 @@ export default function CotPairPage() {
                         )))
                       : 50;
 
-                    const cellBase: React.CSSProperties = {
-                      padding: "8px 14px",
-                      borderBottom: "1px solid var(--line)",
-                      fontFamily: "var(--mono)",
-                      fontFeatureSettings: '"tnum"',
-                      whiteSpace: "nowrap",
-                      fontSize: 12,
-                    };
-
-                    const dimCell: React.CSSProperties = {
-                      ...cellBase,
-                      textAlign: "right",
-                      color: "var(--ink-dim)",
-                      fontWeight: 400,
-                    };
+                    const pctTotal = (row.largeSpecLong ?? 0) + (row.largeSpecShort ?? 0);
+                    const pct = pctTotal > 0 && row.largeSpecLong != null
+                      ? Math.round((row.largeSpecLong / pctTotal) * 100)
+                      : null;
+                    const pctColorCls = pct == null ? "text-ink-dim"
+                      : pct >= 60 ? "text-teal-bright"
+                      : pct <= 40 ? "text-coral-bright"
+                      : "text-ink-mid";
 
                     return (
-                      <tr
-                        key={row.date}
-                        style={{ background: isLatest ? "rgba(8,174,170,0.035)" : undefined }}
-                      >
+                      <tr key={row.date} className={isLatest ? "bg-[rgba(8,174,170,0.035)]" : undefined}>
                         {/* Date */}
-                        <td
-                          style={{
-                            ...cellBase,
-                            fontFamily: "inherit",
-                            color: isLatest ? "var(--ink-strong)" : "var(--ink-dim)",
-                            fontWeight: isLatest ? 600 : 400,
-                          }}
-                        >
+                        <td className={cn(
+                          cellCls, "border-b border-line font-sans",
+                          isLatest ? "text-ink-strong font-semibold" : "text-ink-dim font-normal"
+                        )}>
                           <span className="flex items-center gap-2">
                             {fmtDateShort(row.date)}
                             {isLatest && (
-                              <span
-                                className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
-                                style={{ background: "rgba(8,174,170,0.15)", color: "var(--teal)", fontFamily: "inherit" }}
-                              >
+                              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded font-sans bg-[rgba(8,174,170,0.15)] text-teal">
                                 Latest
                               </span>
                             )}
@@ -546,71 +462,41 @@ export default function CotPairPage() {
                         </td>
 
                         {/* Large Spec Long */}
-                        <td style={{ ...dimCell, borderLeft: "1px solid rgba(8,174,170,0.15)" }}>
+                        <td className={cn(dimCellCls, "border-b border-line border-l border-l-[rgba(8,174,170,0.15)]")}>
                           {fmtRaw(row.largeSpecLong)}
                         </td>
                         {/* Large Spec Short */}
-                        <td style={dimCell}>{fmtRaw(row.largeSpecShort)}</td>
-                        {/* Large Spec Net */}
+                        <td className={cn(dimCellCls, "border-b border-line")}>{fmtRaw(row.largeSpecShort)}</td>
+                        {/* Large Spec Net — heat-map background is per-row computed data, stays inline */}
                         <td
-                          style={{
-                            ...cellBase,
-                            textAlign: "right",
-                            background: ranges ? heatBg(row.largeSpecNet, ranges.lsMin, ranges.lsMax) : undefined,
-                            fontWeight: 700,
-                            color: "var(--ink-strong)",
-                          }}
+                          className={cn(cellCls, "text-right border-b border-line font-bold text-ink-strong")}
+                          style={{ background: ranges ? heatBg(row.largeSpecNet, ranges.lsMin, ranges.lsMax) : undefined }}
                         >
                           {fmtNet(row.largeSpecNet)}
                         </td>
                         {/* % Long — longs as % of total LS open interest */}
-                        {(() => {
-                          const total = (row.largeSpecLong ?? 0) + (row.largeSpecShort ?? 0);
-                          const pct   = total > 0 && row.largeSpecLong != null
-                            ? Math.round((row.largeSpecLong / total) * 100)
-                            : null;
-                          const color = pct == null ? "var(--ink-dim)"
-                            : pct >= 60 ? "var(--teal-bright)"
-                            : pct <= 40 ? "var(--coral-bright)"
-                            : "var(--ink-mid)";
-                          return (
-                            <td style={{ ...cellBase, textAlign: "right", fontWeight: 600, color, borderRight: "1px solid rgba(8,174,170,0.15)" }}>
-                              {pct != null ? `${pct}%` : "—"}
-                            </td>
-                          );
-                        })()}
+                        <td className={cn(cellCls, "text-right border-b border-line font-semibold border-r border-r-[rgba(8,174,170,0.15)]", pctColorCls)}>
+                          {pct != null ? `${pct}%` : "—"}
+                        </td>
 
-                        {/* WoW Δ */}
+                        {/* WoW Δ — heat-map background is per-row computed data, stays inline */}
                         <td
-                          style={{
-                            ...cellBase,
-                            textAlign: "right",
-                            background: ranges && wow !== null
-                              ? heatBg(wow, ranges.wowMin, ranges.wowMax)
-                              : undefined,
-                            fontWeight: 500,
-                            color: "var(--ink-strong)",
-                          }}
+                          className={cn(cellCls, "text-right border-b border-line font-medium text-ink-strong")}
+                          style={{ background: ranges && wow !== null ? heatBg(wow, ranges.wowMin, ranges.wowMax) : undefined }}
                         >
                           {wow !== null ? fmtNet(wow) : "—"}
                         </td>
 
                         {/* Commercial Long */}
-                        <td style={{ ...dimCell, borderLeft: "1px solid rgba(248,185,61,0.15)" }}>
+                        <td className={cn(dimCellCls, "border-b border-line border-l border-l-[rgba(248,185,61,0.15)]")}>
                           {fmtRaw(row.commercialLong)}
                         </td>
                         {/* Commercial Short */}
-                        <td style={dimCell}>{fmtRaw(row.commercialShort)}</td>
-                        {/* Commercial Net */}
+                        <td className={cn(dimCellCls, "border-b border-line")}>{fmtRaw(row.commercialShort)}</td>
+                        {/* Commercial Net — heat-map background is per-row computed data, stays inline */}
                         <td
-                          style={{
-                            ...cellBase,
-                            textAlign: "right",
-                            background: ranges ? heatBg(row.commercialNet, ranges.cMin, ranges.cMax) : undefined,
-                            fontWeight: 600,
-                            color: "var(--ink-strong)",
-                            borderRight: "1px solid rgba(248,185,61,0.15)",
-                          }}
+                          className={cn(cellCls, "text-right border-b border-line font-semibold text-ink-strong border-r border-r-[rgba(248,185,61,0.15)]")}
+                          style={{ background: ranges ? heatBg(row.commercialNet, ranges.cMin, ranges.cMax) : undefined }}
                         >
                           {fmtNet(row.commercialNet)}
                         </td>
@@ -618,18 +504,13 @@ export default function CotPairPage() {
                         {/* Small Spec — conditional */}
                         {showSmallSpec && (
                           <>
-                            <td style={{ ...dimCell, borderLeft: "1px solid var(--line)" }}>
+                            <td className={cn(dimCellCls, "border-b border-line border-l border-l-line")}>
                               {fmtRaw(row.smallSpecLong)}
                             </td>
-                            <td style={dimCell}>{fmtRaw(row.smallSpecShort)}</td>
+                            <td className={cn(dimCellCls, "border-b border-line")}>{fmtRaw(row.smallSpecShort)}</td>
                             <td
-                              style={{
-                                ...cellBase,
-                                textAlign: "right",
-                                background: ranges ? heatBg(row.smallSpecNet, ranges.ssMin, ranges.ssMax) : undefined,
-                                fontWeight: 400,
-                                color: "var(--ink-mid)",
-                              }}
+                              className={cn(cellCls, "text-right border-b border-line font-normal text-ink-mid")}
+                              style={{ background: ranges ? heatBg(row.smallSpecNet, ranges.ssMin, ranges.ssMax) : undefined }}
                             >
                               {fmtNet(row.smallSpecNet)}
                             </td>
@@ -637,35 +518,15 @@ export default function CotPairPage() {
                         )}
 
                         {/* Index bar */}
-                        <td style={{ ...cellBase, fontFamily: "inherit", borderLeft: "1px solid var(--line)" }}>
+                        <td className={cn(cellCls, "border-b border-line font-sans border-l border-l-line")}>
                           <div className="flex items-center gap-2">
-                            <div
-                              style={{
-                                flex: 1,
-                                height: 6,
-                                borderRadius: 4,
-                                background: "var(--track)",
-                                overflow: "hidden",
-                              }}
-                            >
+                            <div className="flex-1 h-1.5 rounded overflow-hidden bg-track">
                               <div
-                                style={{
-                                  height: "100%",
-                                  width: `${rangeIdx}%`,
-                                  background: row.largeSpecNet >= 0 ? "var(--teal)" : "var(--coral)",
-                                  borderRadius: 4,
-                                }}
+                                className={cn("h-full rounded", row.largeSpecNet >= 0 ? "bg-teal" : "bg-coral")}
+                                style={{ width: `${rangeIdx}%` }}
                               />
                             </div>
-                            <span
-                              style={{
-                                fontFamily: "var(--mono)",
-                                fontSize: 11,
-                                color: "var(--ink-dim)",
-                                minWidth: 24,
-                                textAlign: "right",
-                              }}
-                            >
+                            <span className="font-mono text-[11px] text-ink-dim min-w-[24px] text-right">
                               {rangeIdx}
                             </span>
                           </div>
