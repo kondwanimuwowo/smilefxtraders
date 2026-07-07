@@ -30,10 +30,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   commodity: "rgba(248,185,61,0.14)",
   index:     "rgba(22,114,161,0.16)",
 };
-// forex/commodity reference --teal-dark/--gold-dark, which are only defined
-// in marketing.css and not loaded on admin pages — left as raw var strings
-// (not converted) since they're silently no-ops here, matching this
-// project's precedent for other pre-existing broken-token configs.
+// forex/commodity reference --teal-dark/--gold-dark, which are scoped to
+// .marketing-theme in globals.css and not present on admin pages — left as
+// raw var strings (not converted) since they're silently no-ops here,
+// matching this project's precedent for other pre-existing broken-token configs.
 const CATEGORY_TEXT: Record<string, string> = {
   forex:     "var(--teal-dark)",
   commodity: "var(--gold-dark)",
