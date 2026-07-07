@@ -261,9 +261,7 @@ function NotifBell() {
           {/* Notif list */}
           {preview.length === 0 ? (
             <div className="flex flex-col items-center py-10 text-center px-4">
-              <span className="material-symbols-rounded mb-2 text-[28px] text-ink-dim">
-                notifications
-              </span>
+              <Icon name="notifications" size={28} className="mb-2 text-ink-dim" />
               <div className="text-[13px] text-ink-dim">No notifications yet</div>
             </div>
           ) : (
@@ -285,12 +283,7 @@ function NotifBell() {
                     )}
                   >
                     <div className={cn("size-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5", cfg.bgCls)}>
-                      <span
-                        className={cn("material-symbols-rounded text-[14px]", cfg.textCls)}
-                        style={{ fontFamily: "Material Symbols Rounded Fill" }}
-                      >
-                        {n.icon || cfg.icon}
-                      </span>
+                      <Icon name={n.icon || cfg.icon} size={14} className={cfg.textCls} />
                     </div>
                     <div className="flex-1 min-w-0">
                       {n.title && (
@@ -321,7 +314,7 @@ function NotifBell() {
             className="flex items-center justify-center gap-1.5 py-3 text-[12.5px] font-semibold transition-colors hover:bg-hover border-t border-line text-teal"
           >
             See all notifications
-            <span className="material-symbols-rounded text-[15px]">arrow_forward</span>
+            <Icon name="arrow_forward" size={15} />
           </Link>
         </div>,
         document.body
