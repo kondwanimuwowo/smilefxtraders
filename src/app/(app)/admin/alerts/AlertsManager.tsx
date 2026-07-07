@@ -199,9 +199,7 @@ export function AlertsManager() {
                       onClick={() => setExpandedId(isExpanded ? null : a.id)}
                       className="flex items-center justify-center rounded-lg p-1 transition-colors hover:bg-hover text-ink-dim"
                     >
-                      <span className="material-symbols-rounded text-[16px]">
-                        {isExpanded ? "expand_less" : "expand_more"}
-                      </span>
+                      <Icon name={isExpanded ? "expand_less" : "expand_more"} size={16} />
                     </button>
                   </div>
 
@@ -227,9 +225,7 @@ export function AlertsManager() {
                       </div>
                       <div className="text-[11.5px] truncate text-ink-dim">{a.model}</div>
                     </div>
-                    <span className="material-symbols-rounded text-[16px] text-ink-dim">
-                      {isExpanded ? "expand_less" : "expand_more"}
-                    </span>
+                    <Icon name={isExpanded ? "expand_less" : "expand_more"} size={16} className="text-ink-dim" />
                   </div>
 
                   {/* Expanded controls */}
