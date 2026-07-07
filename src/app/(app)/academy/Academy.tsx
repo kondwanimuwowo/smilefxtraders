@@ -28,6 +28,9 @@ interface DBCourse {
   description: string;
   tier:        string;
   icon:        string;
+  // raw var(--x) string chosen from CourseEditorClient's COLOR_OPTIONS,
+  // consumed via `${course.color}NN` alpha-suffix concatenation throughout
+  // this file - can't be a static Tailwind class, stays inline everywhere.
   color:       string;
   order:       number;
   lessons:     DBLesson[];
@@ -208,7 +211,7 @@ function LessonBody({ body }: { body: string | null }) {
   if (!body) {
     return (
       <div className="rounded-xl flex flex-col items-center justify-center gap-2 py-10 bg-panel-2 border border-line">
-        <Icon name="play_circle" size={44} fill style={{ color: "var(--teal)" }} />
+        <Icon name="play_circle" size={44} fill className="text-teal" />
         <span className="text-[13px] font-medium text-ink-dim">
           Video coming soon, instructor will upload
         </span>
