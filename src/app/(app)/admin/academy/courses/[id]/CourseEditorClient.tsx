@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/cn";
 import Link from "next/link";
 
 interface Lesson {
@@ -14,6 +15,10 @@ interface Course {
   published: boolean; lessons: Lesson[];
 }
 
+// COLOR_OPTIONS values feed runtime string concatenation below (`${color}20`
+// alpha suffix, dynamic `${c}` swatch backgrounds/outlines in the icon and
+// colour pickers) - per this migration's rule against constructing Tailwind
+// classes via string interpolation, that whole picker section stays inline.
 const ICON_OPTIONS  = ["school", "psychology", "health_and_safety", "bar_chart", "videocam", "workspace_premium", "star", "trending_up"];
 const COLOR_OPTIONS = ["var(--teal)", "var(--gold)", "var(--coral)", "var(--navy)", "var(--teal-bright)"];
 const TIER_OPTIONS  = [
@@ -64,36 +69,30 @@ export function CourseEditorClient({ course }: { course: Course }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-[380px_minmax(0,1fr)] gap-5">
       {/* Course fields */}
-      <div
-        className="rounded-2xl p-5 flex flex-col gap-4"
-        style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-      >
-        <h2 className="font-display font-semibold text-[16px]" style={{ color: "var(--ink-strong)" }}>Course settings</h2>
+      <div className="rounded-2xl p-5 flex flex-col gap-4 bg-panel border border-line">
+        <h2 className="font-display font-semibold text-[16px] text-ink-strong">Course settings</h2>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-[12px] font-semibold" style={{ color: "var(--ink-mid)" }}>Title</span>
+          <span className="text-[12px] font-semibold text-ink-mid">Title</span>
           <input
-            className="rounded-xl px-3 py-2 text-[13.5px] outline-none"
-            style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+            className="rounded-xl px-3 py-2 text-[13.5px] outline-none bg-panel-2 border border-line text-ink-strong"
             value={title} onChange={(e) => setTitle(e.target.value)}
           />
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-[12px] font-semibold" style={{ color: "var(--ink-mid)" }}>Description</span>
+          <span className="text-[12px] font-semibold text-ink-mid">Description</span>
           <textarea
             rows={3}
-            className="rounded-xl px-3 py-2 text-[13.5px] outline-none resize-none"
-            style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+            className="rounded-xl px-3 py-2 text-[13.5px] outline-none resize-none bg-panel-2 border border-line text-ink-strong"
             value={description} onChange={(e) => setDescription(e.target.value)}
           />
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-[12px] font-semibold" style={{ color: "var(--ink-mid)" }}>Tier</span>
+          <span className="text-[12px] font-semibold text-ink-mid">Tier</span>
           <select
-            className="rounded-xl px-3 py-2 text-[13.5px] outline-none"
-            style={{ background: "var(--panel-2)", border: "1px solid var(--line)", color: "var(--ink-strong)" }}
+            className="rounded-xl px-3 py-2 text-[13.5px] outline-none bg-panel-2 border border-line text-ink-strong"
             value={tier} onChange={(e) => setTier(e.target.value)}
           >
             {TIER_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -101,7 +100,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-[12px] font-semibold" style={{ color: "var(--ink-mid)" }}>Icon</span>
+          <span className="text-[12px] font-semibold text-ink-mid">Icon</span>
           <div className="flex flex-wrap gap-2">
             {ICON_OPTIONS.map((ic) => (
               <button
@@ -120,7 +119,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-[12px] font-semibold" style={{ color: "var(--ink-mid)" }}>Colour</span>
+          <span className="text-[12px] font-semibold text-ink-mid">Colour</span>
           <div className="flex gap-2">
             {COLOR_OPTIONS.map((c) => (
               <button
@@ -139,34 +138,29 @@ export function CourseEditorClient({ course }: { course: Course }) {
 
         <label className="flex items-center gap-2">
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} className="rounded" />
-          <span className="text-[13px]" style={{ color: "var(--ink-mid)" }}>Published (visible to students)</span>
+          <span className="text-[13px] text-ink-mid">Published (visible to students)</span>
         </label>
 
         <button
           type="button"
           disabled={isPending}
           onClick={saveCourse}
-          className="w-full py-2 rounded-xl text-[13.5px] font-semibold transition-all"
-          style={{ background: saved ? "var(--teal)" : "var(--teal)", color: "#fff", opacity: isPending ? 0.7 : 1 }}
+          className={cn("w-full py-2 rounded-xl text-[13.5px] font-semibold transition-all text-white bg-teal", isPending && "opacity-70")}
         >
           {saved ? "Saved ✓" : isPending ? "Saving…" : "Save course"}
         </button>
       </div>
 
       {/* Lessons list */}
-      <div
-        className="rounded-2xl p-5"
-        style={{ background: "var(--panel)", border: "1px solid var(--line)" }}
-      >
+      <div className="rounded-2xl p-5 bg-panel border border-line">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display font-semibold text-[16px]" style={{ color: "var(--ink-strong)" }}>
-            Lessons <span style={{ color: "var(--ink-dim)" }}>({course.lessons.length})</span>
+          <h2 className="font-display font-semibold text-[16px] text-ink-strong">
+            Lessons <span className="text-ink-dim">({course.lessons.length})</span>
           </h2>
           <button
             type="button"
             onClick={addLesson}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold"
-            style={{ background: "rgba(8,174,170,0.1)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.2)" }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold bg-[rgba(8,174,170,0.1)] text-teal border border-[rgba(8,174,170,0.2)]"
           >
             <span className="material-symbols-rounded text-[15px]">add</span>
             Add lesson
@@ -178,30 +172,26 @@ export function CourseEditorClient({ course }: { course: Course }) {
             <Link
               key={lesson.id}
               href={`/admin/academy/courses/${course.id}/lessons/${lesson.id}`}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:opacity-80"
-              style={{ background: "var(--panel-2)", border: "1px solid var(--line)" }}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:opacity-80 bg-panel-2 border border-line"
             >
-              <div
-                className="size-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-                style={{ background: "var(--track)", color: "var(--ink-dim)" }}
-              >
+              <div className="size-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 bg-track text-ink-dim">
                 {i + 1}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[13px] font-medium truncate" style={{ color: "var(--ink-strong)" }}>{lesson.title}</div>
-                <div className="text-[11.5px]" style={{ color: "var(--ink-dim)" }}>{lesson.duration}</div>
+                <div className="text-[13px] font-medium truncate text-ink-strong">{lesson.title}</div>
+                <div className="text-[11.5px] text-ink-dim">{lesson.duration}</div>
               </div>
               {!lesson.published && (
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0" style={{ background: "rgba(234,82,61,0.1)", color: "var(--coral)" }}>
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 bg-[rgba(234,82,61,0.1)] text-coral">
                   Draft
                 </span>
               )}
-              <span className="material-symbols-rounded text-[17px] shrink-0" style={{ color: "var(--ink-dim)" }}>chevron_right</span>
+              <span className="material-symbols-rounded text-[17px] shrink-0 text-ink-dim">chevron_right</span>
             </Link>
           ))}
 
           {course.lessons.length === 0 && (
-            <div className="text-center py-8 text-[13px]" style={{ color: "var(--ink-dim)" }}>
+            <div className="text-center py-8 text-[13px] text-ink-dim">
               No lessons yet. Click "Add lesson" to create the first one.
             </div>
           )}
