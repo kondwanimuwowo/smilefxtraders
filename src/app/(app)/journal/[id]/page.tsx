@@ -10,6 +10,7 @@ import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
 import { AIReview } from "@/components/AIReview";
 import { LogTradeModal } from "../LogTradeModal";
 import { MODEL_BRIEF, FIB_TAG_OPTIONS } from "@/lib/frameworks";
+import { cn } from "@/lib/cn";
 
 // ── Seeded chart generation ───────────────────────────────────────────────────
 
@@ -87,13 +88,13 @@ function pnlLabel(t: Trade) {
   if (t.result === "open") return "Open";
   return t.pnlR > 0 ? `+${t.pnlR.toFixed(1)}R` : `${t.pnlR.toFixed(1)}R`;
 }
-function pnlColor(t: Trade) {
-  if (t.result === "open") return "var(--gold)";
-  return t.pnlR > 0 ? "var(--teal-bright)" : "var(--coral-bright)";
+function pnlTextCls(t: Trade) {
+  if (t.result === "open") return "text-gold";
+  return t.pnlR > 0 ? "text-teal-bright" : "text-coral-bright";
 }
-function resultBg(t: Trade) {
-  if (t.result === "open") return "rgba(248,185,61,0.14)";
-  return t.pnlR > 0 ? "rgba(8,174,170,0.14)" : "rgba(234,82,61,0.14)";
+function resultBgCls(t: Trade) {
+  if (t.result === "open") return "bg-[rgba(248,185,61,0.14)]";
+  return t.pnlR > 0 ? "bg-[rgba(8,174,170,0.14)]" : "bg-[rgba(234,82,61,0.14)]";
 }
 
 function MetaBox({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
@@ -262,7 +263,7 @@ export default function TradeDetailPage() {
             {t.fromAlert && (
               <>
                 <span>·</span>
-                <Icon name="notifications_active" size={13} fill style={{ color: "var(--gold)" }} />
+                <Icon name="notifications_active" size={13} fill className="text-gold" />
                 <span className="text-gold">From alert</span>
               </>
             )}
@@ -283,20 +284,11 @@ export default function TradeDetailPage() {
               </span>
             </div>
           )}
-          <div
-            className="flex flex-col items-end rounded-2xl px-5 py-3.5 shrink-0"
-            style={{ background: resultBg(t) }}
-          >
-            <span
-              className="font-display font-bold tabular-nums text-[30px] tracking-[-0.025em]"
-              style={{ color: pnlColor(t) }}
-            >
+          <div className={cn("flex flex-col items-end rounded-2xl px-5 py-3.5 shrink-0", resultBgCls(t))}>
+            <span className={cn("font-display font-bold tabular-nums text-[30px] tracking-[-0.025em]", pnlTextCls(t))}>
               {pnlLabel(t)}
             </span>
-            <span
-              className="text-[11px] font-semibold uppercase tracking-wider mt-0.5 opacity-75"
-              style={{ color: pnlColor(t) }}
-            >
+            <span className={cn("text-[11px] font-semibold uppercase tracking-wider mt-0.5 opacity-75", pnlTextCls(t))}>
               {t.result}
             </span>
           </div>
@@ -492,7 +484,7 @@ export default function TradeDetailPage() {
           {/* Discipline breach — merged with mistake if both present */}
           {!t.discipline && (
             <div className="flex items-start gap-3 rounded-xl px-4 py-4 bg-[rgba(234,82,61,0.07)] border border-[rgba(234,82,61,0.22)]">
-              <Icon name="warning" size={18} fill style={{ color: "var(--coral)", flexShrink: 0, marginTop: 1 }} />
+              <Icon name="warning" size={18} fill className="text-coral shrink-0 mt-px" />
               <div>
                 <div className="font-semibold text-[13px] mb-1 text-coral">
                   {t.mistake ? "Rule broken" : "Discipline breach recorded"}
