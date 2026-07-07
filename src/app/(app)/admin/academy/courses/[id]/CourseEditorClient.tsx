@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import Link from "next/link";
+import { Icon } from "@/components/ui";
 
 interface Lesson {
   id: string; slug: string; title: string; duration: string;
@@ -112,7 +113,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
                   border: `1px solid ${icon === ic ? color : "var(--line)"}`,
                 }}
               >
-                <span className="material-symbols-rounded text-[18px]" style={{ color: icon === ic ? color : "var(--ink-dim)" }}>{ic}</span>
+                <Icon name={ic} size={18} style={{ color: icon === ic ? color : "var(--ink-dim)" }} />
               </button>
             ))}
           </div>
@@ -162,7 +163,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
             onClick={addLesson}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold bg-[rgba(8,174,170,0.1)] text-teal border border-[rgba(8,174,170,0.2)]"
           >
-            <span className="material-symbols-rounded text-[15px]">add</span>
+            <Icon name="add" size={15} />
             Add lesson
           </button>
         </div>
@@ -186,7 +187,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
                   Draft
                 </span>
               )}
-              <span className="material-symbols-rounded text-[17px] shrink-0 text-ink-dim">chevron_right</span>
+              <Icon name="chevron_right" size={17} className="shrink-0 text-ink-dim" />
             </Link>
           ))}
 
