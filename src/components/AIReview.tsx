@@ -3,11 +3,15 @@
 import { useState, useEffect } from "react";
 import type { Trade, AIReviewResult } from "@/lib/store";
 import { Icon } from "@/components/ui";
+import { cn } from "@/lib/cn";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type ReviewState = "idle" | "loading" | "done" | "error" | "locked";
 
+// Kept as raw var-string values (not converted to classes): consumed via
+// `${color}20`/`${color}40` alpha-suffix string concatenation in GradeChip
+// below, which only works with raw CSS values, not Tailwind class names.
 const GRADE_COLOR: Record<string, string> = {
   "A+": "var(--teal)", A: "var(--teal)",
   B:    "var(--gold)", C: "var(--gold)",
@@ -30,11 +34,11 @@ function Skeleton() {
   return (
     <div className="px-4 py-4 flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-xl shrink-0" style={{ background: "var(--panel-2)" }} />
-        <div className="flex-1 h-4 rounded-full" style={{ background: "var(--panel-2)" }} />
+        <div className="w-12 h-12 rounded-xl shrink-0 bg-panel-2" />
+        <div className="flex-1 h-4 rounded-full bg-panel-2" />
       </div>
       {[75, 55, 88, 60].map((w, i) => (
-        <div key={i} className="h-3 rounded-full" style={{ background: "var(--panel-2)", width: `${w}%` }} />
+        <div key={i} className="h-3 rounded-full bg-panel-2" style={{ width: `${w}%` }} />
       ))}
     </div>
   );
@@ -96,28 +100,19 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
   const tipLabel = trade.framework === "SnD" ? "S&D tip: " : "ICT tip: ";
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--line)" }}>
+    <div className="rounded-xl overflow-hidden border border-line">
 
       {/* Header */}
-      <div
-        className="flex items-center gap-3 px-4 py-3.5"
-        style={{
-          background: "var(--panel-2)",
-          borderBottom: state !== "idle" ? "1px solid var(--line)" : "none",
-        }}
-      >
-        <div
-          className="size-9 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: "linear-gradient(135deg, var(--teal), var(--navy))" }}
-        >
-          <span className="material-symbols-rounded text-white" style={{ fontSize: 18 }}>robot_2</span>
+      <div className={cn("flex items-center gap-3 px-4 py-3.5 bg-panel-2", state !== "idle" && "border-b border-line")}>
+        <div className="size-9 rounded-xl flex items-center justify-center shrink-0 bg-[linear-gradient(135deg,var(--teal),var(--navy))]">
+          <span className="material-symbols-rounded text-white text-[18px]">robot_2</span>
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-[13px]" style={{ color: "var(--ink-strong)" }}>
+          <div className="font-semibold text-[13px] text-ink-strong">
             Gavo AI Review
           </div>
-          <div className="text-[12px]" style={{ color: "var(--ink-dim)" }}>
+          <div className="text-[12px] text-ink-dim">
             {state === "idle"    && (trade.framework === "SnD" ? "Grade this setup against the S&D rulebook" : "Grade this setup against the SMC rulebook")}
             {state === "loading" && "Analysing your trade…"}
             {state === "done"    && result && `Grade: ${result.grade} · ${trade.pair} ${trade.dir}`}
@@ -130,8 +125,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           <button
             type="button"
             onClick={runReview}
-            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0"
-            style={{ background: "rgba(8,174,170,0.12)", color: "var(--teal)", border: "1px solid rgba(8,174,170,0.2)" }}
+            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-[rgba(8,174,170,0.12)] text-teal border border-[rgba(8,174,170,0.2)]"
           >
             Review
           </button>
@@ -141,8 +135,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           <button
             type="button"
             onClick={runReview}
-            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0"
-            style={{ background: "rgba(234,82,61,0.10)", color: "var(--coral)", border: "1px solid rgba(234,82,61,0.2)" }}
+            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-[rgba(234,82,61,0.10)] text-coral border border-[rgba(234,82,61,0.2)]"
           >
             Retry
           </button>
@@ -151,8 +144,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
         {state === "locked" && (
           <a
             href="/pricing"
-            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0"
-            style={{ background: "rgba(248,185,61,0.12)", color: "var(--gold)", border: "1px solid rgba(248,185,61,0.2)" }}
+            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-[rgba(248,185,61,0.12)] text-gold border border-[rgba(248,185,61,0.2)]"
           >
             Upgrade
           </a>
@@ -162,8 +154,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           <button
             type="button"
             onClick={runReview}
-            className="p-1.5 rounded-lg transition-colors shrink-0"
-            style={{ color: "var(--ink-dim)" }}
+            className="p-1.5 rounded-lg transition-colors shrink-0 text-ink-dim"
             title="Re-run review"
           >
             <Icon name="refresh" size={16} />
@@ -173,7 +164,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
 
       {/* Loading skeleton */}
       {state === "loading" && (
-        <div style={{ animation: "pulse 1.8s ease-in-out infinite" }}>
+        <div className="animate-[pulse_1.8s_ease-in-out_infinite]">
           <Skeleton />
         </div>
       )}
@@ -185,7 +176,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           {/* Grade + verdict */}
           <div className="flex items-start gap-3">
             <GradeChip grade={result.grade} />
-            <p className="text-[13px] leading-relaxed flex-1 pt-0.5" style={{ color: "var(--ink-mid)" }}>
+            <p className="text-[13px] leading-relaxed flex-1 pt-0.5 text-ink-mid">
               {result.verdict}
             </p>
           </div>
@@ -193,13 +184,13 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           {/* What you did well */}
           {result.good.length > 0 && (
             <div>
-              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--teal)" }}>
+              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2 text-teal">
                 What you did well
               </div>
               <ul className="flex flex-col gap-1.5">
                 {result.good.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-[12.5px]" style={{ color: "var(--ink-mid)" }}>
-                    <Icon name="check_circle" size={15} fill style={{ color: "var(--teal)", flexShrink: 0, marginTop: 2 }} />
+                  <li key={i} className="flex items-start gap-2 text-[12.5px] text-ink-mid">
+                    <Icon name="check_circle" size={15} fill className="text-teal shrink-0 mt-0.5" />
                     {item}
                   </li>
                 ))}
@@ -210,13 +201,13 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           {/* Areas to improve */}
           {result.improve.length > 0 && (
             <div>
-              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--coral)" }}>
+              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2 text-coral">
                 Areas to improve
               </div>
               <ul className="flex flex-col gap-1.5">
                 {result.improve.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-[12.5px]" style={{ color: "var(--ink-mid)" }}>
-                    <Icon name="trending_flat" size={15} style={{ color: "var(--coral)", flexShrink: 0, marginTop: 2 }} />
+                  <li key={i} className="flex items-start gap-2 text-[12.5px] text-ink-mid">
+                    <Icon name="trending_flat" size={15} className="text-coral shrink-0 mt-0.5" />
                     {item}
                   </li>
                 ))}
@@ -226,13 +217,10 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
 
           {/* Tip */}
           {result.tip && (
-            <div
-              className="rounded-xl px-3.5 py-3 flex items-start gap-2.5"
-              style={{ background: "rgba(248,185,61,0.08)", border: "1px solid rgba(248,185,61,0.2)" }}
-            >
-              <Icon name="lightbulb" size={15} fill style={{ color: "var(--gold)", flexShrink: 0, marginTop: 2 }} />
-              <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--ink-mid)" }}>
-                <span className="font-semibold" style={{ color: "var(--gold)" }}>{tipLabel}</span>
+            <div className="rounded-xl px-3.5 py-3 flex items-start gap-2.5 bg-[rgba(248,185,61,0.08)] border border-[rgba(248,185,61,0.2)]">
+              <Icon name="lightbulb" size={15} fill className="text-gold shrink-0 mt-0.5" />
+              <p className="text-[12.5px] leading-relaxed text-ink-mid">
+                <span className="font-semibold text-gold">{tipLabel}</span>
                 {result.tip}
               </p>
             </div>
