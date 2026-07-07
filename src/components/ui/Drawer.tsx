@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "./Icon";
+import { cn } from "@/lib/cn";
 
 interface DrawerProps {
   open: boolean;
@@ -28,37 +29,30 @@ export function Drawer({ open, onClose, title, width = 460, footer, children }: 
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex justify-end"
-      style={{
-        background: open ? "rgba(7,33,46,0.45)" : "transparent",
-        backdropFilter: open ? "blur(2px)" : "none",
-        pointerEvents: open ? "auto" : "none",
-        transition: "background 260ms var(--ease-app), backdrop-filter 260ms",
-      }}
+      className={cn(
+        "fixed inset-0 z-50 flex justify-end",
+        open ? "bg-[rgba(7,33,46,0.45)] backdrop-blur-[2px] pointer-events-auto" : "bg-transparent backdrop-blur-none pointer-events-none"
+      )}
+      style={{ transition: "background 260ms var(--ease-app), backdrop-filter 260ms" }}
       onMouseDown={onClose}
     >
       <div
-        className="flex flex-col h-full w-full"
-        style={{
-          maxWidth: width,
-          background: "var(--panel)",
-          boxShadow: "-16px 0 50px rgba(0,0,0,0.3)",
-          borderLeft: "1px solid var(--line)",
-          transform: open ? "translateX(0)" : "translateX(calc(100% + 70px))",
-          transition: "transform 260ms var(--ease-app)",
-        }}
+        className={cn(
+          "flex flex-col h-full w-full bg-panel shadow-[-16px_0_50px_rgba(0,0,0,0.3)] border-l border-line transition-transform duration-[260ms] ease-app",
+          open ? "translate-x-0" : "translate-x-[calc(100%+70px)]"
+        )}
+        style={{ maxWidth: width }}
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between gap-4 px-6 pb-4 border-b shrink-0" style={{ borderColor: "var(--line)", paddingTop: "calc(1rem + var(--safe-top))" }}>
-          <div className="font-display text-[18px] font-semibold" style={{ color: "var(--ink-strong)" }}>
+        <div className="flex items-center justify-between gap-4 px-6 pb-4 border-b border-line shrink-0 pt-[calc(1rem+var(--safe-top))]">
+          <div className="font-display text-[18px] font-semibold text-ink-strong">
             {title}
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-[var(--hover)] transition-colors"
-            style={{ color: "var(--ink-mid)" }}
+            className="p-1.5 rounded-lg hover:bg-[var(--hover)] transition-colors text-ink-mid"
           >
             <Icon name="close" size={20} />
           </button>
@@ -66,18 +60,14 @@ export function Drawer({ open, onClose, title, width = 460, footer, children }: 
 
         {/* Body */}
         <div
-          className="flex-1 overflow-y-auto px-6 pt-5"
-          style={!footer ? { paddingBottom: "calc(1.25rem + var(--safe-bottom))" } : { paddingBottom: "1.25rem" }}
+          className={cn("flex-1 overflow-y-auto px-6 pt-5", !footer ? "pb-[calc(1.25rem+var(--safe-bottom))]" : "pb-5")}
         >
           {open && children}
         </div>
 
         {/* Footer */}
         {footer && open && (
-          <div
-            className="flex items-center justify-end gap-3 px-6 pt-4 border-t shrink-0"
-            style={{ borderColor: "var(--line)", paddingBottom: "calc(1rem + var(--safe-bottom))" }}
-          >
+          <div className="flex items-center justify-end gap-3 px-6 pt-4 border-t border-line shrink-0 pb-[calc(1rem+var(--safe-bottom))]">
             {footer}
           </div>
         )}
