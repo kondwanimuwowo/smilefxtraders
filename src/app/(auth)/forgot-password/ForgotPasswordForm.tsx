@@ -35,26 +35,19 @@ export function ForgotPasswordForm() {
   if (state === "sent") {
     return (
       <div className="flex flex-col items-center text-center gap-5">
-        <div
-          className="size-16 rounded-full flex items-center justify-center"
-          style={{ background: "rgba(8,174,170,0.12)", border: "2px solid rgba(8,174,170,0.3)" }}
-        >
-          <span className="material-symbols-rounded ic-fill" style={{ fontSize: 32, color: "var(--teal)" }}>mark_email_read</span>
+        <div className="size-16 rounded-full flex items-center justify-center bg-[rgba(8,174,170,0.12)] border-2 border-[rgba(8,174,170,0.3)]">
+          <span className="material-symbols-rounded ic-fill text-[32px] text-teal">mark_email_read</span>
         </div>
         <div>
-          <h1 className="font-display font-semibold mb-2" style={{ fontSize: 24, color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
+          <h1 className="font-display font-semibold mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
             Check your inbox
           </h1>
-          <p style={{ fontSize: 14.5, color: "var(--ink-mid)", lineHeight: 1.6 }}>
-            We sent a reset link to <strong style={{ color: "var(--ink)" }}>{email}</strong>.
+          <p className="text-[14.5px] leading-[1.6] text-ink-mid">
+            We sent a reset link to <strong className="text-ink">{email}</strong>.
             It expires in 1 hour. Check your spam folder if you don&apos;t see it.
           </p>
         </div>
-        <Link
-          href="/login"
-          className="text-[13.5px] font-semibold hover:underline"
-          style={{ color: "var(--teal)" }}
-        >
+        <Link href="/login" className="text-[13.5px] font-semibold hover:underline text-teal">
           Back to sign in
         </Link>
       </div>
@@ -63,14 +56,14 @@ export function ForgotPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
-      <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2" style={{ color: "var(--teal)" }}>
+      <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2 text-teal">
         Password reset
       </div>
 
-      <h1 className="font-display font-semibold mb-2" style={{ fontSize: 26, color: "var(--ink-strong)", letterSpacing: "-0.01em" }}>
+      <h1 className="font-display font-semibold mb-2 text-[26px] tracking-[-0.01em] text-ink-strong">
         Forgot your password?
       </h1>
-      <p className="mb-6" style={{ fontSize: 14.5, color: "var(--ink-mid)", lineHeight: 1.6 }}>
+      <p className="mb-6 text-[14.5px] leading-[1.6] text-ink-mid">
         Enter your email and we&apos;ll send you a link to set a new one.
       </p>
 
@@ -89,7 +82,7 @@ export function ForgotPasswordForm() {
       </div>
 
       {(state === "error") && (
-        <div className="mb-4 rounded-xl px-4 py-3 text-[13px]" style={{ background: "rgba(234,82,61,0.10)", color: "var(--coral-bright)", border: "1px solid rgba(234,82,61,0.2)" }}>
+        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-bright border border-[rgba(234,82,61,0.2)]">
           {error}
         </div>
       )}
@@ -98,9 +91,9 @@ export function ForgotPasswordForm() {
         Send reset link
       </Button>
 
-      <p className="text-center text-[13.5px] mt-6" style={{ color: "var(--ink-mid)" }}>
+      <p className="text-center text-[13.5px] mt-6 text-ink-mid">
         Remembered it?{" "}
-        <Link href="/login" className="font-semibold hover:underline" style={{ color: "var(--teal)" }}>
+        <Link href="/login" className="font-semibold hover:underline text-teal">
           Sign in
         </Link>
       </p>
