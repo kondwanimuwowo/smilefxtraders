@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { cn } from "@/lib/cn";
+import { Icon } from "@/components/ui";
 
 type Instrument = {
   id: string;
@@ -183,7 +184,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
           onClick={openAdd}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all active:scale-95 bg-teal shadow-[0_4px_14px_rgba(8,174,170,0.28)]"
         >
-          <span className="material-symbols-rounded text-[18px]">add</span>
+          <Icon name="add" size={18} />
           Add instrument
         </button>
       </div>
@@ -223,7 +224,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
                 className="w-[18px] h-[18px] rounded flex items-center justify-center transition-colors hover:bg-[var(--bg-soft)] disabled:opacity-20"
                 aria-label="Move up"
               >
-                <span className="material-symbols-rounded text-[14px] text-ink-mid">arrow_drop_up</span>
+                <Icon name="arrow_drop_up" size={14} className="text-ink-mid" />
               </button>
               <button
                 onClick={() => moveOrder(inst, 1)}
@@ -231,7 +232,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
                 className="w-[18px] h-[18px] rounded flex items-center justify-center transition-colors hover:bg-[var(--bg-soft)] disabled:opacity-20"
                 aria-label="Move down"
               >
-                <span className="material-symbols-rounded text-[14px] text-ink-mid">arrow_drop_down</span>
+                <Icon name="arrow_drop_down" size={14} className="text-ink-mid" />
               </button>
             </div>
 
@@ -273,9 +274,11 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
               className="flex items-center gap-1.5 text-[12px] font-medium transition-colors"
               style={{ color: inst.fxoTracked ? "var(--teal-dark)" : "var(--ink-dim)" }}
             >
-              <span className={cn("material-symbols-rounded text-[16px]", inst.fxoTracked ? "ic-fill text-teal" : "text-ink-dim")}>
-                {inst.fxoTracked ? "check_circle" : "radio_button_unchecked"}
-              </span>
+              <Icon
+                name={inst.fxoTracked ? "check_circle" : "radio_button_unchecked"}
+                size={16}
+                className={inst.fxoTracked ? "text-teal" : "text-ink-dim"}
+              />
               {inst.fxoTracked ? "Yes" : "No"}
             </button>
 
@@ -298,14 +301,14 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
                 className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-[var(--bg-soft)]"
                 aria-label="Edit"
               >
-                <span className="material-symbols-rounded text-[16px] text-ink-mid">edit</span>
+                <Icon name="edit" size={16} className="text-ink-mid" />
               </button>
               <button
                 onClick={() => handleDelete(inst.id)}
                 className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-[rgba(234,82,61,0.1)]"
                 aria-label="Delete"
               >
-                <span className="material-symbols-rounded text-[16px] text-coral">delete</span>
+                <Icon name="delete" size={16} className="text-coral" />
               </button>
             </div>
           </div>
@@ -326,7 +329,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
                 {editId ? "Edit instrument" : "Add instrument"}
               </h2>
               <button onClick={() => setShowForm(false)} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-[var(--bg-soft)]">
-                <span className="material-symbols-rounded text-[20px] text-ink-dim">close</span>
+                <Icon name="close" size={20} className="text-ink-dim" />
               </button>
             </div>
 
@@ -422,7 +425,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
                       onClick={() => setForm((f) => ({ ...f, [key]: !f[key] }))}
                       className={cn("mt-0.5 w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-colors border border-line", (form[key] as boolean) ? "bg-teal" : "bg-track")}
                     >
-                      {(form[key] as boolean) && <span className="material-symbols-rounded ic-fill text-white text-[14px]">check</span>}
+                      {(form[key] as boolean) && <Icon name="check" size={14} className="text-white" />}
                     </button>
                     <div>
                       <div className="text-[13.5px] font-semibold text-ink">{label}</div>
