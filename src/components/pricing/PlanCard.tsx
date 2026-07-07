@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { PlanMeta, PlanPrices } from "@/lib/plans";
+import { cn } from "@/lib/cn";
 
 export interface PlanCardProps {
   meta: PlanMeta;
@@ -15,15 +16,12 @@ function FeatureRow({ text, included }: { text: string; included: boolean }) {
   return (
     <div className="flex items-start gap-3 py-1.5">
       <span
-        className="material-symbols-rounded shrink-0 mt-0.5"
-        style={{ fontSize: 16, color: included ? "var(--teal)" : "var(--track)", fontFamily: "Material Symbols Rounded Fill" }}
+        className={cn("material-symbols-rounded shrink-0 mt-0.5 text-[16px]", included ? "text-teal" : "text-track")}
+        style={{ fontFamily: "Material Symbols Rounded Fill" }}
       >
         {included ? "check_circle" : "cancel"}
       </span>
-      <span
-        className="text-[13px] leading-snug"
-        style={{ color: included ? "var(--ink-mid)" : "var(--ink-dim)", opacity: included ? 1 : 0.55 }}
-      >
+      <span className={cn("text-[13px] leading-snug", included ? "text-ink-mid opacity-100" : "text-ink-dim opacity-55")}>
         {text}
       </span>
     </div>
@@ -36,21 +34,15 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
 
   return (
     <div
-      className="rounded-2xl flex flex-col"
-      style={{
-        background: meta.popular
-          ? "linear-gradient(175deg, rgba(8,174,170,0.07) 0%, transparent 40%), var(--panel, #fff)"
-          : "var(--panel, #fff)",
-        border:    meta.popular ? "2px solid rgba(8,174,170,0.4)" : "1px solid var(--line, #e5e9f0)",
-        position:  "relative",
-        marginTop: meta.popular ? 0 : 14,
-      }}
+      className={cn(
+        "rounded-2xl flex flex-col relative",
+        meta.popular
+          ? "bg-[linear-gradient(175deg,rgba(8,174,170,0.07)_0%,transparent_40%),var(--panel,#fff)] border-2 border-[rgba(8,174,170,0.4)] mt-0"
+          : "bg-[var(--panel,#fff)] border border-[var(--line,#e5e9f0)] mt-3.5"
+      )}
     >
       {meta.popular && (
-        <div
-          className="absolute left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider"
-          style={{ background: "var(--teal)", color: "#fff", top: -14 }}
-        >
+        <div className="absolute left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-teal text-white -top-3.5">
           Most popular
         </div>
       )}
@@ -69,7 +61,7 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
               {meta.icon}
             </span>
           </div>
-          <div className="font-display font-bold text-[17px]" style={{ color: "var(--ink-strong)" }}>
+          <div className="font-display font-bold text-[17px] text-ink-strong">
             {meta.name}
           </div>
         </div>
@@ -77,7 +69,7 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
         {/* Price */}
         <div className="mb-2">
           {zmw === 0 ? (
-            <div className="font-display font-bold text-[34px]" style={{ color: "var(--ink-strong)", letterSpacing: "-0.03em" }}>
+            <div className="font-display font-bold text-[34px] tracking-[-0.03em] text-ink-strong">
               Free
             </div>
           ) : (
@@ -87,7 +79,7 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
                   <span className="font-display font-bold text-[34px]" style={{ color: meta.color, letterSpacing: "-0.03em" }}>
                     ${usd}
                   </span>
-                  <span className="text-[14px] mb-2" style={{ color: "var(--ink-dim)" }}>/mo</span>
+                  <span className="text-[14px] mb-2 text-ink-dim">/mo</span>
                 </div>
               )}
               <div className="flex items-end gap-1.5">
@@ -97,13 +89,13 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
                 >
                   K{zmw}
                 </span>
-                <span className="text-[14px] mb-2" style={{ color: "var(--ink-dim)" }}>/mo</span>
+                <span className="text-[14px] mb-2 text-ink-dim">/mo</span>
               </div>
-              <div className="text-[12.5px]" style={{ color: "var(--ink-dim)" }}>
+              <div className="text-[12.5px] text-ink-dim">
                 {annual ? "billed annually" : "billed monthly"} · ZMW
               </div>
               {annual && (
-                <div className="text-[12px] font-semibold mt-1" style={{ color: "var(--teal)" }}>
+                <div className="text-[12px] font-semibold mt-1 text-teal">
                   Save 20% with annual billing
                 </div>
               )}
@@ -111,14 +103,14 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
           )}
         </div>
 
-        <p className="text-[13px] leading-relaxed mb-5" style={{ color: "var(--ink-dim)" }}>{meta.tagline}</p>
+        <p className="text-[13px] leading-relaxed mb-5 text-ink-dim">{meta.tagline}</p>
 
         {renderCta(meta, annual)}
       </div>
 
       {/* Feature list */}
       <div className="px-6 pb-6 flex-1">
-        <div className="pt-4 border-t" style={{ borderColor: "var(--line)" }}>
+        <div className="pt-4 border-t border-line">
           {meta.features.map((f) => (
             <FeatureRow key={f.text} text={f.text} included={f.included} />
           ))}
