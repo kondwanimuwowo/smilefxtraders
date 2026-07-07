@@ -16,7 +16,7 @@ export default function FeaturesPage() {
       <section className="dark py-32 pb-24 bg-[radial-gradient(ellipse_at_12%_18%,rgba(8,174,170,0.45)_0%,transparent_52%),radial-gradient(ellipse_at_88%_88%,rgba(248,185,61,0.32)_0%,transparent_48%),linear-gradient(155deg,#0C4E6B_0%,#082A3B_60%)]">
         <div className="container">
           <div className="sec-head reveal">
-            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18]" style={{ fontSize: "clamp(28px,3.8vw,46px)" }}>Every tool a disciplined trader needs</h2>
+            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">Every tool a disciplined trader needs</h2>
             <p className="lead">Smile FX is built specifically for SMC and Supply &amp; Demand traders. One platform to journal, validate, follow, analyse, and learn.</p>
           </div>
           <div className="flex gap-2.5 flex-wrap mt-7">
@@ -65,17 +65,17 @@ export default function FeaturesPage() {
                   </div>
                   <div className="border border-line rounded-xl overflow-hidden">
                     {[
-                      { pair: "XAUUSD", dir: "Long", model: "FVG sweep · London", pnl: "+3.1R", col: "var(--teal-dark)" },
-                      { pair: "USDJPY", dir: "Long", model: "OB+BOS · New York", pnl: "OPEN", col: "var(--gold-dark)" },
-                      { pair: "NAS100", dir: "Short", model: "SMT divergence · NY", pnl: "+4.0R", col: "var(--teal-dark)" },
-                    ].map(({ pair, dir, model, pnl, col }, i) => (
+                      { pair: "XAUUSD", dir: "Long", model: "FVG sweep · London", pnl: "+3.1R", colorCls: "text-[var(--teal-dark)]" },
+                      { pair: "USDJPY", dir: "Long", model: "OB+BOS · New York", pnl: "OPEN", colorCls: "text-[var(--gold-dark)]" },
+                      { pair: "NAS100", dir: "Short", model: "SMT divergence · NY", pnl: "+4.0R", colorCls: "text-[var(--teal-dark)]" },
+                    ].map(({ pair, dir, model, pnl, colorCls }, i) => (
                       <div key={pair} className={`flex items-center gap-2.5 py-2.5 px-[13px] ${i < 2 ? "border-b border-line" : ""}`}>
                         <span className="mono font-semibold text-[13px]">{pair}</span>
                         <span className={`chip text-[10px] ${dir === "Short" ? "badge-short" : "badge-long"}`}>{dir}</span>
                         <span className="truncate text-xs text-ink-mid flex-1 min-w-0">
                           {model}
                         </span>
-                        <span className="mono font-bold text-[13px]" style={{ color: col }}>{pnl}</span>
+                        <span className={`mono font-bold text-[13px] ${colorCls}`}>{pnl}</span>
                       </div>
                     ))}
                   </div>
@@ -212,13 +212,13 @@ export default function FeaturesPage() {
                     <div className="flex justify-between items-center"><span className="font-bold text-[15px]">GOLD</span><span className="chip text-[11px]">Bullish</span></div>
                     <div className="flex items-end gap-2.5 mt-2"><span className="mono text-xl font-bold text-[var(--teal-dark)]">+184.0K</span><span className="mono text-xs text-[var(--teal-dark)]">▲ 12.5K w/w</span></div>
                     <div className="text-[10.5px] text-ink-dim my-2.5 mb-[5px]">52-week range · specs near top</div>
-                    <div className="relative h-2 rounded-full bg-[var(--bg-soft)]"><div className="absolute -top-0.5 w-1 h-3 rounded-full bg-teal" style={{ left: "78%" }} /></div>
+                    <div className="relative h-2 rounded-full bg-[var(--bg-soft)]"><div className="absolute -top-0.5 w-1 h-3 rounded-full bg-teal left-[78%]" /></div>
                   </div>
                   <div className="mock-tile">
                     <div className="flex justify-between items-center"><span className="font-bold text-[15px]">USDJPY</span><span className="chip coral text-[11px]">Bearish</span></div>
                     <div className="flex items-end gap-2.5 mt-2"><span className="mono text-xl font-bold text-[var(--coral-dark)]">−18.5K</span><span className="mono text-xs text-[var(--coral-dark)]">▼ 5.2K w/w · inverted</span></div>
                     <div className="text-[10.5px] text-ink-dim my-2.5 mb-[5px]">52-week range · specs near bottom</div>
-                    <div className="relative h-2 rounded-full bg-[var(--bg-soft)]"><div className="absolute -top-0.5 w-1 h-3 rounded-full bg-coral" style={{ left: "22%" }} /></div>
+                    <div className="relative h-2 rounded-full bg-[var(--bg-soft)]"><div className="absolute -top-0.5 w-1 h-3 rounded-full bg-coral left-[22%]" /></div>
                   </div>
                 </div>
               </div>
@@ -313,19 +313,17 @@ export default function FeaturesPage() {
                   ].map(({ label, sub, state }) => (
                     <div
                       key={label}
-                      className="flex items-center gap-[11px] p-[11px] rounded-[10px]"
-                      style={{
-                        opacity: state === "locked" ? 0.7 : 1,
-                        background: state === "current" ? "rgba(248,185,61,0.1)" : "var(--bg-soft)",
-                      }}
+                      className={`flex items-center gap-[11px] p-[11px] rounded-[10px] ${state === "locked" ? "opacity-70" : "opacity-100"} ${state === "current" ? "bg-[rgba(248,185,61,0.1)]" : "bg-[var(--bg-soft)]"}`}
                     >
                       <span
-                        className="w-[30px] h-[30px] rounded-lg grid place-items-center"
-                        style={{ background: state === "current" ? "var(--gold)" : state === "done" ? "rgba(8,174,170,0.14)" : "var(--bg-tint)" }}
+                        className={`w-[30px] h-[30px] rounded-lg grid place-items-center ${
+                          state === "current" ? "bg-gold" : state === "done" ? "bg-[rgba(8,174,170,0.14)]" : "bg-[var(--bg-tint)]"
+                        }`}
                       >
                         <span
-                          className={`material-symbols-rounded text-[17px] ${state !== "locked" ? "ic-fill" : ""}`}
-                          style={{ color: state === "current" ? "var(--navy-deep)" : state === "done" ? "var(--teal)" : "var(--ink-dim)" }}
+                          className={`material-symbols-rounded text-[17px] ${state !== "locked" ? "ic-fill" : ""} ${
+                            state === "current" ? "text-navy-deep" : state === "done" ? "text-teal" : "text-ink-dim"
+                          }`}
                         >
                           {state === "done" ? "verified" : state === "current" ? "play_arrow" : "lock"}
                         </span>
