@@ -47,7 +47,7 @@ export default function FeaturesPage() {
                   "Discipline score that tracks how often you followed all 8 rules",
                   "AI review from Gavo: a structured debrief on any trade",
                   "Equity curve built automatically from your closed trades",
-                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">
@@ -100,7 +100,7 @@ export default function FeaturesPage() {
                   "Pip calculator auto-fills from your account size and risk %",
                   "One-click export to journal, pre-filled with pair, direction, model, R:R",
                   "Grade-based result (A+ to D) with a pass/fail badge",
-                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">
@@ -150,7 +150,7 @@ export default function FeaturesPage() {
                   "Tap 'Copy to journal' to log any alert as your own trade",
                   "Filter by pair or model",
                   "Free plan shows a 4-hour delay; Pro subscribers see alerts live",
-                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">
@@ -197,7 +197,7 @@ export default function FeaturesPage() {
                   "52-week range bar to show when specs are near historical extremes",
                   "Bullish / bearish / neutral signal per instrument",
                   "Inverted pairs (USDJPY, USDCHF) handled correctly",
-                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">
@@ -241,7 +241,7 @@ export default function FeaturesPage() {
                   "What you did well vs what to improve",
                   "One actionable tip per review",
                   "Re-runnable on any closed trade at any time",
-                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">
@@ -294,7 +294,7 @@ export default function FeaturesPage() {
                   "Course 4: Supply & Demand Framework",
                   "Course 5: Risk Management & Psychology",
                   "Course 6: Prop Firm Readiness",
-                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
               </ul>
               <Link className="link-arrow" href="/academy">Explore the Academy <Icon name="arrow_forward" /></Link>
             </div>
@@ -352,7 +352,7 @@ export default function FeaturesPage() {
                   "Synced automatically from a third-party data source",
                   "Displayed on a calendar view by pair and date",
                   "Highlight expiries near key POIs",
-                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">

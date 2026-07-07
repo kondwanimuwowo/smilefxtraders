@@ -28,9 +28,10 @@ function BrandLogo({ scrolled }: { scrolled: boolean }) {
   );
 }
 
-// Inline SVG, not a web-font ligature — the hamburger is the only way in to
-// mobile nav, so it must render even if the Material Symbols font is slow
-// or blocked on a given connection. The three bars morph into an X on open.
+// Hand-drawn inline SVG rather than an Icon/registry lookup, since the
+// hamburger is the only way in to mobile nav and its open/close morph
+// (three bars -> X) needs per-line rotate/opacity control the shared
+// Icon component doesn't expose.
 function MenuGlyph({ open, color }: { open: boolean; color: string }) {
   return (
     <svg width="22" height="22" viewBox="0 0 22 22" fill="none" className="block">

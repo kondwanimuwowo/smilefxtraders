@@ -100,9 +100,9 @@ export default async function HomePage() {
               <h3>Journal every trade. Find your edge.</h3>
               <p className="lead">Stop guessing what works. Tag each entry to its model, session, and confluences, then let the analytics show you which setups actually pay, and which mistakes keep costing you.</p>
               <ul className="feature-list">
-                <li><Icon name="check_circle" /> Win-rate and expectancy by SMC model</li>
-                <li><Icon name="check_circle" /> Discipline score that holds you accountable</li>
-                <li><Icon name="check_circle" /> AI trade review graded against your rules</li>
+                <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> Win-rate and expectancy by SMC model</li>
+                <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> Discipline score that holds you accountable</li>
+                <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> AI trade review graded against your rules</li>
               </ul>
               <Button href="/signup" size="lg" iconRight="arrow_forward">Open the journal</Button>
             </div>
@@ -131,9 +131,9 @@ export default async function HomePage() {
               <h3>Validate before you risk.</h3>
               <p className="lead">Discipline beats prediction. Walk your idea through the SMC checklist (HTF bias, liquidity, structure shift, POI, risk) and get an honest verdict. No confluence, no trade.</p>
               <ul className="feature-list">
-                <li><Icon name="check_circle" /> Built on liquidity → FVG / OB → CHoCH logic</li>
-                <li><Icon name="check_circle" /> Confluence score and clear A+ / Wait / No-Trade call</li>
-                <li><Icon name="check_circle" /> Send validated setups straight to your journal</li>
+                <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> Built on liquidity → FVG / OB → CHoCH logic</li>
+                <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> Confluence score and clear A+ / Wait / No-Trade call</li>
+                <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> Send validated setups straight to your journal</li>
               </ul>
               <Link href="/features#validator" className="link-arrow">
                 See how it works <Icon name="arrow_forward" />

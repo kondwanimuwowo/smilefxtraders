@@ -98,7 +98,7 @@ export default function LearnPage() {
                   "Written summary & numbered key takeaways",
                   "Live markups on real XAUUSD & EURUSD setups",
                   "Mark complete to unlock the next lesson",
-                ].map(f => <li key={f}><Icon name="check_circle" />{f}</li>)}
+                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
               </ul>
             </div>
             <div className="feature-visual reveal" data-delay="120">

@@ -1,7 +1,7 @@
 // Shared nav active-state convention (documented in CLAUDE.md's Shell Layout
 // section): teal gradient background + inset ring on the row, icon switches
-// to the FILL material-symbol variant. Used by both the desktop/mobile-drawer
-// Sidebar and the mobile BottomTabBar so the two never drift apart.
+// to teal. Used by both the desktop/mobile-drawer Sidebar and the mobile
+// BottomTabBar so the two never drift apart.
 
 export function navActiveRowClass(active: boolean): string {
   return active
@@ -10,5 +10,5 @@ export function navActiveRowClass(active: boolean): string {
 }
 
 export function navActiveIconClass(active: boolean): string {
-  return active ? "ic-fill text-teal" : "text-inherit";
+  return active ? "text-teal" : "text-inherit";
 }

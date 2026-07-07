@@ -185,38 +185,6 @@
     overflow-y: auto;
   }
 
-  /* width: 1em locks the span's horizontal size so nothing reflows sideways
-     once the (much narrower) icon glyph replaces the wider fallback-font box
-     for the ligature text during the font's load. Deliberately NOT forcing
-     height/overflow/flex-centering here (an earlier version did, and it broke:
-     line-height: 1 already makes the line box exactly equal the 1em container,
-     so align-items: center has nothing left to redistribute — the glyph's
-     actual vertical position is purely the font's own baseline/ascent metrics,
-     and overflow: hidden was clipping whatever the flex-centering didn't
-     actually correct for). This now matches Google's own tested default CSS
-     for this font. letter-spacing/text-transform/white-space/word-wrap/
-     direction guard against inherited parent styles (e.g. an uppercase label)
-     breaking the ligature match on the icon's literal text content (e.g.
-     "menu_book"). Being in @layer base (not unlayered) means a Tailwind
-     utility like text-[32px] correctly overrides font-size: inherit here. */
-  .material-symbols-rounded {
-    display: inline-block;
-    width: 1em;
-    font-size: inherit;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-  }
-
-  /* Material Symbols "filled" variant — two separate static font files back
-     this (src/app/material-symbols.css), not a variable-font axis, so this
-     selects the filled font-family rather than setting font-variation-settings
-     (which has no effect on a static font). */
-  .ic-fill { font-family: "Material Symbols Rounded Fill"; }
-
   /* Tabular numbers for price/stat text */
   .tabular-nums,
   [class*="tabular-nums"] {
@@ -455,8 +423,8 @@
            text-[var(--teal-dark)] hover:text-coral;
   }
   .dark .link-arrow { @apply text-teal-bright; }
-  .link-arrow .material-symbols-rounded { @apply transition-transform duration-200 ease-app text-[20px]; }
-  .link-arrow:hover .material-symbols-rounded { @apply translate-x-1; }
+  .link-arrow svg { @apply transition-transform duration-200 ease-app; }
+  .link-arrow:hover svg { @apply translate-x-1; }
 
   /* ---------- cards ---------- */
   .card {
@@ -501,7 +469,6 @@
   .feature-text .lead { @apply text-[17px] text-ink-mid mt-4 mb-[22px]; }
   .feature-list { @apply flex flex-col gap-3 mb-6 p-0 list-none; }
   .feature-list li { @apply flex gap-[11px] items-start text-[15px] text-ink; }
-  .feature-list .material-symbols-rounded { @apply text-teal text-[22px] shrink-0; }
 
   /* ---------- product mockups ---------- */
   .mock { @apply bg-white rounded-[18px] shadow-card-lg overflow-hidden border border-line; }
@@ -552,10 +519,8 @@
            tracking-[0.08em] py-[5px] px-[13px] rounded-full;
   }
   .price-feat { @apply flex gap-2.5 items-start text-sm text-ink py-[7px] leading-[1.4]; }
-  .price-feat .material-symbols-rounded { @apply text-teal text-xl shrink-0 mt-px; }
   .price-feat .det { @apply text-ink-dim; }
   .price-x { @apply flex gap-2.5 items-start text-sm text-ink-dim py-[7px]; }
-  .price-x .material-symbols-rounded { @apply text-ink-dim text-xl shrink-0 mt-px opacity-40; }
   .price-divider { @apply border-t border-line my-3.5; }
   .toggle-wrap { @apply inline-flex items-center gap-1.5 p-[5px] bg-[var(--bg-soft)] rounded-full; }
   .faq-item { @apply border-b border-line; }
