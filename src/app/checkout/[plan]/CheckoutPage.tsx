@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ZM_OPERATORS, detectZmOperator, type ZmOperator } from "@/lib/mobile-money";
 import { NetworkLogo } from "@/components/checkout/NetworkLogo";
+import { Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 
 // ── Plan config ───────────────────────────────────────────────────────────────
@@ -146,7 +147,7 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
       <div className="min-h-screen flex items-center justify-center p-6 bg-app-bg">
         <div className="rounded-3xl px-10 py-12 text-center max-w-sm w-full bg-panel border border-line">
           <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[rgba(8,174,170,0.12)] border-2 border-teal">
-            <span className="material-symbols-rounded ic-fill text-[32px] text-teal">check_circle</span>
+            <Icon name="check_circle" size={32} className="text-teal" />
           </div>
           <h2 className="font-display font-bold text-[24px] mb-2 tracking-[-0.02em] text-ink-strong">
             You&apos;re on {plan.name}!
@@ -173,7 +174,7 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
           {step === "waiting" ? (
             <>
               <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[rgba(248,185,61,0.12)] border-2 border-gold">
-                <span className="material-symbols-rounded ic-fill text-[32px] animate-pulse text-gold">phone_android</span>
+                <Icon name="phone_android" size={32} className="animate-pulse text-gold" />
               </div>
               <h2 className="font-display font-bold text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">
                 Check your phone
@@ -195,7 +196,7 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
           ) : (
             <>
               <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[rgba(234,82,61,0.12)] border-2 border-coral">
-                <span className="material-symbols-rounded ic-fill text-[32px] text-coral">error</span>
+                <Icon name="error" size={32} className="text-coral" />
               </div>
               <h2 className="font-display font-bold text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">Payment failed</h2>
               <p className="text-[13.5px] mb-6 text-ink-dim">{errMsg}</p>
@@ -221,7 +222,7 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
         <button type="button" onClick={() => router.push("/pricing")}
           className="flex items-center gap-1.5 text-[12.5px] mb-5 text-ink-dim"
         >
-          <span className="material-symbols-rounded text-[16px]">arrow_back</span>
+          <Icon name="arrow_back" size={16} />
           Back to Pricing
         </button>
 
@@ -231,9 +232,7 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
             <div className="size-10 rounded-xl flex items-center justify-center shrink-0"
               style={{ background: `${plan.color}20`, border: `1px solid ${plan.color}40` }}
             >
-              <span className="material-symbols-rounded ic-fill text-xl" style={{ color: plan.color }}>
-                {plan.icon}
-              </span>
+              <Icon name={plan.icon} size={20} style={{ color: plan.color }} />
             </div>
             <div>
               <div className="font-display font-bold text-[18px] tracking-[-0.02em] text-ink-strong">{plan.name}</div>
@@ -243,7 +242,7 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
           <ul className="space-y-1.5">
             {plan.features.map((f) => (
               <li key={f} className="flex items-center gap-2 text-[12.5px] text-ink-mid">
-                <span className="material-symbols-rounded ic-fill text-[14px] text-teal">check_circle</span>
+                <Icon name="check_circle" size={14} className="text-teal" />
                 {f}
               </li>
             ))}
