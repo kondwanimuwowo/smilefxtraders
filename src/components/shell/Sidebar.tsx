@@ -11,6 +11,7 @@ import { signoutAction } from "@/app/(auth)/actions";
 import { navActiveRowClass, navActiveIconClass } from "@/lib/nav-active-style";
 import { clampPosition } from "@/lib/hooks/useClampedPosition";
 import { cn } from "@/lib/cn";
+import { Icon } from "@/components/ui";
 
 interface NavItem {
   href: string;
@@ -171,7 +172,7 @@ export function Sidebar() {
               className="shrink-0 flex items-center justify-center rounded-xl transition-colors hover:bg-hover size-[34px] text-ink-mid"
               aria-label="Close menu"
             >
-              <span className="material-symbols-rounded text-[20px]">close</span>
+              <Icon name="close" size={20} />
             </button>
           ) : (
             <button
@@ -184,9 +185,7 @@ export function Sidebar() {
               className="shrink-0 flex items-center justify-center rounded-lg transition-colors size-7 text-ink-dim bg-transparent hover:bg-[rgba(8,174,170,0.1)]"
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              <span className="material-symbols-rounded text-[18px]">
-                {collapsed ? "chevron_right" : "chevron_left"}
-              </span>
+              <Icon name={collapsed ? "chevron_right" : "chevron_left"} size={18} />
             </button>
           )}
         </div>
@@ -347,15 +346,15 @@ function ProfileButton({
         </div>
 
         {!collapsed && (
-          <span
-            className="material-symbols-rounded shrink-0 text-[15px] text-ink-dim"
+          <Icon
+            name="expand_less"
+            size={15}
+            className="shrink-0 text-ink-dim"
             style={{
               transform: open ? "rotate(180deg)" : "rotate(0deg)",
               transition: "transform 200ms var(--ease-app)",
             }}
-          >
-            expand_less
-          </span>
+          />
         )}
       </button>
 
@@ -393,9 +392,7 @@ function ProfileButton({
               onClick={() => navigate(href)}
               className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-medium transition-colors hover:bg-hover text-ink-strong"
             >
-              <span className="material-symbols-rounded text-[17px] text-ink-dim">
-                {icon}
-              </span>
+              <Icon name={icon} size={17} className="text-ink-dim" />
               {label}
             </button>
           ))}
@@ -408,7 +405,7 @@ function ProfileButton({
               disabled={signingOut}
               className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-medium transition-colors hover:bg-hover text-coral"
             >
-              <span className="material-symbols-rounded text-[17px]">logout</span>
+              <Icon name="logout" size={17} />
               {signingOut ? "Signing out…" : "Sign out"}
             </button>
           </div>
@@ -445,9 +442,7 @@ function NavLink({
           transition: "padding 260ms var(--ease-app), background 150ms, box-shadow 150ms",
         }}
       >
-        <span className={cn("material-symbols-rounded shrink-0 text-[20px]", navActiveIconClass(active))}>
-          {item.icon}
-        </span>
+        <Icon name={item.icon} size={20} className={cn("shrink-0", navActiveIconClass(active))} />
         <span
           className="overflow-hidden whitespace-nowrap"
           style={{
