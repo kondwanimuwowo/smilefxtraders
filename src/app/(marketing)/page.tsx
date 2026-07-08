@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Button, Icon } from "@/components/ui";
 import { ChartViz } from "@/components/marketing/ChartViz";
 import { CTACard } from "@/components/marketing/CTACard";
+import { MarketingCard } from "@/components/marketing/MarketingCard";
+import { FeatureBlock } from "@/components/marketing/FeatureBlock";
 import { MarketingPlanCard } from "@/components/pricing/MarketingPlanCard";
 import { PLAN_META } from "@/lib/plans";
 import { getPlanPrices } from "@/lib/server/getPlanPrices";
@@ -61,7 +63,6 @@ export default async function HomePage() {
         <div className="container">
           <div className="sec-head center reveal">
 <h2>Everything you need to trade with discipline</h2>
-            <div className="rule" />
             <p className="lead">Built for SMC and Supply &amp; Demand traders who take their craft seriously.</p>
           </div>
           <div className="grid g3 auto-rows-fr mt-14">
@@ -70,21 +71,19 @@ export default async function HomePage() {
               { icon: "rule",                 title: "Rules Validator",     desc: "Walk any idea through the SMC checklist before you click. Get a clear A+ / Wait / No-Trade verdict.", href: "/features#validator" },
               { icon: "notifications_active", title: "Live Alerts",         desc: "Kondwani posts validated setups in real time, with the full reasoning. Copy any alert straight to your journal.", href: "/features#alerts" },
               { icon: "bar_chart",            title: "COT Reports",         desc: "Weekly institutional positioning from the CFTC Commitments of Traders report: large specs, commercials, and net positioning.", href: "/features#cot" },
+              { icon: "analytics",            title: "MacroEdge",          desc: "A weighted fundamental score per currency, cross-checked against Trend Matrix and COT, so you know why a pair is biased, not just what the chart says.", href: "/features#macroedge" },
               { icon: "auto_awesome",         title: "Gavo AI Review",      desc: "Your AI trading coach grades every trade against the SMC rulebook with a structured verdict: what was good, what to improve.", href: "/features#gavo" },
               { icon: "school",               title: "Academy",             desc: "A six-level SMC curriculum taught in order, from market structure foundations to prop-firm readiness.", href: "/learn" },
             ].map((tool, i) => (
-              <div key={tool.title} className="card tool-card reveal h-full flex flex-col" data-delay={i % 3 * 80}>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="icon-chip shrink-0">
-                    <Icon name={tool.icon} size={32} className="leading-none" />
-                  </div>
-                  <h3 className="m-0 font-bold">{tool.title}</h3>
-                </div>
-                <p>{tool.desc}</p>
-                <Link href={tool.href} className="link-arrow mt-auto pt-3">
-                  Learn more <Icon name="arrow_forward" />
-                </Link>
-              </div>
+              <MarketingCard
+                key={tool.title}
+                icon={tool.icon}
+                title={tool.title}
+                description={tool.desc}
+                href={tool.href}
+                className="reveal h-full flex flex-col"
+                dataDelay={(i % 3) * 80}
+              />
             ))}
           </div>
         </div>
@@ -95,17 +94,17 @@ export default async function HomePage() {
         <div className="container">
           {/* Journal */}
           <div className="feature-row">
-            <div className="feature-text reveal">
-              <div className="eyebrow">Journal</div>
-              <h3>Journal every trade. Find your edge.</h3>
-              <p className="lead">Stop guessing what works. Tag each entry to its model, session, and confluences, then let the analytics show you which setups actually pay, and which mistakes keep costing you.</p>
-              <ul className="feature-list">
-                <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> Win-rate and expectancy by SMC model</li>
-                <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> Discipline score that holds you accountable</li>
-                <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> AI trade review graded against your rules</li>
-              </ul>
-              <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Open the journal</Button>
-            </div>
+            <FeatureBlock
+              icon="menu_book"
+              title="Journal every trade. Find your edge."
+              lead="Stop guessing what works. Tag each entry to its model, session, and confluences, then let the analytics show you which setups actually pay, and which mistakes keep costing you."
+              bullets={[
+                "Win-rate and expectancy by SMC model",
+                "Discipline score that holds you accountable",
+                "AI trade review graded against your rules",
+              ]}
+              cta={{ label: "Open the journal", href: "/signup", variant: "button" }}
+            />
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
@@ -126,19 +125,17 @@ export default async function HomePage() {
 
           {/* Validator */}
           <div className="feature-row flip">
-            <div className="feature-text reveal">
-              <div className="eyebrow">Rules Validator</div>
-              <h3>Validate before you risk.</h3>
-              <p className="lead">Discipline beats prediction. Walk your idea through the SMC checklist (HTF bias, liquidity, structure shift, POI, risk) and get an honest verdict. No confluence, no trade.</p>
-              <ul className="feature-list">
-                <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> Built on liquidity → FVG / OB → CHoCH logic</li>
-                <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> Confluence score and clear A+ / Wait / No-Trade call</li>
-                <li><Icon name="check_circle" size={22} className="text-teal shrink-0" /> Send validated setups straight to your journal</li>
-              </ul>
-              <Link href="/features#validator" className="link-arrow">
-                See how it works <Icon name="arrow_forward" />
-              </Link>
-            </div>
+            <FeatureBlock
+              icon="rule"
+              title="Validate before you risk."
+              lead="Discipline beats prediction. Walk your idea through the SMC checklist (HTF bias, liquidity, structure shift, POI, risk) and get an honest verdict. No confluence, no trade."
+              bullets={[
+                "Built on liquidity → FVG / OB → CHoCH logic",
+                "Confluence score and clear A+ / Wait / No-Trade call",
+                "Send validated setups straight to your journal",
+              ]}
+              cta={{ label: "See how it works", href: "/features#validator", variant: "link" }}
+            />
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
@@ -183,7 +180,6 @@ export default async function HomePage() {
         <div className="container">
           <div className="feature-row">
             <div className="feature-text reveal">
-              <div className="eyebrow">Stay focused</div>
               <h3>Tune out the noise. Trade your plan.</h3>
               <p className="lead">The market throws a hundred pairs and a thousand opinions at you every day. Smile FX keeps you anchored to the setups that fit your edge, and nothing else.</p>
               <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Start focused</Button>
@@ -217,7 +213,7 @@ export default async function HomePage() {
         <div className="container">
           <div className="instr-grid">
             <div className="reveal relative">
-              <div className="rounded-3xl overflow-hidden aspect-[4/5] bg-[linear-gradient(165deg,#0C4359_0%,#082A3B_78%)] grid place-items-center relative shadow-[0_24px_60px_rgba(11,66,93,0.16)]">
+              <div className="rounded-3xl overflow-hidden aspect-[4/5] bg-[linear-gradient(165deg,#0C4359_0%,#082A3B_78%)] grid place-items-center relative shadow-[var(--shadow-card-lg)]">
                 <div className="text-center text-white/55 p-6">
                   <Icon name="account_circle" size={64} />
                 </div>
@@ -226,7 +222,6 @@ export default async function HomePage() {
             <div>
               <div className="eyebrow reveal">Lead Instructor</div>
               <h2 className="reveal mt-4 text-[clamp(28px,3.4vw,40px)]" data-delay="60">Kondwani</h2>
-              <div className="reveal w-14 h-1 rounded-full bg-coral mt-[18px]" data-delay="80" />
               <p className="reveal text-[17px] text-ink-mid mt-[22px] leading-[1.7]" data-delay="120">
                 Live calls posted every trading day. Every alert is validated against the SMC rulebook before posting, so you know exactly why the setup qualifies. Kondwani teaches pure smart money: liquidity, fair-value gaps, order blocks, premium and discount, from first principles.
               </p>

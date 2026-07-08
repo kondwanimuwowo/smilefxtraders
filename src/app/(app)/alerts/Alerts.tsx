@@ -247,7 +247,7 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(0,0,0,0.5)] backdrop-blur-[4px]"
     >
-      <div className="w-full max-w-lg rounded-2xl p-6 overflow-y-auto bg-panel border border-line shadow-[0_24px_70px_rgba(0,0,0,0.4)] max-h-[90vh]">
+      <div className="w-full max-w-lg rounded-2xl p-6 overflow-y-auto bg-panel border border-line shadow-[0_10px_26px_rgba(0,0,0,0.38)] max-h-[90vh]">
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-display font-bold text-[18px] text-ink-strong">Post Alert</h2>
           <button type="button" onClick={onClose} className="text-ink-dim">

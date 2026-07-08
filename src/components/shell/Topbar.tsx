@@ -231,7 +231,7 @@ function NotifBell() {
       {open && rect && typeof document !== "undefined" && createPortal(
         <div
           ref={panelRef}
-          className="rounded-2xl overflow-hidden w-[340px] max-w-[calc(100vw-16px)] bg-panel border border-line shadow-[0_12px_40px_rgba(0,0,0,0.25)] z-[9999]"
+          className="rounded-2xl overflow-hidden w-[340px] max-w-[calc(100vw-16px)] bg-panel border border-line shadow-[0_8px_24px_rgba(0,0,0,0.26)] z-[9999]"
           style={{
             position: "fixed",
             ...clampPosition({ triggerRect: rect, width: 340, estimatedHeight: 420, align: "right" }),

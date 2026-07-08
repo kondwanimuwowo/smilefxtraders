@@ -322,7 +322,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
           onClick={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}
         >
           <div
-            className="w-full max-w-[520px] rounded-2xl p-6 shadow-2xl overflow-y-auto max-h-[90vh] bg-panel border border-line"
+            className="w-full max-w-[520px] rounded-2xl p-6 shadow-lg overflow-y-auto max-h-[90vh] bg-panel border border-line"
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display font-bold text-[18px] text-ink-strong">

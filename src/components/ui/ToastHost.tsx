@@ -22,7 +22,7 @@ export function ToastHost() {
       {toasts.map((t) => (
         <div
           key={t.id}
-          className="flex items-center gap-2.5 px-4 py-3 rounded-2xl text-[13.5px] font-medium animate-toast-in pointer-events-auto bg-panel border border-line shadow-[0_12px_36px_rgba(0,0,0,0.35)] text-ink-strong"
+          className="flex items-center gap-2.5 px-4 py-3 rounded-2xl text-[13.5px] font-medium animate-toast-in pointer-events-auto bg-panel border border-line shadow-[0_6px_18px_rgba(0,0,0,0.32)] text-ink-strong"
         >
           <Icon
             name={t.icon}

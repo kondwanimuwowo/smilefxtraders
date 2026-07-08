@@ -38,7 +38,7 @@ export function Drawer({ open, onClose, title, width = 460, footer, children }: 
     >
       <div
         className={cn(
-          "flex flex-col h-full w-full bg-panel shadow-[-16px_0_50px_rgba(0,0,0,0.3)] border-l border-line transition-transform duration-[260ms] ease-app",
+          "flex flex-col h-full w-full bg-panel shadow-[-10px_0_26px_rgba(0,0,0,0.3)] border-l border-line transition-transform duration-[260ms] ease-app",
           open ? "translate-x-0" : "translate-x-[calc(100%+70px)]"
         )}
         style={{ maxWidth: width }}

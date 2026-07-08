@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Button, Icon } from "@/components/ui";
+import { MarketingCard } from "@/components/marketing/MarketingCard";
 
 export const metadata: Metadata = {
   title: "Community | Smile FX Traders",
@@ -29,11 +29,7 @@ export default function OurCommunityPage() {
               { icon: "local_fire_department", title: "Streaks & accountability", body: "Keep your journaling streak alive. Discipline scores keep everyone honest, gently." },
               { icon: "diversity_3",       title: "Share & learn",         body: "Post your setups, get feedback, and learn from how others read the same chart." },
             ].map(({ icon, title, body }) => (
-              <div key={title} className="card p-7">
-                <div className="icon-chip"><Icon name={icon} /></div>
-                <h3 className="text-[19px] mt-4 mb-2">{title}</h3>
-                <p className="text-[14.5px] text-ink-mid leading-[1.6]">{body}</p>
-              </div>
+              <MarketingCard key={title} icon={icon} title={title} description={body} />
             ))}
           </div>
         </div>
@@ -43,9 +39,7 @@ export default function OurCommunityPage() {
       <section className="section soft">
         <div className="container">
           <div className="sec-head center reveal mb-12">
-            <div className="eyebrow">How it looks inside</div>
             <h2>Your community desk</h2>
-            <div className="rule mx-auto" />
             <p className="lead text-[14.5px] text-ink-dim">Illustrative preview. Sign up to see real members and live activity.</p>
           </div>
           <div className="comm-grid">
@@ -111,9 +105,7 @@ export default function OurCommunityPage() {
       <section className="section dark">
         <div className="container">
           <div className="sec-head center reveal">
-            <div className="eyebrow">Where we are</div>
             <h2>Rooted in Zambia, growing across Africa</h2>
-            <div className="rule bg-gold mx-auto" />
             <p className="lead">Started as a WhatsApp group in Lusaka. Now traders from across the continent are trading together on the same desk.</p>
           </div>
           <div className="reveal flex gap-2.5 flex-wrap justify-center mt-10">

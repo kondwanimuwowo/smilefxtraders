@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button, Icon } from "@/components/ui";
 import { MarketingPlanCard } from "@/components/pricing/MarketingPlanCard";
+import { FAQAccordion } from "@/components/marketing/FAQAccordion";
 import { PLAN_META } from "@/lib/plans";
 import type { PlanPrices } from "@/lib/plans";
 
@@ -21,7 +22,6 @@ interface Props {
 
 export function PricingContent({ prices }: Props) {
   const [annual, setAnnual] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
     <>
@@ -84,25 +84,7 @@ export function PricingContent({ prices }: Props) {
       <section className="section soft">
         <div className="container max-w-[820px]">
           <div className="sec-head center reveal mb-2">
-            <div className="eyebrow">Questions</div>
-            <h2>Good to know</h2>
-            <div className="rule mt-5 mx-auto" />
-          </div>
-          <div className="reveal mt-8">
-            {FAQ_ITEMS.map(({ q, a }, i) => (
-              <div key={q} className="border-b border-line">
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full text-left bg-transparent border-none py-5 flex items-center justify-between gap-4 cursor-pointer font-display text-[17px] font-semibold text-ink"
-                >
-                  {q}
-                  <Icon name="add" className={`text-teal shrink-0 transition-transform duration-[250ms] ${openFaq === i ? "rotate-45" : "rotate-0"}`} />
-                </button>
-                <div className="overflow-hidden transition-[max-height] duration-300 ease-app" style={{ maxHeight: openFaq === i ? 200 : 0 }}>
-                  <p className="pb-5 text-[14.5px] text-ink-mid leading-[1.65]">{a}</p>
-                </div>
-              </div>
-            ))}
+            <FAQAccordion title="Good to know" items={FAQ_ITEMS} />
           </div>
         </div>
       </section>

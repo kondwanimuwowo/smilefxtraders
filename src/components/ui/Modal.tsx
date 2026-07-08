@@ -33,7 +33,7 @@ export function Modal({ open, onClose, title, sub, width = 560, footer, children
       onMouseDown={onClose}
     >
       <div
-        className="relative w-full rounded-[18px] flex flex-col animate-modal-pop bg-panel shadow-[0_24px_70px_rgba(0,0,0,0.4)] border border-line"
+        className="relative w-full rounded-[18px] flex flex-col animate-modal-pop bg-panel shadow-[0_10px_26px_rgba(0,0,0,0.38)] border border-line"
         style={{ maxWidth: width }}
         onMouseDown={(e) => e.stopPropagation()}
       >

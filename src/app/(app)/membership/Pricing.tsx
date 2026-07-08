@@ -7,6 +7,7 @@ import { useStore } from "@/lib/store";
 import { Icon, Chip } from "@/components/ui";
 import { CheckoutModal } from "@/components/checkout/CheckoutModal";
 import { PlanCard } from "@/components/pricing/PlanCard";
+import { FAQAccordion } from "@/components/marketing/FAQAccordion";
 import { PLAN_META, DEFAULT_PRICES } from "@/lib/plans";
 import type { PlanPrices } from "@/lib/plans";
 
@@ -33,19 +34,6 @@ const FAQ = [
   { q: "Is there a free trial for Pro?",
     a: "Not currently. The Starter plan is free forever and gives you access to all the tools. You only need to upgrade when you want unlimited journal entries and live alerts." },
 ];
-
-function FAQItem({ q, a }: { q: string; a: string }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="border-b border-line">
-      <button type="button" onClick={() => setOpen((o) => !o)} className="flex items-center justify-between w-full py-4 text-left gap-4">
-        <span className="font-semibold text-[14px] text-ink-strong">{q}</span>
-        <Icon name={open ? "expand_less" : "expand_more"} size={20} className="text-ink-dim shrink-0" />
-      </button>
-      {open && <div className="pb-4 text-[13px] leading-relaxed text-ink-mid">{a}</div>}
-    </div>
-  );
-}
 
 export function Pricing() {
   const { user, setUser, toast } = useStore();
@@ -154,10 +142,11 @@ export function Pricing() {
       </div>
 
       <div className="max-w-2xl mx-auto">
-        <h2 className="font-display font-bold text-[20px] mb-4 tracking-[-0.02em] text-ink-strong">
-          Frequently asked questions
-        </h2>
-        {FAQ.map((item) => <FAQItem key={item.q} {...item} />)}
+        <FAQAccordion
+          title="Frequently asked questions"
+          titleClassName="font-display font-bold text-[20px] mb-4 tracking-[-0.02em] text-ink-strong"
+          items={FAQ}
+        />
       </div>
 
       {checkoutPlan && (

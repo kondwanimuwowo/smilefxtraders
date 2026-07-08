@@ -131,7 +131,7 @@ export function Sidebar() {
           zIndex: 50,
           transform: mobileSidebarOpen ? "translateX(0)" : "translateX(-100%)",
           transition: "transform 280ms var(--ease-app)",
-          boxShadow: mobileSidebarOpen ? "8px 0 40px rgba(0,0,0,0.25)" : "none",
+          boxShadow: mobileSidebarOpen ? "8px 0 26px rgba(0,0,0,0.28)" : "none",
         } : {
           width: collapsed ? 64 : 220,
           transition: "width 260ms var(--ease-app)",
@@ -363,7 +363,7 @@ function ProfileButton({
       {open && menuRect && typeof document !== "undefined" && createPortal(
         <div
           ref={menuRef}
-          className="rounded-xl overflow-hidden bg-panel border border-line shadow-[0_-12px_40px_rgba(0,0,0,0.3),0_4px_20px_rgba(0,0,0,0.15)] z-[9999]"
+          className="rounded-xl overflow-hidden bg-panel border border-line shadow-[0_-8px_24px_rgba(0,0,0,0.32),0_2px_10px_rgba(0,0,0,0.16)] z-[9999]"
           style={{
             position: "fixed",
             ...clampPosition({ triggerRect: menuRect, width: menuWidth, estimatedHeight: 260, direction: "up" }),

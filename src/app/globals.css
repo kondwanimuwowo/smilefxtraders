@@ -75,11 +75,13 @@
   /* Marketing card/mock shadow scale (consumed by the marketing components
      section below) — named shadow-card-* rather than shadow-sm/md/lg/xl to
      avoid silently overriding Tailwind's built-in shadow scale used
-     everywhere else. */
-  --shadow-card-sm: 0 1px 5px rgba(11, 66, 93, 0.06);
-  --shadow-card-md: 0 6px 18px rgba(11, 66, 93, 0.10);
-  --shadow-card-lg: 0 14px 36px rgba(11, 66, 93, 0.16);
-  --shadow-card-xl: 0 24px 56px rgba(8, 42, 59, 0.28);
+     everywhere else. Cards are pure white with no border, so the shadow is
+     the only thing defining the edge — each is two layers: a tight, low-blur
+     "contact" shadow with enough opacity to read as a crisp line, plus a
+     soft, wider ambient layer for depth. */
+  --shadow-card-sm: 0 1px 2px rgba(11, 66, 93, 0.14), 0 1px 4px rgba(11, 66, 93, 0.06);
+  --shadow-card-md: 0 1px 2px rgba(11, 66, 93, 0.16), 0 4px 14px rgba(11, 66, 93, 0.08);
+  --shadow-card-lg: 0 1px 3px rgba(11, 66, 93, 0.18), 0 8px 22px rgba(11, 66, 93, 0.12);
 }
 
 /* ─── Light theme surfaces (default) ────────────────────────────────────────── */
@@ -166,7 +168,6 @@
   --shadow-card-sm: var(--shadow-card-sm);
   --shadow-card-md: var(--shadow-card-md);
   --shadow-card-lg: var(--shadow-card-lg);
-  --shadow-card-xl: var(--shadow-card-xl);
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────────── */
@@ -398,8 +399,6 @@
   .sec-head { @apply max-w-[680px]; }
   .sec-head.center { @apply mx-auto text-center; }
   .sec-head h2 { @apply mt-4 text-[clamp(30px,4vw,46px)]; }
-  .sec-head .rule { @apply w-14 h-1 rounded-full bg-coral mt-5; }
-  .sec-head.center .rule { @apply mt-5 mx-auto; }
   .sec-head .lead { @apply text-[15px] text-ink-mid mt-5 leading-[1.6]; }
   .dark .sec-head .lead { @apply text-[rgba(255,255,255,0.74)]; }
 
@@ -428,7 +427,7 @@
 
   /* ---------- cards ---------- */
   .card {
-    @apply bg-[#FAFBFB] rounded-[20px] shadow-card-md;
+    @apply bg-white rounded-[20px] shadow-card-md;
   }
   .g3 { @apply grid gap-6 grid-cols-3; }
   .g2 { @apply grid gap-6 grid-cols-2; }

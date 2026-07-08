@@ -161,7 +161,7 @@ export function CheckoutModal({
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(0,0,0,0.55)] backdrop-blur-[4px]"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="relative w-full max-w-md rounded-2xl overflow-hidden bg-panel border border-line shadow-[0_24px_70px_rgba(0,0,0,0.4)] animate-[popIn_180ms_cubic-bezier(0.16,1,0.3,1)]">
+      <div className="relative w-full max-w-md rounded-2xl overflow-hidden bg-panel border border-line shadow-[0_10px_26px_rgba(0,0,0,0.38)] animate-[popIn_180ms_cubic-bezier(0.16,1,0.3,1)]">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-line">

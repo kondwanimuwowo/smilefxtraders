@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Button, Icon } from "@/components/ui";
+import { MarketingCard } from "@/components/marketing/MarketingCard";
+import { FeatureBlock } from "@/components/marketing/FeatureBlock";
 
 export const metadata: Metadata = {
   title: "Academy | Smile FX Traders",
@@ -47,9 +48,7 @@ export default function LearnPage() {
       <section className="section">
         <div className="container">
           <div className="sec-head reveal">
-            <div className="eyebrow">The curriculum</div>
             <h2>A path, not a playlist</h2>
-            <div className="rule" />
           </div>
           <div className="mt-12 flex flex-col gap-[18px]">
             {LEVELS.map(({ num, title, desc, state, lessons }) => {
@@ -88,19 +87,17 @@ export default function LearnPage() {
       <section className="section soft">
         <div className="container">
           <div className="feature-row">
-            <div className="feature-text reveal">
-              <div className="eyebrow">Inside a lesson</div>
-              <h3>Learn the why, not just the what</h3>
-              <p className="lead">Every lesson pairs a focused video with a written summary and the key points, so you can revise fast before London opens, and the concept actually sticks.</p>
-              <ul className="feature-list">
-                {[
-                  "Short, focused videos, most under 15 minutes",
-                  "Written summary & numbered key takeaways",
-                  "Live markups on real XAUUSD & EURUSD setups",
-                  "Mark complete to unlock the next lesson",
-                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
-              </ul>
-            </div>
+            <FeatureBlock
+              icon="play_lesson"
+              title="Learn the why, not just the what"
+              lead="Every lesson pairs a focused video with a written summary and the key points, so you can revise fast before London opens, and the concept actually sticks."
+              bullets={[
+                "Short, focused videos, most under 15 minutes",
+                "Written summary & numbered key takeaways",
+                "Live markups on real XAUUSD & EURUSD setups",
+                "Mark complete to unlock the next lesson",
+              ]}
+            />
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
@@ -110,7 +107,7 @@ export default function LearnPage() {
                 </div>
                 <div className="mock-body">
                   <div className="aspect-video rounded-xl bg-navy-grad grid place-items-center relative overflow-hidden">
-                    <div className="w-[58px] h-[58px] rounded-full bg-gold grid place-items-center shadow-[0_8px_26px_rgba(248,185,61,0.4)]">
+                    <div className="w-[58px] h-[58px] rounded-full bg-gold grid place-items-center shadow-[0_6px_18px_rgba(248,185,61,0.35)]">
                       <Icon name="play_arrow" size={30} className="text-[var(--navy-deep)]" />
                     </div>
                     <div className="absolute left-3.5 right-3.5 bottom-3.5 h-1 rounded-full bg-white/25">
@@ -138,21 +135,21 @@ export default function LearnPage() {
       <section className="section">
         <div className="container">
           <div className="grid g3 reveal">
-            <div className="card p-7">
-              <div className="icon-chip"><Icon name="groups_3" /></div>
-              <h3 className="text-[19px] mt-4 mb-2">Weekly live calls</h3>
-              <p className="text-[14.5px] text-ink-mid leading-[1.6]">Join Kondwani live to mark up the week&apos;s setups and ask questions in real time. <span className="text-[var(--gold-dark)] font-semibold">Funded Track</span></p>
-            </div>
-            <div className="card p-7">
-              <div className="icon-chip"><Icon name="reviews" /></div>
-              <h3 className="text-[19px] mt-4 mb-2">1-on-1 journal reviews</h3>
-              <p className="text-[14.5px] text-ink-mid leading-[1.6]">Send your journal for a personal teardown and find the leaks faster with a mentor&apos;s eye.</p>
-            </div>
-            <div className="card p-7">
-              <div className="icon-chip"><Icon name="workspace_premium" /></div>
-              <h3 className="text-[19px] mt-4 mb-2">Prop-firm playbook</h3>
-              <p className="text-[14.5px] text-ink-mid leading-[1.6]">The exact rules and risk model to pass a challenge and trade a funded account responsibly.</p>
-            </div>
+            <MarketingCard
+              icon="groups_3"
+              title="Weekly live calls"
+              description={<>Join Kondwani live to mark up the week&apos;s setups and ask questions in real time. <span className="text-[var(--gold-dark)] font-semibold">Funded Track</span></>}
+            />
+            <MarketingCard
+              icon="reviews"
+              title="1-on-1 journal reviews"
+              description="Send your journal for a personal teardown and find the leaks faster with a mentor's eye."
+            />
+            <MarketingCard
+              icon="workspace_premium"
+              title="Prop-firm playbook"
+              description="The exact rules and risk model to pass a challenge and trade a funded account responsibly."
+            />
           </div>
         </div>
       </section>

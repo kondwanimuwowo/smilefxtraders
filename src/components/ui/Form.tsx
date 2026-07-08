@@ -141,7 +141,7 @@ export function Select({ value, onChange, options, disabled, compact, borderless
         createPortal(
           <div
             ref={listRef}
-            className="bg-panel border border-line rounded-[10px] shadow-[0_8px_32px_rgba(0,0,0,0.22)] overflow-hidden max-h-[300px] overflow-y-auto"
+            className="bg-panel border border-line rounded-[10px] shadow-[0_6px_20px_rgba(0,0,0,0.22)] overflow-hidden max-h-[300px] overflow-y-auto"
             style={{
               position:     "fixed",
               ...clampPosition({ triggerRect: rect, width: compact ? 160 : (rect.width ?? 200), estimatedHeight: 300 }),

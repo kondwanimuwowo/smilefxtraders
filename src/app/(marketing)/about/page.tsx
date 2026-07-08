@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Button, Icon } from "@/components/ui";
+import { Icon } from "@/components/ui";
 import { CTACard } from "@/components/marketing/CTACard";
+import { MarketingCard } from "@/components/marketing/MarketingCard";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
@@ -27,7 +27,7 @@ export default function AboutPage() {
         <div className="container">
           <div className="instr-grid">
             <div className="reveal relative">
-              <div className="rounded-3xl overflow-hidden aspect-[4/5] bg-navy-grad grid place-items-center relative shadow-[var(--shadow-lg)]">
+              <div className="rounded-3xl overflow-hidden aspect-[4/5] bg-navy-grad grid place-items-center relative shadow-[var(--shadow-card-lg)]">
                 <div className="text-center text-white/55 p-6">
                   <Icon name="account_circle" size={64} />
                   <div className="text-[13px] mt-2.5">Instructor portrait</div>
@@ -37,7 +37,6 @@ export default function AboutPage() {
             <div>
               <div className="eyebrow reveal">Lead Instructor</div>
               <h2 className="reveal mt-3.5 text-[clamp(28px,3.4vw,40px)]" data-delay="60">Kondwani</h2>
-              <div className="rule reveal" data-delay="80" />
               <p className="reveal text-[15px] text-ink-mid mt-[22px] leading-[1.75]" data-delay="120">
                 Kondwani learned to trade the hard way: through blown accounts, recycled YouTube &quot;strategies,&quot; and signal groups that taught him nothing. The turning point was smart money: liquidity, fair-value gaps, order blocks, premium and discount. Not magic. Structure. A way to read what price was actually doing.
               </p>
@@ -57,9 +56,7 @@ export default function AboutPage() {
       <section className="section dark" id="mission">
         <div className="container">
           <div className="sec-head center reveal">
-            <div className="eyebrow">Our mission</div>
             <h2>Raise a generation of disciplined African traders</h2>
-            <div className="rule bg-gold mx-auto" />
             <p className="lead">We believe trading, done right, is a skill, not a lottery. Our job is to make the right way the easy way: clear tools, honest teaching, and a community that celebrates discipline over wins.</p>
           </div>
         </div>
@@ -69,9 +66,7 @@ export default function AboutPage() {
       <section className="section">
         <div className="container">
           <div className="sec-head reveal">
-            <div className="eyebrow">What we stand for</div>
             <h2>Our values</h2>
-            <div className="rule" />
           </div>
           <div className="grid g2 mt-12">
             {[
@@ -80,13 +75,14 @@ export default function AboutPage() {
               { icon: "handshake", title: "Honesty about risk", delay: 0, body: "We tell the truth: most who gamble lose. We're here for the ones willing to do the work properly." },
               { icon: "public", title: "Built in Africa, for Africa", delay: 80, body: "Kwacha pricing, local payment methods, and a community that understands where our traders are coming from." },
             ].map(({ icon, title, body, delay }) => (
-              <div key={title} className="card reveal p-[30px] flex gap-[18px]" data-delay={delay || undefined}>
-                <div className="icon-chip shrink-0"><Icon name={icon} /></div>
-                <div>
-                  <h3 className="text-xl">{title}</h3>
-                  <p className="text-[15px] text-ink-mid leading-[1.65] mt-2">{body}</p>
-                </div>
-              </div>
+              <MarketingCard
+                key={title}
+                icon={icon}
+                title={title}
+                description={body}
+                className="reveal"
+                dataDelay={delay || undefined}
+              />
             ))}
           </div>
         </div>
@@ -96,9 +92,7 @@ export default function AboutPage() {
       <section className="section soft">
         <div className="container max-w-[760px]">
           <div className="sec-head reveal mb-2">
-            <div className="eyebrow">The journey</div>
             <h2>How far we&apos;ve come</h2>
-            <div className="rule" />
           </div>
           <div className="reveal mt-9 flex flex-col gap-0">
             {[

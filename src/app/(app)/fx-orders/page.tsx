@@ -43,7 +43,7 @@ function UploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(0,0,0,0.55)] backdrop-blur-[4px]"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="rounded-2xl p-6 w-full max-w-md bg-panel border border-line shadow-[0_24px_70px_rgba(0,0,0,0.4)]">
+      <div className="rounded-2xl p-6 w-full max-w-md bg-panel border border-line shadow-[0_10px_26px_rgba(0,0,0,0.38)]">
         <div className="flex items-center justify-between mb-5">
           <div>
             <h2 className="font-display font-bold text-[18px] text-ink-strong">

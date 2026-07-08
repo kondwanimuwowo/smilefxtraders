@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Button, Icon } from "@/components/ui";
+import { Icon } from "@/components/ui";
 import { ChartViz } from "@/components/marketing/ChartViz";
 import { CTACard } from "@/components/marketing/CTACard";
+import { FeatureBlock } from "@/components/marketing/FeatureBlock";
 
 export const metadata: Metadata = {
   title: "Features | Smile FX Traders",
-  description: "Every tool a disciplined trader needs: journal, rules validator, live alerts, COT reports, Gavo AI review, the Academy, and FX option expiries.",
+  description: "Every tool a disciplined trader needs: journal, rules validator, live alerts, COT reports, MacroEdge fundamentals, Gavo AI review, the Academy, and FX option expiries.",
 };
 
 export default function FeaturesPage() {
@@ -20,7 +20,7 @@ export default function FeaturesPage() {
             <p className="lead">Smile FX is built specifically for SMC and Supply &amp; Demand traders. One platform to journal, validate, follow, analyse, and learn.</p>
           </div>
           <div className="flex gap-2.5 flex-wrap mt-7">
-            {[["#journal","Journal"],["#validator","Rules Validator"],["#alerts","Live Alerts"],["#cot","COT Reports"],["#gavo","Gavo AI"],["#academy","Academy"],["#expiries","FX Expiries"]].map(([href, label]) => (
+            {[["#journal","Journal"],["#validator","Rules Validator"],["#alerts","Live Alerts"],["#cot","COT Reports"],["#macroedge","MacroEdge"],["#gavo","Gavo AI"],["#academy","Academy"],["#expiries","FX Expiries"]].map(([href, label]) => (
               <a key={href} href={href} className="feature-pill">{label}</a>
             ))}
           </div>
@@ -32,24 +32,19 @@ export default function FeaturesPage() {
 
           {/* 1. Journal */}
           <div className="feature-row scroll-mt-[90px]" id="journal">
-            <div className="feature-text reveal">
-              <div className="flex items-center gap-3">
-                <div className="icon-chip"><Icon name="menu_book" /></div>
-                <span className="chip text-[11px]">Core tool</span>
-              </div>
-              <h3>Trade Journal</h3>
-              <p className="lead">Log every trade with full context. Know your real edge: which pairs, sessions, and models actually make you money.</p>
-              <ul className="feature-list">
-                {[
-                  "Log entry, SL, TP, close price, model, session, and R:R",
-                  "Win rate by session (London, New York, Asia)",
-                  "Win rate by SMC model (OB+BOS, FVG sweep, SMT divergence…)",
-                  "Discipline score that tracks how often you followed all 8 rules",
-                  "AI review from Gavo: a structured debrief on any trade",
-                  "Equity curve built automatically from your closed trades",
-                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
-              </ul>
-            </div>
+            <FeatureBlock
+              icon="menu_book"
+              title="Trade Journal"
+              lead="Log every trade with full context. Know your real edge: which pairs, sessions, and models actually make you money."
+              bullets={[
+                "Log entry, SL, TP, close price, model, session, and R:R",
+                "Win rate by session (London, New York, Asia)",
+                "Win rate by SMC model (OB+BOS, FVG sweep, SMT divergence…)",
+                "Discipline score that tracks how often you followed all 8 rules",
+                "AI review from Gavo: a structured debrief on any trade",
+                "Equity curve built automatically from your closed trades",
+              ]}
+            />
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
@@ -86,23 +81,18 @@ export default function FeaturesPage() {
 
           {/* 2. Validator */}
           <div className="feature-row flip scroll-mt-[90px] mt-24" id="validator">
-            <div className="feature-text reveal">
-              <div className="flex items-center gap-3">
-                <div className="icon-chip"><Icon name="rule" /></div>
-                <span className="chip text-[11px]">Pre-trade checklist</span>
-              </div>
-              <h3>Rules Validator</h3>
-              <p className="lead">A 5-minute checklist that keeps impulsive trades off the books. Check all 8 SMC or Supply &amp; Demand rules before clicking execute.</p>
-              <ul className="feature-list">
-                {[
-                  "SMC and Supply & Demand frameworks",
-                  "8 pre-trade questions: HTF bias, POI confluence, BOS, session, risk",
-                  "Pip calculator auto-fills from your account size and risk %",
-                  "One-click export to journal, pre-filled with pair, direction, model, R:R",
-                  "Grade-based result (A+ to D) with a pass/fail badge",
-                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
-              </ul>
-            </div>
+            <FeatureBlock
+              icon="rule"
+              title="Rules Validator"
+              lead="A 5-minute checklist that keeps impulsive trades off the books. Check all 8 SMC or Supply &amp; Demand rules before clicking execute."
+              bullets={[
+                "SMC and Supply & Demand frameworks",
+                "8 pre-trade questions: HTF bias, POI confluence, BOS, session, risk",
+                "Pip calculator auto-fills from your account size and risk %",
+                "One-click export to journal, pre-filled with pair, direction, model, R:R",
+                "Grade-based result (A+ to D) with a pass/fail badge",
+              ]}
+            />
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
@@ -136,23 +126,18 @@ export default function FeaturesPage() {
 
           {/* 3. Live Alerts */}
           <div className="feature-row scroll-mt-[90px] mt-24" id="alerts">
-            <div className="feature-text reveal">
-              <div className="flex items-center gap-3">
-                <div className="icon-chip"><Icon name="notifications_active" /></div>
-                <span className="chip text-[11px]">Instructor calls</span>
-              </div>
-              <h3>Live Setup Alerts</h3>
-              <p className="lead">Follow Kondwani's live calls in real time. Each alert includes pair, direction, entry, SL/TP, the SMC model used, and a setup note.</p>
-              <ul className="feature-list">
-                {[
-                  "Posted every trading day during London and New York sessions",
-                  "All alerts validated against the SMC rulebook before posting",
-                  "Tap 'Copy to journal' to log any alert as your own trade",
-                  "Filter by pair or model",
-                  "Free plan shows a 4-hour delay; Pro subscribers see alerts live",
-                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
-              </ul>
-            </div>
+            <FeatureBlock
+              icon="notifications_active"
+              title="Live Setup Alerts"
+              lead="Follow Kondwani's live calls in real time. Each alert includes pair, direction, entry, SL/TP, the SMC model used, and a setup note."
+              bullets={[
+                "Posted every trading day during London and New York sessions",
+                "All alerts validated against the SMC rulebook before posting",
+                "Tap 'Copy to journal' to log any alert as your own trade",
+                "Filter by pair or model",
+                "Free plan shows a 4-hour delay; Pro subscribers see alerts live",
+              ]}
+            />
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
@@ -183,23 +168,18 @@ export default function FeaturesPage() {
 
           {/* 4. COT Reports */}
           <div className="feature-row flip scroll-mt-[90px] mt-24" id="cot">
-            <div className="feature-text reveal">
-              <div className="flex items-center gap-3">
-                <div className="icon-chip"><Icon name="groups" /></div>
-                <span className="chip text-[11px]">Institutional data</span>
-              </div>
-              <h3>COT Reports</h3>
-              <p className="lead">See what large speculators and commercials are doing in the futures market, straight from the CFTC's Commitment of Traders report.</p>
-              <ul className="feature-list">
-                {[
-                  "Updated every Tuesday after the CFTC release",
-                  "Net positioning gauge for EURUSD, GBPUSD, XAUUSD, USDJPY, and more",
-                  "52-week range bar to show when specs are near historical extremes",
-                  "Bullish / bearish / neutral signal per instrument",
-                  "Inverted pairs (USDJPY, USDCHF) handled correctly",
-                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
-              </ul>
-            </div>
+            <FeatureBlock
+              icon="groups"
+              title="COT Reports"
+              lead="See what large speculators and commercials are doing in the futures market, straight from the CFTC's Commitment of Traders report."
+              bullets={[
+                "Updated every Tuesday after the CFTC release",
+                "Net positioning gauge for EURUSD, GBPUSD, XAUUSD, USDJPY, and more",
+                "52-week range bar to show when specs are near historical extremes",
+                "Bullish / bearish / neutral signal per instrument",
+                "Inverted pairs (USDJPY, USDCHF) handled correctly",
+              ]}
+            />
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
@@ -225,25 +205,67 @@ export default function FeaturesPage() {
             </div>
           </div>
 
-          {/* 5. Gavo AI */}
-          <div className="feature-row scroll-mt-[90px] mt-24" id="gavo">
-            <div className="feature-text reveal">
-              <div className="flex items-center gap-3">
-                <div className="icon-chip"><Icon name="auto_awesome" /></div>
-                <span className="chip gold text-[11px]">AI coaching</span>
+          {/* 5. MacroEdge */}
+          <div className="feature-row scroll-mt-[90px] mt-24" id="macroedge">
+            <FeatureBlock
+              icon="analytics"
+              title="MacroEdge"
+              lead="Know why a currency is strong or weak, not just what the chart says. A weighted fundamental score per currency, built from interest rates, inflation, employment, and more, cross-checked against your Trend Matrix and COT positioning."
+              bullets={[
+                "Weighted fundamental score per currency (USD, EUR, GBP, NZD)",
+                "Pair bias from Strong Buy to Strong Sell, from the score differential",
+                "Confluence check against Trend Matrix and COT: agree or conflict",
+                "Gavo narrates the reasoning behind every currency and pair",
+                "Bias-flip alerts the moment a pair's fundamental read changes",
+                "Curated economic news feed, tagged by currency",
+              ]}
+              cta={{ label: "Explore MacroEdge", href: "/macroedge", variant: "link" }}
+            />
+            <div className="feature-visual reveal" data-delay="120">
+              <div className="mock">
+                <div className="mock-bar">
+                  <Icon name="analytics" size={18} className="text-teal" />
+                  <span className="font-semibold text-[13px] ml-1">MacroEdge</span>
+                  <span className="chip ml-auto text-[11px]">EURUSD</span>
+                </div>
+                <div className="mock-body grid gap-2.5">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="mock-tile"><div className="k">USD score</div><div className="v text-[var(--teal-dark)]">+8.0</div></div>
+                    <div className="mock-tile"><div className="k">EUR score</div><div className="v text-[var(--coral-dark)]">−3.0</div></div>
+                  </div>
+                  <div className="flex items-center gap-[11px] p-[13px] bg-[rgba(234,82,61,0.08)] border border-[rgba(234,82,61,0.3)] rounded-xl">
+                    <Icon name="trending_down" size={28} className="text-coral" />
+                    <div>
+                      <div className="font-bold text-[15px]">Strong Sell EURUSD</div>
+                      <div className="text-[12px] text-ink-mid">Differential −11.0 · agrees with Trend Matrix</div>
+                    </div>
+                  </div>
+                  <div className="grid gap-[7px]">
+                    {["10Y yield gap widening in USD's favour", "Trend Matrix: bearish · 4/5 timeframes", "COT: commercials net short EUR"].map((r) => (
+                      <div key={r} className="flex items-center gap-[9px] text-[13px]">
+                        <Icon name="check_circle" size={18} className="text-teal" /> {r}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <h3>Gavo AI Trade Review</h3>
-              <p className="lead">Your always-on trading coach. Grade any trade from your journal. Gavo checks it against the full SMC rulebook and gives you a structured debrief.</p>
-              <ul className="feature-list">
-                {[
-                  "Grades A+, A, B, C, or D against 8 SMC rules",
-                  "Verdict sentence: what made or broke this trade",
-                  "What you did well vs what to improve",
-                  "One actionable tip per review",
-                  "Re-runnable on any closed trade at any time",
-                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
-              </ul>
             </div>
+          </div>
+
+          {/* 6. Gavo AI */}
+          <div className="feature-row flip scroll-mt-[90px] mt-24" id="gavo">
+            <FeatureBlock
+              icon="auto_awesome"
+              title="Gavo AI Trade Review"
+              lead="Your always-on trading coach. Grade any trade from your journal. Gavo checks it against the full SMC rulebook and gives you a structured debrief."
+              bullets={[
+                "Grades A+, A, B, C, or D against 8 SMC rules",
+                "Verdict sentence: what made or broke this trade",
+                "What you did well vs what to improve",
+                "One actionable tip per review",
+                "Re-runnable on any closed trade at any time",
+              ]}
+            />
             <div className="feature-visual reveal" data-delay="120">
               <div className="card p-5 bg-[linear-gradient(165deg,rgba(8,174,170,0.1),rgba(22,114,161,0.05))]">
                 <div className="flex items-center gap-[11px] mb-3.5">
@@ -277,27 +299,22 @@ export default function FeaturesPage() {
             </div>
           </div>
 
-          {/* 6. Academy */}
-          <div className="feature-row flip scroll-mt-[90px] mt-24" id="academy">
-            <div className="feature-text reveal">
-              <div className="flex items-center gap-3">
-                <div className="icon-chip"><Icon name="school" /></div>
-                <span className="chip text-[11px]">Full curriculum</span>
-              </div>
-              <h3>Academy</h3>
-              <p className="lead">6 structured courses from market structure basics to prop firm readiness. Video lessons + quizzes, all inside the platform.</p>
-              <ul className="feature-list">
-                {[
-                  "Course 1: Market Structure & Basics",
-                  "Course 2: Order Blocks, FVG, and POIs",
-                  "Course 3: Sessions & Killzones",
-                  "Course 4: Supply & Demand Framework",
-                  "Course 5: Risk Management & Psychology",
-                  "Course 6: Prop Firm Readiness",
-                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
-              </ul>
-              <Link className="link-arrow" href="/academy">Explore the Academy <Icon name="arrow_forward" /></Link>
-            </div>
+          {/* 7. Academy */}
+          <div className="feature-row scroll-mt-[90px] mt-24" id="academy">
+            <FeatureBlock
+              icon="school"
+              title="Academy"
+              lead="6 structured courses from market structure basics to prop firm readiness. Video lessons + quizzes, all inside the platform."
+              bullets={[
+                "Course 1: Market Structure & Basics",
+                "Course 2: Order Blocks, FVG, and POIs",
+                "Course 3: Sessions & Killzones",
+                "Course 4: Supply & Demand Framework",
+                "Course 5: Risk Management & Psychology",
+                "Course 6: Prop Firm Readiness",
+              ]}
+              cta={{ label: "Explore the Academy", href: "/academy", variant: "link" }}
+            />
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
@@ -337,24 +354,19 @@ export default function FeaturesPage() {
             </div>
           </div>
 
-          {/* 7. FX Option Expiries */}
-          <div className="feature-row scroll-mt-[90px] mt-24" id="expiries">
-            <div className="feature-text reveal">
-              <div className="flex items-center gap-3">
-                <div className="icon-chip"><Icon name="calendar_month" /></div>
-                <span className="chip text-[11px]">Market intelligence</span>
-              </div>
-              <h3>FX Option Expiries</h3>
-              <p className="lead">Large FX option expiries create price magnetism. Knowing where they sit helps you anticipate sticky price levels and avoid fakeouts.</p>
-              <ul className="feature-list">
-                {[
-                  "Daily expiry levels for EURUSD, GBPUSD, USDJPY, and USDCHF",
-                  "Synced automatically from a third-party data source",
-                  "Displayed on a calendar view by pair and date",
-                  "Highlight expiries near key POIs",
-                ].map(f => <li key={f}><Icon name="check_circle" size={22} className="text-teal shrink-0" />{f}</li>)}
-              </ul>
-            </div>
+          {/* 8. FX Option Expiries */}
+          <div className="feature-row flip scroll-mt-[90px] mt-24" id="expiries">
+            <FeatureBlock
+              icon="calendar_month"
+              title="FX Option Expiries"
+              lead="Large FX option expiries create price magnetism. Knowing where they sit helps you anticipate sticky price levels and avoid fakeouts."
+              bullets={[
+                "Daily expiry levels for EURUSD, GBPUSD, USDJPY, and USDCHF",
+                "Synced automatically from a third-party data source",
+                "Displayed on a calendar view by pair and date",
+                "Highlight expiries near key POIs",
+              ]}
+            />
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
