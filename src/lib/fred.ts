@@ -59,6 +59,15 @@ export function latestValidObservation(obs: FredObservation[]): FredObservation 
   return obs.find((o) => o.value !== ".") ?? null;
 }
 
+// Rule engine's "level" fallback (rules.ts) needs at least two periods to
+// compute a trend — mirrors recentNonNull in worldbank.ts. `obs` is already
+// sorted desc (sort_order=desc in fetchFredSeries), so this is just a filter
+// + slice, seeding real period-over-period data immediately instead of
+// waiting for the next release.
+export function recentValidObservations(obs: FredObservation[], count = 3): FredObservation[] {
+  return obs.filter((o) => o.value !== ".").slice(0, count);
+}
+
 // FRED series per currency/indicator. US series are FRED's native catalog
 // (well-established, stable IDs). EUR/GBP/NZD series are FRED's mirror of
 // OECD's Main Economic Indicators — unverified against a live key, see the

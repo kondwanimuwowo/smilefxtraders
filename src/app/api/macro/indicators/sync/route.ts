@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { DataSource, IndicatorType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { fetchFredSeries, latestValidObservation, FredNotConfiguredError, FRED_SERIES } from "@/lib/fred";
+import { fetchFredSeries, recentValidObservations, FredNotConfiguredError, FRED_SERIES } from "@/lib/fred";
 import { fetchWorldBankIndicator, recentNonNull, WORLD_BANK_COUNTRY_CODE, WORLD_BANK_INDICATORS } from "@/lib/worldbank";
 import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
 
@@ -9,11 +9,12 @@ import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
 // (Layer 1's slower-moving, non-calendar data). Follows the same
 // x-cron-secret + sameOrigin auth pattern as the other sync routes.
 //
-// FRED_API_KEY is NOT currently set in this project's env (only Finnhub was
-// confirmed available as of Phase 2) — the FRED half of this sync no-ops
-// gracefully (catches FredNotConfiguredError, logs once, skips) rather than
-// failing the whole request, exactly like the Finnhub calendar-tier
-// fallback in Phase 1. World Bank needs no key and runs unconditionally.
+// FRED_API_KEY is configured (added post-Phase-2, live-verified: all 8
+// USD/EUR/GBP/NZD series in FRED_SERIES resolved successfully). If the key
+// is ever removed, this half of the sync no-ops gracefully (catches
+// FredNotConfiguredError, skips) rather than failing the whole request,
+// same as the Finnhub calendar-tier fallback in Phase 1. World Bank needs
+// no key and runs unconditionally.
 
 export async function POST(req: NextRequest) {
   const secret = req.headers.get("x-cron-secret");
@@ -71,32 +72,34 @@ export async function POST(req: NextRequest) {
     for (const [indicatorKey, seriesId] of Object.entries(seriesForCurrency)) {
       if (!seriesId) continue;
       try {
-        const obs = await fetchFredSeries(seriesId);
-        const latest = latestValidObservation(obs);
-        if (!latest) continue;
+        const obs = await fetchFredSeries(seriesId, 8);
+        const recent = recentValidObservations(obs, 3);
+        if (recent.length === 0) continue;
 
-        const value = Number.parseFloat(latest.value);
-        if (!Number.isFinite(value)) continue;
+        for (const point of recent) {
+          const value = Number.parseFloat(point.value);
+          if (!Number.isFinite(value)) continue;
 
-        const periodDate = new Date(`${latest.date}T00:00:00.000Z`);
-        await prisma.macroIndicatorSnapshot.upsert({
-          where: {
-            currency_indicatorType_periodDate: {
+          const periodDate = new Date(`${point.date}T00:00:00.000Z`);
+          await prisma.macroIndicatorSnapshot.upsert({
+            where: {
+              currency_indicatorType_periodDate: {
+                currency,
+                indicatorType: indicatorKey as IndicatorType,
+                periodDate,
+              },
+            },
+            create: {
               currency,
               indicatorType: indicatorKey as IndicatorType,
+              value,
               periodDate,
+              source: DataSource.FRED,
             },
-          },
-          create: {
-            currency,
-            indicatorType: indicatorKey as IndicatorType,
-            value,
-            periodDate,
-            source: DataSource.FRED,
-          },
-          update: { value },
-        });
-        results.fred.saved++;
+            update: { value },
+          });
+          results.fred.saved++;
+        }
       } catch (err) {
         if (err instanceof FredNotConfiguredError) {
           results.fred.skipped = true;
