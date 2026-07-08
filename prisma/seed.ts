@@ -1883,6 +1883,968 @@ The criteria before attempting multiple accounts:
       },
     ],
   },
+  {
+    slug:        "macroeconomics-for-forex-traders",
+    title:       "Macroeconomics for Forex Traders",
+    description: "Understand the economic forces that move currency prices. Interest rates, inflation, employment, central banks, and how to build a weekly macro bias before you touch a chart.",
+    tier:        "pro",
+    icon:        "public",
+    color:       "var(--gold)",
+    order:       7,
+    published:   true,
+    lessons: [
+      {
+        slug:     "why-macroeconomics-drives-forex",
+        title:    "Why macroeconomics drives forex: the big picture explained",
+        duration: "15 min",
+        order:    1,
+        published: true,
+        level:    2,
+        summary:  "The connection between economic fundamentals and currency prices.",
+        points:   ["Why currencies have value", "The macro-technical link", "How this course fits your trading"],
+        body: `# Why Macroeconomics Drives Forex: The Big Picture Explained
+
+## What you'll learn
+- What gives a currency its value and why that value changes
+- How macroeconomic forces connect to the price action you see on charts
+- Where macro analysis fits in your trading process alongside SMC
+
+## What Gives a Currency Its Value?
+
+A currency is not just a medium of exchange. It is a claim on an economy. When you hold US dollars, you hold a piece of the US economy, its growth, its interest rates, its institutions, and its geopolitical stability. When the US economy is strong, demand for dollars rises globally. When it weakens, that demand falls.
+
+Forex prices reflect the relative value of two economies at any point in time. EURUSD is not just "euros vs dollars." It is the Eurozone economy versus the US economy expressed as a single number. Every candle on that chart is a continuous auction between market participants updating their view of which economy is stronger.
+
+This is why economic data moves price. When the US releases stronger-than-expected employment numbers, traders around the world immediately revise their view of the US economy upward. They buy dollars. EURUSD falls. GBPUSD falls. XAUUSD (which is priced in dollars) often falls. All of this happens in seconds.
+
+## The Macro-Technical Link
+
+Technical analysis (your SMC framework) maps how price delivers. Macroeconomics explains why price is delivering in a given direction. Both are essential.
+
+A perfect OB + BOS long setup on EURUSD H1 means less when the macro backdrop is strongly bearish. The setup may still work (technicals capture local order flow), but the probability is lower and the potential move is smaller. The same setup with a bullish macro backdrop behind it has institutional flow as a tailwind.
+
+This is why the analysis hierarchy in the Smile FX system puts COT and macro at the top, before daily structure, before H4, before H1 entry. The widest lens should filter everything below it.
+
+Think of it this way:
+- **Macro** tells you the direction the river is flowing
+- **Daily structure** shows you which channel the river is in
+- **SMC entry models** show you exactly where to step in
+
+Swimming with the river is easier than against it.
+
+## The Three Layers of Macro Analysis
+
+Macro is not one thing. It has layers:
+
+**Layer 1 — Interest rate environment**: The dominant driver in forex over weeks and months. Where is each central bank in its rate cycle? Are they hiking, holding, or cutting? This single factor explains the majority of long-term currency trends.
+
+**Layer 2 — Economic data**: The monthly and quarterly data releases (CPI, NFP, GDP, PMI) that update the market's view of where interest rates are heading. Strong data → rates stay high or rise → currency strengthens. Weak data → rates may fall → currency weakens.
+
+**Layer 3 — Risk sentiment**: The global mood toward risk. During periods of fear (geopolitical crisis, market crash), capital flows to safe-haven currencies: USD, JPY, CHF. During periods of optimism, capital flows to higher-yielding, higher-risk currencies: AUD, NZD, EM currencies.
+
+This course covers all three layers and shows you how to synthesise them into a weekly bias you can act on.
+
+## How This Fits Your Trading Process
+
+You do not need to become an economist. You need to understand enough macro to:
+
+1. Know which direction is aligned with the fundamental backdrop for each pair you trade
+2. Understand why specific data releases matter and what they mean for your pairs
+3. Build a simple weekly bias that confirms or warns against your technical setups
+
+The goal is not to predict GDP to three decimal places. The goal is to know: is the USD fundamentally strong or weak right now, and is that changing? Everything else follows from that.
+
+## Key takeaways
+- Currencies represent the relative strength of two economies. Economic data continuously updates this comparison
+- Macro is the widest lens in your analysis hierarchy: it filters your technical setups, not the other way around
+- Interest rates, economic data, and risk sentiment are the three pillars of macro analysis
+- You do not need deep economics knowledge, you need the key indicators, what they mean, and how to build a weekly bias from them`,
+      },
+      {
+        slug:     "interest-rates-the-master-driver",
+        title:    "Interest rates: the most powerful driver in forex",
+        duration: "25 min",
+        order:    2,
+        published: true,
+        level:    2,
+        summary:  "How central bank interest rates drive currency direction over weeks and months.",
+        points:   ["Why rates move currencies", "Rate differentials between pairs", "Hawkish vs dovish signals"],
+        body: `# Interest Rates: The Most Powerful Driver in Forex
+
+## What you'll learn
+- Why interest rates are the dominant force in forex markets over medium and long timeframes
+- How the rate differential between two countries drives a currency pair's direction
+- How to read central bank language to anticipate rate changes before they happen
+
+## Why Interest Rates Move Currencies
+
+When a central bank raises interest rates, it makes holding that country's currency more profitable. Here is why: banks in that country now pay higher interest on deposits denominated in that currency. Global institutional investors (pension funds, hedge funds, sovereign wealth funds) respond by moving capital into that currency to earn the higher yield.
+
+This capital flow is massive. A single percentage point difference in interest rates between the US and Japan can trigger hundreds of billions of dollars in capital reallocation globally. That capital flow is what drives sustained forex trends, not technical setups, not retail sentiment.
+
+The reverse is equally true. When a central bank cuts rates, the yield advantage decreases. Capital flows out. The currency weakens.
+
+This mechanism explains why major forex trends often last months or years: interest rate cycles are slow to change. Once the Fed begins hiking, it typically continues for 12–24 months. Once the ECB begins cutting, it typically continues for multiple meetings. The trend is the cycle.
+
+## Rate Differentials: The Key Number
+
+The most important number in forex macro analysis is not the absolute interest rate of either country. It is the **differential** between the two rates.
+
+EURUSD example:
+- US Federal Funds Rate: 5.25%
+- ECB Deposit Facility Rate: 3.75%
+- Differential: +1.50% in favour of USD
+
+This differential tells you that holding dollars earns 1.50% more per year than holding euros. For institutional capital managing billions, this is significant. It creates consistent demand for USD over EUR and is the foundational reason for a bearish EURUSD trend.
+
+When the differential is narrowing (the ECB is hiking while the Fed holds), EURUSD tends to rally as the gap closes. When the differential is widening (the Fed hikes faster than the ECB), EURUSD falls.
+
+Tracking which direction the differential is moving is more important than the absolute level.
+
+## Hawkish vs Dovish: The Language of Central Banks
+
+Central banks communicate future rate intentions through language before they act. Learning to read this language gives you advance warning of rate changes.
+
+**Hawkish language** signals higher rates ahead:
+- "Inflation remains elevated and above our target"
+- "The labour market remains tight"
+- "We are prepared to do what is necessary"
+- "We are not yet confident inflation is on a sustainable path to target"
+
+**Dovish language** signals lower rates ahead or rate cuts:
+- "Inflation is making progress toward our target"
+- "Economic conditions are softening"
+- "We see risks becoming more balanced"
+- "We are increasingly confident inflation is returning to target"
+
+The market prices rate expectations months in advance. By the time the central bank actually cuts rates, the currency move has already largely happened. The edge is in reading the language shift early, before the market has fully repriced.
+
+## The Rate Cycle and Currency Trends
+
+Central bank rate cycles follow a predictable structure:
+
+**Hiking cycle**: Inflation rises above target → central bank begins raising rates → currency strengthens as capital inflows → cycle lasts 12–24 months typical
+
+**Peak rates**: Central bank pauses after hiking → uncertainty about when cuts begin → currency often volatile, ranging
+
+**Cutting cycle**: Economy slows, unemployment rises, inflation falls below target → central bank begins cutting → currency weakens → cycle lasts 12–24 months typical
+
+Knowing where each major central bank sits in its cycle tells you the medium-term direction for that currency. In 2022–2023, the Fed hiked aggressively while other central banks were slower. USD was the dominant long. In 2024–2025, as the Fed began signalling cuts while some other banks held higher, the cycle shifted.
+
+## Applying This to Your Pairs
+
+**Before trading any pair this week, ask these questions:**
+1. What is the current interest rate for each currency in the pair?
+2. What is the rate differential, and in whose favour?
+3. Is the differential widening or narrowing?
+4. What is the next central bank meeting for each currency, and what is the market expecting?
+
+When both the rate differential AND the technical structure point in the same direction, you have a high-conviction setup.
+
+## Key takeaways
+- Interest rates drive capital flows, and capital flows drive forex trends. This is the most powerful macro force
+- The rate differential between two countries is the key number, not the absolute rate of either country alone
+- Hawkish language signals higher rates ahead; dovish language signals cuts. The market moves before the actual decision
+- Identify where each central bank sits in its cycle. The rate cycle is the macro trend. Trade with it`,
+      },
+      {
+        slug:     "inflation-reading-cpi",
+        title:    "Inflation: reading CPI and understanding its forex impact",
+        duration: "22 min",
+        order:    3,
+        published: true,
+        level:    2,
+        summary:  "How to interpret CPI data and what it means for central bank decisions and currencies.",
+        points:   ["CPI vs core CPI", "Why CPI is the Fed's primary focus", "What above/below forecast CPI means for your trade"],
+        body: `# Inflation: Reading CPI and Understanding Its Forex Impact
+
+## What you'll learn
+- The difference between headline CPI and core CPI and why traders focus on core
+- How inflation data directly influences central bank rate decisions and therefore currencies
+- How to interpret a CPI release in the moment: above forecast, below forecast, and in-line
+
+## What is CPI?
+
+The Consumer Price Index (CPI) measures the average change in prices paid by consumers for a basket of goods and services over time. It is the most widely watched inflation measure in the world and the primary data point that central banks use to calibrate interest rate policy.
+
+In the US, CPI is released monthly by the Bureau of Labor Statistics. Similar measures exist for every major economy: HICP (Harmonised Index of Consumer Prices) in the Eurozone, CPI in the UK (released by the ONS), CPI-U in Canada, and so on.
+
+The CPI number you see quoted (e.g. "US CPI 3.2% YoY") is the year-over-year percentage change: prices are 3.2% higher than they were 12 months ago. Monthly figures (MoM) are also reported and show the change from the prior month.
+
+## Headline vs Core CPI
+
+**Headline CPI** includes all items in the basket, including food and energy. It is the number reported in the media and what most retail traders watch.
+
+**Core CPI** excludes food and energy prices. Central banks focus on core because food and energy prices are highly volatile and often driven by factors outside monetary policy's control (weather, geopolitics, oil supply). Core CPI gives a cleaner signal of underlying inflationary pressure.
+
+As a trader, watch both but prioritise core. The Fed explicitly targets core PCE (Personal Consumption Expenditures, a related measure), not headline CPI.
+
+**Example**: If headline CPI spikes from 3.0% to 4.2% but core CPI only moves from 3.1% to 3.2%, the market will not interpret this as a major hawkish signal. The spike is likely from oil prices and the Fed will look through it. If core CPI jumped from 3.1% to 3.9%, that is significant and markets will reprice rate expectations sharply.
+
+## The CPI–Rates–Currency Chain
+
+The logic chain works like this:
+
+Higher-than-expected CPI → inflation above target → Fed more likely to keep rates high or hike further → USD strengthens (capital inflows for yield) → EURUSD falls, GBPUSD falls, XAUUSD falls (gold priced in USD)
+
+Lower-than-expected CPI → inflation cooling → Fed more likely to cut rates sooner → USD weakens → EURUSD rises, GBPUSD rises, XAUUSD rises
+
+This is why CPI is a Tier 1 high-impact event on the economic calendar. It directly updates the market's probability of the next rate decision.
+
+## Reading the Release: What the Numbers Mean
+
+When CPI is released, there are three numbers to compare:
+
+1. **Previous**: last month's reading
+2. **Forecast (Consensus)**: what economists expected
+3. **Actual**: the released figure
+
+The market reacts to the **deviation from forecast**, not the absolute number.
+
+**Scenario A: Actual 3.8%, Forecast 3.5%, Previous 3.3%**
+→ Inflation came in above expectations AND is accelerating. Very hawkish for USD. Expect USD strength immediately.
+
+**Scenario B: Actual 3.2%, Forecast 3.5%, Previous 3.6%**
+→ Inflation came in below expectations AND is decelerating. Dovish for USD. Expect USD weakness, EURUSD and XAUUSD to rally.
+
+**Scenario C: Actual 3.5%, Forecast 3.5%, Previous 3.5%**
+→ In-line with expectations. Limited immediate reaction. Focus returns to the next data point.
+
+## The "Buy the Rumour, Sell the Fact" Phenomenon
+
+Sometimes USD strengthens in the days leading into a CPI release (the market prices in a high reading), and then sells off after the actual CPI is released even if it comes in high. This is the "buy the rumour, sell the fact" dynamic.
+
+This is why you should not blindly trade the direction implied by the number. The market's pre-positioning matters. Check where DXY was trading in the 24–48 hours before the release. If it rallied significantly into CPI, even a strong CPI number may cause a brief reversal as the trade is unwound.
+
+## CPI and Your Weekly Analysis
+
+Every Sunday, check when the next CPI release is for any currency in your target pairs. If EURUSD CPI is releasing on Tuesday during London, you have two considerations:
+
+1. Do not enter new positions in the 30 minutes before or after the release
+2. Factor the CPI expectation into your macro bias: is the market expecting high or low inflation this month? What does that mean for the rate outlook?
+
+## Key takeaways
+- CPI is the primary inflation measure watched by central banks and forex markets
+- Focus on core CPI (excluding food and energy) for the most reliable signal of underlying inflation
+- The market reacts to the deviation from forecast. Above = hawkish, Below = dovish
+- Pre-release positioning matters. "Buy the rumour, sell the fact" can reverse the logical trade direction after the release`,
+      },
+      {
+        slug:     "employment-data-nfp",
+        title:    "Employment data: NFP, ADP, and what the labour market tells you",
+        duration: "20 min",
+        order:    4,
+        published: true,
+        level:    2,
+        summary:  "How to read employment reports and why they matter for USD and your pairs.",
+        points:   ["What NFP measures and why it matters", "ADP as a leading indicator", "Unemployment rate nuances"],
+        body: `# Employment Data: NFP, ADP, and What the Labour Market Tells You
+
+## What you'll learn
+- What the Non-Farm Payrolls report measures and why it moves markets more than almost any other release
+- How to use the ADP report as a leading indicator before NFP
+- The nuances in the unemployment rate that the headline number misses
+
+## Non-Farm Payrolls: The Most Watched Number in Forex
+
+The Non-Farm Payrolls (NFP) report, released on the first Friday of every month by the US Bureau of Labor Statistics, is the most anticipated economic release in forex markets. It measures the net change in paid employment in the US, excluding farm workers, government employees, and non-profit sector employees. The exclusions leave approximately 80% of the workforce that drives private-sector economic activity.
+
+Why does it move markets so dramatically? Because employment is the most direct indicator of economic health, and the Federal Reserve's dual mandate includes "maximum employment" alongside price stability. When employment is strong, the Fed can maintain or raise rates. When employment weakens, rate cuts become more likely. This direct link to rate expectations makes NFP a Tier 1 market-moving event without comparison.
+
+Typical NFP impact: EURUSD moves 50–150 pips in the first 30 minutes after the release. XAUUSD frequently moves $15–$40 per ounce. These are some of the largest intraday moves of the month.
+
+## Reading the NFP Release
+
+The NFP report contains several figures. The key ones:
+
+**Non-Farm Payrolls (headline)**: the net new jobs created. A reading above 200,000 is generally considered strong; below 100,000 is weak. The consensus forecast matters most.
+
+**Unemployment Rate**: the percentage of the labour force that is unemployed and actively seeking work. The Fed targets approximately 4–4.5% as "full employment" without being inflationary.
+
+**Average Hourly Earnings (AHE)**: wage growth. This is the inflation sub-component of the labour market. High wage growth means workers have more purchasing power, which can drive inflation even if job creation is slowing.
+
+The full picture is often more nuanced than the headline number:
+
+**Strong NFP but rising unemployment**: Sounds contradictory, but happens when more people enter the workforce. Net positive.
+
+**Weak NFP but falling wages**: Could signal labour market cooling and less inflation risk. Mildly dovish but not alarming.
+
+**Strong NFP + strong wages**: Maximum hawkish signal. Both employment and inflation-driving factors are hot. USD strongest outcome.
+
+**Weak NFP + falling unemployment + falling wages**: Neutral-to-dovish. The labour market is cooling broadly.
+
+## ADP Employment Report: The Early Warning
+
+The ADP National Employment Report is released on the Wednesday before NFP. It measures private-sector employment changes for the same month and serves as a leading indicator.
+
+ADP is not perfectly correlated with NFP (they use different methodologies and data sources), but significant deviations from expectations in ADP will often shift expectations for NFP and cause pre-NFP USD positioning changes.
+
+Rule of thumb: if ADP misses forecast significantly, expect more volatility around NFP regardless of which way it prints. If ADP beats significantly, NFP expectations are raised, and a miss becomes more painful for USD.
+
+## The Unemployment Rate Nuance
+
+The headline unemployment rate (currently around 4%) seems simple but hides important details.
+
+**The participation rate**: The unemployment rate only counts people actively looking for work. If discouraged workers stop looking, they leave the labour force and the unemployment rate can fall even though conditions are worsening. A falling unemployment rate accompanied by a falling participation rate is not a genuine improvement.
+
+**U-6 (broader unemployment)**: The U-6 measure includes part-time workers who want full-time work and marginally attached workers. It runs 2–4 percentage points above the headline U-3 rate and provides a more complete picture of labour market slack.
+
+The Fed watches the participation rate and U-6 alongside the headline. As a trader, be aware that a headline unemployment rate drop is not automatically bullish if the participation rate is also dropping.
+
+## NFP and Your Trading Week
+
+NFP Friday has specific rules:
+
+1. **No new positions 30 minutes before the release**: the spread widens, volatility is extreme, and price can spike 50+ pips in either direction before finding direction
+2. **Wait for the initial spike to settle (10–15 minutes after release)**: the first candle after NFP is often noise. The sustained direction that follows is more tradeable
+3. **Check wages and participation rate, not just the headline**: a NFP beat with weak wages may not be as bullish as the headline suggests
+4. **By 15:00–16:00 UTC, the NFP reaction is often fading**: position for the following week's technical setup, not the NFP reaction trade
+
+## Key takeaways
+- NFP is the single most market-moving monthly release for USD and all USD pairs
+- Read the full report: headline jobs + unemployment rate + average hourly earnings together tell the complete story
+- ADP on Wednesday is the early warning: significant ADP deviations shift NFP expectations before Friday
+- The unemployment rate headline can mislead if the participation rate is moving in the same direction`,
+      },
+      {
+        slug:     "gdp-economic-growth",
+        title:    "GDP: economic growth and what it means for currency strength",
+        duration: "18 min",
+        order:    5,
+        published: true,
+        level:    2,
+        summary:  "How GDP data reflects economic health and feeds into currency trends.",
+        points:   ["What GDP measures", "Flash vs revised GDP releases", "How GDP fits into the macro picture"],
+        body: `# GDP: Economic Growth and What It Means for Currency Strength
+
+## What you'll learn
+- What GDP measures and why growth matters for currency valuation
+- The difference between flash, preliminary, and revised GDP releases and which to trade
+- How to integrate GDP into your overall macro picture alongside rates and employment
+
+## What is GDP and Why Does It Matter for Forex?
+
+Gross Domestic Product (GDP) is the total monetary value of all goods and services produced within a country in a given period. It is the broadest measure of economic activity and the primary indicator used to assess whether an economy is growing, stagnating, or contracting.
+
+GDP matters for forex because stronger economic growth:
+- Supports higher employment (fewer rate cuts needed)
+- Often accompanies higher inflation (more pressure for rate hikes or holds)
+- Attracts foreign investment (capital inflows, currency demand)
+- Signals confidence in the economy (supports the currency)
+
+A contracting economy (two consecutive quarters of negative GDP growth = technical recession) has the opposite effects: rate cut expectations rise, investment flows decrease, and the currency weakens.
+
+The relationship is not always linear. High GDP growth accompanied by high inflation can be bearish for a currency if the market believes the central bank will need to damage growth to control inflation. Context always matters.
+
+## GDP Release Structure: Flash, Preliminary, and Final
+
+GDP is released in multiple revisions over several weeks, not as a single definitive number:
+
+**Flash GDP (Advance Estimate)**: The first estimate, released approximately 30 days after the quarter ends. Based on incomplete data (approximately 65–70% of full data). This is the market-moving release because it is the first reading.
+
+**Preliminary (Second Estimate)**: Released approximately 60 days after quarter end. More data included. Often modest revisions, lower market impact unless revision is significant.
+
+**Final (Third Estimate)**: Released approximately 90 days after quarter end. Comprehensive data. Rarely surprises; minimum market impact.
+
+**Trade the flash GDP release.** The others are noise unless they revise the flash significantly.
+
+## Quarter-over-Quarter vs Year-over-Year
+
+GDP is reported two ways:
+
+**QoQ (Quarter-over-Quarter)**: Growth compared to the previous quarter, annualised. This is the number markets focus on in the US (e.g. "US GDP Q1 2026: +2.8% annualised").
+
+**YoY (Year-over-Year)**: Growth compared to the same quarter last year. More commonly used in Europe and emerging markets. Less volatile than QoQ.
+
+When comparing US and Eurozone GDP, make sure you are comparing like-for-like. A 2.8% annualised US QoQ rate is roughly equivalent to a 0.7% European quarterly rate (which becomes 2.8% annualised).
+
+## GDP vs the Market Expectation
+
+Like all macro releases, the market reaction is driven by the deviation from consensus forecast, not the absolute number.
+
+**GDP beats forecast**: Economy is stronger than expected → fewer rate cuts needed → currency bullish
+**GDP misses forecast**: Economy weaker → more rate cuts likely → currency bearish
+**GDP confirms forecast**: No surprise → limited immediate reaction
+
+A common scenario: GDP comes in at 2.8% when forecast was 2.5%, but this follows a quarter where GDP was 3.6%. The headline beat looks bullish, but the trend is decelerating. The market may sell the currency despite the beat if deceleration is the dominant narrative.
+
+Always compare against both the forecast AND the previous reading.
+
+## GDP and the Rate Outlook: The Connection
+
+The reason GDP matters for forex is primarily through its influence on the interest rate outlook:
+
+Strong GDP + high inflation → central bank holds rates high or hikes → currency bullish
+Weak GDP + falling inflation → central bank cuts rates → currency bearish
+Strong GDP + low inflation → ideal environment; central bank can be patient → moderately bullish
+Weak GDP + high inflation (stagflation) → central bank in a bind; highly uncertain → currency volatile
+
+The stagflation scenario is the most difficult for central banks and the most unpredictable for traders. When growth is weak but inflation is persistent, the central bank cannot easily cut rates (which would worsen inflation) nor keep them high (which worsens the economy). USD in 2022 was an example: the Fed raised rates aggressively despite growth concerns, keeping USD strong but creating economic stress.
+
+## GDP in the Context of Your Weekly Analysis
+
+GDP is a quarterly release, so it does not affect your weekly routine as frequently as CPI or NFP. But when GDP week arrives:
+
+1. Check whether the flash estimate is above or below consensus
+2. Consider how the print changes the rate outlook narrative
+3. Watch for revisions in the preliminary and final estimates if they are material (more than 0.3–0.5 percentage points)
+
+For EURUSD: compare US GDP trajectory vs Eurozone GDP trajectory. The pair that is growing faster has a currency that should be stronger, all else equal.
+
+## Key takeaways
+- GDP measures total economic output. Stronger growth generally supports higher rates and a stronger currency
+- Trade the flash GDP release. Preliminary and final revisions rarely move markets unless the revision is large
+- The deviation from forecast drives the immediate reaction, but the trend (accelerating vs decelerating) drives the follow-through
+- GDP feeds the rate outlook: the mechanism is Growth → Employment → Inflation → Interest Rate → Currency`,
+      },
+      {
+        slug:     "central-banks-fed-ecb-boe-boj",
+        title:    "Central banks: the Fed, ECB, BOE, BOJ, and RBNZ explained",
+        duration: "28 min",
+        order:    6,
+        published: true,
+        level:    2,
+        summary:  "The mandate, tools, and communication style of the five central banks you trade.",
+        points:   ["Each bank's mandate and tools", "How to read meeting statements", "The banks most relevant to your pairs"],
+        body: `# Central Banks: The Fed, ECB, BOE, BOJ, and RBNZ Explained
+
+## What you'll learn
+- The mandate, policy tools, and communication style of each central bank relevant to your pairs
+- How to read central bank meeting statements and press conferences for trading signals
+- The specific banks that matter most for EURUSD, GBPUSD, NZDUSD, XAUUSD, and NAS100
+
+## Why Central Banks Are the Most Important Institutions in Forex
+
+Central banks set the price of money. Every forex trend of more than a few days duration is ultimately rooted in the policy stance or policy expectations of one or more central banks. Understanding who they are, what they care about, and how they communicate is not optional for a fundamental trader. It is foundational.
+
+There are five central banks that directly affect your instruments:
+
+---
+
+## Federal Reserve (The Fed) — USD
+
+**Mandate**: Dual mandate — maximum employment AND price stability (2% inflation target). This is unique among major central banks; most others have a single inflation mandate.
+
+**Policy tool**: The Federal Funds Rate — the target rate at which banks lend to each other overnight. Everything else (mortgage rates, corporate borrowing, emerging market capital flows) follows from this rate.
+
+**Meeting schedule**: Eight times per year (roughly every six weeks). Every meeting includes a statement; four meetings per year include updated projections (the dot plot) and a press conference with the Chair.
+
+**The dot plot**: A quarterly chart showing where each Fed official expects rates to be over the next several years. It is one of the most market-moving documents in global finance. A shift in the median dot (even 25 basis points) can move EURUSD 50–100 pips.
+
+**Communication style**: The Fed uses careful, measured language. Every word in the statement is deliberate. Changes in phrasing (e.g. adding "patient" or removing "additional firming may be appropriate") are significant signals.
+
+**Relevance**: Affects every USD pair and indirectly affects all other central banks through global capital flows. The Fed is the most important central bank in the world for forex.
+
+---
+
+## European Central Bank (ECB) — EUR
+
+**Mandate**: Single mandate — price stability (2% inflation target). Unlike the Fed, employment is not an explicit mandate, though it is monitored.
+
+**Policy tool**: The Deposit Facility Rate — the rate commercial banks receive on overnight deposits at the ECB. This is the primary rate affecting Eurozone monetary conditions.
+
+**Meeting schedule**: Eight times per year, alternating between Frankfurt and other Eurozone cities.
+
+**Key characteristic**: The ECB must manage monetary policy for 20 different economies with different growth rates, inflation profiles, and debt levels. This creates complexity. Peripheral countries (Italy, Spain, Greece) often have different needs than core countries (Germany, France, Netherlands). This internal tension sometimes creates uncertainty.
+
+**Relevance**: Primary driver of EUR, which means EURUSD is the most directly ECB-influenced pair in your portfolio.
+
+---
+
+## Bank of England (BOE) — GBP
+
+**Mandate**: Price stability (2% CPI target), with secondary support for government economic objectives including growth and employment.
+
+**Policy tool**: The Bank Rate.
+
+**Meeting schedule**: Eight times per year. Each meeting is accompanied by minutes and a vote breakdown (showing which members voted for what rate action).
+
+**Key characteristic**: The BOE's vote breakdown is uniquely valuable. Knowing that 7-2 voted to hold, with 2 dissenting in favour of a cut, tells you that two members are already dovish, which increases the probability of a cut at the next meeting. No other major central bank provides this transparency so directly.
+
+**Relevance**: Primary driver of GBP, affecting GBPUSD directly.
+
+---
+
+## Bank of Japan (BOJ) — JPY
+
+**Mandate**: Price stability (2% inflation target, but historically undershooting).
+
+**Policy tool**: Policy interest rate and Yield Curve Control (YCC) — a unique tool that targets the yield on 10-year Japanese government bonds within a specific band.
+
+**Key characteristic**: The BOJ spent decades in ultra-loose policy territory (near-zero or negative rates). This makes JPY the world's primary funding currency for carry trades: traders borrow cheaply in JPY and invest in higher-yielding currencies. When the BOJ signals rate hikes (as it began doing in 2024), JPY strengthens dramatically as carry trades unwind.
+
+**Warning**: BOJ meetings are the most unpredictable of any major central bank. Policy shifts often come without clear forward guidance. NAS100 and XAUUSD react sharply when JPY moves violently.
+
+**Relevance**: JPY does not appear directly in your traded pairs (EURUSD, GBPUSD, NZDUSD, XAUUSD, NAS100), but JPY movements via USDJPY affect DXY, which affects all your USD pairs and gold.
+
+---
+
+## Reserve Bank of New Zealand (RBNZ) — NZD
+
+**Mandate**: Price stability (1–3% inflation target band, with 2% midpoint) and support for maximum sustainable employment.
+
+**Meeting schedule**: Seven times per year.
+
+**Key characteristic**: The RBNZ is one of the most transparent and direct central banks. It publishes an OCR (Official Cash Rate) track — a projected path for interest rates — at each Monetary Policy Statement meeting. This gives traders unusually clear forward guidance.
+
+**Relevance**: Primary driver of NZDUSD. NZD is a commodity-linked, higher-beta currency: it tends to strengthen in risk-on environments and weaken in risk-off conditions, in addition to responding to RBNZ policy.
+
+---
+
+## Reading Central Bank Statements: A Practical Guide
+
+Every central bank statement follows a structure:
+
+1. **The decision**: Rate held/raised/cut by X basis points
+2. **The inflation assessment**: Is inflation above target, at target, or below?
+3. **The growth assessment**: Is the economy growing, slowing, or contracting?
+4. **The forward guidance**: What comes next? This is the most market-moving section.
+
+For forward guidance, compare this meeting's language to the previous meeting's language word-for-word. Changes in phrasing are the signal.
+
+Previous: *"Further rate increases may be appropriate"*
+Current: *"The committee will assess incoming data before determining whether further policy firming is necessary"*
+
+This shift from "may be appropriate" to "will assess" is dovish. The market will reprice lower rates. USD weakens.
+
+## Key takeaways
+- The Fed is the most important central bank for global forex. Its dual mandate (employment + inflation) means both data sets matter
+- The ECB's single inflation mandate and multi-country complexity creates additional uncertainty for EUR
+- The BOE's vote breakdown is uniquely transparent — 7-2 splits tell you where the next move is likely going
+- The BOJ's ultra-loose policy history makes JPY the global carry trade funding currency. BOJ shifts are violent and unpredictable
+- The RBNZ's published OCR track gives unusually clear forward guidance for NZD traders`,
+      },
+      {
+        slug:     "bond-yields-carry-trade",
+        title:    "Bond yields and the carry trade: the institutional money flow",
+        duration: "24 min",
+        order:    7,
+        published: true,
+        level:    2,
+        summary:  "How government bond yields drive forex and how the carry trade creates sustained currency trends.",
+        points:   ["Why bond yields and forex are linked", "The yield curve and what it signals", "The carry trade explained"],
+        body: `# Bond Yields and the Carry Trade: The Institutional Money Flow
+
+## What you'll learn
+- Why government bond yields are a real-time indicator of interest rate expectations and why they drive forex
+- How to read the yield curve for economic signals
+- What the carry trade is, why it creates sustained forex trends, and when it unwinds violently
+
+## Why Bond Yields Move Currencies
+
+Government bonds are the safest fixed-income assets in the world. When you buy a US 10-year Treasury bond, you lend money to the US government for 10 years and receive a fixed interest payment (the yield). The yield fluctuates in the secondary market based on supply and demand.
+
+Here is the critical link to forex: **bond yields reflect the market's expectation for future interest rates**. When the market expects the Fed to raise rates, demand for bonds falls (because new bonds will pay higher rates), so existing bond prices fall and yields rise. When the market expects rate cuts, bond prices rise and yields fall.
+
+This means bond yields move in real-time, before the central bank actually changes rates. Forex traders watch yields as a leading indicator of central bank direction.
+
+**Practical rule**: When US 10-year Treasury yields rise, USD typically strengthens. When they fall, USD typically weakens. This relationship holds across 80% of market conditions and is one of the most reliable cross-asset correlations in forex.
+
+## The DXY-Yield Relationship
+
+The DXY (US Dollar Index) has a historically strong positive correlation with the US 10-year Treasury yield. When the yield makes new highs, watch for DXY to follow. When yields peak and begin falling, DXY often follows with a 1–3 week lag.
+
+Monitoring the 10Y yield alongside DXY gives you a macro confirmation signal for USD direction. If EURUSD is setting up for a long trade but the 10Y yield is making new highs, be cautious. The yield is telling you USD strength is likely to continue.
+
+## The Yield Spread: Comparing Two Countries
+
+Just as the interest rate differential matters for currency direction, the **yield spread** between two countries' 10-year bonds tells you where smart money is flowing.
+
+EURUSD example: US 10Y yield − Germany 10Y yield (Bund) = the spread. When this spread widens (US yields rise faster than German yields), USD is more attractive for fixed income investors globally. Capital flows to the US, buying USD, and EURUSD falls. When the spread narrows, EUR becomes relatively more attractive.
+
+You can track this spread on financial data platforms. It moves in real-time and often leads the forex pair by a day or two.
+
+## The Yield Curve
+
+The yield curve plots the yields of government bonds at different maturities (2-year, 5-year, 10-year, 30-year). Its shape tells you about economic expectations.
+
+**Normal (upward sloping)**: Short-term yields are lower than long-term yields. This is the healthy default. Growth is expected.
+
+**Flat**: Short and long-term yields are similar. Uncertainty about the future.
+
+**Inverted**: Short-term yields are HIGHER than long-term yields. This happens when the central bank has raised short-term rates aggressively while long-term investors expect future rate cuts (due to expected recession). An inverted yield curve (specifically the 2Y/10Y spread going negative) is one of the most reliable recession predictors in history — and recession expectations are bearish for currencies.
+
+The 2Y/10Y inversion in 2022–2023 preceded significant economic concerns and was a key driver of the rate cut expectations that followed.
+
+## The Carry Trade: Why Yield Differentials Create Trends
+
+The carry trade is one of the most powerful forces in forex. It works as follows:
+
+1. A hedge fund borrows money in a low-interest-rate currency (e.g. JPY at 0.1%)
+2. Converts that money into a high-interest-rate currency (e.g. NZD at 5.5%)
+3. Invests in NZD-denominated assets earning 5.5%
+4. Profits from the 5.4% rate differential (the "carry")
+
+Multiply this by billions of dollars and you have sustained, structural demand for NZD (the "carry" currency) and sustained selling pressure on JPY (the "funding" currency). This is why NZDJPY tends to have strong trending behaviour — carry trade flows push it in one direction for extended periods.
+
+The same logic applies to AUDJPY, GBPJPY, and any high-yield vs low-yield currency pair.
+
+## When the Carry Trade Unwinds: The Risk
+
+The carry trade is the most dangerous trade in the world to be short when it unwinds. When risk appetite collapses (a financial crisis, geopolitical shock, extreme market panic), hedge funds simultaneously close carry positions:
+- They sell NZD, AUD, GBP (the carry currencies)
+- They buy JPY, CHF, USD (the funding/safe-haven currencies)
+
+This creates violent, one-directional moves. NZDJPY can fall 1,000–3,000 pips in days during a carry unwind. For retail traders, being long NZD or AUD against JPY without understanding carry risk is dangerous.
+
+Signal to watch: when VIX (volatility index) spikes above 25–30, carry trades are unwinding. Reduce or close positions in carry currency longs (NZD, AUD, high-yield EM currencies).
+
+## How to Use This Weekly
+
+Every Sunday:
+1. Check the US 10Y Treasury yield vs last week. Rising or falling?
+2. Check the yield spread for your target pairs (US 10Y vs Germany 10Y for EURUSD, US 10Y vs UK Gilts 10Y for GBPUSD)
+3. Is the spread widening (bearish EURUSD/GBPUSD) or narrowing (bullish EURUSD/GBPUSD)?
+4. Is there any carry trade concern this week (elevated VIX, geopolitical news, FOMC)?
+
+This takes five minutes and provides a cross-asset confirmation of your technical bias.
+
+## Key takeaways
+- Bond yields reflect real-time market expectations for interest rates. Rising yields = rate hike expectations = currency bullish
+- DXY and US 10Y yield are strongly correlated. Divergence between them is worth noting as a potential signal
+- The yield spread between two countries (not just the absolute yields) drives the capital flow between their currencies
+- The carry trade creates sustained trends in high-yield vs low-yield pairs. But it unwinds violently during risk-off events`,
+      },
+      {
+        slug:     "risk-on-risk-off-safe-havens",
+        title:    "Risk-on vs risk-off: safe havens and what they mean for your trades",
+        duration: "20 min",
+        order:    8,
+        published: true,
+        level:    2,
+        summary:  "How global risk appetite affects currency flows and which currencies benefit.",
+        points:   ["What risk-on and risk-off mean", "Safe-haven currencies: USD, JPY, CHF, XAU", "How to read risk sentiment weekly"],
+        body: `# Risk-On vs Risk-Off: Safe Havens and What They Mean for Your Trades
+
+## What you'll learn
+- What "risk-on" and "risk-off" mean in the context of global capital flows
+- Which currencies are safe havens and which are risk currencies, and why
+- How to assess the current risk environment before building your weekly bias
+
+## What is Risk Sentiment?
+
+Risk sentiment describes the collective appetite of global investors for taking risk. It oscillates between two poles:
+
+**Risk-on**: Investors are optimistic about the economic outlook and willing to take risk for higher returns. Capital flows away from safe assets (government bonds, safe-haven currencies) toward higher-returning assets (equities, emerging market currencies, commodities, high-yield currencies).
+
+**Risk-off**: Investors are fearful or uncertain. Capital flows away from risky assets and into the safest, most liquid assets in the world, regardless of yield. Preservation of capital trumps return.
+
+The shift between risk-on and risk-off can happen in hours when a major shock occurs (a banking crisis, geopolitical escalation, pandemic announcement), or it can develop gradually over weeks as economic data deteriorates.
+
+## The Safe-Haven Hierarchy
+
+Not all safe havens are equal. Here is the hierarchy in order of "safety premium" during extreme risk-off:
+
+**1. USD (US Dollar)**: The world's reserve currency. In genuine global crises, capital flows to USD because it is the most liquid currency on Earth and the denomination of the majority of global trade and debt. Even if the crisis originates in the US, USD initially strengthens as global dollar-denominated debt is repaid.
+
+**2. JPY (Japanese Yen)**: Safe-haven status comes from Japan's status as the world's largest creditor nation and the carry trade unwind dynamic described in the bond yields lesson. When risk-off hits, JPY strengthens dramatically and rapidly.
+
+**3. CHF (Swiss Franc)**: Switzerland's political neutrality, sound banking system, and current account surplus make CHF a refuge. Smaller flows than USD or JPY but consistent.
+
+**4. XAU (Gold)**: Gold is not a currency but behaves as one in risk-off. It is the ultimate store of value with no counterparty risk. During systemic risk events (banking crises, currency crises), gold often rallies strongly.
+
+## The Risk Currencies
+
+These currencies weaken in risk-off and strengthen in risk-on:
+
+**AUD (Australian Dollar)**: Commodity currency (iron ore, coal). Closely linked to Chinese economic activity. High beta to global growth.
+
+**NZD (New Zealand Dollar)**: Similar to AUD. Risk currency and carry trade destination.
+
+**GBP (British Pound)**: Historically a risk currency. Reacts to both UK fundamentals and global risk sentiment.
+
+**EM currencies**: South African Rand, Mexican Peso, Turkish Lira, and others. Extremely sensitive to risk sentiment. Capital flows out rapidly in risk-off.
+
+## How to Read Risk Sentiment
+
+**VIX (CBOE Volatility Index)**: The most commonly used fear gauge. Measures implied volatility in the S&P 500 options market. A VIX below 15 = complacent (risk-on). VIX 20–25 = elevated concern. VIX above 30 = fear. VIX above 40 = extreme fear (2008, 2020 levels).
+
+**DXY direction**: In risk-off, DXY typically rises as capital floods to USD. A rising DXY with rising VIX = risk-off environment.
+
+**S&P 500 / NAS100 direction**: Equity markets are the most visible risk asset. Sharp equity declines (more than 2% in a day) often trigger currency risk-off flows.
+
+**Gold and Treasuries**: Rising gold prices and falling Treasury yields (as investors buy bonds for safety) confirm risk-off. If gold and equities are both rising, that is risk-on (growth is strong and the dollar is not being favoured).
+
+## Risk Sentiment and Your Specific Instruments
+
+**EURUSD**: In extreme risk-off, EUR often weakens vs USD (capital flows to USD). But in moderate risk-off where European stability is not in question, EUR can hold relatively well.
+
+**GBPUSD**: GBP is a risk currency. It weakens in risk-off more reliably than EUR.
+
+**NZDUSD**: High beta to risk. Strong risk-off = NZD weakness. Risk-on = NZD strength.
+
+**XAUUSD**: Safe-haven status means gold benefits in risk-off. However, in extreme dollar-demand scenarios, gold can briefly fall as investors liquidate everything for dollars (as in March 2020). Medium-risk-off is typically bullish gold.
+
+**NAS100**: Risk asset. Falls in risk-off, rises in risk-on. Tech sector is particularly sensitive to yield movements (rising yields = discounted future cash flows = lower tech valuations).
+
+## Assessing Risk Sentiment Weekly
+
+Every Sunday, spend five minutes assessing:
+
+1. **VIX**: Where did it close on Friday? Rising or falling from last week?
+2. **S&P 500**: Are equities in an uptrend or downtrend? Were there significant weekly moves?
+3. **DXY**: Risk-off support or risk-on weakness?
+4. **Gold**: Rising (risk concern) or falling (risk appetite)?
+5. **Any geopolitical news over the weekend**: Escalations in geopolitical tensions can open Sunday forex markets with a gap.
+
+This five-minute check tells you whether you should be biased toward safe-haven (USD, JPY, CHF, Gold) or risk (NZD, GBP, equities) this week.
+
+## Key takeaways
+- Risk-on = capital flows to higher-yielding, higher-risk assets (NZD, AUD, equities)
+- Risk-off = capital flows to safety (USD, JPY, CHF, gold)
+- VIX is the quickest risk barometer. Below 15 = complacent, above 30 = fearful
+- Align your pairs with the risk environment. Trading NZDUSD long in a risk-off week is fighting the macro tide`,
+      },
+      {
+        slug:     "economic-calendar-events",
+        title:    "The economic calendar: high-impact events and how to trade around them",
+        duration: "16 min",
+        order:    9,
+        published: true,
+        level:    2,
+        summary:  "How to use the economic calendar to prepare for, avoid, and capitalise on major data releases.",
+        points:   ["Tier 1 vs Tier 2 vs Tier 3 events", "How to trade before and after releases", "Events specific to your pairs"],
+        body: `# The Economic Calendar: High-Impact Events and How to Trade Around Them
+
+## What you'll learn
+- How to categorise calendar events by their likely market impact
+- The specific rules for how to position before, during, and after major releases
+- The key events for each currency in your traded pairs
+
+## Event Impact Tiers
+
+Not all calendar events are equal. The economic calendar grades events by expected impact, but understanding why each tier matters helps you make better decisions.
+
+**Tier 1 (Red/High Impact)**: These events move markets significantly and unpredictably. They include:
+- US NFP (first Friday each month)
+- FOMC Rate Decision and Press Conference
+- US CPI
+- US Core PCE
+- FOMC Meeting Minutes
+- Major GDP releases (US, Eurozone, UK)
+- ECB Rate Decision and Press Conference
+- BOE Rate Decision
+- RBNZ Rate Decision and Policy Statement
+
+During Tier 1 events, spreads widen significantly, price can move 50–200+ pips in seconds, and stop orders may be executed at prices far from where they were set. These events require specific management.
+
+**Tier 2 (Orange/Medium Impact)**: Noteworthy but rarely the primary driver on their own. They include:
+- US Retail Sales
+- US ISM Manufacturing and Services PMI
+- US JOLTS Job Openings
+- US ADP Employment Report
+- Eurozone CPI
+- UK CPI
+- Unemployment claims (US weekly)
+
+Tier 2 events can move markets 20–60 pips but rarely cause sustained trend changes on their own. They are most significant when they confirm or contradict a Tier 1 narrative.
+
+**Tier 3 (Yellow/Low Impact)**: Routine releases that rarely cause meaningful market movement unless combined with other factors. Building permits, housing starts, minor PMI readings.
+
+## Rules for Trading Around Tier 1 Events
+
+**Before the event (30–60 minutes prior)**:
+- Close any positions you are not comfortable holding through the release
+- Do not enter new positions. Pre-event positioning often reverses violently
+- Mark the release time on your chart as a vertical line so you can see what happened when you review the trade later
+
+**During the release (first 15 minutes)**:
+- Do not trade. Spreads are wide, price is whipsawing, and the real direction has not been established. The first candle is almost always noise.
+- Watch and note the reaction, but do not enter
+
+**After the initial spike (15–30 minutes post-release)**:
+- The sustained direction (if any) is beginning to establish
+- If the reaction is strong and directional, look for a pullback to the first FVG created by the initial move for an entry
+- If the reaction is mixed or quickly reverses, there is no clean post-news trade. Skip it.
+
+**Resuming normal analysis (1–2 hours post-release)**:
+- The event is priced in. Return to your regular technical analysis with the updated macro backdrop
+
+## Key Events by Currency
+
+**USD (affects EURUSD, GBPUSD, NZDUSD, XAUUSD, NAS100)**:
+- NFP (first Friday): highest impact
+- FOMC (every six weeks): second highest
+- CPI (monthly, mid-month): third highest
+- Core PCE (monthly, end of month)
+- GDP Flash (quarterly)
+
+**EUR (affects EURUSD)**:
+- ECB Rate Decision (every six weeks)
+- Eurozone CPI (monthly)
+- German CPI (day before Eurozone CPI, can preview the reading)
+- Eurozone GDP Flash (quarterly)
+- German IFO Business Climate (monthly confidence indicator)
+
+**GBP (affects GBPUSD)**:
+- BOE Rate Decision and Monetary Policy Report (eight times per year)
+- UK CPI (monthly)
+- UK GDP (monthly estimate plus quarterly detailed)
+- UK Employment and Wage Data
+
+**NZD (affects NZDUSD)**:
+- RBNZ Rate Decision and Policy Statement (seven times per year)
+- New Zealand CPI (quarterly)
+- New Zealand employment data (quarterly)
+
+**XAU (Gold)**:
+- Responds primarily to USD data (NFP, FOMC, CPI)
+- Also responds to risk sentiment events (geopolitical, financial stability)
+
+## The Calendar as a Weekly Preparation Tool
+
+Every Sunday, build a calendar for the coming week:
+
+1. List all Tier 1 events and their day and time (UTC)
+2. Note which pairs are most affected
+3. Mark the killzones that coincide with major releases (if NFP lands at 13:30 UTC, it overlaps the NY open killzone entirely)
+4. Decide in advance: will you avoid trading that pair entirely on the release day, or will you manage a position through it?
+
+Pre-deciding your rules for news events removes the emotional decision-making in the moment.
+
+## Key takeaways
+- Tier 1 events (NFP, FOMC, CPI) require specific management: no new positions 30 minutes before, no trades during the initial spike
+- The post-release FVG created by the initial spike often provides the best risk-defined entry if the direction is clear
+- Know which events matter for each currency you trade. USD events dominate because they affect everything
+- Build your weekly calendar every Sunday. Knowing when events land prevents being caught off-guard during a live session`,
+      },
+      {
+        slug:     "building-weekly-macro-bias",
+        title:    "Building your weekly macro bias: the Sunday analysis process",
+        duration: "22 min",
+        order:    10,
+        published: true,
+        level:    2,
+        summary:  "A step-by-step process to synthesise all macro factors into a weekly directional bias before trading.",
+        points:   ["The five-step Sunday process", "Combining macro with the TrendMatrix", "What to do when macro and technical conflict"],
+        body: `# Building Your Weekly Macro Bias: The Sunday Analysis Process
+
+## What you'll learn
+- The complete five-step Sunday process to build your macro bias for the week
+- How to combine your macro analysis with the TrendMatrix for a complete weekly view
+- How to handle conflicts between macro and technical analysis
+
+## Why Sunday Is the Most Important Trading Day
+
+Sunday is the only day where you have time to think without the pressure of an open market. During the week, sessions move fast: London opens, sweeps happen, FVGs fill, trades are entered or missed. There is no time to step back and assess the macro picture.
+
+Sunday analysis is what separates traders who are always reacting from those who are always executing a plan. Kondwani does his full analysis every Sunday before the new week opens. The Trend Matrix is updated on Sundays. This is not a coincidence. It is the process.
+
+Everything in this course (interest rates, inflation, employment, central banks, bond yields, risk sentiment, the economic calendar) comes together in one 30–45 minute Sunday session.
+
+## Step 1: Review the Rate Environment (5 minutes)
+
+For each currency in your traded pairs (USD, EUR, GBP, NZD), note:
+- Current interest rate
+- Rate differential vs each pair you trade
+- Direction the differential is moving: widening or narrowing?
+
+Write one sentence per currency:
+*"USD: Fed funds rate 5.25%, holding. ECB cut to 3.75% last meeting. Differential widening in USD's favour. USD macro bias: bullish."*
+
+This takes five minutes and immediately tells you the foundational direction.
+
+## Step 2: Check Last Week's Key Data (5 minutes)
+
+What major data released last week? How did it compare to expectations?
+
+- Did US CPI beat or miss?
+- Was NFP above or below forecast?
+- Did any central bank meet, and what was the outcome?
+
+Summarise the net effect: did last week's data confirm or challenge the rate environment bias from Step 1? If NFP was strong and CPI was elevated, it confirms the bullish USD bias. If NFP was weak, it creates uncertainty.
+
+## Step 3: Check the Economic Calendar for This Week (5 minutes)
+
+What is releasing this week that could change the picture?
+
+- List all Tier 1 events by day and time
+- Note which pairs are directly affected
+- Flag any pairs where a major release makes the technical analysis uncertain (you may want to wait until after the release before entering)
+
+If FOMC meets on Wednesday, you might avoid entering EURUSD positions on Monday and Tuesday that you would need to hold through the decision.
+
+## Step 4: Assess Risk Sentiment (5 minutes)
+
+Check:
+- VIX: Where did it close Friday? Is it elevated?
+- DXY: Which direction did it close Friday? Making new highs or new lows?
+- S&P 500 / NAS100: Is the equity market in a weekly uptrend or downtrend?
+- Gold: Rising (concern) or falling (appetite for risk)?
+
+Write one sentence: *"Risk environment: moderately risk-on. VIX at 14.2, S&P making new highs, DXY slightly bid. Neutral for gold."*
+
+## Step 5: Write Your Weekly Bias Per Pair (10 minutes)
+
+Now combine everything into a plain-English bias for each pair you plan to trade:
+
+**EURUSD**: *"Macro: bearish. Rate differential favours USD. Last week's CPI confirmed inflation remains sticky. No FOMC this week. Technical (TrendMatrix): bearish daily structure, lower highs, lower lows. Bias: SHORT. Look for sell setups on London open this week."*
+
+**GBPUSD**: *"Macro: mildly bearish. BOE meeting Thursday — market expects hold. UK CPI released Tuesday, expected to show cooling. If CPI misses (softer than expected), dovish BOE expectations increase. Bearish bias but cautious until Tuesday's CPI."*
+
+**NZDUSD**: *"Macro: bearish. RBNZ signalled potential cut next meeting. NZD is a risk currency; risk-on environment this week is a mild offset. TrendMatrix: bearish. Bias: SHORT with caution around any NZ data midweek."*
+
+**XAUUSD**: *"Macro: mixed. USD bullish macro = bearish gold. But risk sentiment is moderately risk-on, not strongly risk-off. COT: Large Specs moderately long gold. Bias: wait for clear price action signal. Technical: watch for sweep of equal lows before considering a long."*
+
+## Combining Macro Bias with the TrendMatrix
+
+Your TrendMatrix shows weekly SMC-based bias per pair. The macro bias should confirm it. When both agree, you have the highest-conviction week.
+
+When they disagree — macro says bearish EURUSD but TrendMatrix shows bullish — you have three options:
+
+1. **Skip the pair this week**: No certainty means no edge. Trade the pairs where macro and technical agree.
+2. **Reduce size significantly**: If you choose to trade, risk 0.25% instead of 0.5%. Acknowledge the uncertainty.
+3. **Wait for resolution**: Sometimes a Tier 1 event during the week will resolve the conflict. Wait for it.
+
+Never fight the macro with full-size technical trades. The macro river is stronger than any single SMC setup.
+
+## The Written Bias: Why It Must Be Written
+
+Write it down. Not mentally noted — written. In your trading journal, in a notes app, anywhere. Two reasons:
+
+**It forces precision**: Vague thoughts like "I think USD is probably strong this week" do not help you make decisions under pressure. "USD macro bias bullish: rate differential +1.5%, CPI beat, no FOMC" helps you stay anchored when London opens and a setup appears.
+
+**It creates accountability**: When you review your trades on Sunday night, having last Sunday's written bias lets you see whether you followed your analysis or abandoned it during the week. This is how you identify your psychological leaks in real time.
+
+## A Template for Your Weekly Macro Bias
+
+    WEEKLY MACRO BIAS — Week of [date]
+
+    RATE ENVIRONMENT:
+    USD: [rate] [holding/hiking/cutting] [bias]
+    EUR: [rate] [holding/hiking/cutting] [bias]
+    GBP: [rate] [holding/hiking/cutting] [bias]
+    NZD: [rate] [holding/hiking/cutting] [bias]
+
+    LAST WEEK DATA SUMMARY:
+    [Key releases and their impact]
+
+    THIS WEEK CALENDAR:
+    [Tier 1 events with day, time, and affected pairs]
+
+    RISK SENTIMENT:
+    VIX: [level] [rising/falling]
+    DXY: [level] [direction]
+    Equities: [risk-on/risk-off/neutral]
+
+    PAIR BIASES:
+    EURUSD: [LONG/SHORT/NEUTRAL] — [one-sentence reason]
+    GBPUSD: [LONG/SHORT/NEUTRAL] — [one-sentence reason]
+    NZDUSD: [LONG/SHORT/NEUTRAL] — [one-sentence reason]
+    XAUUSD: [LONG/SHORT/NEUTRAL] — [one-sentence reason]
+    NAS100: [LONG/SHORT/NEUTRAL] — [one-sentence reason]
+
+This template takes 30–45 minutes the first time. After three weeks it takes 20 minutes. After three months it becomes automatic.
+
+## Key takeaways
+- Sunday analysis is the highest-value 30 minutes of your trading week. Treat it as non-negotiable
+- The five steps: Rate environment → Last week data → This week calendar → Risk sentiment → Written pair biases
+- When macro and TrendMatrix agree, you have maximum conviction. Trade full size
+- When they conflict, skip, reduce size, or wait for the Tier 1 event that will resolve the disagreement
+- Write your bias down. Written analysis creates accountability and prevents in-the-moment drift`,
+      },
+    ],
+  },
 ] as const;
 
 // ── Instrument seed data ──────────────────────────────────────────────────────
