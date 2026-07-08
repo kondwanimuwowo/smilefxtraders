@@ -434,3 +434,41 @@ model UserBadge {
 
   @@map("user_badges")
 }
+
+// ─── MacroEdge — fundamental/macro analysis module ───────────────────────────
+// Phase 1: economic calendar only (replaces the Tradays widget). IndicatorType
+// is defined now (not just when Phase 2's rule engine lands) so EconomicEvent
+// can tag its category from day one without a later migration.
+
+enum IndicatorType {
+  INTEREST_RATE
+  CPI
+  GDP
+  EMPLOYMENT // NFP / claimant count / employment change, per currency
+  RETAIL_SALES
+  MANUFACTURING_PMI
+  CONSUMER_CONFIDENCE
+  TRADE_BALANCE
+  BOND_YIELD_10Y
+}
+
+model EconomicEvent {
+  id         String         @id @default(cuid())
+  externalId String         @unique @map("external_id") // Finnhub event id
+  currency   String // "USD" | "EUR" | "GBP" | "NZD" | "XAU"
+  title      String
+  category   IndicatorType? // mapped from Finnhub's free-text category via
+  // src/lib/macro/indicatorMap.ts — null when no mapping matches
+  impact     String // "high" | "medium" | "low"
+  actual     String?
+  forecast   String?
+  previous   String?
+  eventTime  DateTime  @map("event_time") // UTC
+  releasedAt DateTime? @map("released_at") // when `actual` was first populated
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  @@index([currency, eventTime(sort: Desc)])
+  @@index([eventTime])
+  @@map("economic_events")
+}

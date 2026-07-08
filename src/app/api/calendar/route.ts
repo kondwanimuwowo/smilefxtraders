@@ -1,41 +1,31 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 // ── Economic Calendar API Route ───────────────────────────────────────────────
 //
-// WIRING UP A REAL DATA SOURCE
-// ─────────────────────────────
-// Option A — Trading Economics API (recommended, ~$30/mo)
-//   Sign up at: https://tradingeconomics.com/api/
-//   Add to .env.local: TRADING_ECONOMICS_API_KEY=your_key_here
-//   Endpoint: https://api.tradingeconomics.com/calendar
-//             ?c={TRADING_ECONOMICS_API_KEY}&country=united+states,euro+area,united+kingdom
-//             &importance=3  (1=low, 2=medium, 3=high)
-//
-// Option B — Twelve Data (you may already have this for the price ticker)
-//   Add to .env.local: TWELVE_DATA_API_KEY=your_key_here
-//   Their economic calendar endpoint is in the paid tier.
-//
-// Option C — Free scrape (no key needed, fragile)
-//   Forex Factory exposes a JSON at https://www.forexfactory.com/calendar.php?week=this
-//   Not officially supported — can break without notice.
-//
-// Once you have a key, replace the `MOCK_EVENTS` export below with a real fetch.
-// The component at app/(app)/calendar/Calendar.tsx expects the same shape.
+// Real data comes from EconomicEvent (populated by /api/calendar/sync, a cron
+// job pulling Finnhub's calendar, plus /api/webhooks/finnhub push updates).
+// Falls back to MOCK_EVENTS if the table is empty — covers both a fresh DB
+// and the current known blocker where the Finnhub account's plan doesn't
+// include calendar access yet (verified via direct API testing: /quote and
+// /news work on this key, /calendar/economic returns a 403-shaped "no
+// access" error). The component at app/(app)/calendar/Calendar.tsx expects
+// this exact CalEvent shape either way.
 
 export interface CalEvent {
-  id:       string;
-  date:     string;       // "2026-06-08"
-  time:     string;       // "08:30" UTC
-  currency: string;       // "USD", "EUR", "GBP", "NZD", "XAU"
-  event:    string;       // human-readable name
-  impact:   1 | 2 | 3;   // 1=low, 2=medium, 3=high
+  id: string;
+  date: string; // "2026-06-08"
+  time: string; // "08:30" UTC
+  currency: string; // "USD", "EUR", "GBP", "NZD", "XAU"
+  event: string; // human-readable name
+  impact: 1 | 2 | 3; // 1=low, 2=medium, 3=high
   forecast: string | null;
   previous: string | null;
-  actual:   string | null; // null = not yet released
-  unit:     string;       // "%", "K", "B", "M", "bps", ""
+  actual: string | null; // null = not yet released
+  unit: string; // "%", "K", "B", "M", "bps", ""
 }
 
-// ── Mock events: week of 08–12 Jun 2026 ──────────────────────────────────────
+// ── Mock events: week of 08–12 Jun 2026 (fallback only) ──────────────────────
 
 const MOCK_EVENTS: CalEvent[] = [
   // Monday
@@ -70,18 +60,43 @@ const MOCK_EVENTS: CalEvent[] = [
   { id: "e21", date: "2026-06-12", time: "14:00", currency: "USD", event: "Michigan Consumer Sentiment (Prelim)", impact: 2, forecast: "69.0", previous: "67.9", actual: null, unit: "" },
 ];
 
-export async function GET() {
-  // TODO: replace with real API call once TRADING_ECONOMICS_API_KEY is set:
-  //
-  // const key = process.env.TRADING_ECONOMICS_API_KEY;
-  // if (key) {
-  //   const res = await fetch(
-  //     `https://api.tradingeconomics.com/calendar?c=${key}&country=united+states,euro+area,united+kingdom,new+zealand&importance=2,3`,
-  //     { next: { revalidate: 3600 } }
-  //   );
-  //   const data = await res.json();
-  //   return NextResponse.json(data);
-  // }
+function impactStringToNumber(impact: string): 1 | 2 | 3 {
+  const lower = impact.toLowerCase();
+  if (lower === "high") return 3;
+  if (lower === "medium") return 2;
+  return 1;
+}
 
-  return NextResponse.json(MOCK_EVENTS);
+export async function GET() {
+  try {
+    const rows = await prisma.economicEvent.findMany({
+      orderBy: { eventTime: "asc" },
+      take: 200,
+    });
+
+    if (rows.length === 0) {
+      return NextResponse.json(MOCK_EVENTS);
+    }
+
+    const events: CalEvent[] = rows.map((row) => {
+      const iso = row.eventTime.toISOString();
+      return {
+        id: row.id,
+        date: iso.slice(0, 10),
+        time: iso.slice(11, 16),
+        currency: row.currency,
+        event: row.title,
+        impact: impactStringToNumber(row.impact),
+        forecast: row.forecast,
+        previous: row.previous,
+        actual: row.actual,
+        unit: "",
+      };
+    });
+
+    return NextResponse.json(events);
+  } catch (err) {
+    console.error("[api/calendar] falling back to mock data", err);
+    return NextResponse.json(MOCK_EVENTS);
+  }
 }
