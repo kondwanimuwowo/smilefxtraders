@@ -185,6 +185,7 @@ export function Settings() {
   const [weeklyReport,   setWeeklyReport]   = useState(true);
   const [emailAlerts,    setEmailAlerts]    = useState(false);
   const [academyNotif,   setAcademyNotif]   = useState(true);
+  const [macroNotif,     setMacroNotif]     = useState(true);
 
   // Sync from server on load
   useEffect(() => {
@@ -194,6 +195,7 @@ export function Settings() {
       setWeeklyReport(savedPrefs.weeklyReport);
       setEmailAlerts(savedPrefs.emailAlerts);
       setAcademyNotif(savedPrefs.academyNotif ?? true);
+      setMacroNotif(savedPrefs.macroNotif ?? true);
     }
   }, [savedPrefs]);
 
@@ -323,7 +325,7 @@ export function Settings() {
   }
 
   function saveNotifications() {
-    savePrefs({ alertNotif, communityNotif, weeklyReport, emailAlerts, academyNotif });
+    savePrefs({ alertNotif, communityNotif, weeklyReport, emailAlerts, academyNotif, macroNotif });
   }
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -635,6 +637,13 @@ export function Settings() {
               sub="Course milestones and new course releases"
               checked={academyNotif}
               onChange={setAcademyNotif}
+            />
+            <Divider />
+            <ToggleRow
+              label="MacroEdge bias flips"
+              sub="Notify me when a pair's fundamental bias flips (e.g. Buy to Sell)"
+              checked={macroNotif}
+              onChange={setMacroNotif}
             />
             <div className="flex justify-end mt-4">
               <Button type="button" variant="primary" icon="save" loading={notifPending} onClick={saveNotifications}>

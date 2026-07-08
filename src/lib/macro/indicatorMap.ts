@@ -51,3 +51,21 @@ export function mapCountryToCurrency(country: string): string | null {
 // central bank/calendar of its own — deliberately excluded here, see the
 // MacroEdge plan's Layer 3 scoring notes on why XAU gets a different model.
 export const TRACKED_CURRENCIES = ["USD", "EUR", "GBP", "NZD"] as const;
+
+// Phase 4 news tagging: simple keyword match against currency/central-bank
+// names. Finnhub's free news endpoint is general market news, not curated
+// forex-tagged content — this is a heuristic, imperfect by design, not a
+// blocker (see the plan's Hardest Parts section).
+const NEWS_KEYWORD_RULES: Array<{ pattern: RegExp; currency: string }> = [
+  { pattern: /\bfed\b|federal reserve|fomc|powell|\bu\.?s\.? dollar\b|\busd\b/i, currency: "USD" },
+  { pattern: /\becb\b|european central bank|lagarde|eurozone|euro area|\beur\b/i, currency: "EUR" },
+  { pattern: /\bboe\b|bank of england|bailey|\bgbp\b|british pound|sterling/i, currency: "GBP" },
+  { pattern: /\brbnz\b|reserve bank of new zealand|\bnzd\b|new zealand dollar/i, currency: "NZD" },
+];
+
+export function tagNewsCurrency(text: string): string | null {
+  for (const { pattern, currency } of NEWS_KEYWORD_RULES) {
+    if (pattern.test(text)) return currency;
+  }
+  return null;
+}

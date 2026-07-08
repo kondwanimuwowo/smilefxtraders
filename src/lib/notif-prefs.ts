@@ -8,6 +8,7 @@ export interface NotifPrefs {
   weeklyReport:   boolean; // email: weekly performance report
   emailAlerts:    boolean; // email: instructor alerts
   academyNotif:   boolean; // in-app: academy milestones
+  macroNotif:     boolean; // in-app: MacroEdge pair-bias flips
 }
 
 export const NOTIF_PREF_DEFAULTS: NotifPrefs = {
@@ -16,6 +17,7 @@ export const NOTIF_PREF_DEFAULTS: NotifPrefs = {
   weeklyReport:   true,
   emailAlerts:    false,
   academyNotif:   true,
+  macroNotif:     true,
 };
 
 // Merge stored JSON over defaults. Users saved before a new key existed

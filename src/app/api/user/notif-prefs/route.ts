@@ -38,6 +38,7 @@ export async function PUT(req: NextRequest) {
     weeklyReport:   body.weeklyReport   ?? NOTIF_PREF_DEFAULTS.weeklyReport,
     emailAlerts:    body.emailAlerts    ?? NOTIF_PREF_DEFAULTS.emailAlerts,
     academyNotif:   body.academyNotif   ?? NOTIF_PREF_DEFAULTS.academyNotif,
+    macroNotif:     body.macroNotif     ?? NOTIF_PREF_DEFAULTS.macroNotif,
   };
 
   await prisma.user.update({

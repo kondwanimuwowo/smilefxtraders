@@ -65,3 +65,41 @@ export async function fanOutInstructorAlert(alert: Alert): Promise<void> {
     `[alerts] fan-out ${alert.id}: in-app paid=${paidCount} free-delayed=${freeCount}, emails sent=${emailResult.sent} failed=${emailResult.failed}`
   );
 }
+
+// MacroEdge Phase 4 — fired when a pair's BiasLabel changes between two
+// recompute runs. "Score changed" is too noisy a trigger on its own (the
+// score is a continuous number that moves on almost every sync); the label
+// crossing a threshold is the meaningful event a trader would want paged for.
+// dedupeKey is scoped to the ISO week so the same flip doesn't re-notify on
+// every subsequent recompute run while it holds.
+export async function fanOutMacroBiasFlip(params: {
+  pair: string;
+  oldLabel: string | null;
+  newLabel: string;
+  differential: number;
+}): Promise<void> {
+  const { pair, oldLabel, newLabel, differential } = params;
+  if (oldLabel === newLabel) return;
+
+  const now = new Date();
+  const weekOf = `${now.getUTCFullYear()}-W${String(Math.ceil(now.getUTCDate() / 7)).padStart(2, "0")}-${now.getUTCMonth()}`;
+
+  const users = await prisma.user.findMany({
+    where:  { plan: { not: "FREE" } },
+    select: { id: true, notifPrefs: true },
+  });
+  const targetIds = users.filter((u) => prefEnabled(u.notifPrefs, "macroNotif")).map((u) => u.id);
+  if (targetIds.length === 0) return;
+
+  const count = await createNotifications(targetIds, {
+    type:      "MACRO_BIAS_FLIP",
+    title:     `MacroEdge: ${pair} bias flipped to ${newLabel.replace("_", " ")}`,
+    body:      `Fundamental differential now ${differential > 0 ? "+" : ""}${differential.toFixed(1)}`,
+    icon:      "query_stats",
+    tone:      newLabel.includes("BUY") ? "teal" : newLabel.includes("SELL") ? "coral" : "gold",
+    href:      `/pair/${pair.toLowerCase()}`,
+    dedupeKey: `macro:${pair}:${newLabel}:${weekOf}`,
+  });
+
+  console.info(`[macro] bias flip ${pair} ${oldLabel ?? "—"} → ${newLabel}: notified ${count}`);
+}
