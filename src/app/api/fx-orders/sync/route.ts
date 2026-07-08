@@ -270,9 +270,25 @@ export async function POST(req: NextRequest) {
     });
 
     if (!pageRes.ok) {
+      // A 404 here is routine, not a failure: InvestingLive typically doesn't
+      // publish the day's FXO post until ~07:00-07:30 ET, so the 4-hourly
+      // cron's overnight/early-morning runs (e.g. 00:00/04:00/08:00 UTC) hit
+      // this every day and self-heal on the next run. Returning 200 here
+      // (like the "already synced" short-circuit below) keeps cron-jobs.org's
+      // health check green for this expected case — previously this returned
+      // 502, which made every early-morning run show up as a false-alarm
+      // "Bad Gateway" failure in the cron dashboard.
+      if (pageRes.status === 404) {
+        return NextResponse.json({
+          ok: true,
+          skipped: true,
+          reason: `Today's FXO post not published yet (InvestingLive returned 404) — expected before ~07:00 ET, will retry next run.`,
+          url: pageUrl,
+        });
+      }
+
       const hint =
         pageRes.status === 403 ? "InvestingLive is blocking automated requests (bot protection). Use the Upload Image button instead: download the FXO image from InvestingLive manually and upload it here." :
-        pageRes.status === 404 ? `Page not found. Today's FXO post may not have been published yet, try again after 07:00 EST. URL tried: ${pageUrl}` :
         pageRes.status === 429 ? "Rate limited by InvestingLive. Wait a few minutes before retrying." :
         `InvestingLive returned HTTP ${pageRes.status}. Use Upload Image as a fallback.`;
       return NextResponse.json({ error: hint, status: pageRes.status, url: pageUrl }, { status: 502 });
