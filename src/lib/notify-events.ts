@@ -95,7 +95,7 @@ export async function fanOutMacroBiasFlip(params: {
     type:      "MACRO_BIAS_FLIP",
     title:     `MacroEdge: ${pair} bias flipped to ${newLabel.replace("_", " ")}`,
     body:      `Fundamental differential now ${differential > 0 ? "+" : ""}${differential.toFixed(1)}`,
-    icon:      "query_stats",
+    icon:      "analytics",
     tone:      newLabel.includes("BUY") ? "teal" : newLabel.includes("SELL") ? "coral" : "gold",
     href:      `/pair/${pair.toLowerCase()}`,
     dedupeKey: `macro:${pair}:${newLabel}:${weekOf}`,

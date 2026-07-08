@@ -43,6 +43,7 @@ const NAV: { section: string; items: NavItem[] }[] = [
       { href: "/validator", icon: "checklist",            label: "Rules Validator"  },
       { href: "/trend",     icon: "trending_up",          label: "Trend Matrix"     },
       { href: "/calendar",  icon: "event",               label: "Economic Calendar" },
+      { href: "/macroedge", icon: "analytics",           label: "MacroEdge"        },
       { href: "/sessions",   icon: "schedule",              label: "Market Sessions"  },
       { href: "/cot",       icon: "bar_chart",            label: "COT Reports"      },
       { href: "/fx-orders", icon: "candlestick_chart",    label: "FX Option Expiries" },

@@ -108,7 +108,7 @@ export default function CurrencyProfilePage() {
       <Panel className="mb-5">
         <PanelHead
           title="Fundamental Score"
-          icon="query_stats"
+          icon="analytics"
           sub={score ? `Updated ${new Date(score.computedAt).toLocaleString()}` : scoresLoading ? "Loading…" : "Not yet computed"}
         />
         {scoresLoading ? (
@@ -217,7 +217,7 @@ export default function CurrencyProfilePage() {
             </div>
           ) : released.length === 0 ? (
             <div className="px-5 py-8 text-center">
-              <Icon name="pending" size={28} className="text-ink-dim mx-auto mb-2" />
+              <Icon name="schedule" size={28} className="text-ink-dim mx-auto mb-2" />
               <div className="text-[13px] text-ink-dim">No recent {C} releases</div>
             </div>
           ) : (

@@ -47,7 +47,7 @@ export function FundamentalsPanel({ pair }: { pair: string }) {
   if (!loading && !bias) {
     return (
       <Panel>
-        <PanelHead title="Fundamentals" icon="query_stats" />
+        <PanelHead title="Fundamentals" icon="analytics" />
         <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 text-[12.5px] leading-relaxed bg-panel-2 border border-line text-ink-dim">
           <Icon name="info" size={15} className="text-ink-dim shrink-0 mt-px" />
           <span>
@@ -63,7 +63,7 @@ export function FundamentalsPanel({ pair }: { pair: string }) {
     <Panel>
       <PanelHead
         title="Fundamentals"
-        icon="query_stats"
+        icon="analytics"
         sub={bias ? `Bias: ${bias.biasLabel.replace("_", " ")} · differential ${bias.differential > 0 ? "+" : ""}${bias.differential.toFixed(1)}` : "Loading…"}
       />
       {loading ? (
