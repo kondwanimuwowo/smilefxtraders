@@ -189,6 +189,7 @@ enum NotificationType {
   COURSE_COMPLETED
   COURSE_PUBLISHED
   SYSTEM
+  MACRO_BIAS_FLIP
 }
 
 // ─── Price Alerts ────────────────────────────────────────────────────────────
@@ -509,4 +510,67 @@ model CurrentCurrencyScore {
   inputHash  String   @map("input_hash") // hash of the snapshot values used — drives flip detection / future Gavo-regen
 
   @@map("current_currency_scores")
+}
+
+// Phase 4: Finnhub news feed. currency tagging is a keyword-match heuristic
+// against currency/central-bank names (Finnhub's free news endpoint is
+// mostly general market news, not curated forex-tagged content) — imperfect
+// by design, not a blocker, per the plan's Hardest Parts section.
+model NewsItem {
+  id            String   @id @default(cuid())
+  externalId    String   @unique @map("external_id")
+  currency      String? // best-effort tag, null when no keyword matched
+  headline      String
+  summary       String?
+  url           String
+  source        String
+  publishedAt   DateTime @map("published_at")
+  fetchedAt     DateTime @default(now()) @map("fetched_at")
+
+  @@index([currency, publishedAt(sort: Desc)])
+  @@map("news_items")
+}
+
+// Phase 3: Layer 4 (pair bias) + Layer 6 (Gavo narration). Layer 5
+// (confluence vs. TrendMatrix/COT/FX-Options) is deliberately NOT a table —
+// it's a read-time comparison, see the plan's score-proliferation fix.
+
+enum BiasLabel {
+  STRONG_BUY
+  BUY
+  NEUTRAL
+  SELL
+  STRONG_SELL
+}
+
+enum SubjectType {
+  PAIR
+  CURRENCY
+}
+
+model CurrentPairBias {
+  pair          String    @id
+  baseCurrency  String    @map("base_currency")
+  quoteCurrency String    @map("quote_currency")
+  baseScore     Float     @map("base_score")
+  quoteScore    Float     @map("quote_score")
+  differential  Float
+  biasLabel     BiasLabel @map("bias_label")
+  computedAt    DateTime  @map("computed_at")
+  inputHash     String    @map("input_hash")
+
+  @@map("current_pair_biases")
+}
+
+model GavoMacroExplanation {
+  id          String      @id @default(cuid())
+  subjectType SubjectType @map("subject_type")
+  subjectKey  String      @map("subject_key") // pair symbol or currency code
+  explanation String
+  model       String // e.g. "claude-sonnet-4-6"
+  inputHash   String      @map("input_hash") // regenerate only when this differs from the current score's/bias's hash
+  generatedAt DateTime    @default(now()) @map("generated_at")
+
+  @@unique([subjectType, subjectKey])
+  @@map("gavo_macro_explanations")
 }

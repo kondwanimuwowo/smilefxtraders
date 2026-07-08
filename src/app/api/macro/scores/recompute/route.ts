@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recomputeAndStoreCurrencyScore } from "@/lib/macro/scoring";
+import { recomputeAndStorePairBias, computablePairs } from "@/lib/macro/pairBias";
 import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
+import { PAIR_META } from "@/lib/pairs";
 
 // Cron (daily, after indicators+news land) + event-triggered (fired
 // fire-and-forget from /api/calendar/sync on a fresh high-impact release).
@@ -39,5 +41,25 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ok: true, results });
+  // Layer 4 — recompute any pair whose base or quote currency was just
+  // recomputed (or every computable pair, on a full/no-param run).
+  const affectedPairs = currencyParam
+    ? computablePairs().filter((p) => {
+        const meta = PAIR_META[p];
+        return meta && (meta.base === currencyParam || meta.quote === currencyParam);
+      })
+    : computablePairs();
+
+  const pairResults = [];
+  for (const pair of affectedPairs) {
+    try {
+      const bias = await recomputeAndStorePairBias(pair);
+      if (bias) pairResults.push({ pair, biasLabel: bias.biasLabel, differential: bias.differential, ok: true });
+    } catch (err) {
+      console.error(`[macro/scores/recompute] pair ${pair}`, err);
+      pairResults.push({ pair, ok: false, error: err instanceof Error ? err.message : String(err) });
+    }
+  }
+
+  return NextResponse.json({ ok: true, results, pairResults });
 }

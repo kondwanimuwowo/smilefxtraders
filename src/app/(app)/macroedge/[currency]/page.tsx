@@ -2,11 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { Icon, Panel, PanelHead, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type { CalEvent } from "@/app/api/calendar/route";
 import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
-import type { CurrencyScore } from "@/types/macro";
+import type { MacroScoresResponse } from "@/types/macro";
+import { GavoExplanation } from "@/components/macro/GavoExplanation";
+import { NewsFeed } from "@/components/macro/NewsFeed";
 
 const IMPACT_CLS: Record<number, string> = { 1: "bg-ink-dim", 2: "bg-gold", 3: "bg-coral" };
 
@@ -36,7 +39,7 @@ export default function CurrencyProfilePage() {
   const tracked = TRACKED_CURRENCIES.includes(C as (typeof TRACKED_CURRENCIES)[number]);
 
   const [events, setEvents] = useState<CalEvent[] | null>(null);
-  const [scores, setScores] = useState<CurrencyScore[] | null>(null);
+  const [macroData, setMacroData] = useState<MacroScoresResponse | null>(null);
 
   useEffect(() => {
     fetch("/api/calendar")
@@ -44,13 +47,17 @@ export default function CurrencyProfilePage() {
       .then(setEvents)
       .catch(() => setEvents([]));
     fetch("/api/macro/scores")
-      .then((r) => r.json() as Promise<CurrencyScore[]>)
-      .then(setScores)
-      .catch(() => setScores([]));
+      .then((r) => r.json() as Promise<MacroScoresResponse>)
+      .then(setMacroData)
+      .catch(() => setMacroData({ scores: [], pairBiases: [] }));
   }, []);
 
-  const score = useMemo(() => scores?.find((s) => s.currency === C) ?? null, [scores, C]);
-  const scoresLoading = scores === null;
+  const score = useMemo(() => macroData?.scores.find((s) => s.currency === C) ?? null, [macroData, C]);
+  const relatedPairBiases = useMemo(
+    () => (macroData?.pairBiases ?? []).filter((b) => b.baseCurrency === C || b.quoteCurrency === C),
+    [macroData, C]
+  );
+  const scoresLoading = macroData === null;
 
   const currencyEvents = useMemo(
     () => (events ?? []).filter((e) => e.currency === C),
@@ -161,6 +168,12 @@ export default function CurrencyProfilePage() {
         )}
       </Panel>
 
+      {score && (
+        <div className="mb-5">
+          <GavoExplanation subjectType="CURRENCY" subjectKey={C} />
+        </div>
+      )}
+
       <div className="grid gap-5 grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <Panel pad={0}>
           <div className="px-5 py-4 border-b border-line">
@@ -228,9 +241,46 @@ export default function CurrencyProfilePage() {
         </Panel>
       </div>
 
-      <div className="mt-5 rounded-xl px-4 py-3 flex items-center gap-2.5 text-[12px] bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.15)] text-gold">
-        <Icon name="construction" size={14} />
-        Pair-bias confluence and Gavo narration land in Phase 3 of MacroEdge.
+      {relatedPairBiases.length > 0 && (
+        <Panel className="mt-5" pad={0}>
+          <div className="px-5 py-4 border-b border-line">
+            <div className="text-[15px] font-semibold text-ink-strong">Pair Bias</div>
+            <div className="text-[12px] mt-0.5 text-ink-dim">Pairs involving {C}, base score minus quote score</div>
+          </div>
+          {relatedPairBiases.map((b, i) => (
+            <Link
+              key={b.pair}
+              href={`/pair/${b.pair.toLowerCase()}`}
+              className={cn(
+                "flex items-center gap-3 px-5 py-3 hover:bg-panel-2 transition-colors",
+                i < relatedPairBiases.length - 1 && "border-b border-line"
+              )}
+            >
+              <span className="text-[12.5px] font-semibold text-ink-strong w-20 shrink-0">{b.pair}</span>
+              <span
+                className={cn(
+                  "text-[11px] font-bold px-2 py-0.5 rounded-lg shrink-0",
+                  b.biasLabel.includes("BUY")
+                    ? "text-teal-bright bg-[rgba(48,232,223,0.10)]"
+                    : b.biasLabel.includes("SELL")
+                      ? "text-coral-bright bg-[rgba(255,89,66,0.10)]"
+                      : "text-gold bg-[rgba(248,185,61,0.10)]"
+                )}
+              >
+                {b.biasLabel.replace("_", " ")}
+              </span>
+              <span className="text-[11.5px] text-ink-dim ml-auto">
+                differential {b.differential > 0 ? "+" : ""}
+                {b.differential.toFixed(1)}
+              </span>
+              <Icon name="chevron_right" size={16} className="text-ink-dim shrink-0" />
+            </Link>
+          ))}
+        </Panel>
+      )}
+
+      <div className="mt-5">
+        <NewsFeed currency={C} />
       </div>
     </div>
   );

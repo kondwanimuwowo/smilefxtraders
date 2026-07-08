@@ -4,6 +4,9 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Icon, Ring, Sparkline, Skeleton, Panel, PanelHead } from "@/components/ui";
+import { FundamentalsPanel } from "@/components/macro/FundamentalsPanel";
+import { NewsFeed } from "@/components/macro/NewsFeed";
+import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
 import { cn } from "@/lib/cn";
 import type { CotSignal } from "@/app/api/cot/route";
 import type { CotDetailResponse, CotDetailRow } from "@/app/api/cot/[pair]/route";
@@ -240,6 +243,13 @@ export default function PairOverviewPage() {
     [calEvents, meta]
   );
 
+  // Prefer the non-USD leg for news filtering (more pair-specific); falls
+  // back to USD for USD-base pairs, or undefined (general feed) if neither
+  // leg is a currency MacroEdge tracks news for.
+  const newsCurrency = meta?.currencies.find(
+    (c) => c !== "USD" && TRACKED_CURRENCIES.includes(c as (typeof TRACKED_CURRENCIES)[number])
+  ) ?? (meta?.currencies.includes("USD") ? "USD" : undefined);
+
   const tfs        = TFS.map((tf) => trendMatrix[tf]).filter(Boolean) as Bias[];
   const bullCount  = tfs.filter((b) => b === "bullish").length;
   const bearCount  = tfs.filter((b) => b === "bearish").length;
@@ -404,6 +414,9 @@ export default function PairOverviewPage() {
               </div>
             )}
           </Panel>
+
+          {/* MacroEdge Fundamentals */}
+          <FundamentalsPanel pair={P} />
 
           {/* Economic Calendar */}
           <Panel pad={0}>
@@ -645,16 +658,7 @@ export default function PairOverviewPage() {
           </Panel>
 
           {/* News */}
-          <Panel>
-            <PanelHead title="Recent News" icon="newspaper" />
-            <div className="rounded-xl px-4 py-4 flex items-start gap-3 text-[12.5px] bg-panel-2 border border-line text-ink-dim">
-              <Icon name="rss_feed" size={16} className="text-ink-dim shrink-0 mt-px" />
-              <span>
-                News feed requires a news API key (e.g. Finnhub, NewsAPI).{" "}
-                <span className="text-gold">Coming soon.</span>
-              </span>
-            </div>
-          </Panel>
+          <NewsFeed currency={newsCurrency} />
         </div>
       </div>
     </div>
