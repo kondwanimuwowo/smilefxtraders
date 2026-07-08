@@ -472,3 +472,41 @@ model EconomicEvent {
   @@index([eventTime])
   @@map("economic_events")
 }
+
+// Phase 2: FRED + World Bank indicator snapshots, deterministic scoring
+// (Layers 2/3 of the MacroEdge plan). World Bank rows use the same table
+// tagged source=WORLD_BANK with an annual periodDate rather than a parallel
+// schema — see the plan's Layer 1 design notes.
+
+enum DataSource {
+  FINNHUB
+  FRED
+  WORLD_BANK
+  MANUAL
+}
+
+model MacroIndicatorSnapshot {
+  id             String        @id @default(cuid())
+  currency       String
+  indicatorType  IndicatorType @map("indicator_type")
+  value          Float
+  unit           String? // display only, e.g. "percent"
+  periodDate     DateTime      @map("period_date") // period the data covers, not the release date
+  source         DataSource
+  releaseEventId String?       @map("release_event_id") // links to EconomicEvent.externalId when sourced from a calendar release
+  fetchedAt      DateTime      @default(now()) @map("fetched_at")
+
+  @@unique([currency, indicatorType, periodDate])
+  @@index([currency, indicatorType, periodDate(sort: Desc)])
+  @@map("macro_indicator_snapshots")
+}
+
+model CurrentCurrencyScore {
+  currency   String   @id // one row per currency, upserted in place — "latest" only
+  totalScore Float    @map("total_score")
+  breakdown  Json // [{ indicatorType, signal (-2..2), weight, weightedContribution, reason }] — denormalized, see Layer 2 note in the plan
+  computedAt DateTime @map("computed_at")
+  inputHash  String   @map("input_hash") // hash of the snapshot values used — drives flip detection / future Gavo-regen
+
+  @@map("current_currency_scores")
+}
