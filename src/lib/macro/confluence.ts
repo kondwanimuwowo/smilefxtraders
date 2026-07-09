@@ -13,8 +13,8 @@
 // than reuse of an existing signal. `fxOptionsProximity` stays null until
 // that lands.
 
-import type { CotSignal } from "@/app/api/cot/route";
-import { PAIR_META } from "@/lib/pairs";
+import { getCotSignal } from "@/lib/cot/query";
+import type { CotSignal } from "@/lib/cot/types";
 
 type TF = "MN" | "W" | "D" | "H4" | "H1";
 type Bias = "bullish" | "bearish" | "ranging";
@@ -43,11 +43,12 @@ function trendMajority(row: Partial<Record<TF, Bias>>): { bias: Bias | "insuffic
 }
 
 export async function fetchConfluence(origin: string, pair: string): Promise<ConfluenceSummary> {
-  const meta = PAIR_META[pair];
-
+  // COT is read straight from the DB (getCotSignal) rather than via the HTTP
+  // API — the API is plan-gated per user, and this internal signal read must
+  // work regardless of who triggered the explain request.
   const [trendRes, cotRes] = await Promise.allSettled([
     fetch(`${origin}/api/trend-matrix`).then((r) => r.json() as Promise<{ matrix: Record<string, Record<TF, Bias>> } | null>),
-    fetch(`${origin}/api/cot/${pair}`).then((r) => r.json() as Promise<{ signal: CotSignal } | { error: string }>),
+    getCotSignal(pair),
   ]);
 
   let trendBias: ConfluenceSummary["trendBias"] = "insufficient_data";
@@ -60,18 +61,17 @@ export async function fetchConfluence(origin: string, pair: string): Promise<Con
   }
 
   let cotSignal: ConfluenceSummary["cotSignal"] = "no_data";
-  if (cotRes.status === "fulfilled" && "signal" in cotRes.value) {
-    cotSignal = cotRes.value.signal;
+  if (cotRes.status === "fulfilled" && cotRes.value) {
+    cotSignal = cotRes.value;
   }
 
   const cotBullish = cotSignal === "bull" || cotSignal === "strong_bull";
   const cotBearish = cotSignal === "bear" || cotSignal === "strong_bear";
-  // USD-base pairs (USDJPY/USDCHF/USDCAD) have their COT signal read on the
-  // USD leg, which moves inversely to the pair — invert before comparing to
-  // trend, mirroring the existing computeVerdict() convention in the pair hub.
-  const cotDirection = meta?.usdBase
-    ? (cotBearish ? "bullish" : cotBullish ? "bearish" : null)
-    : (cotBullish ? "bullish" : cotBearish ? "bearish" : null);
+  // COT nets are stored pair-framed (USD-base pairs inverted at write time in
+  // the sync/seed layer), so the signal already maps to pair direction 1:1 —
+  // the same convention computeVerdict() in the pair hub relies on. Never
+  // re-invert at read time.
+  const cotDirection = cotBullish ? "bullish" : cotBearish ? "bearish" : null;
 
   let agreement: ConfluenceSummary["agreement"] = "insufficient_data";
   if (trendBias !== "insufficient_data" && trendBias !== "ranging" && cotDirection) {

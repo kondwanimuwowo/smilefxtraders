@@ -34,10 +34,12 @@ const adapter = new PrismaPg({ connectionString: connString });
 const prisma  = new PrismaClient({ adapter });
 
 // ── Instruments ───────────────────────────────────────────────────────────────
-// usdBase: true = foreign currency futures (JPY, CHF, CAD).
-// Positioning is for the foreign currency, so large specs LONG = bearish on the
-// USD pair (e.g. long JPY = bearish USDJPY). We store net values as-is and the
-// UI labels the contract clearly.
+// usdBase: true = foreign currency futures (JPY, CHF, CAD). Positioning is for
+// the foreign currency, so large specs LONG = bearish on the USD pair (e.g.
+// long JPY = bearish USDJPY). Nets are stored PAIR-FRAMED: inverted at write
+// time for USD-base pairs so positive net = bullish on the displayed pair.
+// Long/short columns stay raw (contract framing). Consumers never re-invert.
+// Must match instruments.cotInverted in prisma/seed.ts and the sync routes.
 
 const INSTRUMENTS = [
   { pair: "EURUSD", label: "Euro FX",          code: "099741", usdBase: false },
@@ -101,13 +103,16 @@ async function fetchAllRows(code: string): Promise<SocrataRow[]> {
 function parseRow(r: SocrataRow, usdBase: boolean) {
   const n = (s: string) => parseInt(s ?? "0") || 0;
 
-  const rawLargeSpec  = n(r.noncomm_positions_long_all)  - n(r.noncomm_positions_short_all);
-  const rawCommercial = n(r.comm_positions_long_all)     - n(r.comm_positions_short_all);
-  const rawSmallSpec  = n(r.nonrept_positions_long_all)  - n(r.nonrept_positions_short_all);
+  const lsLong  = n(r.noncomm_positions_long_all);
+  const lsShort = n(r.noncomm_positions_short_all);
+  const cLong   = n(r.comm_positions_long_all);
+  const cShort  = n(r.comm_positions_short_all);
+  const ssLong  = n(r.nonrept_positions_long_all);
+  const ssShort = n(r.nonrept_positions_short_all);
 
   // For USD-base pairs (USDJPY, USDCHF, USDCAD), invert the net so that
   // "large specs net positive" = bullish on the USD pair, consistent with the
-  // directional framing used for all other pairs.
+  // directional framing used for all other pairs. Long/short stay raw.
   const sign = usdBase ? -1 : 1;
 
   // Append Z to force UTC — without it, Node.js parses as local time and dates
@@ -115,9 +120,9 @@ function parseRow(r: SocrataRow, usdBase: boolean) {
   const reportDate = new Date(r.report_date_as_yyyy_mm_dd.slice(0, 10) + "T00:00:00.000Z");
 
   return {
-    largeSpecNet:  sign * rawLargeSpec,
-    commercialNet: sign * rawCommercial,
-    smallSpecNet:  sign * rawSmallSpec,
+    largeSpecNet:  sign * (lsLong - lsShort),  largeSpecLong: lsLong,  largeSpecShort: lsShort,
+    commercialNet: sign * (cLong  - cShort),   commercialLong: cLong,  commercialShort: cShort,
+    smallSpecNet:  sign * (ssLong - ssShort),  smallSpecLong: ssLong,  smallSpecShort: ssShort,
     reportDate,
   };
 }
@@ -141,16 +146,12 @@ async function main() {
     const data = rows
       .map((r) => {
         try {
-          const { reportDate, largeSpecNet, commercialNet, smallSpecNet } = parseRow(r, inst.usdBase);
-          return { pair: inst.pair, reportDate, largeSpecNet, commercialNet, smallSpecNet };
+          return { pair: inst.pair, ...parseRow(r, inst.usdBase) };
         } catch {
           return null;
         }
       })
-      .filter(Boolean) as {
-        pair: string; reportDate: Date;
-        largeSpecNet: number; commercialNet: number; smallSpecNet: number;
-      }[];
+      .filter((d): d is NonNullable<typeof d> => d !== null);
 
     // Insert in chunks of 500 using createMany + skipDuplicates.
     // This is 10-50x faster than individual upserts and avoids saturating

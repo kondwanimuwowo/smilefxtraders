@@ -4,19 +4,10 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Icon, Skeleton } from "@/components/ui";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
+import { CotLockScreen } from "@/components/cot/CotLockScreen";
+import { SIGNAL_CFG } from "@/components/cot/signalCfg";
 import { cn } from "@/lib/cn";
-import type { CotSignal } from "@/app/api/cot/route";
-import type { CotDetailRow, CotDetailResponse } from "@/app/api/cot/[pair]/route";
-
-// ── Signal config ─────────────────────────────────────────────────────────────
-
-const SIGNAL_CFG: Record<CotSignal, { label: string; bgCls: string; textCls: string; icon: string }> = {
-  strong_bull: { label: "Strong Bullish Setup", bgCls: "bg-[rgba(48,232,223,0.12)]", textCls: "text-teal-bright",  icon: "trending_up"    },
-  bull:        { label: "Bullish Bias",          bgCls: "bg-[rgba(8,174,170,0.10)]",  textCls: "text-teal",         icon: "arrow_upward"   },
-  neutral:     { label: "Neutral / Mixed",       bgCls: "bg-[rgba(248,185,61,0.10)]", textCls: "text-gold",         icon: "remove"         },
-  bear:        { label: "Bearish Bias",          bgCls: "bg-[rgba(234,82,61,0.10)]",  textCls: "text-coral",        icon: "arrow_downward" },
-  strong_bear: { label: "Strong Bearish Setup",  bgCls: "bg-[rgba(255,89,66,0.12)]",  textCls: "text-coral-bright", icon: "trending_down"  },
-};
+import type { CotDetailRow, CotDetailResponse } from "@/lib/cot/types";
 
 // ── Heat map ──────────────────────────────────────────────────────────────────
 // Per-cell background intensity computed from live row data — inherently
@@ -82,11 +73,13 @@ export default function CotPairPage() {
   const [total,       setTotal]       = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error,       setError]       = useState(false);
+  const [locked,      setLocked]      = useState(false);
 
   useEffect(() => {
     setLoading(true);
     fetch(`/api/cot/${pair}?offset=0`)
       .then((r) => {
+        if (r.status === 403) throw new Error("locked");
         if (!r.ok) throw new Error("not found");
         return r.json() as Promise<CotDetailResponse>;
       })
@@ -97,7 +90,11 @@ export default function CotPairPage() {
         setOffset(d.rows.length);
         setLoading(false);
       })
-      .catch(() => { setError(true); setLoading(false); });
+      .catch((e: Error) => {
+        if (e.message === "locked") setLocked(true);
+        else setError(true);
+        setLoading(false);
+      });
   }, [pair]);
 
   function loadMore() {
@@ -156,6 +153,8 @@ export default function CotPairPage() {
 
   const sig = data ? SIGNAL_CFG[data.signal] : SIGNAL_CFG.neutral;
   const [showSmallSpec, setShowSmallSpec] = useState(false);
+
+  if (locked) return <CotLockScreen />;
 
   return (
     <div className="view">
@@ -264,6 +263,12 @@ export default function CotPairPage() {
               <span className="inline-block w-3 h-3 rounded-sm bg-track" />
               Near zero
             </span>
+            {data?.usdBase && (
+              <span className="flex items-center gap-1.5 opacity-80">
+                <Icon name="swap_horiz" size={12} />
+                Long/Short = foreign-currency contract · Net framed for {pair.toUpperCase()}
+              </span>
+            )}
             <span className="flex items-center gap-1.5 ml-auto opacity-65">
               <Icon name="info" size={12} />
               Index = position within displayed range

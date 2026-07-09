@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import type { CotSignal } from "@/app/api/cot/route";
+import type { CotSignal } from "@/lib/cot/types";
 
 // Minimal row type — satisfied by both CotWeek and CotDetailRow
 type CotRow = { largeSpecNet: number; date: string };

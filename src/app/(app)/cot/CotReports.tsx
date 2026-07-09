@@ -6,25 +6,9 @@ import Link from "next/link";
 import { Panel, PanelHead, Sparkline, Skeleton, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
-import type { CotEntry, CotSignal } from "@/app/api/cot/route";
-
-// ── Signal config ─────────────────────────────────────────────────────────────
-
-interface SignalCfg {
-  label:      string;
-  shortLabel: string;
-  textCls:    string;
-  bgCls:      string;
-  icon:       string;
-}
-
-const SIGNAL_CFG: Record<CotSignal, SignalCfg> = {
-  strong_bull: { label: "Strong Bullish Setup",  shortLabel: "S.Bull",  textCls: "text-teal-bright",  bgCls: "bg-[rgba(48,232,223,0.12)]", icon: "trending_up"   },
-  bull:        { label: "Bullish Bias",           shortLabel: "Bull",    textCls: "text-teal",         bgCls: "bg-[rgba(8,174,170,0.10)]",  icon: "arrow_upward"  },
-  neutral:     { label: "Neutral / Mixed",        shortLabel: "Neutral", textCls: "text-ink-dim",      bgCls: "bg-panel-2",                 icon: "remove"        },
-  bear:        { label: "Bearish Bias",           shortLabel: "Bear",    textCls: "text-coral",        bgCls: "bg-[rgba(234,82,61,0.10)]",  icon: "arrow_downward"},
-  strong_bear: { label: "Strong Bearish Setup",   shortLabel: "S.Bear",  textCls: "text-coral-bright",  bgCls: "bg-[rgba(255,89,66,0.12)]", icon: "trending_down" },
-};
+import { CotLockScreen } from "@/components/cot/CotLockScreen";
+import { SIGNAL_CFG } from "@/components/cot/signalCfg";
+import type { CotEntry } from "@/lib/cot/types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -214,7 +198,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
         <div>
           <div className="font-display font-bold text-[15px] text-ink-strong">{entry.label}</div>
           <div className="text-[12px] mt-0.5 text-ink-dim">
-            COT data not yet available. Check back after the next Tuesday sync.
+            COT data not yet available. Check back after Friday&apos;s CFTC release.
           </div>
         </div>
       </div>
@@ -394,7 +378,7 @@ function SummaryStrip({ entries }: { entries: CotEntry[] }) {
         return (
           <div
             key={e.pair}
-            className={cn("flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[12px] font-semibold border", sig.bgCls, sig.textCls, sig.bgCls.replace("bg-", "border-"))}
+            className={cn("flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[12px] font-semibold border", sig.bgCls, sig.textCls, sig.borderCls)}
           >
             <Icon name={sig.icon} size={13} />
             <span className="text-ink-strong">{e.pair}</span>
@@ -459,7 +443,7 @@ export function CotReports() {
       .catch(() => { setLoading(false); setRetrying(false); });
   }
 
-  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); }, []);
 
   function retry() {
     setRetrying(true);
@@ -483,26 +467,7 @@ export function CotReports() {
   const lastDate  = entries.find((e) => e.totalWeeks > 0)?.reportDate ?? "—";
   const totalHistory = entries.reduce((s, e) => s + e.totalWeeks, 0);
 
-  if (locked) {
-    return (
-      <div className="view flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="rounded-3xl px-10 py-12 text-center max-w-md bg-panel border border-line">
-          <Icon name="lock" size={36} fill className="text-gold mb-4" />
-          <h2 className="font-display font-bold text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">COT Reports</h2>
-          <p className="text-[13.5px] leading-relaxed mb-6 text-ink-dim">
-            CFTC Commitments of Traders data is available on the <strong className="text-ink-strong">Pro Trader</strong> and <strong className="text-ink-strong">Funded Track</strong> plans. Understand institutional positioning to align your bias with smart money.
-          </p>
-          <a
-            href="/membership"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-[13.5px] bg-gold text-navy-deep"
-          >
-            <Icon name="workspace_premium" size={16} fill />
-            Upgrade to Pro
-          </a>
-        </div>
-      </div>
-    );
-  }
+  if (locked) return <CotLockScreen />;
 
   return (
     <div className="view">
@@ -514,7 +479,7 @@ export function CotReports() {
             COT Reports
           </h1>
           <p className="text-[13px] mt-0.5 text-ink-dim">
-            CFTC Commitments of Traders · Legacy Futures-Only · Updated weekly (Tuesdays ~15:30 EST)
+            CFTC Commitments of Traders · Legacy Futures-Only · As of Tuesday, published Fridays ~15:30 ET
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -538,7 +503,7 @@ export function CotReports() {
               ? `${lastDate} · ${(totalHistory / 52).toFixed(0)}yr avg history`
               : hasData
               ? `${loaded}/${entries.length} loaded · ${lastDate}`
-              : "Run seed-cot to load data"}
+              : "No COT data yet"}
           </div>
 
           {/* Refresh button */}
@@ -561,7 +526,7 @@ export function CotReports() {
         <Icon name="school" size={15} fill className="text-gold shrink-0 mt-px" />
         <span>
           <strong className="text-ink-strong">Signal</strong> is driven by the Large Spec net position: net long = bullish bias, net short = bearish bias, confirmed by weekly momentum direction.{" "}
-          <strong className="text-ink-strong">COT Index (0–100)</strong> shows where that positioning sits within its own 52-week range. Think of it as a cycle gauge, not the direction itself. Near 100 = historically max long (watch for exhaustion). Near 0 = historically max short (watch for reversal).{" "}
+          <strong className="text-ink-strong">COT Index (0–100)</strong> shows where that positioning sits within its own 3-year range. Think of it as a cycle gauge, not the direction itself. Near 100 = historically max long (watch for exhaustion). Near 0 = historically max short (watch for reversal).{" "}
           <strong className="text-ink-strong">Divergence</strong> between large specs and commercials adds conviction: when both groups confirm the same direction, that&apos;s your SMC HTF bias.
         </span>
       </div>
@@ -602,13 +567,13 @@ export function CotReports() {
       {/* ── Educational panel ── */}
       <Panel className="mt-6">
         <PanelHead title="How to use COT data in SMC trading" icon="school" />
-        <div className="grid gap-4 text-[12.5px] leading-relaxed grid-cols-3 text-ink-mid">
+        <div className="grid gap-4 text-[12.5px] leading-relaxed grid-cols-1 md:grid-cols-3 text-ink-mid">
           <div>
             <div className="flex items-center gap-1.5 mb-2">
               <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">1</div>
               <span className="font-semibold text-ink-strong">Identify the Bias</span>
             </div>
-            Check whether Large Speculators are <strong>net long</strong> (positive net = bullish bias) or <strong>net short</strong> (negative net = bearish bias). Then check the WoW direction: are they adding or reducing? Adding to a net long position is the strongest bullish confirmation. The COT Index shows how extreme that positioning is within the past 52 weeks.
+            Check whether Large Speculators are <strong>net long</strong> (positive net = bullish bias) or <strong>net short</strong> (negative net = bearish bias). Then check the WoW direction: are they adding or reducing? Adding to a net long position is the strongest bullish confirmation. The COT Index shows how extreme that positioning is within the past 3 years.
           </div>
           <div>
             <div className="flex items-center gap-1.5 mb-2">
@@ -640,8 +605,8 @@ export function CotReports() {
         <div className="mt-4 rounded-xl px-4 py-3 text-[12px] leading-relaxed bg-panel-2 border border-line text-ink-dim">
           <strong className="text-ink-strong">Data source:</strong>{" "}
           {hasData
-            ? `Supabase DB, seeded from CFTC Legacy Futures-Only report (publicreporting.cftc.gov/resource/6dca-aqww.json). ${totalHistory.toLocaleString()} total weeks across ${entries.length} instruments. Synced weekly via /api/cot/sync after CFTC publishes Tuesdays ~15:30 EST. No API key required.`
-            : "No data in DB yet. Run: npx tsx prisma/seed-cot.ts"}
+            ? `CFTC Legacy Futures-Only report (publicreporting.cftc.gov). ${totalHistory.toLocaleString()} total weeks across ${entries.length} instruments. Synced automatically after each release — CFTC publishes Tuesday's data on Fridays ~15:30 ET.`
+            : "No data loaded yet — data syncs automatically after each CFTC release (Fridays ~15:30 ET)."}
         </div>
       </Panel>
 

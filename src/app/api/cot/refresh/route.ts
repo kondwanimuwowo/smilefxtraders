@@ -1,100 +1,52 @@
 /**
  * /api/cot/refresh
  *
- * Manual sync — same logic as /api/cot/sync but protected by Supabase user
- * auth instead of CRON_SECRET. Any logged-in user can trigger it.
- * Called by the Refresh button on the COT page.
+ * Manual sync — same logic as /api/cot/sync but protected by user plan
+ * instead of CRON_SECRET. Called by the Refresh button on the COT page.
+ *
+ * Skips the CFTC round-trip entirely when the DB already holds the most
+ * recent published report, so the button can't be used to hammer the CFTC
+ * API or the DB with redundant upserts.
  */
 
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { getInstruments } from "@/lib/server/getInstruments";
+import { requirePaidPlan } from "@/lib/plan-guard";
+import { syncAllInstruments } from "@/lib/cot/sync";
 
-const CFTC_BASE = "https://publicreporting.cftc.gov/resource/6dca-aqww.json";
-
-interface SocrataRow {
-  report_date_as_yyyy_mm_dd:   string;
-  noncomm_positions_long_all:  string;
-  noncomm_positions_short_all: string;
-  comm_positions_long_all:     string;
-  comm_positions_short_all:    string;
-  nonrept_positions_long_all:  string;
-  nonrept_positions_short_all: string;
-}
-
-function n(s: string) { return parseInt(s ?? "0") || 0; }
-
-async function syncInstrument(code: string, pair: string, usdBase: boolean, limit = 156) {
-  const url = new URL(CFTC_BASE);
-  url.searchParams.set("$where",  `cftc_contract_market_code='${code}'`);
-  url.searchParams.set("$order",  "report_date_as_yyyy_mm_dd DESC");
-  url.searchParams.set("$limit",  String(limit));
-  url.searchParams.set(
-    "$select",
-    "report_date_as_yyyy_mm_dd,noncomm_positions_long_all,noncomm_positions_short_all,comm_positions_long_all,comm_positions_short_all,nonrept_positions_long_all,nonrept_positions_short_all"
-  );
-
-  const ac  = new AbortController();
-  const tid = setTimeout(() => ac.abort(), 30_000);
-  const res = await fetch(url.toString(), { signal: ac.signal });
-  clearTimeout(tid);
-
-  if (!res.ok) throw new Error(`CFTC ${res.status} for ${pair}`);
-  const rows = (await res.json()) as SocrataRow[];
-
-  const sign = usdBase ? -1 : 1;
-
-  await Promise.all(
-    rows.map((r) => {
-      const reportDate    = new Date(r.report_date_as_yyyy_mm_dd.slice(0, 10) + "T00:00:00.000Z");
-      const lsLong        = n(r.noncomm_positions_long_all);
-      const lsShort       = n(r.noncomm_positions_short_all);
-      const cLong         = n(r.comm_positions_long_all);
-      const cShort        = n(r.comm_positions_short_all);
-      const ssLong        = n(r.nonrept_positions_long_all);
-      const ssShort       = n(r.nonrept_positions_short_all);
-      const largeSpecNet  = sign * (lsLong  - lsShort);
-      const commercialNet = sign * (cLong   - cShort);
-      const smallSpecNet  = sign * (ssLong  - ssShort);
-
-      const fields = {
-        largeSpecNet,  largeSpecLong: lsLong,  largeSpecShort: lsShort,
-        commercialNet, commercialLong: cLong,  commercialShort: cShort,
-        smallSpecNet,  smallSpecLong: ssLong,  smallSpecShort: ssShort,
-      };
-
-      return prisma.cotReport.upsert({
-        where:  { pair_reportDate: { pair, reportDate } },
-        update: fields,
-        create: { pair, reportDate, ...fields },
-      });
-    })
-  );
-
-  return rows.length;
+/**
+ * The report week (a Tuesday) we expect to be available by now.
+ * CFTC publishes Tuesday data on Friday ~15:30 ET; we treat it as expected
+ * from Saturday 00:00 UTC (comfortably past the release in either DST phase).
+ */
+function latestExpectedReportDate(now = new Date()): Date {
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  // Walk back to the most recent Tuesday (UTC day 2)
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() - 2 + 7) % 7));
+  // If that Tuesday's Saturday-publication moment hasn't passed, use the week before
+  const published = new Date(d);
+  published.setUTCDate(published.getUTCDate() + 4); // Tuesday + 4 = Saturday 00:00 UTC
+  if (now < published) d.setUTCDate(d.getUTCDate() - 7);
+  return d;
 }
 
 export async function POST() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const denied = await requirePaidPlan("COT refresh");
+  if (denied) return denied;
+
+  const latest = await prisma.cotReport.aggregate({ _max: { reportDate: true } });
+  const expected = latestExpectedReportDate();
+  if (latest._max.reportDate && latest._max.reportDate >= expected) {
+    return NextResponse.json({
+      ok: true,
+      skipped: true,
+      reason: `Data is current (latest report ${latest._max.reportDate.toISOString().slice(0, 10)}).`,
+    });
+  }
 
   const instruments = await getInstruments();
-  const cotInstruments = instruments.filter((i) => i.cotCode != null);
-
-  const results: Record<string, string> = {};
-
-  await Promise.allSettled(
-    cotInstruments.map(async (inst) => {
-      try {
-        const count = await syncInstrument(inst.cotCode!, inst.symbol, !inst.cotInverted);
-        results[inst.symbol] = `${count} rows upserted`;
-      } catch (e) {
-        results[inst.symbol] = `error: ${e instanceof Error ? e.message : String(e)}`;
-      }
-    })
-  );
+  const results = await syncAllInstruments(instruments, 8);
 
   return NextResponse.json({ ok: true, synced: new Date().toISOString(), results });
 }

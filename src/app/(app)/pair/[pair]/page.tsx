@@ -8,8 +8,8 @@ import { FundamentalsPanel } from "@/components/macro/FundamentalsPanel";
 import { NewsFeed } from "@/components/macro/NewsFeed";
 import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
 import { cn } from "@/lib/cn";
-import type { CotSignal } from "@/app/api/cot/route";
-import type { CotDetailResponse, CotDetailRow } from "@/app/api/cot/[pair]/route";
+import type { CotSignal, CotDetailResponse, CotDetailRow } from "@/lib/cot/types";
+import { SIGNAL_CFG } from "@/components/cot/signalCfg";
 import type { CalEvent } from "@/app/api/calendar/route";
 import type { PriceTick } from "@/app/api/prices/route";
 import { PAIR_META } from "@/lib/pairs";
@@ -24,20 +24,6 @@ type TF = typeof TFS[number];
 // TrendMatrix.tsx's own DEFAULT_ROW exactly, so a pair absent from the last
 // publish renders identically on both pages instead of silently disagreeing.
 const DEFAULT_ROW: Record<TF, Bias> = { MN: "ranging", W: "ranging", D: "ranging", H4: "ranging", H1: "ranging" };
-
-// ── Signal config ─────────────────────────────────────────────────────────────
-
-interface SigCfg { label: string; textCls: string; bgCls: string; borderCls: string; icon: string; strokeColor: string }
-
-// strokeColor is a raw var(--x) string kept solely for the Ring/Sparkline SVG
-// stroke prop below (a component prop, not a className - can't be a Tailwind class).
-const SIGNAL_CFG: Record<CotSignal, SigCfg> = {
-  strong_bull: { label: "Strong Bullish Setup", textCls: "text-teal-bright",  bgCls: "bg-[rgba(48,232,223,0.10)]", borderCls: "border-[rgba(48,232,223,0.22)]", icon: "trending_up",    strokeColor: "var(--teal-bright)"  },
-  bull:        { label: "Bullish Bias",          textCls: "text-teal",         bgCls: "bg-[rgba(8,174,170,0.08)]",  borderCls: "border-[rgba(8,174,170,0.20)]",  icon: "arrow_upward",   strokeColor: "var(--teal)"         },
-  neutral:     { label: "Neutral / Mixed",       textCls: "text-gold",         bgCls: "bg-[rgba(248,185,61,0.08)]", borderCls: "border-[rgba(248,185,61,0.20)]", icon: "remove",         strokeColor: "var(--gold)"         },
-  bear:        { label: "Bearish Bias",          textCls: "text-coral",        bgCls: "bg-[rgba(234,82,61,0.08)]",  borderCls: "border-[rgba(234,82,61,0.20)]",  icon: "arrow_downward", strokeColor: "var(--coral)"        },
-  strong_bear: { label: "Strong Bearish Setup",  textCls: "text-coral-bright", bgCls: "bg-[rgba(255,89,66,0.10)]",  borderCls: "border-[rgba(255,89,66,0.22)]",  icon: "trending_down",  strokeColor: "var(--coral-bright)" },
-};
 
 // ── Bias verdict ──────────────────────────────────────────────────────────────
 
@@ -208,8 +194,8 @@ export default function PairOverviewPage() {
 
   useEffect(() => {
     Promise.allSettled([
-      fetch(`/api/cot/${P}`).then((r) => r.json() as Promise<CotDetailResponse>),
-      fetch(`/api/cot/DXY`).then((r)  => r.json() as Promise<CotDetailResponse>),
+      fetch(`/api/cot/${P}`).then((r) => { if (!r.ok) throw new Error("cot unavailable"); return r.json() as Promise<CotDetailResponse>; }),
+      fetch(`/api/cot/DXY`).then((r)  => { if (!r.ok) throw new Error("cot unavailable"); return r.json() as Promise<CotDetailResponse>; }),
       fetch(`/api/calendar`).then((r) => r.json() as Promise<CalEvent[]>),
       fetch(`/api/prices`).then((r)   => r.json() as Promise<PriceTick[]>),
       fetch(`/api/trend-matrix`).then((r) => r.json() as Promise<{ matrix: Record<string, Record<TF, Bias>> } | null>),
@@ -542,7 +528,7 @@ export default function PairOverviewPage() {
                     </div>
                   </Ring>
                   <div className="flex-1">
-                    <div className="text-[10.5px] mb-1.5 text-ink-dim">COT Index · 52-week range</div>
+                    <div className="text-[10.5px] mb-1.5 text-ink-dim">COT Index · 3-year range</div>
                     <div className="flex items-baseline gap-1.5 mb-1">
                       <span className={cn("font-display font-bold tabular-nums text-[20px] tracking-[-0.02em]", cotData.wowChange >= 0 ? "text-teal-bright" : "text-coral-bright")}>
                         {fmtNet(cotData.wowChange)}

@@ -1,115 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createClient } from "@/lib/supabase/server";
 import { getInstruments } from "@/lib/server/getInstruments";
+import { requirePaidPlan } from "@/lib/plan-guard";
+import { computeCotStats, EMPTY_COT_STATS, INDEX_WEEKS } from "@/lib/cot/signal";
+import type { CotEntry, CotWeek } from "@/lib/cot/types";
 
-// ── Types exported for the client component ────────────────────────────────────
-
-export interface CotWeek {
-  date:          string;
-  largeSpecNet:  number;
-  commercialNet: number;
-  smallSpecNet:  number;
-}
-
-export type CotSignal = "strong_bull" | "bull" | "neutral" | "bear" | "strong_bear";
-
-export interface CotEntry {
-  pair:           string;
-  label:          string;
-  usdBase:        boolean; // true = USDJPY/USDCHF/USDCAD — positions inverted for USD-quote framing
-  reportDate:     string;
-  history:        CotWeek[];  // newest first, up to 8 weeks (display); full history in DB
-  cotIndex:       number;     // 0–100 (large spec percentile in 52w range)
-  cotIndexC:      number;     // 0–100 (commercial percentile in 52w range)
-  signal:         CotSignal;
-  wowChange:      number;
-  divergenceType: "aligned" | "mixed" | "counter";
-  totalWeeks:     number;     // total history available in DB
-}
-
-// ── Compute CotEntry from DB rows + 52w window ────────────────────────────────
-
-interface Meta { min52w: number; max52w: number; minC52w: number; maxC52w: number }
-
-function computeEntry(
-  pair: string,
-  label: string,
-  usdBase: boolean,
-  history8: CotWeek[],   // 8 most recent weeks (newest first)
-  range52:  CotWeek[],   // up to 52 weeks for index calculation
-  meta: Meta,
-  totalWeeks: number,
-): CotEntry {
-  const current = history8[0];
-  const prev    = history8[1] ?? history8[0];
-
-  // Compute 52w range from actual DB data when available
-  const allLS = range52.map((w) => w.largeSpecNet);
-  const allC  = range52.map((w) => w.commercialNet);
-  const min52w  = allLS.length >= 10 ? Math.min(...allLS) : meta.min52w;
-  const max52w  = allLS.length >= 10 ? Math.max(...allLS) : meta.max52w;
-  const minC52w = allC.length  >= 10 ? Math.min(...allC)  : meta.minC52w;
-  const maxC52w = allC.length  >= 10 ? Math.max(...allC)  : meta.maxC52w;
-
-  const rangeLS = max52w - min52w || 1;
-  const rangeC  = maxC52w - minC52w || 1;
-
-  const cotIndex  = Math.round(Math.max(0, Math.min(100, ((current.largeSpecNet  - min52w)  / rangeLS) * 100)));
-  const cotIndexC = Math.round(Math.max(0, Math.min(100, ((current.commercialNet - minC52w) / rangeC)  * 100)));
-
-  const wowChange      = current.largeSpecNet - prev.largeSpecNet;
-  const lsIncreasing   = wowChange > 0;
-  // Commercials go more short (net decreases) when they're hedging against a rising market.
-  // "cMoreShort = true" is the bullish confirmation for non-USD-base pairs.
-  const cMoreShort     = current.commercialNet < prev.commercialNet;
-  const netLong        = current.largeSpecNet > 0;
-
-  // Scale the "mixed" threshold to open interest proxy (avg absolute net across 3 groups)
-  const avgAbsNet = (Math.abs(current.largeSpecNet) + Math.abs(current.commercialNet) + Math.abs(current.smallSpecNet)) / 3;
-  const mixedThreshold = Math.max(500, avgAbsNet * 0.01); // 1% of avg position size, min 500
-
-  let divergenceType: CotEntry["divergenceType"];
-  if (Math.abs(wowChange) < mixedThreshold) divergenceType = "mixed";
-  else if (lsIncreasing === cMoreShort)     divergenceType = "aligned";  // both confirming same direction
-  else                                      divergenceType = "counter";
-
-  // Signal is based on absolute net direction (long/short) + weekly momentum.
-  // COT Index tells you how EXTREME the positioning is within the 52-week range,
-  // not whether to be bullish or bearish — that's determined by net direction.
-  let signal: CotSignal;
-  if      (netLong  && lsIncreasing  && cotIndex >= 65) signal = "strong_bull";
-  else if (netLong  && lsIncreasing)                    signal = "bull";
-  else if (netLong  && !lsIncreasing && cotIndex >= 30) signal = "neutral";  // trimming from moderate/high levels
-  else if (netLong  && !lsIncreasing)                   signal = "bear";     // aggressive unwinding at extreme low
-  else if (!netLong && !lsIncreasing && cotIndex <= 35) signal = "strong_bear";
-  else if (!netLong && !lsIncreasing)                   signal = "bear";
-  else if (!netLong && lsIncreasing  && cotIndex <= 30) signal = "neutral";  // covering from extreme short
-  else if (!netLong && lsIncreasing)                    signal = "bear";     // still net short, just covering
-  else                                                  signal = "neutral";
-
-  const reportDate = new Date(current.date + "T12:00:00Z").toLocaleDateString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-  });
-
-  return { pair, label, usdBase, reportDate, history: history8, cotIndex, cotIndexC, signal, wowChange, divergenceType, totalWeeks };
-}
-
-// ── Route handler ─────────────────────────────────────────────────────────────
-
-// Revalidate every 30 minutes — the DB is the source of truth, updates weekly
-export const revalidate = 1800;
-
-export async function GET(_req: NextRequest) {
+export async function GET() {
   // Plan gate — COT data requires PRO or FUNDED
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id }, select: { plan: true } }).catch(() => null);
-    if (dbUser?.plan === "FREE") {
-      return NextResponse.json({ error: "COT Reports require a Pro or Funded Track plan.", upgrade: true }, { status: 403 });
-    }
-  }
+  const denied = await requirePaidPlan("COT Reports");
+  if (denied) return denied;
 
   // Load instrument metadata from DB
   const instruments = await getInstruments();
@@ -118,65 +17,63 @@ export async function GET(_req: NextRequest) {
     .map((i) => ({
       pair:    i.symbol,
       label:   i.label,
-      usdBase: !i.cotInverted,
-      min52w:  i.cotMin52w  ?? 0,
-      max52w:  i.cotMax52w  ?? 0,
-      minC52w: i.cotMinC52w ?? 0,
-      maxC52w: i.cotMaxC52w ?? 0,
+      usdBase: i.cotInverted,
+      fallback: {
+        min:  i.cotMin52w  ?? 0,
+        max:  i.cotMax52w  ?? 0,
+        minC: i.cotMinC52w ?? 0,
+        maxC: i.cotMaxC52w ?? 0,
+      },
     }));
 
-  // Fetch 52 weeks for each instrument from Supabase in parallel
-  const dbResults = await Promise.allSettled(
-    cotInstruments.map((inst) =>
-      prisma.cotReport.findMany({
-        where:   { pair: inst.pair },
-        orderBy: { reportDate: "desc" },
-        take:    52,
-        select:  { reportDate: true, largeSpecNet: true, commercialNet: true, smallSpecNet: true },
-      })
-    )
-  );
+  // Fetch the index window for each instrument + all totals in one groupBy
+  const [dbResults, totals] = await Promise.all([
+    Promise.allSettled(
+      cotInstruments.map((inst) =>
+        prisma.cotReport.findMany({
+          where:   { pair: inst.pair },
+          orderBy: { reportDate: "desc" },
+          take:    INDEX_WEEKS,
+          select:  { reportDate: true, largeSpecNet: true, commercialNet: true, smallSpecNet: true },
+        })
+      )
+    ),
+    prisma.cotReport.groupBy({ by: ["pair"], _count: { pair: true } }),
+  ]);
 
-  // Count total available history per instrument
-  const totalCounts = await Promise.allSettled(
-    cotInstruments.map((inst) => prisma.cotReport.count({ where: { pair: inst.pair } }))
-  );
+  const totalByPair = new Map(totals.map((t) => [t.pair, t._count.pair]));
 
   const entries: CotEntry[] = cotInstruments.map((inst, i) => {
-    const result     = dbResults[i];
-    const countResult = totalCounts[i];
-    const rows = result.status === "fulfilled" ? result.value : [];
-    const totalWeeks = countResult.status === "fulfilled" ? countResult.value : rows.length;
+    const result = dbResults[i];
+    const rows   = result.status === "fulfilled" ? result.value : [];
+    const totalWeeks = totalByPair.get(inst.pair) ?? rows.length;
 
     if (rows.length >= 2) {
-      const history8: CotWeek[] = rows.slice(0, 8).map((r) => ({
+      const window: CotWeek[] = rows.map((r) => ({
         date:          r.reportDate.toISOString().split("T")[0],
         largeSpecNet:  r.largeSpecNet,
         commercialNet: r.commercialNet,
         smallSpecNet:  r.smallSpecNet,
       }));
-      const range52: CotWeek[] = rows.map((r) => ({
-        date:          r.reportDate.toISOString().split("T")[0],
-        largeSpecNet:  r.largeSpecNet,
-        commercialNet: r.commercialNet,
-        smallSpecNet:  r.smallSpecNet,
-      }));
-      return computeEntry(inst.pair, inst.label, inst.usdBase, history8, range52, inst, totalWeeks);
+      const stats = computeCotStats(window, inst.fallback);
+      return {
+        pair:    inst.pair,
+        label:   inst.label,
+        usdBase: inst.usdBase,
+        history: window.slice(0, 8),
+        totalWeeks,
+        ...stats,
+      };
     }
 
     // DB is empty for this instrument
     return {
-      pair:           inst.pair,
-      label:          inst.label,
-      usdBase:        inst.usdBase,
-      reportDate:     "—",
-      history:        [],
-      cotIndex:       50,
-      cotIndexC:      50,
-      signal:         "neutral" as CotSignal,
-      wowChange:      0,
-      divergenceType: "mixed" as const,
-      totalWeeks:     0,
+      pair:       inst.pair,
+      label:      inst.label,
+      usdBase:    inst.usdBase,
+      history:    [],
+      totalWeeks: 0,
+      ...EMPTY_COT_STATS,
     };
   });
 
