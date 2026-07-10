@@ -153,6 +153,7 @@ export const ICON_REGISTRY: Record<string, IconComponent> = {
   near_me: MapPinIcon, // substitute — no "my location/GPS" icon in either library
   sync: ArrowPathIcon,
   sync_alt: ArrowsRightLeftIcon,
+  swap_horiz: ArrowsRightLeftIcon,
   autorenew: ArrowPathIcon,
   refresh: ArrowPathIcon,
   progress_activity: ArrowPathIcon,
