@@ -11,10 +11,14 @@ export type CotSignal = "strong_bull" | "bull" | "neutral" | "bear" | "strong_be
 export type CotDivergence = "aligned" | "mixed" | "counter";
 
 export interface CotWeek {
-  date:          string;
-  largeSpecNet:  number;
-  commercialNet: number;
-  smallSpecNet:  number;
+  date:           string;
+  largeSpecNet:   number;
+  commercialNet:  number;
+  smallSpecNet:   number;
+  // Gross large-spec sides in RAW contract framing (see convention above) —
+  // feeds the commentary engine's 6-week positioning-pattern analysis
+  largeSpecLong:  number | null;
+  largeSpecShort: number | null;
 }
 
 export interface CotEntry {

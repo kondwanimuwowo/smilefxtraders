@@ -77,6 +77,8 @@ function DivergencePanel({ entry }: { entry: CotEntry }) {
     signal:         entry.signal,
     largeSpecNet:   history[0].largeSpecNet,
     openInterest:   entry.openInterest,
+    grossHistory:   history.slice(0, 6).map((w) => ({ long: w.largeSpecLong, short: w.largeSpecShort })),
+    inverted:       entry.usdBase,
   });
   const cls = TONE_CLS[commentary.tone];
 

@@ -34,7 +34,11 @@ export async function GET() {
           where:   { pair: inst.pair },
           orderBy: { reportDate: "desc" },
           take:    INDEX_WEEKS,
-          select:  { reportDate: true, largeSpecNet: true, commercialNet: true, smallSpecNet: true, openInterest: true },
+          select:  {
+            reportDate:    true,
+            largeSpecNet:  true, largeSpecLong: true, largeSpecShort: true,
+            commercialNet: true, smallSpecNet:  true, openInterest:   true,
+          },
         })
       )
     ),
@@ -57,10 +61,12 @@ export async function GET() {
 
     if (rows.length >= 2) {
       const window: CotWeek[] = rows.map((r) => ({
-        date:          r.reportDate.toISOString().split("T")[0],
-        largeSpecNet:  r.largeSpecNet,
-        commercialNet: r.commercialNet,
-        smallSpecNet:  r.smallSpecNet,
+        date:           r.reportDate.toISOString().split("T")[0],
+        largeSpecNet:   r.largeSpecNet,
+        commercialNet:  r.commercialNet,
+        smallSpecNet:   r.smallSpecNet,
+        largeSpecLong:  r.largeSpecLong,
+        largeSpecShort: r.largeSpecShort,
       }));
       const stats = computeCotStats(window, inst.fallback);
 

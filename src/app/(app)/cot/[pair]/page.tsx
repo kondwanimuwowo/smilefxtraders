@@ -178,6 +178,8 @@ export default function CotPairPage() {
       signal:         data.signal,
       largeSpecNet:   rows[0].largeSpecNet,
       openInterest:   rows[0].openInterest,
+      grossHistory:   rows.slice(0, 6).map((r) => ({ long: r.largeSpecLong, short: r.largeSpecShort })),
+      inverted:       data.usdBase,
     });
   }, [data, rows]);
 
