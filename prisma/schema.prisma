@@ -190,6 +190,7 @@ enum NotificationType {
   COURSE_PUBLISHED
   SYSTEM
   MACRO_BIAS_FLIP
+  COT_SIGNAL
 }
 
 // ─── Price Alerts ────────────────────────────────────────────────────────────
@@ -347,6 +348,7 @@ model CotReport {
   smallSpecLong   Int?     @map("small_spec_long")
   smallSpecShort  Int?     @map("small_spec_short")
   smallSpecNet    Int      @map("small_spec_net")
+  openInterest    Int?     @map("open_interest") // total contracts outstanding (unsigned, contract framing)
   createdAt       DateTime @default(now()) @map("created_at")
 
   @@unique([pair, reportDate])

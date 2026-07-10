@@ -14,6 +14,7 @@ import { prisma } from "@/lib/prisma";
 import { getInstruments } from "@/lib/server/getInstruments";
 import { requirePaidPlan } from "@/lib/plan-guard";
 import { syncAllInstruments } from "@/lib/cot/sync";
+import { snapshotCotSignals, notifyCotSignalChanges } from "@/lib/cot/notify";
 
 /**
  * The report week (a Tuesday) we expect to be available by now.
@@ -46,7 +47,11 @@ export async function POST() {
   }
 
   const instruments = await getInstruments();
+  const cotPairs    = instruments.filter((i) => i.cotCode != null).map((i) => i.symbol);
+
+  const before  = await snapshotCotSignals(cotPairs);
   const results = await syncAllInstruments(instruments, 8);
+  await notifyCotSignalChanges(before); // no-op unless a new report landed
 
   return NextResponse.json({ ok: true, synced: new Date().toISOString(), results });
 }

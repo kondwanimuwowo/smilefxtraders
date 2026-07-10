@@ -34,7 +34,7 @@ export async function GET() {
           where:   { pair: inst.pair },
           orderBy: { reportDate: "desc" },
           take:    INDEX_WEEKS,
-          select:  { reportDate: true, largeSpecNet: true, commercialNet: true, smallSpecNet: true },
+          select:  { reportDate: true, largeSpecNet: true, commercialNet: true, smallSpecNet: true, openInterest: true },
         })
       )
     ),
@@ -57,22 +57,24 @@ export async function GET() {
       }));
       const stats = computeCotStats(window, inst.fallback);
       return {
-        pair:    inst.pair,
-        label:   inst.label,
-        usdBase: inst.usdBase,
-        history: window.slice(0, 8),
+        pair:         inst.pair,
+        label:        inst.label,
+        usdBase:      inst.usdBase,
+        history:      window.slice(0, 8),
         totalWeeks,
+        openInterest: rows[0].openInterest,
         ...stats,
       };
     }
 
     // DB is empty for this instrument
     return {
-      pair:       inst.pair,
-      label:      inst.label,
-      usdBase:    inst.usdBase,
-      history:    [],
-      totalWeeks: 0,
+      pair:         inst.pair,
+      label:        inst.label,
+      usdBase:      inst.usdBase,
+      history:      [],
+      totalWeeks:   0,
+      openInterest: null,
       ...EMPTY_COT_STATS,
     };
   });

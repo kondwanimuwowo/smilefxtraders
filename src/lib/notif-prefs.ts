@@ -9,6 +9,7 @@ export interface NotifPrefs {
   emailAlerts:    boolean; // email: instructor alerts
   academyNotif:   boolean; // in-app: academy milestones
   macroNotif:     boolean; // in-app: MacroEdge pair-bias flips
+  cotNotif:       boolean; // in-app: COT signal flips / positioning extremes
 }
 
 export const NOTIF_PREF_DEFAULTS: NotifPrefs = {
@@ -18,6 +19,7 @@ export const NOTIF_PREF_DEFAULTS: NotifPrefs = {
   emailAlerts:    false,
   academyNotif:   true,
   macroNotif:     true,
+  cotNotif:       true,
 };
 
 // Merge stored JSON over defaults. Users saved before a new key existed

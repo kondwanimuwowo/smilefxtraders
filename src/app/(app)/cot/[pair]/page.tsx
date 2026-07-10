@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Icon, Skeleton } from "@/components/ui";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import { CotLockScreen } from "@/components/cot/CotLockScreen";
+import { PositioningChart } from "@/components/cot/PositioningChart";
 import { SIGNAL_CFG } from "@/components/cot/signalCfg";
 import { cn } from "@/lib/cn";
 import type { CotDetailRow, CotDetailResponse } from "@/lib/cot/types";
@@ -206,6 +207,7 @@ export default function CotPairPage() {
             <CotIndexDisplay
               rows={rows}
               cotIndex={data.cotIndex}
+              cotIndexAll={data.cotIndexAll}
               signal={data.signal}
               pair={pair.toUpperCase()}
               totalWeeks={data.totalWeeks}
@@ -219,6 +221,18 @@ export default function CotPairPage() {
               </div>
               <div className="text-[11px] text-ink-dim">WoW change</div>
             </div>
+
+            {/* Open interest */}
+            {rows[0]?.openInterest != null && rows[0].openInterest > 0 && (
+              <div className="text-right">
+                <div className="font-display font-bold tabular-nums text-[22px] tracking-[-0.02em] text-ink-strong">
+                  {rows[0].openInterest.toLocaleString()}
+                </div>
+                <div className="text-[11px] text-ink-dim">
+                  Open interest · net {Math.round((rows[0].largeSpecNet / rows[0].openInterest) * 100)}% of OI
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -229,11 +243,17 @@ export default function CotPairPage() {
           <CotIndexDisplay
             rows={rows}
             cotIndex={data.cotIndex}
+            cotIndexAll={data.cotIndexAll}
             signal={data.signal}
             pair={pair.toUpperCase()}
             totalWeeks={data.totalWeeks}
           />
         </div>
+      )}
+
+      {/* ── Positioning history chart ── */}
+      {!error && !loading && rows.length > 1 && (
+        <PositioningChart rows={rows} showRetail={showSmallSpec} />
       )}
 
       {/* ── Error state ── */}

@@ -186,6 +186,7 @@ export function Settings() {
   const [emailAlerts,    setEmailAlerts]    = useState(false);
   const [academyNotif,   setAcademyNotif]   = useState(true);
   const [macroNotif,     setMacroNotif]     = useState(true);
+  const [cotNotif,       setCotNotif]       = useState(true);
 
   // Sync from server on load
   useEffect(() => {
@@ -196,6 +197,7 @@ export function Settings() {
       setEmailAlerts(savedPrefs.emailAlerts);
       setAcademyNotif(savedPrefs.academyNotif ?? true);
       setMacroNotif(savedPrefs.macroNotif ?? true);
+      setCotNotif(savedPrefs.cotNotif ?? true);
     }
   }, [savedPrefs]);
 
@@ -325,7 +327,7 @@ export function Settings() {
   }
 
   function saveNotifications() {
-    savePrefs({ alertNotif, communityNotif, weeklyReport, emailAlerts, academyNotif, macroNotif });
+    savePrefs({ alertNotif, communityNotif, weeklyReport, emailAlerts, academyNotif, macroNotif, cotNotif });
   }
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -644,6 +646,13 @@ export function Settings() {
               sub="Notify me when a pair's fundamental bias flips (e.g. Buy to Sell)"
               checked={macroNotif}
               onChange={setMacroNotif}
+            />
+            <Divider />
+            <ToggleRow
+              label="COT signal changes"
+              sub="Notify me when a pair's weekly COT signal flips or positioning hits an extreme"
+              checked={cotNotif}
+              onChange={setCotNotif}
             />
             <div className="flex justify-end mt-4">
               <Button type="button" variant="primary" icon="save" loading={notifPending} onClick={saveNotifications}>

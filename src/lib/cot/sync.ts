@@ -16,6 +16,7 @@ interface SocrataRow {
   comm_positions_short_all:    string;
   nonrept_positions_long_all:  string;
   nonrept_positions_short_all: string;
+  open_interest_all:           string;
 }
 
 function n(s: string) { return parseInt(s ?? "0") || 0; }
@@ -33,7 +34,7 @@ export async function syncInstrument(code: string, pair: string, inverted: boole
   url.searchParams.set("$limit",  String(limit));
   url.searchParams.set(
     "$select",
-    "report_date_as_yyyy_mm_dd,noncomm_positions_long_all,noncomm_positions_short_all,comm_positions_long_all,comm_positions_short_all,nonrept_positions_long_all,nonrept_positions_short_all"
+    "report_date_as_yyyy_mm_dd,noncomm_positions_long_all,noncomm_positions_short_all,comm_positions_long_all,comm_positions_short_all,nonrept_positions_long_all,nonrept_positions_short_all,open_interest_all"
   );
 
   const ac  = new AbortController();
@@ -61,6 +62,7 @@ export async function syncInstrument(code: string, pair: string, inverted: boole
         largeSpecNet:  sign * (lsLong - lsShort),  largeSpecLong: lsLong,  largeSpecShort: lsShort,
         commercialNet: sign * (cLong  - cShort),   commercialLong: cLong,  commercialShort: cShort,
         smallSpecNet:  sign * (ssLong - ssShort),  smallSpecLong: ssLong,  smallSpecShort: ssShort,
+        openInterest:  n(r.open_interest_all),
       };
 
       return prisma.cotReport.upsert({

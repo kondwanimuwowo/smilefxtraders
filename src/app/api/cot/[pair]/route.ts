@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getInstruments } from "@/lib/server/getInstruments";
 import { requirePaidPlan } from "@/lib/plan-guard";
-import { computeCotStats, EMPTY_COT_STATS, INDEX_WEEKS } from "@/lib/cot/signal";
+import { computeCotStats, EMPTY_COT_STATS, INDEX_WEEKS, percentile } from "@/lib/cot/signal";
 import type { CotDetailResponse, CotDetailRow } from "@/lib/cot/types";
 
 // Rows served per page; the first page fetches INDEX_WEEKS for the signal math.
@@ -29,11 +29,14 @@ export async function GET(
   const url    = new URL(req.url);
   const offset = Math.max(0, parseInt(url.searchParams.get("offset") ?? "0", 10));
 
-  // For offset=0, fetch the full index window to compute the COT Index (3yr/156w)
+  // Every page fetches INDEX_WEEKS extra trailing rows so each displayed week
+  // gets a rolling 3yr COT Index computed over ITS OWN trailing window (the
+  // index-history line on the chart). offset=0 additionally uses the leading
+  // rows for the current signal math.
   const isFirstPage = offset === 0;
-  const take        = isFirstPage ? Math.max(TAKE, INDEX_WEEKS) : TAKE;
+  const take        = TAKE + INDEX_WEEKS;
 
-  const [rows, totalWeeks] = await Promise.all([
+  const [rows, totalWeeks, allTimeRange] = await Promise.all([
     prisma.cotReport.findMany({
       where:   { pair: upper },
       orderBy: { reportDate: "desc" },
@@ -44,12 +47,33 @@ export async function GET(
         largeSpecLong:  true, largeSpecShort:  true, largeSpecNet:  true,
         commercialLong: true, commercialShort: true, commercialNet: true,
         smallSpecLong:  true, smallSpecShort:  true, smallSpecNet:  true,
+        openInterest:   true,
       },
     }),
     prisma.cotReport.count({ where: { pair: upper } }),
+    // Full-history net range for the all-time COT Index track
+    prisma.cotReport.aggregate({
+      where: { pair: upper },
+      _min:  { largeSpecNet: true },
+      _max:  { largeSpecNet: true },
+    }),
   ]);
 
-  const mapped: CotDetailRow[] = rows.map((r) => ({
+  // Rolling 3yr index for row i = percentile of its net within the window of
+  // the INDEX_WEEKS rows ending at that week (rows are newest-first). Needs at
+  // least 26 trailing weeks to be meaningful — earlier weeks return null.
+  const rolling3yr = (i: number): number | null => {
+    const win = rows.slice(i, i + INDEX_WEEKS);
+    if (win.length < 26) return null;
+    let min = Infinity, max = -Infinity;
+    for (const w of win) {
+      if (w.largeSpecNet < min) min = w.largeSpecNet;
+      if (w.largeSpecNet > max) max = w.largeSpecNet;
+    }
+    return percentile(rows[i].largeSpecNet, min, max);
+  };
+
+  const mapped: CotDetailRow[] = rows.map((r, i) => ({
     date:           r.reportDate.toISOString().split("T")[0],
     largeSpecLong:  r.largeSpecLong,
     largeSpecShort: r.largeSpecShort,
@@ -60,6 +84,8 @@ export async function GET(
     smallSpecLong:  r.smallSpecLong,
     smallSpecShort: r.smallSpecShort,
     smallSpecNet:   r.smallSpecNet,
+    openInterest:   r.openInterest,
+    cotIndex3yr:    rolling3yr(i),
   }));
 
   // Compute signal from the index window (first page only has enough rows)
@@ -67,8 +93,15 @@ export async function GET(
     ? computeCotStats(mapped.slice(0, INDEX_WEEKS))
     : EMPTY_COT_STATS;
 
-  // Return only TAKE rows as display data (trim the extra rows used for computation)
-  const displayRows = isFirstPage ? mapped.slice(0, TAKE) : mapped;
+  // All-time index: current net's percentile within the full stored history
+  const cotIndexAll =
+    isFirstPage && mapped.length >= 2 && allTimeRange._min.largeSpecNet != null && allTimeRange._max.largeSpecNet != null
+      ? percentile(mapped[0].largeSpecNet, allTimeRange._min.largeSpecNet, allTimeRange._max.largeSpecNet)
+      : null;
+
+  // Return only TAKE rows as display data (trim the trailing rows fetched for
+  // the rolling-index windows and, on the first page, the signal math)
+  const displayRows = mapped.slice(0, TAKE);
 
   return NextResponse.json({
     pair:    upper,
@@ -76,6 +109,7 @@ export async function GET(
     usdBase: inst.cotInverted,
     rows:    displayRows,
     totalWeeks,
+    cotIndexAll,
     ...signalData,
   } satisfies CotDetailResponse);
 }

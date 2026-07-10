@@ -28,7 +28,8 @@ export interface CotEntry {
   signal:         CotSignal;
   wowChange:      number;
   divergenceType: CotDivergence;
-  totalWeeks:     number;     // total history available in DB
+  totalWeeks:     number;         // total history available in DB
+  openInterest:   number | null;  // latest week's total contracts outstanding
 }
 
 export interface CotDetailRow {
@@ -42,6 +43,8 @@ export interface CotDetailRow {
   smallSpecLong:   number | null;
   smallSpecShort:  number | null;
   smallSpecNet:    number;
+  openInterest:    number | null;
+  cotIndex3yr:     number | null; // rolling 3yr percentile as of THIS week (null when <26w of trailing history)
 }
 
 export interface CotDetailResponse {
@@ -54,6 +57,7 @@ export interface CotDetailResponse {
   signal:         CotSignal;
   cotIndex:       number;
   cotIndexC:      number;
+  cotIndexAll:    number | null; // percentile within the FULL stored history
   wowChange:      number;
   reportDate:     string;
   divergenceType: CotDivergence;

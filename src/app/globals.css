@@ -101,6 +101,13 @@
   --track:      rgba(8, 42, 59, 0.10);
   --row-hover:  rgba(8, 42, 59, 0.035);
   --topbar-bg:  rgba(255, 255, 255, 0.78);
+
+  /* COT positioning chart series — darker steps of the brand hues so 2px
+     lines pass 3:1 contrast on the white panel (validated). Retail is a
+     deliberately recessive gray; identity comes from legend + direct labels. */
+  --chart-ls:     #00938E;
+  --chart-comm:   #B27B0A;
+  --chart-retail: #5C707C;
 }
 
 /* ─── Dark theme surfaces ────────────────────────────────────────────────────── */
@@ -119,6 +126,11 @@
   --track:      rgba(255, 255, 255, 0.08);
   --row-hover:  rgba(255, 255, 255, 0.03);
   --topbar-bg:  rgba(6, 22, 30, 0.6);
+
+  /* COT chart series — brand hues pass contrast on the dark panel as-is */
+  --chart-ls:     var(--teal);
+  --chart-comm:   var(--gold);
+  --chart-retail: #9BB0BC;
 }
 
 /* ─── Tailwind theme registration ────────────────────────────────────────────── */

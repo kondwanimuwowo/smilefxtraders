@@ -16,6 +16,7 @@ import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
 import type { InstructorAlert } from "@/app/(app)/alerts/Alerts";
 import type { CalEvent } from "@/app/api/calendar/route";
 import { LogTradeModal } from "@/app/(app)/journal/LogTradeModal";
+import { CotBiasPanel } from "@/components/cot/CotBiasPanel";
 
 // ── Candle generator (seeded RNG — matches design reference) ──────────────────
 function mulberry32(a: number) {
@@ -891,6 +892,9 @@ export function Dashboard() {
               ))}
             </div>
           </Panel>
+
+          {/* Weekly COT bias — live from /api/cot */}
+          <CotBiasPanel />
 
         </div>
       </div>

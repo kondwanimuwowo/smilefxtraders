@@ -31,7 +31,7 @@ export interface CotStats {
   reportDate:     string;
 }
 
-function percentile(value: number, min: number, max: number): number {
+export function percentile(value: number, min: number, max: number): number {
   const range = max - min || 1;
   return Math.round(Math.max(0, Math.min(100, ((value - min) / range) * 100)));
 }

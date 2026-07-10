@@ -266,6 +266,15 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
               {fmt(entry.wowChange)}
             </div>
             <div className="text-[11px] text-ink-dim">WoW change</div>
+            {entry.openInterest != null && entry.openInterest > 0 && (
+              <div className="text-[10.5px] tabular-nums mt-0.5 text-ink-dim">
+                OI {fmtAbs(entry.openInterest)} · net{" "}
+                <span className={cur.largeSpecNet >= 0 ? "text-teal" : "text-coral"}>
+                  {Math.round((cur.largeSpecNet / entry.openInterest) * 100)}%
+                </span>{" "}
+                of OI
+              </div>
+            )}
           </div>
           <Link
             href={`/pair/${entry.pair}`}

@@ -9,12 +9,13 @@ import type { CotSignal } from "@/lib/cot/types";
 type CotRow = { largeSpecNet: number; date: string };
 
 interface CotIndexDisplayProps {
-  rows:        CotRow[];
-  cotIndex:    number;       // primary API index (3yr post-refresh)
-  signal:      CotSignal;
-  pair:        string;
-  totalWeeks:  number;
-  compact?:    boolean;      // true = ring-only mode for cards
+  rows:         CotRow[];
+  cotIndex:     number;        // primary API index — 3yr/156w window
+  cotIndexAll?: number | null; // server-computed percentile over the FULL stored history
+  signal:       CotSignal;
+  pair:         string;
+  totalWeeks:   number;
+  compact?:     boolean;       // true = ring-only mode for cards
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -130,7 +131,7 @@ function RangeTrack({ value, label, weeks, cls }: { value: number; label: string
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, compact = false }: CotIndexDisplayProps) {
+export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, signal, pair, totalWeeks, compact = false }: CotIndexDisplayProps) {
   const index52w    = useMemo(() => computeIndex(rows, 52),          [rows]);
   const indexApprox = useMemo(() => computeIndex(rows, rows.length), [rows]);
 
@@ -145,9 +146,16 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
 
   const cls        = indexCls(cotIndex);
   const zoneLabel  = indexZoneLabel(cotIndex);
-  const approxYrs  = Math.round(rows.length / 52);
-  const approxLabel = approxYrs >= 2 ? `~${approxYrs}yr` : `${rows.length}w`;
   const interp     = interpretation(cotIndex, index52w, signal, pair);
+
+  // Third track: server-computed all-time index when available; otherwise fall
+  // back to a percentile over the rows that happen to be loaded client-side.
+  const hasAllTime  = cotIndexAll != null;
+  const trackWeeks  = hasAllTime ? totalWeeks : rows.length;
+  const trackYrs    = Math.round(trackWeeks / 52);
+  const thirdValue  = hasAllTime ? cotIndexAll : indexApprox;
+  const thirdLabel  = hasAllTime ? "All-time" : "Loaded history";
+  const thirdWeeks  = trackYrs >= 2 ? `~${trackYrs}yr` : `${trackWeeks}w`;
 
   // ── Compact ring mode (used in CotCard and detail page header) ────────────
   if (compact) {
@@ -221,9 +229,9 @@ export function CotIndexDisplay({ rows, cotIndex, signal, pair, totalWeeks, comp
 
       {/* Three-range tracks */}
       <div className="px-5 py-4 flex flex-col gap-4">
-        <RangeTrack value={index52w}    label="1-year"            weeks="52w"        cls={indexCls(index52w)}    />
-        <RangeTrack value={cotIndex}    label="3-year"            weeks="156w"       cls={indexCls(cotIndex)}    />
-        <RangeTrack value={indexApprox} label="Available history" weeks={approxLabel} cls={indexCls(indexApprox)} />
+        <RangeTrack value={index52w}   label="1-year"    weeks="52w"        cls={indexCls(index52w)}   />
+        <RangeTrack value={cotIndex}   label="3-year"    weeks="156w"       cls={indexCls(cotIndex)}   />
+        <RangeTrack value={thirdValue} label={thirdLabel} weeks={thirdWeeks} cls={indexCls(thirdValue)} />
 
         {/* Zone key */}
         <div className="flex items-center justify-between pt-1">

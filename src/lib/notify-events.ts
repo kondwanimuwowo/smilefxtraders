@@ -103,3 +103,38 @@ export async function fanOutMacroBiasFlip(params: {
 
   console.info(`[macro] bias flip ${pair} ${oldLabel ?? "—"} → ${newLabel}: notified ${count}`);
 }
+
+// COT — fired after a sync lands a new weekly report whose signal label
+// differs from the previous week's, or whose 3-year index has crossed into
+// an extreme zone (≥80 / ≤20). dedupeKey is scoped to pair + report date, so
+// each pair notifies at most once per CFTC release no matter how many sync
+// or manual-refresh runs re-process the same report. Paid plans only — COT
+// itself is Pro/Funded-gated.
+export async function fanOutCotSignal(params: {
+  pair:      string;
+  title:     string;
+  body:      string;
+  bullish:   boolean | null; // null = neutral tone
+  reportDate: string;        // ISO yyyy-mm-dd of the report being announced
+}): Promise<void> {
+  const { pair, title, body, bullish, reportDate } = params;
+
+  const users = await prisma.user.findMany({
+    where:  { plan: { not: "FREE" } },
+    select: { id: true, notifPrefs: true },
+  });
+  const targetIds = users.filter((u) => prefEnabled(u.notifPrefs, "cotNotif")).map((u) => u.id);
+  if (targetIds.length === 0) return;
+
+  const count = await createNotifications(targetIds, {
+    type:      "COT_SIGNAL",
+    title,
+    body,
+    icon:      "bar_chart",
+    tone:      bullish == null ? "gold" : bullish ? "teal" : "coral",
+    href:      `/cot/${pair}`,
+    dedupeKey: `cot:${pair}:${reportDate}`,
+  });
+
+  console.info(`[cot] signal event ${pair} (${reportDate}): notified ${count}`);
+}

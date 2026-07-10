@@ -13,6 +13,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getInstruments } from "@/lib/server/getInstruments";
 import { syncAllInstruments } from "@/lib/cot/sync";
+import { snapshotCotSignals, notifyCotSignalChanges } from "@/lib/cot/notify";
 
 export async function POST(req: NextRequest) {
   // Verify cron secret
@@ -23,7 +24,11 @@ export async function POST(req: NextRequest) {
   }
 
   const instruments = await getInstruments();
+  const cotPairs    = instruments.filter((i) => i.cotCode != null).map((i) => i.symbol);
+
+  const before  = await snapshotCotSignals(cotPairs);
   const results = await syncAllInstruments(instruments, 8);
+  await notifyCotSignalChanges(before); // no-op unless a new report landed
 
   return NextResponse.json({ ok: true, synced: new Date().toISOString(), results });
 }
