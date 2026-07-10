@@ -5,6 +5,19 @@ import type { FxImageExtraction } from "@/types/fx-orders";
 
 const client = new Anthropic();
 
+const FETCH_HEADERS = {
+  "User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+  "Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+  "Accept-Language": "en-US,en;q=0.9",
+  "Accept-Encoding": "gzip, deflate, br",
+  "Cache-Control":   "no-cache",
+  "Pragma":          "no-cache",
+  "Referer":         "https://www.google.com/",
+  "Sec-Fetch-Dest":  "document",
+  "Sec-Fetch-Mode":  "navigate",
+  "Sec-Fetch-Site":  "cross-site",
+};
+
 // ── URL builder ───────────────────────────────────────────────────────────────
 
 const MONTHS = [
@@ -12,13 +25,43 @@ const MONTHS = [
   "july","august","september","october","november","december",
 ];
 
+// Fallback only — InvestingLive's actual slug format changed (2026-07): the
+// newest post(s) no longer carry a trailing -YYYYMMDD suffix at all, so this
+// guess 404s for the current day. findPostUrl() below is the real lookup
+// path; this is only used if that fetch fails outright.
 function buildInvestingLiveUrl(date: Date): string {
   const day   = date.getUTCDate();
   const month = MONTHS[date.getUTCMonth()];
   const y     = date.getUTCFullYear();
   const mm    = String(date.getUTCMonth() + 1).padStart(2, "0");
   const dd    = String(date.getUTCDate()).padStart(2, "0");
-  return `https://investinglive.com/Orders/fx-option-expiries-for-${day}-${month}-10am-new-york-cut-${y}${mm}${dd}/`;
+  return `https://investinglive.com/orders/fx-option-expiries-for-${day}-${month}-10am-new-york-cut-${y}${mm}${dd}/`;
+}
+
+// Resolves the real post URL for `date` from InvestingLive's orders index,
+// instead of guessing a slug. Their URL scheme has changed at least once
+// already (dropping the -YYYYMMDD suffix on recent posts) — path casing
+// itself doesn't matter (/Orders/ and /orders/ both resolve to the same
+// page), but the slug shape does, and guessing it is fragile. Falls back to
+// buildInvestingLiveUrl() if the index can't be fetched or doesn't contain a
+// matching link (e.g. for older archived dates).
+async function findPostUrl(date: Date): Promise<string> {
+  const day   = date.getUTCDate();
+  const month = MONTHS[date.getUTCMonth()];
+  const slugFragment = `fx-option-expiries-for-${day}-${month}-10am-new-york-cut`;
+
+  try {
+    const res = await fetch("https://investinglive.com/orders", { headers: FETCH_HEADERS });
+    if (res.ok) {
+      const html = await res.text();
+      const match = html.match(new RegExp(`href="(/orders/${slugFragment}[^"]*)"`, "i"));
+      if (match?.[1]) return `https://investinglive.com${match[1]}`;
+    }
+  } catch (err) {
+    console.warn("[fx-orders/sync] orders index lookup failed, falling back to constructed URL:", err);
+  }
+
+  return buildInvestingLiveUrl(date);
 }
 
 // ── Trading-day sequence ──────────────────────────────────────────────────────
@@ -118,6 +161,13 @@ Rules:
 
 async function extractImageUrl(pageHtml: string): Promise<string | null> {
   const patterns = [
+    // Current (2026-07) format: the table screenshot is embedded in the
+    // article body under cms/media/images/, filename is a date/time stamp
+    // (e.g. "7-10-2026-1-48-15-pm.jpg"), sometimes with a "?width=" query
+    // suffix for a resized variant — stripped so we always fetch the
+    // full-size original.
+    /<img[^>]+src="(https:\/\/investinglive\.com\/cms\/media\/images\/[^"?]+\.(?:jpg|jpeg|png))(?:\?[^"]*)?"/i,
+    // Legacy formats, kept as fallbacks in case InvestingLive reverts.
     /data-src="(https:\/\/images\.investinglive\.com\/images\/FXO[^"]+_size900\.jpg)"/,
     /data-src="(https:\/\/images\.investinglive\.com\/images\/FXO[^"]+\.jpg)"/,
     /og:image[^>]*content="(https:\/\/images\.investinglive\.com\/images\/FXO[^"]+\.jpg)"/,
@@ -250,24 +300,11 @@ export async function POST(req: NextRequest) {
       : new Date();
 
     const tradingDays = tradingDaySequence(targetDate, 7);
-    const pageUrl     = buildInvestingLiveUrl(targetDate);
+    const pageUrl     = await findPostUrl(targetDate);
 
     console.log("[fx-orders/sync] Fetching page:", pageUrl);
 
-    const pageRes = await fetch(pageUrl, {
-      headers: {
-        "User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Cache-Control":   "no-cache",
-        "Pragma":          "no-cache",
-        "Referer":         "https://www.google.com/",
-        "Sec-Fetch-Dest":  "document",
-        "Sec-Fetch-Mode":  "navigate",
-        "Sec-Fetch-Site":  "cross-site",
-      },
-    });
+    const pageRes = await fetch(pageUrl, { headers: FETCH_HEADERS });
 
     if (!pageRes.ok) {
       // A 404 here is routine, not a failure: InvestingLive typically doesn't
@@ -303,14 +340,19 @@ export async function POST(req: NextRequest) {
 
     console.log("[fx-orders/sync] Extracted image URL:", imageUrl);
 
-    // Short-circuit: InvestingLive image URLs are unique per post, so if any
-    // stored record already came from this exact image, the table hasn't
-    // changed since the last sync — skip the Claude Vision call entirely.
-    // A re-post with updated levels gets a new image URL and syncs normally.
-    // Bypass with ?force=1.
+    // Short-circuit: InvestingLive image URLs are unique per post, so if
+    // today's target date already has a record from this exact image, the
+    // table hasn't changed since the last sync — skip the Claude Vision call
+    // entirely. Scoped to tradingDays[0] (today), not just the imageUrl,
+    // because a single image can span multiple day-bands (e.g. a Friday post
+    // that also covers Monday over a weekend gap) — an earlier run that only
+    // stored one of those bands must not block a later run from storing the
+    // other, which a bare imageUrl match would silently do. A re-post with
+    // updated levels gets a new image URL and syncs normally. Bypass with
+    // ?force=1.
     if (!force) {
       const alreadySynced = await prisma.fxOptionExpiry.findFirst({
-        where:  { imageUrl },
+        where:  { imageUrl, expiryDate: tradingDays[0] },
         select: { id: true },
       });
       if (alreadySynced) {

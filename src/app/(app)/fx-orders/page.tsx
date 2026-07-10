@@ -298,7 +298,7 @@ export default function FxOrdersPage() {
       const res  = await fetch("/api/fx-orders/sync", { method: "POST" });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Sync failed");
-      setSyncMsg(`Synced ${json.saved} records`);
+      setSyncMsg(json.skipped ? (json.reason ?? "Nothing to sync") : `Synced ${json.saved} records`);
       await load();
     } catch (err) {
       setSyncMsg(err instanceof Error ? err.message : "Sync failed");
