@@ -25,6 +25,8 @@ export interface CotEntry {
   history:        CotWeek[];  // newest first, up to 8 weeks (display); full history in DB
   cotIndex:       number;     // 0–100 (large spec percentile within the 3yr/156w range)
   cotIndexC:      number;     // 0–100 (commercial percentile within the 3yr/156w range)
+  cotIndex52w:    number | null; // 0–100 within the 1-year window (null when <52w history)
+  cotIndexAll:    number | null; // 0–100 within the FULL stored history
   signal:         CotSignal;
   wowChange:      number;
   divergenceType: CotDivergence;

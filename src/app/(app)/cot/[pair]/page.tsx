@@ -7,6 +7,7 @@ import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import { CotLockScreen } from "@/components/cot/CotLockScreen";
 import { PositioningChart } from "@/components/cot/PositioningChart";
 import { SIGNAL_CFG } from "@/components/cot/signalCfg";
+import { buildCotCommentary } from "@/lib/cot/commentary";
 import { cn } from "@/lib/cn";
 import type { CotDetailRow, CotDetailResponse } from "@/lib/cot/types";
 
@@ -155,6 +156,31 @@ export default function CotPairPage() {
   const sig = data ? SIGNAL_CFG[data.signal] : SIGNAL_CFG.neutral;
   const [showSmallSpec, setShowSmallSpec] = useState(false);
 
+  // Shared commentary — the SAME engine the overview card uses, so the card
+  // and this page never say different things about the same report.
+  const commentary = useMemo(() => {
+    if (!data || rows.length < 2) return null;
+    const nets52 = rows.slice(0, 52).map((r) => r.largeSpecNet);
+    const min52  = Math.min(...nets52);
+    const max52  = Math.max(...nets52);
+    const cotIndex52w = nets52.length >= 52
+      ? Math.round(Math.max(0, Math.min(100, ((rows[0].largeSpecNet - min52) / (max52 - min52 || 1)) * 100)))
+      : null;
+    return buildCotCommentary({
+      pair:           data.pair,
+      divergenceType: data.divergenceType,
+      wowChange:      data.wowChange,
+      lsChange:       rows[0].largeSpecNet  - rows[1].largeSpecNet,
+      cChange:        rows[0].commercialNet - rows[1].commercialNet,
+      cotIndex:       data.cotIndex,
+      cotIndex52w,
+      cotIndexAll:    data.cotIndexAll,
+      signal:         data.signal,
+      largeSpecNet:   rows[0].largeSpecNet,
+      openInterest:   rows[0].openInterest,
+    });
+  }, [data, rows]);
+
   if (locked) return <CotLockScreen />;
 
   return (
@@ -208,8 +234,6 @@ export default function CotPairPage() {
               rows={rows}
               cotIndex={data.cotIndex}
               cotIndexAll={data.cotIndexAll}
-              signal={data.signal}
-              pair={pair.toUpperCase()}
               totalWeeks={data.totalWeeks}
               compact
             />
@@ -244,9 +268,8 @@ export default function CotPairPage() {
             rows={rows}
             cotIndex={data.cotIndex}
             cotIndexAll={data.cotIndexAll}
-            signal={data.signal}
-            pair={pair.toUpperCase()}
             totalWeeks={data.totalWeeks}
+            commentary={commentary}
           />
         </div>
       )}

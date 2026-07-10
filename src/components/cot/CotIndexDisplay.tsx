@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import type { CotSignal } from "@/lib/cot/types";
+import type { CotCommentary } from "@/lib/cot/commentary";
 
 // Minimal row type — satisfied by both CotWeek and CotDetailRow
 type CotRow = { largeSpecNet: number; date: string };
@@ -12,10 +12,11 @@ interface CotIndexDisplayProps {
   rows:         CotRow[];
   cotIndex:     number;        // primary API index — 3yr/156w window
   cotIndexAll?: number | null; // server-computed percentile over the FULL stored history
-  signal:       CotSignal;
-  pair:         string;
   totalWeeks:   number;
   compact?:     boolean;       // true = ring-only mode for cards
+  // Interpretation banner text from the shared engine (lib/cot/commentary) —
+  // the same commentary the overview card shows, so the two never disagree.
+  commentary?:  CotCommentary | null;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -78,24 +79,6 @@ function indexZoneLabel(idx: number): string {
   return "Cycle extreme low";
 }
 
-function interpretation(index3yr: number, index52w: number, signal: CotSignal, pair: string): string {
-  const allLow  = index3yr < 20 && index52w < 20;
-  const allHigh = index3yr > 80 && index52w > 80;
-  const diverge = Math.abs(index3yr - index52w) > 25;
-
-  if (allLow && (signal === "bear" || signal === "strong_bear"))
-    return `Positioning near a multi-year extreme low: large specs have aggressively unwound ${pair} longs. Historically precedes either a sustained reversal or continued liquidation. Watch for WoW Δ to turn positive as first confirmation.`;
-  if (allLow && signal === "neutral")
-    return `Large specs are at historically low positioning but trimming has slowed. Accumulation may be beginning, but the COT Index needs to recover above 30 before calling a structural shift.`;
-  if (allHigh && (signal === "bull" || signal === "strong_bull"))
-    return `Positioning near a multi-year extreme high: large specs are maximally long ${pair}. Watch for exhaustion: if price fails to make new highs while COT Index stalls, distribution may be underway.`;
-  if (diverge && index52w < 20 && index3yr > 40)
-    return `Low on a 1-year basis but moderate on a 3-year view: a recent pullback within a longer bullish structure, not a structural extreme.`;
-  if (diverge && index52w > 80 && index3yr < 50)
-    return `High on a 1-year basis but below the 3-year midpoint: specs have recovered from a deeper trough. Momentum improving but structure is not yet bullish on the longer view.`;
-  return `Positioning is in the middle of its historical range. No extreme signal, so COT is not the primary edge here. Focus on price structure and liquidity.`;
-}
-
 // ── Range track ───────────────────────────────────────────────────────────────
 
 function RangeTrack({ value, label, weeks, cls }: { value: number; label: string; weeks: string; cls: IdxCls }) {
@@ -131,7 +114,7 @@ function RangeTrack({ value, label, weeks, cls }: { value: number; label: string
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, signal, pair, totalWeeks, compact = false }: CotIndexDisplayProps) {
+export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compact = false, commentary }: CotIndexDisplayProps) {
   const index52w    = useMemo(() => computeIndex(rows, 52),          [rows]);
   const indexApprox = useMemo(() => computeIndex(rows, rows.length), [rows]);
 
@@ -146,7 +129,6 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, signal, pair, tot
 
   const cls        = indexCls(cotIndex);
   const zoneLabel  = indexZoneLabel(cotIndex);
-  const interp     = interpretation(cotIndex, index52w, signal, pair);
 
   // Third track: server-computed all-time index when available; otherwise fall
   // back to a percentile over the rows that happen to be loaded client-side.
@@ -264,11 +246,16 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, signal, pair, tot
         </div>
       </div>
 
-      {/* Interpretation */}
-      <div className={cn("mx-5 mb-4 mt-3 rounded-xl px-4 py-3 flex items-start gap-2.5 border", cls.badgeBgCls, cls.badgeBorderCls)}>
-        <Icon name="psychology" size={14} fill className={cn("shrink-0 mt-px", cls.textCls)} />
-        <p className="text-[12px] leading-relaxed text-ink-mid">{interp}</p>
-      </div>
+      {/* Interpretation — same engine as the overview card's divergence panel */}
+      {commentary && (
+        <div className={cn("mx-5 mb-4 mt-3 rounded-xl px-4 py-3 flex items-start gap-2.5 border", cls.badgeBgCls, cls.badgeBorderCls)}>
+          <Icon name={commentary.icon} size={14} fill className={cn("shrink-0 mt-px", cls.textCls)} />
+          <div>
+            <div className={cn("text-[12px] font-semibold mb-0.5", cls.textCls)}>{commentary.title}</div>
+            <p className="text-[12px] leading-relaxed text-ink-mid">{commentary.flow} {commentary.structure}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

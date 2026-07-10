@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import { CotLockScreen } from "@/components/cot/CotLockScreen";
 import { SIGNAL_CFG } from "@/components/cot/signalCfg";
+import { buildCotCommentary } from "@/lib/cot/commentary";
 import type { CotEntry } from "@/lib/cot/types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -52,72 +53,39 @@ function PositionBar({ value, max, barCls }: { value: number; max: number; barCl
 }
 
 // ── Divergence panel ──────────────────────────────────────────────────────────
+// Text comes from the shared commentary engine (lib/cot/commentary) — the
+// detail page renders the same flow + structure sentences, so the card and
+// the page never disagree.
+
+const TONE_CLS = {
+  bull:    { textCls: "text-teal",  bgCls: "bg-[rgba(8,174,170,0.06)]",  borderCls: "border-[rgba(8,174,170,0.2)]"  },
+  bear:    { textCls: "text-coral", bgCls: "bg-[rgba(234,82,61,0.06)]",  borderCls: "border-[rgba(234,82,61,0.2)]"  },
+  caution: { textCls: "text-gold",  bgCls: "bg-[rgba(248,185,61,0.06)]", borderCls: "border-[rgba(248,185,61,0.2)]" },
+} as const;
 
 function DivergencePanel({ entry }: { entry: CotEntry }) {
-  const { divergenceType, wowChange, history, cotIndex } = entry;
-
-  const lsChange = history[0].largeSpecNet  - (history[1]?.largeSpecNet  ?? history[0].largeSpecNet);
-  const cChange  = history[0].commercialNet - (history[1]?.commercialNet ?? history[0].commercialNet);
-
-  const lsBull = lsChange > 0;
-
-  // Whether the weekly flow aligns with the structural COT Index level
-  const structurallyBull = cotIndex >= 50;
-  const flowMatchesStructure = lsBull === structurallyBull;
-
-  // Nuanced body for "aligned" when weekly flow contradicts the structural level
-  function alignedBody(): string {
-    if (lsBull) {
-      if (structurallyBull) {
-        return `Large specs added ${fmt(Math.abs(lsChange))} longs while commercials increased hedging, with both groups confirming ${entry.pair} upside. COT Index at ${cotIndex} confirms structural bullish bias.`;
-      }
-      // Adding longs but still historically underweight
-      return `Large specs added ${fmt(Math.abs(lsChange))} longs this week (COT Index ${cotIndex}, still historically underweight). This may signal early accumulation, but wait for the COT Index to break above 50 before calling a sustained bullish shift.`;
-    } else {
-      if (!structurallyBull) {
-        return `Large specs added ${fmt(Math.abs(lsChange))} shorts while commercials reduced hedges, with both confirming ${entry.pair} downside. COT Index at ${cotIndex} confirms structural bearish bias.`;
-      }
-      // Reducing longs but still historically overweight
-      return `Large specs trimmed ${fmt(Math.abs(lsChange))} longs this week (COT Index ${cotIndex}, still historically elevated). Early signs of distribution. Monitor for sustained liquidation before shifting bias bearish.`;
-    }
-  }
-
-  const goldCls = { textCls: "text-gold", bgCls: "bg-[rgba(248,185,61,0.06)]", borderCls: "border-[rgba(248,185,61,0.2)]" };
-  const configs = {
-    aligned: {
-      ...(lsBull
-        ? (flowMatchesStructure
-            ? { textCls: "text-teal",  bgCls: "bg-[rgba(8,174,170,0.06)]", borderCls: "border-[rgba(8,174,170,0.2)]" }
-            : goldCls)
-        : (flowMatchesStructure
-            ? { textCls: "text-coral", bgCls: "bg-[rgba(234,82,61,0.06)]", borderCls: "border-[rgba(234,82,61,0.2)]" }
-            : goldCls)),
-      icon:   flowMatchesStructure ? "bolt" : "trending_flat",
-      title:  flowMatchesStructure ? "Groups Aligned: High Conviction" : "Weekly Flow vs Structure: Watch Carefully",
-      body:   alignedBody(),
-    },
-    mixed: {
-      ...goldCls,
-      icon:   "warning_amber",
-      title:  "Mixed: Consolidation or Transition",
-      body:   `Position change this week (${fmt(wowChange)}) is small, so the market may be consolidating. COT Index at ${cotIndex}. Wait for clearer directional conviction before placing higher-timeframe bias.`,
-    },
-    counter: {
-      ...goldCls,
-      icon:   "sync_alt",
-      title:  "Counter-Movement: Watch for Reversal",
-      body:   `Large specs and commercials moving in opposite directions (LS: ${fmt(lsChange)}, C: ${fmt(cChange)}). COT Index at ${cotIndex}. Counter-divergence often precedes a structure shift. Stay patient and wait for CHoCH confirmation.`,
-    },
-  };
-
-  const cfg = configs[divergenceType];
+  const { history } = entry;
+  const commentary = buildCotCommentary({
+    pair:           entry.pair,
+    divergenceType: entry.divergenceType,
+    wowChange:      entry.wowChange,
+    lsChange:       history[0].largeSpecNet  - (history[1]?.largeSpecNet  ?? history[0].largeSpecNet),
+    cChange:        history[0].commercialNet - (history[1]?.commercialNet ?? history[0].commercialNet),
+    cotIndex:       entry.cotIndex,
+    cotIndex52w:    entry.cotIndex52w,
+    cotIndexAll:    entry.cotIndexAll,
+    signal:         entry.signal,
+    largeSpecNet:   history[0].largeSpecNet,
+    openInterest:   entry.openInterest,
+  });
+  const cls = TONE_CLS[commentary.tone];
 
   return (
-    <div className={cn("mx-5 mb-4 rounded-xl px-4 py-3 flex items-start gap-2.5 border", cfg.bgCls, cfg.borderCls)}>
-      <Icon name={cfg.icon} size={15} fill className={cn("shrink-0 mt-px", cfg.textCls)} />
+    <div className={cn("mx-5 mb-4 rounded-xl px-4 py-3 flex items-start gap-2.5 border", cls.bgCls, cls.borderCls)}>
+      <Icon name={commentary.icon} size={15} fill className={cn("shrink-0 mt-px", cls.textCls)} />
       <div>
-        <div className={cn("text-[12px] font-semibold mb-0.5", cfg.textCls)}>{cfg.title}</div>
-        <p className="text-[12px] leading-relaxed text-ink-dim">{cfg.body}</p>
+        <div className={cn("text-[12px] font-semibold mb-0.5", cls.textCls)}>{commentary.title}</div>
+        <p className="text-[12px] leading-relaxed text-ink-dim">{commentary.flow} {commentary.structure}</p>
       </div>
     </div>
   );
@@ -293,8 +261,6 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
         <CotIndexDisplay
           rows={entry.history}
           cotIndex={entry.cotIndex}
-          signal={entry.signal}
-          pair={entry.pair}
           totalWeeks={entry.totalWeeks}
           compact
         />
