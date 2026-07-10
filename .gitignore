@@ -52,3 +52,8 @@ CRON.md
 spotware_api_plan.md
 public/inspo/*
 plan.md
+
+# agent skills (installed per-machine by the skills CLI)
+.agents/
+.claude/
+skills-lock.json

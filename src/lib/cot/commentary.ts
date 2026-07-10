@@ -117,33 +117,33 @@ function grossPattern(c: CotCommentaryInput): string | null {
   const steadily = (t: SideTrend) => (t.steady ? "steadily " : "");
 
   if (L.dir === "up" && S.dir === "down")
-    return `Large specs are rotating fully long ${p}: ${steadily(L)}building longs (${fmt(L.total)}) while covering shorts (${fmt(S.total)}) — the strongest form of accumulation.`;
+    return `Large specs are rotating fully long ${p}, ${steadily(L)}building longs (${fmt(L.total)}) while covering shorts (${fmt(S.total)}). New buying and short covering at the same time is the clearest accumulation pattern this report can show.`;
   if (L.dir === "up" && S.dir === "flat")
-    return `Large specs have been ${steadily(L)}building fresh ${p} longs (${fmt(L.total)}) without touching their shorts (held near ${fmtMag(S.latest)}) — one-sided accumulation with hedges left on.`;
+    return `Large specs have been ${steadily(L)}adding fresh ${p} longs (${fmt(L.total)}) without touching their shorts, which are holding near ${fmtMag(S.latest)}. They are accumulating one side only and leaving the hedges on.`;
   if (L.dir === "up" && S.dir === "up") {
     // Both sides growing — but a lopsided build IS a directional statement
     if (Math.abs(S.total) >= 3 * Math.abs(L.total))
-      return `Large specs are ${steadily(S)}building ${p} shorts (${fmt(S.total)}) far faster than longs (${fmt(L.total)}) — gross exposure is up on both sides, but the flow leans clearly bearish.`;
+      return `Large specs are ${steadily(S)}building ${p} shorts (${fmt(S.total)}) much faster than longs (${fmt(L.total)}). Exposure is up on both sides, but the flow leans bearish.`;
     if (Math.abs(L.total) >= 3 * Math.abs(S.total))
-      return `Large specs are ${steadily(L)}building ${p} longs (${fmt(L.total)}) far faster than shorts (${fmt(S.total)}) — gross exposure is up on both sides, but the flow leans clearly bullish.`;
-    return `Large specs are adding on BOTH sides of ${p} (longs ${fmt(L.total)}, shorts ${fmt(S.total)}) — gross exposure is growing but directional conviction is unclear.`;
+      return `Large specs are ${steadily(L)}building ${p} longs (${fmt(L.total)}) much faster than shorts (${fmt(S.total)}). Exposure is up on both sides, but the flow leans bullish.`;
+    return `Large specs are adding on both sides of ${p} (longs ${fmt(L.total)}, shorts ${fmt(S.total)}). The book is growing without picking a direction.`;
   }
   if (L.dir === "flat" && S.dir === "down")
-    return `Large specs are quietly covering ${p} shorts (${fmt(S.total)}) while their longs hold near ${fmtMag(L.latest)} — bullish by unwind rather than fresh buying.`;
+    return `Large specs are quietly covering ${p} shorts (${fmt(S.total)}) while their longs hold near ${fmtMag(L.latest)}. That is bullish, but it comes from unwinding rather than fresh buying.`;
   if (L.dir === "flat" && S.dir === "up")
-    return `Large specs are ${steadily(S)}building fresh ${p} shorts (${fmt(S.total)}) while their longs hold near ${fmtMag(L.latest)} — deliberate bearish positioning, not profit-taking.`;
+    return `Large specs are ${steadily(S)}putting on new ${p} shorts (${fmt(S.total)}) while leaving their longs alone near ${fmtMag(L.latest)}. That is a deliberate bearish bet, not profit-taking.`;
   if (L.dir === "down" && S.dir === "up")
-    return `Large specs are rotating to the short side of ${p}: unwinding longs (${fmt(L.total)}) AND ${steadily(S)}building shorts (${fmt(S.total)}) — the strongest form of distribution.`;
+    return `Large specs are rotating to the short side of ${p}, unwinding longs (${fmt(L.total)}) and ${steadily(S)}building shorts (${fmt(S.total)}). Selling and fresh shorting together is the clearest distribution pattern this report can show.`;
   if (L.dir === "down" && S.dir === "flat")
-    return `Large specs are trimming ${p} longs (${fmt(L.total)}) without adding shorts (held near ${fmtMag(S.latest)}) — de-risking or profit-taking rather than a fresh bearish bet.`;
+    return `Large specs are trimming ${p} longs (${fmt(L.total)}) without adding shorts, which are holding near ${fmtMag(S.latest)}. That looks like profit-taking or de-risking; a real bearish bet would show up as new shorts.`;
   if (L.dir === "down" && S.dir === "down") {
     if (Math.abs(L.total) >= 3 * Math.abs(S.total))
-      return `Large specs are unwinding ${p} longs (${fmt(L.total)}) far faster than shorts (${fmt(S.total)}) — de-risking on both sides, but the exit leans clearly off the long side.`;
+      return `Large specs are unwinding ${p} longs (${fmt(L.total)}) much faster than shorts (${fmt(S.total)}). Both sides are shrinking, but the exit is mostly out of the long book.`;
     if (Math.abs(S.total) >= 3 * Math.abs(L.total))
-      return `Large specs are covering ${p} shorts (${fmt(S.total)}) far faster than they trim longs (${fmt(L.total)}) — de-risking on both sides, but the exit leans clearly off the short side.`;
-    return `Large specs are pulling gross ${p} exposure on both sides (longs ${fmt(L.total)}, shorts ${fmt(S.total)}) — conviction fading, book being de-risked.`;
+      return `Large specs are covering ${p} shorts (${fmt(S.total)}) much faster than they trim longs (${fmt(L.total)}). Both sides are shrinking, but the exit is mostly out of the short book.`;
+    return `Large specs are pulling ${p} exposure on both sides (longs ${fmt(L.total)}, shorts ${fmt(S.total)}). Conviction is fading and the book is being wound down.`;
   }
-  return `Large specs have barely moved either side of their ${p} book in recent weeks (longs ~${fmtMag(L.latest)}, shorts ~${fmtMag(S.latest)}) — no fresh positioning.`;
+  return `Large specs have barely moved either side of their ${p} book in recent weeks (longs near ${fmtMag(L.latest)}, shorts near ${fmtMag(S.latest)}), so there is no fresh positioning to read.`;
 }
 
 export function buildCotCommentary(c: CotCommentaryInput): CotCommentary {
@@ -170,29 +170,29 @@ export function buildCotCommentary(c: CotCommentaryInput): CotCommentary {
     title = "Mixed: Consolidation or Transition";
     icon  = "warning_amber";
     tone  = "caution";
-    flow  = `Position change this week (${fmt(c.wowChange)}) is too small to carry conviction.`;
+    flow  = `This week's position change (${fmt(c.wowChange)}) is too small to mean much on its own.`;
     if (pattern) flow += ` ${pattern}`;
-    else flow += " Likely a quiet or wait-and-see week.";
+    else flow += " Probably a quiet, wait-and-see week.";
   } else if (c.divergenceType === "counter") {
     title = "Counter-Movement: Watch for Reversal";
     icon  = "sync_alt";
     tone  = "caution";
-    flow  = `Large specs and commercials are moving in opposite directions this week (LS ${fmt(c.lsChange)}, C ${fmt(c.cChange)}) — the two most informed groups disagree, which often precedes a structure shift.`;
+    flow  = `Large specs and commercials moved in opposite directions this week (LS ${fmt(c.lsChange)}, C ${fmt(c.cChange)}). When the two most informed groups disagree, a structure shift often follows.`;
     if (pattern) flow += ` ${pattern}`;
   } else if (flowMatchesStructure) {
     title = "Groups Aligned: High Conviction";
     icon  = "bolt";
     tone  = lsBull ? "bull" : "bear";
     flow  = pattern ?? (lsBull
-      ? `Large specs added ${fmtMag(c.lsChange)} longs while commercials increased hedging, with both groups confirming ${c.pair} upside.`
-      : `Large specs added ${fmtMag(c.lsChange)} shorts while commercials reduced hedges, with both groups confirming ${c.pair} downside.`);
+      ? `Large specs added ${fmtMag(c.lsChange)} longs while commercials increased hedging. Both groups point to ${c.pair} upside.`
+      : `Large specs added ${fmtMag(c.lsChange)} shorts while commercials reduced hedges. Both groups point to ${c.pair} downside.`);
   } else {
     title = "Weekly Flow vs Structure: Watch Carefully";
     icon  = "trending_flat";
     tone  = "caution";
     flow  = pattern ?? (lsBull
-      ? `Large specs added ${fmtMag(c.lsChange)} longs this week, but positioning is still historically underweight — possible early accumulation rather than a confirmed shift.`
-      : `Large specs trimmed ${fmtMag(c.lsChange)} longs this week from historically elevated positioning — early distribution unless the unwinding stalls.`);
+      ? `Large specs added ${fmtMag(c.lsChange)} longs this week, but positioning is still historically underweight. That looks more like early accumulation than a confirmed shift.`
+      : `Large specs trimmed ${fmtMag(c.lsChange)} longs this week from historically elevated positioning. That reads as early distribution unless the unwinding stalls.`);
   }
 
   // ── Structure sentence (the positioning cycle, deepest window first) ────────
@@ -205,27 +205,27 @@ export function buildCotCommentary(c: CotCommentaryInput): CotCommentary {
   if (idx >= 80) {
     structure =
       idxAll != null && idxAll >= 85
-        ? `COT Index at ${idx} — specs are near maximum long not just on the 3-year view but across the full history (all-time ${idxAll}). Crowded longs: watch for exhaustion if price stops making new highs.`
-        : `COT Index at ${idx} confirms structural bullish bias, though on the full history this is not yet an extreme${idxAll != null ? ` (all-time ${idxAll})` : ""}.`;
+        ? `The COT Index sits at ${idx}, and the all-time reading (${idxAll}) says specs are about as long as they have ever been on any lookback. Longs this crowded tend to exhaust once price stops making new highs.`
+        : `A COT Index of ${idx} supports a structural bullish bias, though the full history says this is not an extreme yet${idxAll != null ? ` (all-time ${idxAll})` : ""}.`;
   } else if (idx <= 20) {
     structure =
       idxAll != null && idxAll <= 15
-        ? `COT Index at ${idx} — specs are near maximum short across the full history (all-time ${idxAll}). Historically this precedes either a sustained reversal or continued liquidation; a positive WoW Δ is the first confirmation to watch.`
-        : `COT Index at ${idx} confirms structural bearish bias, though on the full history this is not yet an extreme${idxAll != null ? ` (all-time ${idxAll})` : ""}.`;
+        ? `The COT Index sits at ${idx}, and the all-time reading (${idxAll}) has specs about as short as they have ever been. From here the market either keeps liquidating or builds a reversal; the first thing to watch is the WoW change turning positive.`
+        : `A COT Index of ${idx} supports a structural bearish bias, though the full history says this is not an extreme yet${idxAll != null ? ` (all-time ${idxAll})` : ""}.`;
   } else if (idx52 != null && Math.abs(idx - idx52) > 25) {
     structure =
       idx52 < idx
-        ? `1-year index (${idx52}) sits well below the 3-year (${idx}): a recent pullback inside a longer structure, not a structural extreme.`
-        : `1-year index (${idx52}) runs well above the 3-year (${idx}): momentum has recovered from a deeper trough, but the longer view is not yet ${structurallyBull ? "stretched" : "bullish"}.`;
+        ? `The 1-year index (${idx52}) sits well below the 3-year (${idx}), which reads as a pullback inside a longer structure rather than a structural extreme.`
+        : `The 1-year index (${idx52}) runs well above the 3-year (${idx}). Momentum has recovered from a deeper trough, but the longer view is not ${structurallyBull ? "stretched" : "bullish"} yet.`;
   } else {
-    structure = `COT Index at ${idx} — mid-range positioning, so COT is not the primary edge here; lean on price structure and liquidity.`;
+    structure = `The COT Index is at ${idx}, the middle of its range. COT is not the edge this week; price structure and liquidity matter more.`;
   }
 
   // Open-interest crowding — only when the spec net is a large share of the market
   if (c.openInterest != null && c.openInterest > 0) {
     const share = Math.round((c.largeSpecNet / c.openInterest) * 100);
     if (Math.abs(share) >= 40) {
-      structure += ` Spec net is ${share > 0 ? "+" : ""}${share}% of open interest — unusually crowded positioning.`;
+      structure += ` Spec net is ${share > 0 ? "+" : ""}${share}% of open interest, which is unusually crowded.`;
     }
   }
 
