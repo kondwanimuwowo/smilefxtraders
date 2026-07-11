@@ -1,0 +1,75 @@
+# Requirements: COT Tool Refinement
+
+**Defined:** 2026-07-11
+**Core Value:** A trader opens `/cot` on any device and reads each pair's institutional bias at a glance — no noise, no repetition, no crushed layouts.
+
+## v1 Requirements
+
+### Signal Language
+
+- [ ] **SIG-01**: User sees each pair's COT signal as a custom 3-bar `SignalBars` SVG icon (standalone component, not an icon-registry entry)
+- [ ] **SIG-02**: The 5 signal levels map via brightness variants: strong_bear = 1 bar coral-bright, bear = 1 bar coral, neutral = 2 bars gold, bull = 3 bars teal, strong_bull = 3 bars teal-bright — driven from `signalCfg.ts`, not forked
+- [ ] **SIG-03**: User sees a 3-entry color key above the cards (coral 1-bar = Bearish, gold 2-bar = Neutral/Mixed, teal 3-bar = Bullish) plus a key entry explaining USD-base inverted pairs
+- [ ] **SIG-04**: Cards show the signal icon only — no signal text label on the card
+
+### Card De-noise
+
+- [ ] **CARD-01**: Commentary (DivergencePanel) is removed from overview cards and remains on the detail page only
+- [ ] **CARD-02**: Card header shows the pair once (duplicate `entry.label` text removed or moved to tooltip)
+- [ ] **CARD-03**: History badge renders as icon + `28yr` with a hover tooltip explaining what it means
+- [ ] **CARD-04**: USD-base inverted badge renders as an icon-only swap-style marker with tooltip
+- [ ] **CARD-05**: "Net % of OI" never shows a false `0%` — small values show one decimal or `<1%`
+- [ ] **CARD-06**: Cards have `shadow-md` elevation
+
+### Page Structure
+
+- [ ] **PAGE-01**: Summary pill strip and pair filter tabs are replaced by ONE pill row — each pill shows pair + SignalBars icon and acts as the filter
+- [ ] **PAGE-02**: Topbar has `shadow-sm`; sidebar remains shadow-free
+
+### Mobile
+
+- [ ] **MOB-01**: Card inner grid (COT dial | position bars | sparkline) stacks below `md` so cards read cleanly on phones
+- [ ] **MOB-02**: The merged pill row, color key, and page header wrap gracefully on small screens
+
+### Detail Page
+
+- [ ] **DET-01**: `/cot/[pair]` uses the same SignalBars icon, badge treatment, and de-noise conventions as the overview
+- [ ] **DET-02**: `/cot/[pair]` reads cleanly on mobile (same stacking pass as overview cards)
+
+### Education
+
+- [ ] **EDU-01**: The overview's two education blocks (gold "how to read" strip + bottom SMC panel) are collapsed into one leaner teach-layer (collapsible / tooltip-driven)
+
+## v2 Requirements
+
+### Analysis Depth
+
+- **ANLY-01**: Extremes/flip detection surfaced on cards (COT index extreme alerts, net-position flips)
+- **ANLY-02**: Week-over-week delta visualization beyond the current sparkline
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Sidebar shadow | Flat bordered surface; shadow fakes elevation and fights the border |
+| Shadows beyond Tailwind `lg` | Hard cap per design direction; `md` cards, `sm` shell |
+| Data-pipeline changes (sync, signs, thresholds) | Data trust addressed in July 2026 audit; this milestone is presentation + education |
+| Signal text labels on cards | Icon-only per minify goal; the key carries meaning |
+| New COT analytics | "Analysis depth" deferred to a future milestone (tracked as v2) |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| — | — | — |
+
+**Coverage:**
+- v1 requirements: 16 total
+- Mapped to phases: 0
+- Unmapped: 16 ⚠️ (filled by roadmap)
+
+---
+*Requirements defined: 2026-07-11*
+*Last updated: 2026-07-11 after initial definition*
