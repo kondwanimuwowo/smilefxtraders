@@ -210,7 +210,7 @@ export default function FeaturesPage() {
             <FeatureBlock
               icon="analytics"
               title="MacroEdge"
-              lead="Know why a currency is strong or weak, not just what the chart says. A weighted fundamental score per currency, built from interest rates, inflation, employment, and more, cross-checked against your Trend Matrix and COT positioning."
+              lead="Know why a currency is strong or weak before the chart shows it. A weighted fundamental score per currency, built from interest rates, inflation, employment, and more, cross-checked against your Trend Matrix and COT positioning."
               bullets={[
                 "Weighted fundamental score per currency (USD, EUR, GBP, NZD)",
                 "Pair bias from Strong Buy to Strong Sell, from the score differential",

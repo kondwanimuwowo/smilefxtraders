@@ -89,7 +89,7 @@ export default function LearnPage() {
           <div className="feature-row">
             <FeatureBlock
               icon="play_lesson"
-              title="Learn the why, not just the what"
+              title="Understand why a setup works"
               lead="Every lesson pairs a focused video with a written summary and the key points, so you can revise fast before London opens, and the concept actually sticks."
               bullets={[
                 "Short, focused videos, most under 15 minutes",

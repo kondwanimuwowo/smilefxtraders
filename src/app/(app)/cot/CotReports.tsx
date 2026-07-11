@@ -564,17 +564,17 @@ export function CotReports() {
               <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">3</div>
               <span className="font-semibold text-ink-strong">Confirm with Price</span>
             </div>
-            COT alone does not give you an entry; it gives you a directional filter. Combine a bullish COT signal with a swept liquidity pool, a valid OB or FVG on HTF, and a killzone entry window. All three together = high-probability SMC setup.
+            COT alone does not give you an entry; it gives you a directional filter. Combine a bullish COT signal with a swept liquidity pool, a valid OB or FVG on HTF, and a killzone entry window. When all three line up, you have a high-probability SMC setup.
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-[12.5px] leading-relaxed text-ink-mid">
           <div className="rounded-xl px-4 py-3 bg-[rgba(8,174,170,0.05)] border border-[rgba(8,174,170,0.15)]">
             <div className="font-semibold mb-1 text-teal">Extreme readings: reversal or continuation?</div>
-            At COT Index &gt; 80, large specs are near their most bullish in a year. This can mean two things: price has already moved significantly (late to the party), OR the trend is strong and still has room (early in a cycle). Always check price structure: if price has NOT yet moved proportionally, COT is leading. If price has already run hard, the extreme may signal a top.
+            At COT Index &gt; 80, large specs are near their most bullish in a year. This can mean two things: price has already moved a long way and you are late to the party, or the trend is strong and still has room to run. Always check price structure. If price has not yet moved proportionally, COT is leading; if price has already run hard, the extreme may be signalling a top.
           </div>
           <div className="rounded-xl px-4 py-3 bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.15)]">
             <div className="font-semibold mb-1 text-gold">DXY is your master bias</div>
-            When the USD Index (DXY) COT Index is low (large specs bearish on USD), that is a tailwind for EURUSD, GBPUSD, NZDUSD, AUDUSD, and XAUUSD longs simultaneously. Cross-reference DXY with your pairs: if DXY is bearish COT and EURUSD is bullish COT, that is the strongest possible EUR setup. Maximum confluence.
+            When the USD Index (DXY) COT Index is low (large specs bearish on USD), that is a tailwind for EURUSD, GBPUSD, NZDUSD, AUDUSD, and XAUUSD longs simultaneously. Cross-reference DXY with your pairs: if DXY is bearish COT and EURUSD is bullish COT, that is the strongest possible EUR setup, with every factor pulling the same way.
           </div>
         </div>
 

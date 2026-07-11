@@ -118,8 +118,8 @@ export default function CurrencyProfilePage() {
             <Icon name="info" size={15} fill className="text-gold shrink-0 mt-px" />
             <span>
               No score computed yet for {C}. Scores are built from calendar releases (surprise vs.
-              forecast) and FRED/World Bank indicator levels — run the indicators + scores sync jobs
-              to populate this.
+              forecast) and FRED/World Bank indicator levels. Run the indicators and scores sync
+              jobs to populate this.
             </span>
           </div>
         ) : (

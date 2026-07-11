@@ -71,7 +71,7 @@ export default async function HomePage() {
               { icon: "rule",                 title: "Rules Validator",     desc: "Walk any idea through the SMC checklist before you click. Get a clear A+ / Wait / No-Trade verdict.", href: "/features#validator" },
               { icon: "notifications_active", title: "Live Alerts",         desc: "Kondwani posts validated setups in real time, with the full reasoning. Copy any alert straight to your journal.", href: "/features#alerts" },
               { icon: "bar_chart",            title: "COT Reports",         desc: "Weekly institutional positioning from the CFTC Commitments of Traders report: large specs, commercials, and net positioning.", href: "/features#cot" },
-              { icon: "analytics",            title: "MacroEdge",          desc: "A weighted fundamental score per currency, cross-checked against Trend Matrix and COT, so you know why a pair is biased, not just what the chart says.", href: "/features#macroedge" },
+              { icon: "analytics",            title: "MacroEdge",          desc: "A weighted fundamental score per currency, cross-checked against Trend Matrix and COT, so you know why a pair is biased before the chart shows it.", href: "/features#macroedge" },
               { icon: "auto_awesome",         title: "Gavo AI Review",      desc: "Your AI trading coach grades every trade against the SMC rulebook with a structured verdict: what was good, what to improve.", href: "/features#gavo" },
               { icon: "school",               title: "Academy",             desc: "A six-level SMC curriculum taught in order, from market structure foundations to prop-firm readiness.", href: "/learn" },
             ].map((tool, i) => (
