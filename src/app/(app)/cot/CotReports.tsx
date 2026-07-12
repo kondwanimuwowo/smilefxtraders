@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import { CotLockScreen } from "@/components/cot/CotLockScreen";
 import { SIGNAL_CFG } from "@/components/cot/signalCfg";
+import { SignalBars } from "@/components/cot/SignalBars";
 import { buildCotCommentary } from "@/lib/cot/commentary";
 import type { CotEntry } from "@/lib/cot/types";
 
@@ -175,7 +176,6 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
     );
   }
 
-  const sig = SIGNAL_CFG[entry.signal];
   const cur = entry.history[0];
   const prev = entry.history[1] ?? entry.history[0];
 
@@ -209,11 +209,8 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
             </span>
             <span className="text-[11px] text-ink-dim">·</span>
             <span className="text-[13px] text-ink-mid">{entry.label}</span>
-            {/* Signal badge */}
-            <span className={cn("inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full", sig.bgCls, sig.textCls)}>
-              <Icon name={sig.icon} size={12} />
-              {sig.label}
-            </span>
+            {/* Signal */}
+            <SignalBars signal={entry.signal} size="md" />
             {entry.totalWeeks > 0 && <HistoryBadge weeks={entry.totalWeeks} />}
             {entry.usdBase && (
               <span
