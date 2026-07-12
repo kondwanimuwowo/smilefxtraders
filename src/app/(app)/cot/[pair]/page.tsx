@@ -6,6 +6,7 @@ import { Icon, Skeleton } from "@/components/ui";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import { CotLockScreen } from "@/components/cot/CotLockScreen";
 import { PositioningChart } from "@/components/cot/PositioningChart";
+import { GavoCotRead } from "@/components/cot/GavoCotRead";
 import { SignalBars } from "@/components/cot/SignalBars";
 import { buildCotCommentary } from "@/lib/cot/commentary";
 import { cn } from "@/lib/cn";
@@ -286,6 +287,11 @@ export default function CotPairPage() {
       {/* ── Positioning history chart ── */}
       {!error && !loading && rows.length > 1 && (
         <PositioningChart rows={rows} showRetail={showSmallSpec} />
+      )}
+
+      {/* ── Gavo COT Read ── */}
+      {!error && !loading && rows.length > 1 && (
+        <GavoCotRead pair={pair.toUpperCase()} />
       )}
 
       {/* ── Error state ── */}

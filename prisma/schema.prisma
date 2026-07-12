@@ -576,3 +576,17 @@ model GavoMacroExplanation {
   @@unique([subjectType, subjectKey])
   @@map("gavo_macro_explanations")
 }
+
+// Gavo COT Read — separate table from GavoMacroExplanation because that model
+// is keyed by (SubjectType.PAIR, pair) for macro bias explanations; a COT
+// read on the same pair would collide on the same unique constraint.
+model GavoCotExplanation {
+  id          String   @id @default(cuid())
+  pair        String   @unique
+  explanation String
+  model       String // e.g. "claude-sonnet-4-6"
+  inputHash   String   @map("input_hash") // regenerate only when the current COT reading differs
+  generatedAt DateTime @default(now()) @map("generated_at")
+
+  @@map("gavo_cot_explanations")
+}
