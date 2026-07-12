@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getInstruments } from "@/lib/server/getInstruments";
 import { requirePaidPlan } from "@/lib/plan-guard";
 import { computeCotStats, EMPTY_COT_STATS, INDEX_WEEKS, percentile } from "@/lib/cot/signal";
+import { deriveMetaMap } from "@/lib/pairs";
+import { buildSyntheticHistory } from "@/lib/cot/crossPairSignal";
 import type { CotDetailResponse, CotDetailRow } from "@/lib/cot/types";
 
 // Rows served per page; the first page fetches INDEX_WEEKS for the signal math.
@@ -21,8 +23,61 @@ export async function GET(
   const upper = pair.toUpperCase();
 
   const instruments = await getInstruments();
-  const inst = instruments.find((i) => i.symbol === upper && i.cotContract != null);
+  const inst = instruments.find((i) => i.symbol === upper);
   if (!inst) {
+    return NextResponse.json({ error: "Unknown pair" }, { status: 404 });
+  }
+
+  // Cross pairs (minors) have no direct CFTC contract — derive from each
+  // leg's currency-level positioning instead. Single page: no "load more"
+  // pagination, the intersection is naturally bounded (see crossPairSignal.ts).
+  if (inst.cotContract == null && inst.category === "forex") {
+    const meta = deriveMetaMap(instruments)[upper];
+    if (!meta) return NextResponse.json({ error: "Unknown pair" }, { status: 404 });
+
+    const rows = await buildSyntheticHistory(meta.base, meta.quote, INDEX_WEEKS);
+    if (rows.length < 2) {
+      return NextResponse.json({ error: `Not enough COT history for ${upper} yet` }, { status: 404 });
+    }
+
+    const rolling3yr = (i: number): number | null => {
+      const win = rows.slice(i, i + INDEX_WEEKS);
+      if (win.length < 26) return null;
+      let min = Infinity, max = -Infinity;
+      for (const w of win) {
+        if (w.largeSpecNet < min) min = w.largeSpecNet;
+        if (w.largeSpecNet > max) max = w.largeSpecNet;
+      }
+      return percentile(rows[i].largeSpecNet, min, max);
+    };
+
+    const displayRows: CotDetailRow[] = rows.map((r, i) => ({
+      date:            r.date,
+      largeSpecLong:   null, largeSpecShort:  null, largeSpecNet:  r.largeSpecNet,
+      commercialLong:  null, commercialShort: null, commercialNet: r.commercialNet,
+      smallSpecLong:   null, smallSpecShort:  null, smallSpecNet:  r.smallSpecNet,
+      openInterest:    null,
+      cotIndex3yr:      rolling3yr(i),
+    }));
+
+    const signalData = computeCotStats(rows);
+    const min = Math.min(...rows.map((r) => r.largeSpecNet));
+    const max = Math.max(...rows.map((r) => r.largeSpecNet));
+    const cotIndexAll = percentile(rows[0].largeSpecNet, min, max);
+
+    return NextResponse.json({
+      pair:      upper,
+      label:     inst.label,
+      usdBase:   false,
+      rows:      displayRows,
+      totalWeeks: rows.length,
+      cotIndexAll,
+      synthetic: true,
+      ...signalData,
+    } satisfies CotDetailResponse);
+  }
+
+  if (inst.cotContract == null) {
     return NextResponse.json({ error: "Unknown pair" }, { status: 404 });
   }
 

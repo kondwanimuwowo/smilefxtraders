@@ -393,6 +393,7 @@ model Instrument {
   symbol       String   @unique          // "EURUSD"
   label        String                    // "EUR/USD"
   category     String                    // "forex" | "commodity" | "index"
+  tier         String   @default("major") // "major" | "minor" | "exotic"
   pipSize      Float                     // 0.0001 / 0.01 / 1
   pipValue     Float                     // USD value per pip per standard lot
   tdSymbol     String?  @map("td_symbol")       // Twelve Data: "EUR/USD", "IXIC"

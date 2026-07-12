@@ -9,6 +9,7 @@ type Instrument = {
   symbol: string;
   label: string;
   category: string;
+  tier: string;
   pipSize: number;
   pipValue: number;
   tdSymbol: string | null;
@@ -20,7 +21,7 @@ type Instrument = {
 };
 
 const EMPTY_FORM = {
-  symbol: "", label: "", category: "forex",
+  symbol: "", label: "", category: "forex", tier: "major",
   pipSize: "0.0001", pipValue: "10",
   tdSymbol: "", cotCode: "",
   cotInverted: false, fxoTracked: false, active: true,
@@ -66,6 +67,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
       symbol:      inst.symbol,
       label:       inst.label,
       category:    inst.category,
+      tier:        inst.tier,
       pipSize:     String(inst.pipSize),
       pipValue:    String(inst.pipValue),
       tdSymbol:    inst.tdSymbol ?? "",
@@ -90,6 +92,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
         symbol:      form.symbol.toUpperCase().trim(),
         label:       form.label.trim(),
         category:    form.category,
+        tier:        form.tier,
         pipSize:     Number(form.pipSize),
         pipValue:    Number(form.pipValue),
         tdSymbol:    form.tdSymbol.trim() || null,
@@ -362,6 +365,16 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
                   <option value="forex">Forex</option>
                   <option value="commodity">Commodity</option>
                   <option value="index">Index</option>
+                </select>
+              </div>
+
+              {/* Tier */}
+              <div>
+                <label className={labelCls}>Tier</label>
+                <select className={inputCls} value={form.tier} onChange={field("tier")}>
+                  <option value="major">Major</option>
+                  <option value="minor">Minor</option>
+                  <option value="exotic">Exotic</option>
                 </select>
               </div>
 

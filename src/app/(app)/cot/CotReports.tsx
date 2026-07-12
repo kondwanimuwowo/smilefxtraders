@@ -180,6 +180,14 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
             {/* Signal */}
             <SignalBars signal={entry.signal} size="md" />
             {entry.totalWeeks > 0 && <HistoryBadge weeks={entry.totalWeeks} />}
+            {entry.synthetic && (
+              <span
+                title={`No direct CFTC contract exists for ${entry.pair} — this signal is derived from its two legs' own currency positioning.`}
+                className="inline-flex items-center justify-center size-5 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
+              >
+                <Icon name="auto_awesome" size={12} />
+              </span>
+            )}
             {entry.usdBase && (
               <span
                 title="Positions shown for the foreign currency futures (JPY/CHF/CAD). Net positive = bullish on the USD pair."

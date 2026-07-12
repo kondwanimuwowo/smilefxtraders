@@ -1,51 +1,56 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
-
-const GROUPS = [
-  {
-    label: "FX Majors",
-    description: "The most liquid currency pairs, traded during the London and New York sessions",
-    pairs: [
-      { pair: "EURUSD", label: "Euro / US Dollar",        base: "EUR", quote: "USD" },
-      { pair: "GBPUSD", label: "British Pound / US Dollar", base: "GBP", quote: "USD" },
-      { pair: "AUDUSD", label: "Australian Dollar / USD",  base: "AUD", quote: "USD" },
-      { pair: "NZDUSD", label: "NZ Dollar / US Dollar",    base: "NZD", quote: "USD" },
-      { pair: "USDJPY", label: "US Dollar / Japanese Yen", base: "USD", quote: "JPY" },
-      { pair: "USDCHF", label: "US Dollar / Swiss Franc",  base: "USD", quote: "CHF" },
-      { pair: "USDCAD", label: "US Dollar / Canadian Dollar", base: "USD", quote: "CAD" },
-    ],
-  },
-  {
-    label: "Commodities & Indices",
-    description: "Risk-sentiment instruments with a strong correlation to USD flows",
-    pairs: [
-      { pair: "XAUUSD", label: "Gold / US Dollar",   base: "XAU", quote: "USD" },
-      { pair: "NAS100", label: "NASDAQ 100 E-mini",  base: "NAS", quote: "USD" },
-    ],
-  },
-  {
-    label: "Dollar Index",
-    description: "The master bias: DXY direction sets the tone for all USD pairs simultaneously",
-    pairs: [
-      { pair: "DXY", label: "US Dollar Index", base: "USD", quote: "" },
-    ],
-  },
-] as const;
+import { useInstruments } from "@/lib/hooks/useInstruments";
+import { deriveMetaMap } from "@/lib/pairs";
+import type { Instrument } from "@prisma/client";
 
 const FEATURES = ["COT Bias", "Trend Matrix", "DXY Confluence"] as const;
 
-// Subtle accent classes per group
+// Subtle accent classes per group — keyed by a fixed group id, not by pair
+// symbol, so a new instrument only needs a category/tier to land in the
+// right visual group automatically.
 const GROUP_ACCENT: Record<string, { barCls: string; hoverBorderCls: string; chipBgCls: string; chipTextCls: string; chipBorderCls: string }> = {
-  "FX Majors":             { barCls: "bg-teal",  hoverBorderCls: "hover:border-teal",  chipBgCls: "bg-[color-mix(in_srgb,var(--teal)_12%,transparent)]",  chipTextCls: "text-teal",  chipBorderCls: "border-[color-mix(in_srgb,var(--teal)_25%,transparent)]" },
-  "Commodities & Indices": { barCls: "bg-gold",  hoverBorderCls: "hover:border-gold",  chipBgCls: "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)]",  chipTextCls: "text-gold",  chipBorderCls: "border-[color-mix(in_srgb,var(--gold)_25%,transparent)]" },
-  "Dollar Index":          { barCls: "bg-coral", hoverBorderCls: "hover:border-coral", chipBgCls: "bg-[color-mix(in_srgb,var(--coral)_12%,transparent)]", chipTextCls: "text-coral", chipBorderCls: "border-[color-mix(in_srgb,var(--coral)_25%,transparent)]" },
+  majors:      { barCls: "bg-teal",        hoverBorderCls: "hover:border-teal",        chipBgCls: "bg-[color-mix(in_srgb,var(--teal)_12%,transparent)]",        chipTextCls: "text-teal",        chipBorderCls: "border-[color-mix(in_srgb,var(--teal)_25%,transparent)]" },
+  minors:      { barCls: "bg-teal-bright", hoverBorderCls: "hover:border-teal-bright", chipBgCls: "bg-[color-mix(in_srgb,var(--teal-bright)_12%,transparent)]", chipTextCls: "text-teal-bright", chipBorderCls: "border-[color-mix(in_srgb,var(--teal-bright)_25%,transparent)]" },
+  commodities: { barCls: "bg-gold",        hoverBorderCls: "hover:border-gold",        chipBgCls: "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)]",        chipTextCls: "text-gold",        chipBorderCls: "border-[color-mix(in_srgb,var(--gold)_25%,transparent)]" },
+  indices:     { barCls: "bg-navy",        hoverBorderCls: "hover:border-navy",        chipBgCls: "bg-[color-mix(in_srgb,var(--navy)_12%,transparent)]",        chipTextCls: "text-navy",        chipBorderCls: "border-[color-mix(in_srgb,var(--navy)_25%,transparent)]" },
+  dollar:      { barCls: "bg-coral",       hoverBorderCls: "hover:border-coral",       chipBgCls: "bg-[color-mix(in_srgb,var(--coral)_12%,transparent)]",       chipTextCls: "text-coral",       chipBorderCls: "border-[color-mix(in_srgb,var(--coral)_25%,transparent)]" },
 };
 
+interface Group {
+  id: string;
+  label: string;
+  description: string;
+  instruments: Instrument[];
+}
+
+function buildGroups(instruments: Instrument[]): Group[] {
+  const dxy    = instruments.filter((i) => i.symbol === "DXY");
+  const majors = instruments.filter((i) => i.category === "forex" && i.tier === "major");
+  const minors = instruments.filter((i) => i.category === "forex" && i.tier !== "major");
+  const commodities = instruments.filter((i) => i.category === "commodity");
+  const indices = instruments.filter((i) => i.category === "index" && i.symbol !== "DXY");
+
+  const groups: Group[] = [
+    { id: "majors", label: "FX Majors", description: "The most liquid currency pairs, traded during the London and New York sessions", instruments: majors },
+    { id: "minors", label: "FX Minors", description: "Cross pairs among major currencies — no direct CFTC contract, so COT bias is derived from each leg's currency positioning", instruments: minors },
+    { id: "commodities", label: "Commodities", description: "Metals and energy with a strong correlation to USD flows", instruments: commodities },
+    { id: "indices", label: "Indices", description: "Equity indices — some carry a direct CFTC COT contract, others are price-only", instruments: indices },
+    { id: "dollar", label: "Dollar Index", description: "The master bias: DXY direction sets the tone for all USD pairs simultaneously", instruments: dxy },
+  ];
+
+  return groups.filter((g) => g.instruments.length > 0);
+}
+
 export default function PairsPage() {
-  const totalPairs = GROUPS.reduce((s, g) => s + g.pairs.length, 0);
+  const { data: instruments = [] } = useInstruments();
+  const metaMap = useMemo(() => deriveMetaMap(instruments), [instruments]);
+  const groups  = useMemo(() => buildGroups(instruments), [instruments]);
+  const totalPairs = instruments.length;
 
   return (
     <div className="view">
@@ -71,10 +76,10 @@ export default function PairsPage() {
 
       {/* ── Groups ── */}
       <div className="flex flex-col gap-10">
-        {GROUPS.map((group) => {
-          const accent = GROUP_ACCENT[group.label];
+        {groups.map((group) => {
+          const accent = GROUP_ACCENT[group.id];
           return (
-            <section key={group.label}>
+            <section key={group.id}>
               {/* Group heading */}
               <div className="flex items-center gap-3 mb-4">
                 <div className={cn("w-1 h-5 rounded-full shrink-0", accent.barCls)} />
@@ -90,63 +95,66 @@ export default function PairsPage() {
 
               {/* Pair cards */}
               <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
-                {group.pairs.map(({ pair, label, base, quote }) => (
-                  <Link
-                    key={pair}
-                    href={`/pair/${pair}`}
-                    className={cn("group flex flex-col rounded-2xl overflow-hidden transition-all duration-150 bg-panel border border-line", accent.hoverBorderCls)}
-                  >
-                    {/* Top — pair name */}
-                    <div className="px-5 pt-5 pb-4 border-b border-line bg-panel-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <div className="font-display font-bold leading-none text-[22px] tracking-[-0.02em] text-ink-strong">
-                            {pair}
+                {group.instruments.map((inst) => {
+                  const meta = metaMap[inst.symbol];
+                  return (
+                    <Link
+                      key={inst.symbol}
+                      href={`/pair/${inst.symbol}`}
+                      className={cn("group flex flex-col rounded-2xl overflow-hidden transition-all duration-150 bg-panel border border-line", accent.hoverBorderCls)}
+                    >
+                      {/* Top — pair name */}
+                      <div className="px-5 pt-5 pb-4 border-b border-line bg-panel-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="font-display font-bold leading-none text-[22px] tracking-[-0.02em] text-ink-strong">
+                              {inst.symbol}
+                            </div>
+                            <div className="text-[12px] mt-1.5 text-ink-dim">
+                              {inst.label}
+                            </div>
                           </div>
-                          <div className="text-[12px] mt-1.5 text-ink-dim">
-                            {label}
-                          </div>
+                          <Icon
+                            name="arrow_forward"
+                            size={16}
+                            className="text-ink-dim shrink-0 mt-0.5 transition-transform group-hover:translate-x-0.5"
+                          />
                         </div>
-                        <Icon
-                          name="arrow_forward"
-                          size={16}
-                          className="text-ink-dim shrink-0 mt-0.5 transition-transform group-hover:translate-x-0.5"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Bottom — chips */}
-                    <div className="px-5 py-3.5 flex items-center justify-between gap-3">
-                      {/* Base / quote chips */}
-                      <div className="flex items-center gap-1.5">
-                        <span className={cn("text-[10.5px] font-bold px-2 py-0.5 rounded-md border", accent.chipBgCls, accent.chipTextCls, accent.chipBorderCls)}>
-                          {base}
-                        </span>
-                        {quote && (
-                          <>
-                            <span className="text-[10px] text-ink-dim">/</span>
-                            <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-panel-2 text-ink-dim border border-line">
-                              {quote}
-                            </span>
-                          </>
-                        )}
                       </div>
 
-                      {/* Feature dots */}
-                      <div className="flex items-center gap-2">
-                        {FEATURES.map((f) => (
-                          <span
-                            key={f}
-                            className="text-[10px] font-semibold text-ink-dim"
-                            title={f}
-                          >
-                            {f.split(" ")[0]}
+                      {/* Bottom — chips */}
+                      <div className="px-5 py-3.5 flex items-center justify-between gap-3">
+                        {/* Base / quote chips */}
+                        <div className="flex items-center gap-1.5">
+                          <span className={cn("text-[10.5px] font-bold px-2 py-0.5 rounded-md border", accent.chipBgCls, accent.chipTextCls, accent.chipBorderCls)}>
+                            {meta?.base ?? inst.symbol}
                           </span>
-                        ))}
+                          {meta?.quote && (
+                            <>
+                              <span className="text-[10px] text-ink-dim">/</span>
+                              <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-panel-2 text-ink-dim border border-line">
+                                {meta.quote}
+                              </span>
+                            </>
+                          )}
+                        </div>
+
+                        {/* Feature dots */}
+                        <div className="flex items-center gap-2">
+                          {FEATURES.map((f) => (
+                            <span
+                              key={f}
+                              className="text-[10px] font-semibold text-ink-dim"
+                              title={f}
+                            >
+                              {f.split(" ")[0]}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             </section>
           );

@@ -1,7 +1,8 @@
 import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { BiasLabel } from "@prisma/client";
-import { PAIR_META } from "@/lib/pairs";
+import { deriveMetaMap } from "@/lib/pairs";
+import { getInstruments } from "@/lib/server/getInstruments";
 import { TRACKED_CURRENCIES } from "./indicatorMap";
 import { fanOutMacroBiasFlip } from "@/lib/notify-events";
 
@@ -12,15 +13,20 @@ import { fanOutMacroBiasFlip } from "@/lib/notify-events";
 // avoid, not build.
 //
 // Only pairs where BOTH legs are tracked fiat currencies (USD/EUR/GBP/NZD)
-// get a real differential: EURUSD, GBPUSD, NZDUSD. USDJPY/USDCHF/USDCAD/
-// AUDUSD have an untracked non-USD leg (JPY/CHF/CAD/AUD) — MacroEdge collects
-// no indicator data for those currencies, so fabricating a score for them
+// get a real differential. MacroEdge collects no indicator data for
+// untracked currencies (JPY/CHF/CAD/AUD), so fabricating a score for them
 // would be worse than showing nothing. XAUUSD gets the plan's documented
 // special case (an inverted, down-weighted USD-score proxy, since gold has
-// no CPI/GDP/central bank of its own). NAS100 is deliberately excluded here
-// — the plan says it "inherits USD's score" rather than getting its own
-// differential, since NAS isn't an FX pair; the pair hub shows USD's score
-// directly for NAS100 instead of computing a meaningless differential.
+// no CPI/GDP/central bank of its own). Index instruments (NAS100, US500,
+// US30, UK100, GER40) are deliberately excluded here — they inherit USD's
+// score rather than getting their own differential, since they aren't FX
+// pairs; the pair hub shows USD's score directly for those instead of
+// computing a meaningless differential.
+//
+// Pair metadata (base/quote/currencies) is derived from the `instruments`
+// DB table via deriveMetaMap() — not a hardcoded pair list — so any new
+// forex instrument whose legs are both tracked currencies picks up a real
+// bias automatically. See src/lib/pairs.ts.
 
 const THRESHOLDS = { strong: 8, mild: 4 };
 
@@ -36,14 +42,21 @@ function labelFromDifferential(differential: number): BiasLabel {
   return BiasLabel.NEUTRAL;
 }
 
+function isTrackedCurrency(c: string): c is (typeof TRACKED_CURRENCIES)[number] {
+  return (TRACKED_CURRENCIES as readonly string[]).includes(c);
+}
+
 // Standard pairs: both legs are tracked currencies with a real score.
-const STANDARD_PAIRS = Object.entries(PAIR_META)
-  .filter(([, meta]) => meta.base !== "XAU" && meta.base !== "NAS" && meta.quote)
-  .filter(([, meta]) => TRACKED_CURRENCIES.includes(meta.base as (typeof TRACKED_CURRENCIES)[number]) && TRACKED_CURRENCIES.includes(meta.quote as (typeof TRACKED_CURRENCIES)[number]))
-  .map(([symbol]) => symbol);
+async function getStandardPairSymbols(): Promise<string[]> {
+  const metaMap = deriveMetaMap(await getInstruments());
+  return Object.entries(metaMap)
+    .filter(([, meta]) => meta.base !== "XAU" && meta.quote && isTrackedCurrency(meta.base) && isTrackedCurrency(meta.quote))
+    .map(([symbol]) => symbol);
+}
 
 export async function computePairBias(pair: string) {
-  const meta = PAIR_META[pair];
+  const metaMap = deriveMetaMap(await getInstruments());
+  const meta = metaMap[pair];
   if (!meta) return null;
 
   if (pair === "XAUUSD") {
@@ -64,7 +77,7 @@ export async function computePairBias(pair: string) {
     };
   }
 
-  if (!STANDARD_PAIRS.includes(pair)) return null;
+  if (!isTrackedCurrency(meta.base) || !isTrackedCurrency(meta.quote)) return null;
 
   const [base, quote] = await Promise.all([
     prisma.currentCurrencyScore.findUnique({ where: { currency: meta.base } }),
@@ -111,6 +124,6 @@ export async function recomputeAndStorePairBias(pair: string) {
   return stored;
 }
 
-export function computablePairs(): string[] {
-  return [...STANDARD_PAIRS, "XAUUSD"];
+export async function computablePairs(): Promise<string[]> {
+  return [...(await getStandardPairSymbols()), "XAUUSD"];
 }

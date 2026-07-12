@@ -218,6 +218,14 @@ export default function CotPairPage() {
             {data && (
               <>
                 <SignalBars signal={data.signal} size="lg" />
+                {data.synthetic && (
+                  <span
+                    title={`No direct CFTC contract exists for ${data.pair} — this signal is derived from its two legs' own currency positioning.`}
+                    className="inline-flex items-center justify-center size-6 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
+                  >
+                    <Icon name="auto_awesome" size={13} />
+                  </span>
+                )}
                 {data.usdBase && (
                   <span
                     title="Positions shown for the foreign currency futures. Net positive = bullish on the USD pair."

@@ -1,9 +1,11 @@
-// Shared pair/currency metadata — extracted from pair/[pair]/page.tsx, which
-// previously kept its own private copy of this table. Anything that needs to
-// decompose a pair symbol into its component currencies (calendar filtering,
-// macro currency scoring, etc.) should import from here rather than
-// redefining it, so there's exactly one source of truth for how XAUUSD/NAS100
-// are treated for currency-exposure purposes.
+// Shared pair/currency metadata — derived from the `instruments` DB table
+// (the single source of truth for tradeable symbols) rather than a separate
+// hand-maintained record. Anything that needs to decompose a pair symbol into
+// its component currencies (calendar filtering, macro currency scoring, pair
+// hub, etc.) should call deriveMeta()/deriveMetaMap() against Instrument rows
+// rather than re-hardcoding pair metadata.
+
+import type { Instrument } from "@prisma/client";
 
 export interface PairMeta {
   label: string;
@@ -13,18 +15,37 @@ export interface PairMeta {
   usdBase: boolean;
 }
 
-// NAS100's base ("NAS") is deliberately excluded from `currencies` — it isn't a
-// real currency, so NAS100 only contributes USD exposure. XAUUSD's base (XAU)
-// IS included — gold is treated as a pseudo-currency with its own exposure.
-export const PAIR_META: Record<string, PairMeta> = {
-  EURUSD: { label: "Euro FX", base: "EUR", quote: "USD", currencies: ["EUR", "USD"], usdBase: false },
-  GBPUSD: { label: "British Pound", base: "GBP", quote: "USD", currencies: ["GBP", "USD"], usdBase: false },
-  AUDUSD: { label: "Australian Dollar", base: "AUD", quote: "USD", currencies: ["AUD", "USD"], usdBase: false },
-  NZDUSD: { label: "NZ Dollar", base: "NZD", quote: "USD", currencies: ["NZD", "USD"], usdBase: false },
-  USDJPY: { label: "Japanese Yen", base: "USD", quote: "JPY", currencies: ["USD", "JPY"], usdBase: true },
-  USDCHF: { label: "Swiss Franc", base: "USD", quote: "CHF", currencies: ["USD", "CHF"], usdBase: true },
-  USDCAD: { label: "Canadian Dollar", base: "USD", quote: "CAD", currencies: ["USD", "CAD"], usdBase: true },
-  XAUUSD: { label: "Gold", base: "XAU", quote: "USD", currencies: ["XAU", "USD"], usdBase: false },
-  NAS100: { label: "NASDAQ E-mini", base: "NAS", quote: "USD", currencies: ["USD"], usdBase: false },
-  DXY: { label: "USD Index", base: "USD", quote: "", currencies: ["USD"], usdBase: false },
-};
+// NAS100/US500/US30/UK100/GER40's base (their own symbol) is deliberately
+// excluded from `currencies` — they aren't real currencies, so an index only
+// contributes USD exposure. XAUUSD/XAGUSD's base (XAU/XAG) IS included —
+// metals are treated as pseudo-currencies with their own exposure.
+//
+// DXY is the one genuine exception derivation can't handle: it's the USD
+// index itself, not "USD vs something" — base is "USD", not the symbol.
+function deriveMeta(instrument: Instrument): PairMeta {
+  const { symbol, label, category, cotInverted } = instrument;
+
+  if (symbol === "DXY") {
+    return { label, base: "USD", quote: "", currencies: ["USD"], usdBase: false };
+  }
+
+  if (category === "commodity") {
+    const base = symbol.replace("USD", "");
+    return { label, base, quote: "USD", currencies: [base, "USD"], usdBase: false };
+  }
+
+  if (category === "index") {
+    return { label, base: symbol, quote: "USD", currencies: ["USD"], usdBase: false };
+  }
+
+  // forex — standard 6-char base+quote symbol
+  const base  = symbol.slice(0, 3);
+  const quote = symbol.slice(3, 6);
+  return { label, base, quote, currencies: [base, quote], usdBase: cotInverted };
+}
+
+export function deriveMetaMap(instruments: Instrument[]): Record<string, PairMeta> {
+  const map: Record<string, PairMeta> = {};
+  for (const inst of instruments) map[inst.symbol] = deriveMeta(inst);
+  return map;
+}

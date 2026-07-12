@@ -11,7 +11,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   await requireInstructor();
   const body = await req.json();
-  const { symbol, label, category, pipSize, pipValue, tdSymbol, cotCode, cotInverted, fxoTracked, active } = body;
+  const { symbol, label, category, tier, pipSize, pipValue, tdSymbol, cotCode, cotInverted, fxoTracked, active } = body;
   if (!symbol || !label || !category) {
     return NextResponse.json({ error: "symbol, label, and category are required" }, { status: 400 });
   }
@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
       symbol:       symbol.toUpperCase().trim(),
       label:        label.trim(),
       category,
+      tier:         tier || "major",
       pipSize:      pipSize     ? Number(pipSize)     : 0.0001,
       pipValue:     pipValue    ? Number(pipValue)    : 10,
       tdSymbol:     tdSymbol    || null,

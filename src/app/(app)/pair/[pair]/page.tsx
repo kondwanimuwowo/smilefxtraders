@@ -12,7 +12,8 @@ import type { CotSignal, CotDetailResponse, CotDetailRow } from "@/lib/cot/types
 import { SIGNAL_CFG } from "@/components/cot/signalCfg";
 import type { CalEvent } from "@/app/api/calendar/route";
 import type { PriceTick } from "@/app/api/prices/route";
-import { PAIR_META } from "@/lib/pairs";
+import { deriveMetaMap } from "@/lib/pairs";
+import { useInstruments } from "@/lib/hooks/useInstruments";
 
 // ── Pair metadata ─────────────────────────────────────────────────────────────
 
@@ -183,7 +184,8 @@ export default function PairOverviewPage() {
   const { pair } = useParams<{ pair: string }>();
   const router   = useRouter();
   const P        = pair.toUpperCase();
-  const meta     = PAIR_META[P];
+  const { data: instruments = [], isLoading: instrumentsLoading } = useInstruments();
+  const meta     = useMemo(() => deriveMetaMap(instruments)[P], [instruments, P]);
 
   const [cotData,     setCotData]     = useState<CotDetailResponse | null>(null);
   const [dxyData,     setDxyData]     = useState<CotDetailResponse | null>(null);
@@ -245,6 +247,10 @@ export default function PairOverviewPage() {
   const confBgCls    = confBias === "bullish" ? "bg-teal"   : confBias === "bearish" ? "bg-coral"   : "bg-gold";
 
   const cotSig = cotData ? SIGNAL_CFG[cotData.signal] : null;
+
+  if (!meta && instrumentsLoading) {
+    return <div className="view" />;
+  }
 
   if (!meta) {
     return (

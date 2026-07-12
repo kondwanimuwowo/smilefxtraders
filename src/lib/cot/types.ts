@@ -36,6 +36,7 @@ export interface CotEntry {
   divergenceType: CotDivergence;
   totalWeeks:     number;         // total history available in DB
   openInterest:   number | null;  // latest week's total contracts outstanding
+  synthetic?:     boolean;        // true = derived from the pair's two legs, not a direct CFTC contract
 }
 
 export interface CotDetailRow {
@@ -67,4 +68,5 @@ export interface CotDetailResponse {
   wowChange:      number;
   reportDate:     string;
   divergenceType: CotDivergence;
+  synthetic?:     boolean; // true = derived from the pair's two legs, not a direct CFTC contract
 }

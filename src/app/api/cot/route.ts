@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getInstruments } from "@/lib/server/getInstruments";
 import { requirePaidPlan } from "@/lib/plan-guard";
 import { computeCotStats, EMPTY_COT_STATS, INDEX_WEEKS, percentile } from "@/lib/cot/signal";
+import { deriveMetaMap } from "@/lib/pairs";
+import { computeCrossPairSignal } from "@/lib/cot/crossPairSignal";
 import type { CotEntry, CotWeek } from "@/lib/cot/types";
 
 export async function GET() {
@@ -109,5 +111,33 @@ export async function GET() {
     };
   });
 
-  return NextResponse.json(entries);
+  // Cross pairs (minors) — no direct CFTC contract, so COT is derived from
+  // each leg's currency-level positioning (see lib/cot/crossPairSignal.ts).
+  const crossInstruments = instruments.filter((i) => i.category === "forex" && i.cotContract == null);
+  const metaMap = deriveMetaMap(instruments);
+
+  const crossEntriesRaw = await Promise.all(
+    crossInstruments.map(async (inst): Promise<CotEntry | null> => {
+      const meta = metaMap[inst.symbol];
+      if (!meta) return null;
+      const result = await computeCrossPairSignal(meta.base, meta.quote);
+      if (!result) return null;
+      const { stats, history, totalWeeks } = result;
+      return {
+        pair:         inst.symbol,
+        label:        inst.label,
+        usdBase:      false,
+        history,
+        totalWeeks,
+        openInterest: null,
+        cotIndex52w:  null,
+        cotIndexAll:  null,
+        synthetic:    true,
+        ...stats,
+      };
+    })
+  );
+  const crossEntries = crossEntriesRaw.filter((e): e is CotEntry => e !== null);
+
+  return NextResponse.json([...entries, ...crossEntries]);
 }

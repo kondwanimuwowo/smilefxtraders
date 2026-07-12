@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { recomputeAndStoreCurrencyScore } from "@/lib/macro/scoring";
 import { recomputeAndStorePairBias, computablePairs } from "@/lib/macro/pairBias";
 import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
-import { PAIR_META } from "@/lib/pairs";
+import { deriveMetaMap } from "@/lib/pairs";
+import { getInstruments } from "@/lib/server/getInstruments";
 
 // Cron (daily, after indicators+news land) + event-triggered (fired
 // fire-and-forget from /api/calendar/sync on a fresh high-impact release).
@@ -43,12 +44,15 @@ export async function POST(req: NextRequest) {
 
   // Layer 4 — recompute any pair whose base or quote currency was just
   // recomputed (or every computable pair, on a full/no-param run).
-  const affectedPairs = currencyParam
-    ? computablePairs().filter((p) => {
-        const meta = PAIR_META[p];
-        return meta && (meta.base === currencyParam || meta.quote === currencyParam);
-      })
-    : computablePairs();
+  const allComputablePairs = await computablePairs();
+  let affectedPairs = allComputablePairs;
+  if (currencyParam) {
+    const metaMap = deriveMetaMap(await getInstruments());
+    affectedPairs = allComputablePairs.filter((p) => {
+      const meta = metaMap[p];
+      return meta && (meta.base === currencyParam || meta.quote === currencyParam);
+    });
+  }
 
   const pairResults = [];
   for (const pair of affectedPairs) {
