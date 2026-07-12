@@ -505,6 +505,32 @@ export function CotReports() {
         </span>
       </div>
 
+      {/* ── Color key ── */}
+      {!loading && entries.length > 0 && (
+        <div className="flex items-center gap-5 mb-5 text-[11.5px] flex-wrap text-ink-dim">
+          <span className="font-semibold text-ink-mid">Color key</span>
+          <span className="flex items-center gap-1.5">
+            <SignalBars signal="bear" size="sm" />
+            Bearish
+          </span>
+          <span className="flex items-center gap-1.5">
+            <SignalBars signal="neutral" size="sm" />
+            Neutral / Mixed
+          </span>
+          <span className="flex items-center gap-1.5">
+            <SignalBars signal="bull" size="sm" />
+            Bullish
+          </span>
+          <span
+            title="USDJPY, USDCHF, USDCAD nets are inverted so positive always means bullish on the displayed pair."
+            className="flex items-center gap-1.5 opacity-80 cursor-help"
+          >
+            <Icon name="swap_horiz" size={12} />
+            USD-base pairs inverted
+          </span>
+        </div>
+      )}
+
       {/* ── Summary strip ── */}
       {!loading && entries.length > 0 && <SummaryStrip entries={entries} />}
 
