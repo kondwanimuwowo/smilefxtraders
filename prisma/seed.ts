@@ -2910,6 +2910,182 @@ const INSTRUMENTS = [
     cotContract: "DXY", cotCode: "098662", cotMin52w: -62400, cotMax52w: 48200, cotMinC52w: -52800, cotMaxC52w: 64600,
     cotInverted: false, fxoTracked: false, displayOrder: 10,
   },
+
+  // ── FX minors — no direct CFTC contract; COT bias is derived from each
+  //    leg's own currency positioning (see lib/cot/crossPairSignal.ts).
+  //    cotMin52w/cotMax52w/etc are intentionally omitted — the synthetic
+  //    signal path doesn't consult per-instrument fallback ranges.
+  {
+    symbol: "EURGBP", label: "EUR/GBP", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "EUR/GBP",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 11,
+  },
+  {
+    symbol: "EURJPY", label: "EUR/JPY", category: "forex", tier: "minor",
+    pipSize: 0.01, pipValue: 9.1, tdSymbol: "EUR/JPY",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 12,
+  },
+  {
+    symbol: "GBPJPY", label: "GBP/JPY", category: "forex", tier: "minor",
+    pipSize: 0.01, pipValue: 9.1, tdSymbol: "GBP/JPY",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 13,
+  },
+  {
+    symbol: "EURAUD", label: "EUR/AUD", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "EUR/AUD",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 14,
+  },
+  {
+    symbol: "EURCHF", label: "EUR/CHF", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "EUR/CHF",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 15,
+  },
+  {
+    symbol: "AUDJPY", label: "AUD/JPY", category: "forex", tier: "minor",
+    pipSize: 0.01, pipValue: 9.1, tdSymbol: "AUD/JPY",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 16,
+  },
+  {
+    symbol: "GBPAUD", label: "GBP/AUD", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "GBP/AUD",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 17,
+  },
+  {
+    symbol: "CADJPY", label: "CAD/JPY", category: "forex", tier: "minor",
+    pipSize: 0.01, pipValue: 9.1, tdSymbol: "CAD/JPY",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 18,
+  },
+  {
+    symbol: "NZDJPY", label: "NZD/JPY", category: "forex", tier: "minor",
+    pipSize: 0.01, pipValue: 9.1, tdSymbol: "NZD/JPY",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 19,
+  },
+  {
+    symbol: "GBPCHF", label: "GBP/CHF", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "GBP/CHF",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 20,
+  },
+  {
+    symbol: "AUDCAD", label: "AUD/CAD", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "AUD/CAD",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 21,
+  },
+  {
+    symbol: "AUDNZD", label: "AUD/NZD", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "AUD/NZD",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 22,
+  },
+  {
+    symbol: "EURCAD", label: "EUR/CAD", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "EUR/CAD",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 23,
+  },
+  {
+    symbol: "EURNZD", label: "EUR/NZD", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "EUR/NZD",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 24,
+  },
+  {
+    symbol: "GBPNZD", label: "GBP/NZD", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "GBP/NZD",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 25,
+  },
+  {
+    symbol: "AUDCHF", label: "AUD/CHF", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "AUD/CHF",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 26,
+  },
+  {
+    symbol: "GBPCAD", label: "GBP/CAD", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "GBP/CAD",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 27,
+  },
+  {
+    symbol: "CHFJPY", label: "CHF/JPY", category: "forex", tier: "minor",
+    pipSize: 0.01, pipValue: 9.1, tdSymbol: "CHF/JPY",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 28,
+  },
+  {
+    symbol: "NZDCAD", label: "NZD/CAD", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "NZD/CAD",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 29,
+  },
+  {
+    symbol: "NZDCHF", label: "NZD/CHF", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "NZD/CHF",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 30,
+  },
+  {
+    symbol: "CADCHF", label: "CAD/CHF", category: "forex", tier: "minor",
+    pipSize: 0.0001, pipValue: 10, tdSymbol: "CAD/CHF",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 31,
+  },
+
+  // ── Commodities & indices with real CFTC contracts — codes verified live
+  //    against publicreporting.cftc.gov (2026-07-13), full feature parity
+  //    with Gold/NAS100/DXY. cotMin52w etc. omitted (no historical range
+  //    data yet) -- early weeks (<10 DB rows) fall back to a neutral range
+  //    until real sync history accumulates.
+  {
+    symbol: "XAGUSD", label: "XAG/USD", category: "commodity",
+    pipSize: 0.001, pipValue: 5, tdSymbol: "XAG/USD",
+    cotContract: "XAGUSD", cotCode: "084691",
+    cotInverted: false, fxoTracked: false, displayOrder: 32,
+  },
+  {
+    symbol: "WTIUSD", label: "WTI Crude Oil", category: "commodity",
+    pipSize: 0.01, pipValue: 10, tdSymbol: "WTI/USD",
+    cotContract: "WTIUSD", cotCode: "067651",
+    cotInverted: false, fxoTracked: false, displayOrder: 33,
+  },
+  {
+    symbol: "US500", label: "S&P 500 E-mini", category: "index",
+    pipSize: 1, pipValue: 5, tdSymbol: "SPX",
+    cotContract: "US500", cotCode: "13874A",
+    cotInverted: false, fxoTracked: false, displayOrder: 34,
+  },
+  {
+    symbol: "US30", label: "Dow Jones E-mini", category: "index",
+    pipSize: 1, pipValue: 5, tdSymbol: "DJI",
+    cotContract: "US30", cotCode: "124603",
+    cotInverted: false, fxoTracked: false, displayOrder: 35,
+  },
+
+  // ── Indices with no CFTC data (LSE/Eurex-listed, not CME/CBOT/NYMEX) —
+  //    price + trading tools only, no COT card.
+  {
+    symbol: "UK100", label: "FTSE 100", category: "index",
+    pipSize: 1, pipValue: 5, tdSymbol: "UK100",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 36,
+  },
+  {
+    symbol: "GER40", label: "DAX 40", category: "index",
+    pipSize: 1, pipValue: 5, tdSymbol: "DE40",
+    cotContract: null, cotCode: null,
+    cotInverted: false, fxoTracked: false, displayOrder: 37,
+  },
 ];
 
 // ── Main seed function ────────────────────────────────────────────────────────
