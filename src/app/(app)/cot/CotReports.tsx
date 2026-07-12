@@ -7,7 +7,6 @@ import { Panel, PanelHead, Sparkline, Skeleton, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import { CotLockScreen } from "@/components/cot/CotLockScreen";
-import { SIGNAL_CFG } from "@/components/cot/signalCfg";
 import { SignalBars } from "@/components/cot/SignalBars";
 import { buildCotCommentary } from "@/lib/cot/commentary";
 import type { CotEntry } from "@/lib/cot/types";
@@ -342,29 +341,6 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
   );
 }
 
-// ── Summary strip ─────────────────────────────────────────────────────────────
-
-function SummaryStrip({ entries }: { entries: CotEntry[] }) {
-  return (
-    <div className="flex flex-wrap gap-2 mb-5">
-      {entries.map((e) => {
-        const sig = SIGNAL_CFG[e.signal];
-        return (
-          <div
-            key={e.pair}
-            className={cn("flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[12px] font-semibold border", sig.bgCls, sig.textCls, sig.borderCls)}
-          >
-            <Icon name={sig.icon} size={13} />
-            <span className="text-ink-strong">{e.pair}</span>
-            <span>{sig.shortLabel}</span>
-            <span className="tabular-nums text-[11px] opacity-75">{e.cotIndex}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 // ── Loading skeleton ──────────────────────────────────────────────────────────
 
 function LoadingSkeleton() {
@@ -531,25 +507,27 @@ export function CotReports() {
         </div>
       )}
 
-      {/* ── Summary strip ── */}
-      {!loading && entries.length > 0 && <SummaryStrip entries={entries} />}
-
-      {/* ── Pair filter tabs ── */}
+      {/* ── Pair pills (summary + filter, merged) ── */}
       {!loading && (
         <div className="flex items-center gap-1.5 mb-5 flex-wrap">
-          {pairs.map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => setSelected(p)}
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all active:scale-95",
-                selected === p ? "bg-teal text-white" : "bg-panel-2 text-ink-dim border border-line"
-              )}
-            >
-              {p}
-            </button>
-          ))}
+          {pairs.map((p) => {
+            const entry = p === "All" ? null : entries.find((e) => e.pair === p);
+            return (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setSelected(p)}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all active:scale-95",
+                  selected === p ? "bg-teal text-white" : "bg-panel-2 text-ink-dim border border-line"
+                )}
+              >
+                {entry && <SignalBars signal={entry.signal} size="sm" />}
+                {p}
+                {entry && <span className="tabular-nums text-[11px] opacity-75">{entry.cotIndex}</span>}
+              </button>
+            );
+          })}
         </div>
       )}
 
