@@ -63,12 +63,28 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| — | — | — |
+| SIG-01 | Phase 1 | Pending |
+| SIG-02 | Phase 1 | Pending |
+| SIG-03 | Phase 1 | Pending |
+| SIG-04 | Phase 1 | Pending |
+| PAGE-01 | Phase 1 | Pending |
+| CARD-01 | Phase 2 | Pending |
+| CARD-02 | Phase 2 | Pending |
+| CARD-03 | Phase 2 | Pending |
+| CARD-04 | Phase 2 | Pending |
+| CARD-05 | Phase 2 | Pending |
+| CARD-06 | Phase 2 | Pending |
+| MOB-01 | Phase 2 | Pending |
+| MOB-02 | Phase 2 | Pending |
+| PAGE-02 | Phase 2 | Pending |
+| DET-01 | Phase 3 | Pending |
+| DET-02 | Phase 3 | Pending |
+| EDU-01 | Phase 3 | Pending |
 
 **Coverage:**
-- v1 requirements: 16 total
-- Mapped to phases: 0
-- Unmapped: 16 ⚠️ (filled by roadmap)
+- v1 requirements: 17 total
+- Mapped to phases: 17
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-11*
