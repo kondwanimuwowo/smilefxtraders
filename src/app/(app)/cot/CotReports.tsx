@@ -411,22 +411,30 @@ function LoadingSkeleton() {
 
 export function CotReports() {
   const router = useRouter();
-  const [entries, setEntries]   = useState<CotEntry[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [retrying, setRetrying] = useState(false);
-  const [selected, setSelected] = useState("All");
-  const [locked, setLocked]     = useState(false);
+  const [entries, setEntries]     = useState<CotEntry[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [retrying, setRetrying]   = useState(false);
+  const [selected, setSelected]   = useState("All");
+  const [locked, setLocked]       = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   function load() {
+    setLoadError(false);
     fetch(`/api/cot?t=${Date.now()}`)
       .then(async (r) => {
         if (r.status === 403) { setLocked(true); setLoading(false); return; }
+        if (!r.ok) throw new Error("Failed to load COT data");
         const data = await r.json();
+        if (!Array.isArray(data)) throw new Error("Unexpected response shape");
         setEntries(data);
         setLoading(false);
         setRetrying(false);
       })
-      .catch(() => { setLoading(false); setRetrying(false); });
+      .catch(() => {
+        setLoadError(true);
+        setLoading(false);
+        setRetrying(false);
+      });
   }
 
   useEffect(() => { load(); }, []);
@@ -506,6 +514,21 @@ export function CotReports() {
           )}
         </div>
       </div>
+
+      {/* ── Load error ── */}
+      {loadError && (
+        <div className="mb-5 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-[13px] bg-[rgba(234,82,61,0.07)] border border-[rgba(234,82,61,0.2)] text-coral">
+          <span>Couldn&apos;t load COT data. Please try again.</span>
+          <button
+            type="button"
+            onClick={load}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[12px] font-semibold transition-all active:scale-95 bg-[rgba(234,82,61,0.1)] border border-[rgba(234,82,61,0.25)] shrink-0"
+          >
+            <Icon name="refresh" size={13} />
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* ── Education (one collapsible teach-layer) ── */}
       <EducationPanel hasData={hasData} totalHistory={totalHistory} entriesCount={entries.length} />
