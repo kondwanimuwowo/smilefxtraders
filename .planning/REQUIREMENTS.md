@@ -33,12 +33,12 @@
 
 ### Detail Page
 
-- [ ] **DET-01**: `/cot/[pair]` uses the same SignalBars icon, badge treatment, and de-noise conventions as the overview
-- [ ] **DET-02**: `/cot/[pair]` reads cleanly on mobile (same stacking pass as overview cards)
+- [x] **DET-01**: `/cot/[pair]` uses the same SignalBars icon, badge treatment, and de-noise conventions as the overview
+- [x] **DET-02**: `/cot/[pair]` reads cleanly on mobile (same stacking pass as overview cards)
 
 ### Education
 
-- [ ] **EDU-01**: The overview's two education blocks (gold "how to read" strip + bottom SMC panel) are collapsed into one leaner teach-layer (collapsible / tooltip-driven)
+- [x] **EDU-01**: The overview's two education blocks (gold "how to read" strip + bottom SMC panel) are collapsed into one leaner teach-layer (collapsible / tooltip-driven)
 
 ## v2 Requirements
 
@@ -77,9 +77,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MOB-01 | Phase 2 | Complete |
 | MOB-02 | Phase 2 | Complete |
 | PAGE-02 | Phase 2 | Complete |
-| DET-01 | Phase 3 | Pending |
-| DET-02 | Phase 3 | Pending |
-| EDU-01 | Phase 3 | Pending |
+| DET-01 | Phase 3 | Complete |
+| DET-02 | Phase 3 | Complete |
+| EDU-01 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 17 total
@@ -88,4 +88,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-07-11*
-*Last updated: 2026-07-11 after initial definition*
+*Last updated: 2026-07-12 after Phase 3 (all 17 v1 requirements complete)*

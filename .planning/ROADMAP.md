@@ -13,7 +13,7 @@ Three sequential phases, each leaving `/cot` visibly better. First the new signa
 
 - [x] **Phase 1: Signal Language** - SignalBars icon system, color key, and merged pill row on `/cot`
 - [x] **Phase 2: Card De-noise & Mobile** - Minified cards, fixed rounding, stacked mobile layout, elevation pass
-- [ ] **Phase 3: Detail Page & Education** - `/cot/[pair]` consistency pass and unified teach-layer
+- [x] **Phase 3: Detail Page & Education** - `/cot/[pair]` consistency pass and unified teach-layer
 
 ## Phase Details
 
@@ -76,12 +76,12 @@ Plans:
   2. `/cot/[pair]` reads cleanly at phone widths
   3. The overview has one education layer (collapsible/tooltip-driven); the gold strip and bottom SMC panel no longer exist as separate blocks
 
-**Plans**: 2 plans
+**Plans**: 2 plans — COMPLETE
 
 Plans:
 
-- [ ] 03-01: Detail page consistency + mobile pass
-- [ ] 03-02: Collapse education blocks into one teach-layer
+- [x] 03-01: Detail page consistency + mobile pass
+- [x] 03-02: Collapse education blocks into one teach-layer
 
 ## Progress
 
@@ -92,4 +92,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Signal Language | 2/2 | Complete | 2026-07-12 |
 | 2. Card De-noise & Mobile | 2/2 | Complete | 2026-07-12 |
-| 3. Detail Page & Education | 0/2 | Not started | - |
+| 3. Detail Page & Education | 2/2 | Complete | 2026-07-12 |

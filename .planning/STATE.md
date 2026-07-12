@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 3
 current_phase_name: Detail Page & Education
-status: planning
-stopped_at: Phase 2 (Card De-noise & Mobile) complete — implemented directly, no plan/verify ceremony
-last_updated: "2026-07-12T06:15:00.000Z"
+status: complete
+stopped_at: Milestone complete — all 3 phases shipped
+last_updated: "2026-07-12T06:45:00.000Z"
 last_activity: 2026-07-12
-last_activity_desc: Phase 2 complete — commentary removed from cards, badges minified, 0% bug fixed, mobile stacking, shadow-md/sm elevation
+last_activity_desc: Phase 3 complete — detail page matches overview conventions, education collapsed into one teach-layer
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 6
-  completed_plans: 4
-  percent: 67
+  completed_plans: 6
+  percent: 100
 ---
 
 # Project State
@@ -24,24 +24,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-11)
 
 **Core value:** A trader opens `/cot` on any device and reads each pair's institutional bias at a glance — no noise, no repetition, no crushed layouts.
-**Current focus:** Phase 3 — Detail Page & Education
+**Current focus:** Milestone complete — all 17 v1 requirements shipped
 
 ## Current Position
 
-Phase: 2 of 3 complete (Card De-noise & Mobile) — Phase 3 (Detail Page & Education) not yet started
-Plan: 2 of 2 complete in Phase 2 (implemented directly, no formal PLAN.md files — see note below)
-Status: Phase 2 complete, ready to start Phase 3
-Last activity: 2026-07-12 — Phase 2 shipped: CARD-01..06, MOB-01..02, PAGE-02 all complete
+Phase: 3 of 3 complete (Detail Page & Education)
+Plan: 2 of 2 complete in Phase 3
+Status: Milestone complete
+Last activity: 2026-07-12 — Phase 3 shipped: DET-01, DET-02, EDU-01 all complete
 
-Progress: [███████░░░] 67%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 4
-- Average duration: ~15 min
-- Total execution time: ~55 min
+- Total plans completed: 6
+- Average duration: ~14 min
+- Total execution time: ~85 min
 
 **By Phase:**
 
@@ -49,11 +49,12 @@ Progress: [███████░░░] 67%
 |-------|-------|-------|----------|
 | 1. Signal Language | 2/2 | ~40min | ~20min |
 | 2. Card De-noise & Mobile | 2/2 | ~15min | ~8min |
+| 3. Detail Page & Education | 2/2 | ~30min | ~15min |
 
 **Recent Trend:**
 
-- Last 5 plans: ~25min, ~15min, ~15min
-- Trend: Improving (direct implementation, no subagent overhead)
+- Last 5 plans: ~15min, ~15min, ~15min, ~15min, ~15min
+- Trend: Stable (direct implementation, no subagent overhead)
 
 *Updated after each plan completion*
 
@@ -64,10 +65,10 @@ Progress: [███████░░░] 67%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- Phase 2: Workflow switched from GSD subagent-per-step (plan/research/verify agents) to direct inline implementation per user request — too much token overhead for a well-understood UI refinement. Applies going forward including Phase 3.
-- Phase 2: DivergencePanel/TONE_CLS/buildCotCommentary import removed entirely from CotReports.tsx — confirmed detail page (`cot/[pair]/page.tsx`) has its own independent commentary render, so no functionality lost.
-- Phase 2: `fmtPct` helper added for net-%-of-OI — shows `<1%` instead of false `0%` for small values.
-- Phase 1: barCount added additively to SignalCfg — 7 consumers across 5 files unaffected.
+- Phase 3: Detail page's own commentary rendering confirmed independent of the overview cards before deleting the overview's DivergencePanel in Phase 2 — no functionality lost.
+- Phase 3: `fmtPct` 0%-rounding fix duplicated into the detail page (matches CotReports.tsx's own local helper convention — each file keeps its own formatters).
+- Phase 3: Education collapsed into one `EducationPanel` component, default-collapsed, replacing the always-visible gold strip + separate bottom SMC panel.
+- Phase 2: Workflow switched from GSD subagent-per-step to direct inline implementation per user request. Held for all of Phase 2 and Phase 3.
 
 ### Pending Todos
 
@@ -83,10 +84,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| *(none)* | | | |
+| Analysis depth (ANLY-01, ANLY-02) | Extremes/flip alerts, WoW delta visualization | v2 backlog | Init — REQUIREMENTS.md |
 
 ## Session Continuity
 
 Last session: 2026-07-12
-Stopped at: Phase 2 (Card De-noise & Mobile) fully implemented, verified (type-check/lint/build), and committed. Phase 3 (Detail Page & Education) not started.
+Stopped at: All 3 phases complete, all 17 v1 requirements shipped and verified. Milestone ready to close via /gsd-complete-milestone if desired.
 Resume file: None
