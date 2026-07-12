@@ -91,7 +91,7 @@ export function Topbar() {
   }, [openSearch]);
 
   return (
-    <header className="flex items-center h-[48px] shrink-0 px-5 gap-4 border-b sticky top-0 z-40 bg-topbar-bg border-line backdrop-blur-[8px]">
+    <header className="flex items-center h-[48px] shrink-0 px-5 gap-4 border-b sticky top-0 z-40 bg-topbar-bg border-line backdrop-blur-[8px] shadow-sm">
       {/* Live price ticker */}
       <div className="flex-1 min-w-0 overflow-hidden relative">
         {/* Fade masks */}

@@ -8,7 +8,6 @@ import { cn } from "@/lib/cn";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import { CotLockScreen } from "@/components/cot/CotLockScreen";
 import { SignalBars } from "@/components/cot/SignalBars";
-import { buildCotCommentary } from "@/lib/cot/commentary";
 import type { CotEntry } from "@/lib/cot/types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -32,6 +31,13 @@ function fmtDate(iso: string): string {
   return new Date(iso + "T12:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+function fmtPct(part: number, whole: number): string {
+  const pct = (part / whole) * 100;
+  const abs = Math.abs(pct);
+  if (abs > 0 && abs < 1) return `${pct < 0 ? "-" : ""}<1%`;
+  return `${pct.toFixed(0)}%`;
+}
+
 // ── Position bar (centred, extends left or right from midpoint) ───────────────
 
 function PositionBar({ value, max, barCls }: { value: number; max: number; barCls: string }) {
@@ -48,47 +54,6 @@ function PositionBar({ value, max, barCls }: { value: number; max: number; barCl
         }}
       />
       <div className="absolute inset-y-0 left-1/2 w-px bg-line" />
-    </div>
-  );
-}
-
-// ── Divergence panel ──────────────────────────────────────────────────────────
-// Text comes from the shared commentary engine (lib/cot/commentary) — the
-// detail page renders the same flow + structure sentences, so the card and
-// the page never disagree.
-
-const TONE_CLS = {
-  bull:    { textCls: "text-teal",  bgCls: "bg-[rgba(8,174,170,0.06)]",  borderCls: "border-[rgba(8,174,170,0.2)]"  },
-  bear:    { textCls: "text-coral", bgCls: "bg-[rgba(234,82,61,0.06)]",  borderCls: "border-[rgba(234,82,61,0.2)]"  },
-  caution: { textCls: "text-gold",  bgCls: "bg-[rgba(248,185,61,0.06)]", borderCls: "border-[rgba(248,185,61,0.2)]" },
-} as const;
-
-function DivergencePanel({ entry }: { entry: CotEntry }) {
-  const { history } = entry;
-  const commentary = buildCotCommentary({
-    pair:           entry.pair,
-    divergenceType: entry.divergenceType,
-    wowChange:      entry.wowChange,
-    lsChange:       history[0].largeSpecNet  - (history[1]?.largeSpecNet  ?? history[0].largeSpecNet),
-    cChange:        history[0].commercialNet - (history[1]?.commercialNet ?? history[0].commercialNet),
-    cotIndex:       entry.cotIndex,
-    cotIndex52w:    entry.cotIndex52w,
-    cotIndexAll:    entry.cotIndexAll,
-    signal:         entry.signal,
-    largeSpecNet:   history[0].largeSpecNet,
-    openInterest:   entry.openInterest,
-    grossHistory:   history.slice(0, 6).map((w) => ({ long: w.largeSpecLong, short: w.largeSpecShort })),
-    inverted:       entry.usdBase,
-  });
-  const cls = TONE_CLS[commentary.tone];
-
-  return (
-    <div className={cn("mx-5 mb-4 rounded-xl px-4 py-3 flex items-start gap-2.5 border", cls.bgCls, cls.borderCls)}>
-      <Icon name={commentary.icon} size={15} fill className={cn("shrink-0 mt-px", cls.textCls)} />
-      <div>
-        <div className={cn("text-[12px] font-semibold mb-0.5", cls.textCls)}>{commentary.title}</div>
-        <p className="text-[12px] leading-relaxed text-ink-dim">{commentary.flow} {commentary.structure}</p>
-      </div>
     </div>
   );
 }
@@ -146,9 +111,12 @@ function HistoryTable({ history }: { history: CotEntry["history"] }) {
 function HistoryBadge({ weeks }: { weeks: number }) {
   const years = (weeks / 52).toFixed(0);
   return (
-    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-[rgba(8,174,170,0.08)] text-teal border border-[rgba(8,174,170,0.18)]">
+    <span
+      title={`${weeks} weeks of CFTC report history available for this instrument`}
+      className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded cursor-help bg-[rgba(8,174,170,0.08)] text-teal border border-[rgba(8,174,170,0.18)]"
+    >
       <Icon name="history" size={11} />
-      {weeks > 52 ? `${years}yr history` : `${weeks}wk`}
+      {weeks > 52 ? `${years}yr` : `${weeks}wk`}
     </span>
   );
 }
@@ -194,7 +162,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
     // Outer wrapper is relative + no overflow clip so the floating dropdown can escape
     <div className="relative">
     <div
-      className="rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-150 h-full bg-panel border border-line hover:border-teal"
+      className="rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-150 h-full bg-panel border border-line shadow-md hover:border-teal"
       onClick={() => onOpen(entry.pair)}
       role="button"
       aria-label={`Open ${entry.pair} COT detail`}
@@ -203,20 +171,21 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
       <div className="px-5 pt-4 pb-3 flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="font-display font-bold text-[20px] tracking-[-0.02em] text-ink-strong">
+            <span
+              title={entry.label}
+              className="font-display font-bold text-[20px] tracking-[-0.02em] cursor-help text-ink-strong"
+            >
               {entry.pair}
             </span>
-            <span className="text-[11px] text-ink-dim">·</span>
-            <span className="text-[13px] text-ink-mid">{entry.label}</span>
             {/* Signal */}
             <SignalBars signal={entry.signal} size="md" />
             {entry.totalWeeks > 0 && <HistoryBadge weeks={entry.totalWeeks} />}
             {entry.usdBase && (
               <span
                 title="Positions shown for the foreign currency futures (JPY/CHF/CAD). Net positive = bullish on the USD pair."
-                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
+                className="inline-flex items-center justify-center size-5 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
               >
-                USD-base · inverted
+                <Icon name="swap_horiz" size={12} />
               </span>
             )}
           </div>
@@ -236,7 +205,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
               <div className="text-[10.5px] tabular-nums mt-0.5 text-ink-dim">
                 OI {fmtAbs(entry.openInterest)} · net{" "}
                 <span className={cur.largeSpecNet >= 0 ? "text-teal" : "text-coral"}>
-                  {Math.round((cur.largeSpecNet / entry.openInterest) * 100)}%
+                  {fmtPct(cur.largeSpecNet, entry.openInterest)}
                 </span>{" "}
                 of OI
               </div>
@@ -253,7 +222,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
       </div>
 
       {/* ── COT Index + Position bars + Sparkline ── */}
-      <div className="px-5 pb-4 grid gap-5 grid-cols-[auto_1fr_auto]">
+      <div className="px-5 pb-4 grid gap-5 grid-cols-1 md:grid-cols-[auto_1fr_auto]">
 
         {/* COT Index — compact display with zone label + lookback */}
         <CotIndexDisplay
@@ -308,9 +277,6 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
           </div>
         </div>
       </div>
-
-      {/* ── Divergence analysis ── */}
-      <DivergencePanel entry={entry} />
 
       {/* ── History table toggle (button only — inside card so it clips correctly) ── */}
       <div className="mt-auto border-t border-line" onClick={(e) => e.stopPropagation()}>
@@ -423,7 +389,7 @@ export function CotReports() {
     <div className="view">
 
       {/* ── Header ── */}
-      <div className="flex items-start justify-between mb-2 gap-4">
+      <div className="flex items-start justify-between mb-2 gap-4 flex-wrap">
         <div>
           <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
             COT Reports
