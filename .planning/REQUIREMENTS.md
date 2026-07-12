@@ -14,22 +14,22 @@
 
 ### Card De-noise
 
-- [ ] **CARD-01**: Commentary (DivergencePanel) is removed from overview cards and remains on the detail page only
-- [ ] **CARD-02**: Card header shows the pair once (duplicate `entry.label` text removed or moved to tooltip)
-- [ ] **CARD-03**: History badge renders as icon + `28yr` with a hover tooltip explaining what it means
-- [ ] **CARD-04**: USD-base inverted badge renders as an icon-only swap-style marker with tooltip
-- [ ] **CARD-05**: "Net % of OI" never shows a false `0%` — small values show one decimal or `<1%`
-- [ ] **CARD-06**: Cards have `shadow-md` elevation
+- [x] **CARD-01**: Commentary (DivergencePanel) is removed from overview cards and remains on the detail page only
+- [x] **CARD-02**: Card header shows the pair once (duplicate `entry.label` text removed or moved to tooltip)
+- [x] **CARD-03**: History badge renders as icon + `28yr` with a hover tooltip explaining what it means
+- [x] **CARD-04**: USD-base inverted badge renders as an icon-only swap-style marker with tooltip
+- [x] **CARD-05**: "Net % of OI" never shows a false `0%` — small values show one decimal or `<1%`
+- [x] **CARD-06**: Cards have `shadow-md` elevation
 
 ### Page Structure
 
 - [x] **PAGE-01**: Summary pill strip and pair filter tabs are replaced by ONE pill row — each pill shows pair + SignalBars icon and acts as the filter
-- [ ] **PAGE-02**: Topbar has `shadow-sm`; sidebar remains shadow-free
+- [x] **PAGE-02**: Topbar has `shadow-sm`; sidebar remains shadow-free
 
 ### Mobile
 
-- [ ] **MOB-01**: Card inner grid (COT dial | position bars | sparkline) stacks below `md` so cards read cleanly on phones
-- [ ] **MOB-02**: The merged pill row, color key, and page header wrap gracefully on small screens
+- [x] **MOB-01**: Card inner grid (COT dial | position bars | sparkline) stacks below `md` so cards read cleanly on phones
+- [x] **MOB-02**: The merged pill row, color key, and page header wrap gracefully on small screens
 
 ### Detail Page
 
@@ -68,15 +68,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SIG-03 | Phase 1 | Complete |
 | SIG-04 | Phase 1 | Complete |
 | PAGE-01 | Phase 1 | Complete |
-| CARD-01 | Phase 2 | Pending |
-| CARD-02 | Phase 2 | Pending |
-| CARD-03 | Phase 2 | Pending |
-| CARD-04 | Phase 2 | Pending |
-| CARD-05 | Phase 2 | Pending |
-| CARD-06 | Phase 2 | Pending |
-| MOB-01 | Phase 2 | Pending |
-| MOB-02 | Phase 2 | Pending |
-| PAGE-02 | Phase 2 | Pending |
+| CARD-01 | Phase 2 | Complete |
+| CARD-02 | Phase 2 | Complete |
+| CARD-03 | Phase 2 | Complete |
+| CARD-04 | Phase 2 | Complete |
+| CARD-05 | Phase 2 | Complete |
+| CARD-06 | Phase 2 | Complete |
+| MOB-01 | Phase 2 | Complete |
+| MOB-02 | Phase 2 | Complete |
+| PAGE-02 | Phase 2 | Complete |
 | DET-01 | Phase 3 | Pending |
 | DET-02 | Phase 3 | Pending |
 | EDU-01 | Phase 3 | Pending |

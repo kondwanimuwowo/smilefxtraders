@@ -12,7 +12,7 @@ Three sequential phases, each leaving `/cot` visibly better. First the new signa
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Signal Language** - SignalBars icon system, color key, and merged pill row on `/cot`
-- [ ] **Phase 2: Card De-noise & Mobile** - Minified cards, fixed rounding, stacked mobile layout, elevation pass
+- [x] **Phase 2: Card De-noise & Mobile** - Minified cards, fixed rounding, stacked mobile layout, elevation pass
 - [ ] **Phase 3: Detail Page & Education** - `/cot/[pair]` consistency pass and unified teach-layer
 
 ## Phase Details
@@ -56,12 +56,12 @@ Plans:
   4. At phone widths the card's dial / bars / sparkline stack vertically with no horizontal crush, and the pill row, key, and header wrap gracefully
   5. Cards have `shadow-md`, the topbar has `shadow-sm`, and the sidebar is unchanged
 
-**Plans**: 2 plans
+**Plans**: 2 plans — COMPLETE
 
 Plans:
 
-- [ ] 02-01: Card de-noise — remove commentary, dedupe pair label, icon+tooltip badges, fix 0% rounding
-- [ ] 02-02: Mobile stacking pass + shadow-md cards + shadow-sm topbar
+- [x] 02-01: Card de-noise — remove commentary, dedupe pair label, icon+tooltip badges, fix 0% rounding
+- [x] 02-02: Mobile stacking pass + shadow-md cards + shadow-sm topbar
 
 ### Phase 3: Detail Page & Education
 
@@ -91,5 +91,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Signal Language | 2/2 | Complete | 2026-07-12 |
-| 2. Card De-noise & Mobile | 0/2 | Not started | - |
+| 2. Card De-noise & Mobile | 2/2 | Complete | 2026-07-12 |
 | 3. Detail Page & Education | 0/2 | Not started | - |
