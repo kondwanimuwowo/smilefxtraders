@@ -6,7 +6,7 @@ import { Icon, Skeleton } from "@/components/ui";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import { CotLockScreen } from "@/components/cot/CotLockScreen";
 import { PositioningChart } from "@/components/cot/PositioningChart";
-import { SIGNAL_CFG } from "@/components/cot/signalCfg";
+import { SignalBars } from "@/components/cot/SignalBars";
 import { buildCotCommentary } from "@/lib/cot/commentary";
 import { cn } from "@/lib/cn";
 import type { CotDetailRow, CotDetailResponse } from "@/lib/cot/types";
@@ -40,6 +40,13 @@ function fmtDateShort(iso: string): string {
   return new Date(iso + "T12:00:00Z").toLocaleDateString("en-US", {
     month: "short", day: "numeric", year: "numeric",
   });
+}
+
+function fmtPct(part: number, whole: number): string {
+  const pct = (part / whole) * 100;
+  const abs = Math.abs(pct);
+  if (abs > 0 && abs < 1) return `${pct < 0 ? "-" : ""}<1%`;
+  return `${pct.toFixed(0)}%`;
 }
 
 // ── Skeleton rows ─────────────────────────────────────────────────────────────
@@ -153,7 +160,6 @@ export default function CotPairPage() {
     };
   }, [rows]);
 
-  const sig = data ? SIGNAL_CFG[data.signal] : SIGNAL_CFG.neutral;
   const [showSmallSpec, setShowSmallSpec] = useState(false);
 
   // Shared commentary — the SAME engine the overview card uses, so the card
@@ -202,20 +208,21 @@ export default function CotPairPage() {
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
           <div className="flex items-center gap-3 mb-1 flex-wrap">
-            <h1 className="font-display font-bold text-[28px] tracking-[-0.025em] text-ink-strong">
+            <h1
+              title={data?.label}
+              className={cn("font-display font-bold text-[28px] tracking-[-0.025em] text-ink-strong", data?.label && "cursor-help")}
+            >
               {pair.toUpperCase()}
             </h1>
             {data && (
               <>
-                <span className="text-[15px] text-ink-dim">·</span>
-                <span className="text-[16px] text-ink-mid">{data.label}</span>
-                <span className={cn("inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-full", sig.bgCls, sig.textCls)}>
-                  <Icon name={sig.icon} size={13} />
-                  {sig.label}
-                </span>
+                <SignalBars signal={data.signal} size="lg" />
                 {data.usdBase && (
-                  <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-panel-2 text-ink-dim border border-line">
-                    USD-base · inverted
+                  <span
+                    title="Positions shown for the foreign currency futures. Net positive = bullish on the USD pair."
+                    className="inline-flex items-center justify-center size-6 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
+                  >
+                    <Icon name="swap_horiz" size={13} />
                   </span>
                 )}
               </>
@@ -230,7 +237,7 @@ export default function CotPairPage() {
 
         {/* Current reading summary */}
         {data && rows.length > 0 && (
-          <div className="flex items-center gap-5 shrink-0">
+          <div className="flex items-center gap-5 flex-wrap shrink-0">
             {/* COT Index — compact */}
             <CotIndexDisplay
               rows={rows}
@@ -255,7 +262,7 @@ export default function CotPairPage() {
                   {rows[0].openInterest.toLocaleString()}
                 </div>
                 <div className="text-[11px] text-ink-dim">
-                  Open interest · net {Math.round((rows[0].largeSpecNet / rows[0].openInterest) * 100)}% of OI
+                  Open interest · net {fmtPct(rows[0].largeSpecNet, rows[0].openInterest)} of OI
                 </div>
               </div>
             )}

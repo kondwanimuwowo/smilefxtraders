@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Panel, PanelHead, Sparkline, Skeleton, Icon } from "@/components/ui";
+import { Sparkline, Skeleton, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import { CotLockScreen } from "@/components/cot/CotLockScreen";
@@ -307,6 +307,76 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
   );
 }
 
+// ── Education panel (one collapsible teach-layer, replaces the two former blocks) ──
+
+function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: boolean; totalHistory: number; entriesCount: number }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="mb-5 rounded-xl border bg-[rgba(248,185,61,0.05)] border-[rgba(248,185,61,0.15)]">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-start gap-3 px-4 py-3 text-left text-[12px] leading-relaxed text-ink-mid"
+      >
+        <Icon name="school" size={15} fill className="text-gold shrink-0 mt-px" />
+        <span className="flex-1">
+          <strong className="text-ink-strong">Signal</strong> is driven by the Large Spec net position: net long = bullish bias, net short = bearish bias, confirmed by weekly momentum direction.{" "}
+          <strong className="text-ink-strong">COT Index (0–100)</strong> shows where that positioning sits within its own 3-year range — a cycle gauge, not the direction itself.{" "}
+          <strong className="text-ink-strong">Divergence</strong> between large specs and commercials adds conviction.
+        </span>
+        <Icon name={open ? "expand_less" : "expand_more"} size={16} className="text-gold shrink-0 mt-px" />
+      </button>
+
+      {open && (
+        <div className="px-4 pb-4">
+          <div className="grid gap-4 text-[12.5px] leading-relaxed grid-cols-1 md:grid-cols-3 text-ink-mid">
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">1</div>
+                <span className="font-semibold text-ink-strong">Identify the Bias</span>
+              </div>
+              Check whether Large Speculators are <strong>net long</strong> (positive net = bullish bias) or <strong>net short</strong> (negative net = bearish bias). Then check the WoW direction: are they adding or reducing? Adding to a net long position is the strongest bullish confirmation.
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">2</div>
+                <span className="font-semibold text-ink-strong">Check Divergence</span>
+              </div>
+              The most powerful signal is when large specs and commercials are both aligned. Commercials hedge the opposite side, so when they are heavily short while large specs go long, that&apos;s institutional conviction you want to trade with.
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">3</div>
+                <span className="font-semibold text-ink-strong">Confirm with Price</span>
+              </div>
+              COT alone does not give you an entry; it gives you a directional filter. Combine a bullish COT signal with a swept liquidity pool, a valid OB or FVG on HTF, and a killzone entry window.
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-[12.5px] leading-relaxed text-ink-mid">
+            <div className="rounded-xl px-4 py-3 bg-[rgba(8,174,170,0.05)] border border-[rgba(8,174,170,0.15)]">
+              <div className="font-semibold mb-1 text-teal">Extreme readings: reversal or continuation?</div>
+              At COT Index &gt; 80, large specs are near their most bullish in a year. Always check price structure — if price has not yet moved proportionally, COT is leading; if price has already run hard, the extreme may be signalling a top.
+            </div>
+            <div className="rounded-xl px-4 py-3 bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.15)]">
+              <div className="font-semibold mb-1 text-gold">DXY is your master bias</div>
+              When the USD Index (DXY) COT Index is low, that&apos;s a tailwind for EURUSD, GBPUSD, NZDUSD, AUDUSD, and XAUUSD longs simultaneously. Cross-reference DXY with your pairs for the strongest setups.
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-xl px-4 py-3 text-[12px] leading-relaxed bg-panel-2 border border-line text-ink-dim">
+            <strong className="text-ink-strong">Data source:</strong>{" "}
+            {hasData
+              ? `CFTC Legacy Futures-Only report (publicreporting.cftc.gov). ${totalHistory.toLocaleString()} total weeks across ${entriesCount} instruments. Synced automatically after each release — CFTC publishes Tuesday's data on Fridays ~15:30 ET.`
+              : "No data loaded yet — data syncs automatically after each CFTC release (Fridays ~15:30 ET)."}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Loading skeleton ──────────────────────────────────────────────────────────
 
 function LoadingSkeleton() {
@@ -437,15 +507,8 @@ export function CotReports() {
         </div>
       </div>
 
-      {/* ── How to read COT (compact) ── */}
-      <div className="mb-5 rounded-xl px-4 py-3 flex items-start gap-3 text-[12px] leading-relaxed bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.15)] text-ink-mid">
-        <Icon name="school" size={15} fill className="text-gold shrink-0 mt-px" />
-        <span>
-          <strong className="text-ink-strong">Signal</strong> is driven by the Large Spec net position: net long = bullish bias, net short = bearish bias, confirmed by weekly momentum direction.{" "}
-          <strong className="text-ink-strong">COT Index (0–100)</strong> shows where that positioning sits within its own 3-year range. Think of it as a cycle gauge, not the direction itself. Near 100 = historically max long (watch for exhaustion). Near 0 = historically max short (watch for reversal).{" "}
-          <strong className="text-ink-strong">Divergence</strong> between large specs and commercials adds conviction: when both groups confirm the same direction, that&apos;s your SMC HTF bias.
-        </span>
-      </div>
+      {/* ── Education (one collapsible teach-layer) ── */}
+      <EducationPanel hasData={hasData} totalHistory={totalHistory} entriesCount={entries.length} />
 
       {/* ── Color key ── */}
       {!loading && entries.length > 0 && (
@@ -507,52 +570,6 @@ export function CotReports() {
           ))}
         </div>
       )}
-
-      {/* ── Educational panel ── */}
-      <Panel className="mt-6">
-        <PanelHead title="How to use COT data in SMC trading" icon="school" />
-        <div className="grid gap-4 text-[12.5px] leading-relaxed grid-cols-1 md:grid-cols-3 text-ink-mid">
-          <div>
-            <div className="flex items-center gap-1.5 mb-2">
-              <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">1</div>
-              <span className="font-semibold text-ink-strong">Identify the Bias</span>
-            </div>
-            Check whether Large Speculators are <strong>net long</strong> (positive net = bullish bias) or <strong>net short</strong> (negative net = bearish bias). Then check the WoW direction: are they adding or reducing? Adding to a net long position is the strongest bullish confirmation. The COT Index shows how extreme that positioning is within the past 3 years.
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5 mb-2">
-              <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">2</div>
-              <span className="font-semibold text-ink-strong">Check Divergence</span>
-            </div>
-            The most powerful signal is when large specs and commercials are both aligned. Commercials hedge the opposite side, so when they are heavily short while large specs go long, that&apos;s institutional conviction you want to trade with.
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5 mb-2">
-              <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">3</div>
-              <span className="font-semibold text-ink-strong">Confirm with Price</span>
-            </div>
-            COT alone does not give you an entry; it gives you a directional filter. Combine a bullish COT signal with a swept liquidity pool, a valid OB or FVG on HTF, and a killzone entry window. When all three line up, you have a high-probability SMC setup.
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-[12.5px] leading-relaxed text-ink-mid">
-          <div className="rounded-xl px-4 py-3 bg-[rgba(8,174,170,0.05)] border border-[rgba(8,174,170,0.15)]">
-            <div className="font-semibold mb-1 text-teal">Extreme readings: reversal or continuation?</div>
-            At COT Index &gt; 80, large specs are near their most bullish in a year. This can mean two things: price has already moved a long way and you are late to the party, or the trend is strong and still has room to run. Always check price structure. If price has not yet moved proportionally, COT is leading; if price has already run hard, the extreme may be signalling a top.
-          </div>
-          <div className="rounded-xl px-4 py-3 bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.15)]">
-            <div className="font-semibold mb-1 text-gold">DXY is your master bias</div>
-            When the USD Index (DXY) COT Index is low (large specs bearish on USD), that is a tailwind for EURUSD, GBPUSD, NZDUSD, AUDUSD, and XAUUSD longs simultaneously. Cross-reference DXY with your pairs: if DXY is bearish COT and EURUSD is bullish COT, that is the strongest possible EUR setup, with every factor pulling the same way.
-          </div>
-        </div>
-
-        {/* Data wiring note */}
-        <div className="mt-4 rounded-xl px-4 py-3 text-[12px] leading-relaxed bg-panel-2 border border-line text-ink-dim">
-          <strong className="text-ink-strong">Data source:</strong>{" "}
-          {hasData
-            ? `CFTC Legacy Futures-Only report (publicreporting.cftc.gov). ${totalHistory.toLocaleString()} total weeks across ${entries.length} instruments. Synced automatically after each release — CFTC publishes Tuesday's data on Fridays ~15:30 ET.`
-            : "No data loaded yet — data syncs automatically after each CFTC release (Fridays ~15:30 ET)."}
-        </div>
-      </Panel>
 
     </div>
   );
