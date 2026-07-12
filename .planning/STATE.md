@@ -72,7 +72,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+- Gavo COT Read (GAVO-01..05 in REQUIREMENTS.md v2) — integrate Gavo AI narration into `/cot/[pair]`, modeled on the existing MacroEdge `GavoExplanation` pattern. Scoped 2026-07-12, not yet planned/built.
 
 ### Blockers/Concerns
 

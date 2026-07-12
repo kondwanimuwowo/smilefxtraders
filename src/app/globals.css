@@ -87,7 +87,7 @@
 /* ─── Light theme surfaces (default) ────────────────────────────────────────── */
 :root,
 [data-theme="light"] {
-  --app-bg:     #EAEEF2;
+  --app-bg:     #F6F8FA;
   --sidebar:    #FFFFFF;
   --panel:      #FFFFFF;
   --panel-2:    #EEF2F6;
