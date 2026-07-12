@@ -76,7 +76,7 @@ None yet.
 
 ### Blockers/Concerns
 
-- Gavo COT Read migration (`20260712120000_add_gavo_cot_explanation`) is hand-written and unapplied — DB was unreachable from the dev sandbox. Run `prisma migrate deploy` from an environment with DB access before the feature will work (the `gavo_cot_explanations` table doesn't exist yet).
+None yet.
 
 ## Deferred Items
 

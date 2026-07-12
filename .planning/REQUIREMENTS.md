@@ -63,7 +63,7 @@ Shipped 2026-07-12: Gavo, the platform's AI trading coach, integrated into `/cot
 - `src/app/api/cot/[pair]/explain/route.ts` (POST), plan-gated via `requirePaidPlan`, cache-hashed on report date + net figures
 - `src/components/cot/GavoCotRead.tsx`, modeled directly on `GavoExplanation.tsx`, mounted above the heat-map table in `cot/[pair]/page.tsx`
 
-**⚠ Migration not applied:** the DB was unreachable from the dev sandbox (`P1001`), so `prisma/migrations/20260712120000_add_gavo_cot_explanation/migration.sql` was hand-written (matching the project's existing hand-written-migration convention) but never run against the real database. Run `node node_modules/prisma/build/index.js migrate deploy` (or `migrate dev`) from an environment with DB access before using this feature.
+Migration `20260712120000_add_gavo_cot_explanation` applied 2026-07-12 (`prisma migrate deploy`) — `gavo_cot_explanations` table exists in the database. Feature is fully live.
 
 ## Out of Scope
 
