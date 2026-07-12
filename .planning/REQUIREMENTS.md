@@ -7,10 +7,10 @@
 
 ### Signal Language
 
-- [ ] **SIG-01**: User sees each pair's COT signal as a custom 3-bar `SignalBars` SVG icon (standalone component, not an icon-registry entry)
-- [ ] **SIG-02**: The 5 signal levels map via brightness variants: strong_bear = 1 bar coral-bright, bear = 1 bar coral, neutral = 2 bars gold, bull = 3 bars teal, strong_bull = 3 bars teal-bright — driven from `signalCfg.ts`, not forked
-- [ ] **SIG-03**: User sees a 3-entry color key above the cards (coral 1-bar = Bearish, gold 2-bar = Neutral/Mixed, teal 3-bar = Bullish) plus a key entry explaining USD-base inverted pairs
-- [ ] **SIG-04**: Cards show the signal icon only — no signal text label on the card
+- [x] **SIG-01**: User sees each pair's COT signal as a custom 3-bar `SignalBars` SVG icon (standalone component, not an icon-registry entry)
+- [x] **SIG-02**: The 5 signal levels map via brightness variants: strong_bear = 1 bar coral-bright, bear = 1 bar coral, neutral = 2 bars gold, bull = 3 bars teal, strong_bull = 3 bars teal-bright — driven from `signalCfg.ts`, not forked
+- [x] **SIG-03**: User sees a 3-entry color key above the cards (coral 1-bar = Bearish, gold 2-bar = Neutral/Mixed, teal 3-bar = Bullish) plus a key entry explaining USD-base inverted pairs
+- [x] **SIG-04**: Cards show the signal icon only — no signal text label on the card
 
 ### Card De-noise
 
@@ -23,7 +23,7 @@
 
 ### Page Structure
 
-- [ ] **PAGE-01**: Summary pill strip and pair filter tabs are replaced by ONE pill row — each pill shows pair + SignalBars icon and acts as the filter
+- [x] **PAGE-01**: Summary pill strip and pair filter tabs are replaced by ONE pill row — each pill shows pair + SignalBars icon and acts as the filter
 - [ ] **PAGE-02**: Topbar has `shadow-sm`; sidebar remains shadow-free
 
 ### Mobile
@@ -63,11 +63,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SIG-01 | Phase 1 | Pending |
-| SIG-02 | Phase 1 | Pending |
-| SIG-03 | Phase 1 | Pending |
-| SIG-04 | Phase 1 | Pending |
-| PAGE-01 | Phase 1 | Pending |
+| SIG-01 | Phase 1 | Complete |
+| SIG-02 | Phase 1 | Complete |
+| SIG-03 | Phase 1 | Complete |
+| SIG-04 | Phase 1 | Complete |
+| PAGE-01 | Phase 1 | Complete |
 | CARD-01 | Phase 2 | Pending |
 | CARD-02 | Phase 2 | Pending |
 | CARD-03 | Phase 2 | Pending |

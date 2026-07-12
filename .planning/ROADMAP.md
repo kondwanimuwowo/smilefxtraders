@@ -11,7 +11,7 @@ Three sequential phases, each leaving `/cot` visibly better. First the new signa
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Signal Language** - SignalBars icon system, color key, and merged pill row on `/cot`
+- [x] **Phase 1: Signal Language** - SignalBars icon system, color key, and merged pill row on `/cot`
 - [ ] **Phase 2: Card De-noise & Mobile** - Minified cards, fixed rounding, stacked mobile layout, elevation pass
 - [ ] **Phase 3: Detail Page & Education** - `/cot/[pair]` consistency pass and unified teach-layer
 
@@ -30,16 +30,16 @@ Three sequential phases, each leaving `/cot` visibly better. First the new signa
   2. A 3-entry color key (Bearish / Neutral / Bullish) plus a USD-base-inverted entry renders above the cards
   3. One pill row shows each pair with its SignalBars icon and filters the cards on tap; the old summary strip and filter tabs are gone
 
-**Plans**: 2 plans
+**Plans**: 2 plans — COMPLETE
 
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — SignalBars SVG component + signalCfg barCount mapping + icon-only card signal + color key
+- [x] 01-01-PLAN.md — SignalBars SVG component + signalCfg barCount mapping + icon-only card signal + color key
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Merge summary strip and filter tabs into one interactive pill row
+- [x] 01-02-PLAN.md — Merge summary strip and filter tabs into one interactive pill row
 
 ### Phase 2: Card De-noise & Mobile
 
@@ -90,6 +90,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Signal Language | 0/2 | Not started | - |
+| 1. Signal Language | 2/2 | Complete | 2026-07-12 |
 | 2. Card De-noise & Mobile | 0/2 | Not started | - |
 | 3. Detail Page & Education | 0/2 | Not started | - |
