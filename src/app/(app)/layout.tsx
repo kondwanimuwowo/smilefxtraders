@@ -71,7 +71,12 @@ async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }>
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { user: null, trades: [] };
+    // proxy.ts's route guard only does a fast, unverified local session
+    // decode (see its comment) — a stale/expired cookie can pass that check
+    // and still reach this layout. getUser() is the verified check; when it
+    // comes back empty, redirect for real instead of silently rendering the
+    // dashboard shell with no user.
+    if (!user) redirect("/login");
 
     // No public.users row means this user hasn't completed onboarding yet
     // (that's the only place a profile row gets created) — send them there
