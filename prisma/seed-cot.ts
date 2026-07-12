@@ -52,6 +52,10 @@ const INSTRUMENTS = [
   { pair: "XAUUSD", label: "Gold",              code: "088691", usdBase: false },
   { pair: "NAS100", label: "NASDAQ E-mini",     code: "209742", usdBase: false },
   { pair: "DXY",    label: "USD Index",         code: "098662", usdBase: false },
+  { pair: "XAGUSD", label: "Silver",            code: "084691", usdBase: false },
+  { pair: "WTIUSD", label: "WTI Crude Oil",     code: "067651", usdBase: false },
+  { pair: "US500",  label: "S&P 500 E-mini",    code: "13874A", usdBase: false },
+  { pair: "US30",   label: "Dow Jones E-mini",  code: "124603", usdBase: false },
 ] as const;
 
 const CFTC_BASE  = "https://publicreporting.cftc.gov/resource/6dca-aqww.json";
