@@ -11,7 +11,12 @@ const FEATURES = [
 const AVATAR_SEEDS = [11, 7, 2, 4];
 
 export async function AuthShell({ children }: { children: ReactNode }) {
-  const memberCount = await prisma.user.count();
+  let memberCount = 0;
+  try {
+    memberCount = await prisma.user.count();
+  } catch (err) {
+    console.error("[auth-shell] member count unavailable", err);
+  }
 
   const memberLabel = memberCount === 0
     ? "Be the first to join"

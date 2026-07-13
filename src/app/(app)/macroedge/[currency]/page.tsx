@@ -174,7 +174,7 @@ export default function CurrencyProfilePage() {
         </div>
       )}
 
-      <div className="grid gap-5 grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="grid gap-5 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <Panel pad={0}>
           <div className="px-5 py-4 border-b border-line">
             <div className="text-[15px] font-semibold text-ink-strong">Upcoming Events</div>
