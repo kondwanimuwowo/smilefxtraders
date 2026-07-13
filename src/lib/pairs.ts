@@ -49,3 +49,34 @@ export function deriveMetaMap(instruments: Instrument[]): Record<string, PairMet
   for (const inst of instruments) map[inst.symbol] = deriveMeta(inst);
   return map;
 }
+
+// ── Instrument groups ────────────────────────────────────────────────────────
+// The one grouping taxonomy for instruments (category + tier), shared by
+// /pairs (grid sections) and /cot (filter dropdown) so they never drift.
+
+export type GroupId = "majors" | "minors" | "commodities" | "indices" | "dollar";
+
+export interface InstrumentGroup {
+  id:          GroupId;
+  label:       string;
+  description: string;
+  instruments: Instrument[];
+}
+
+export function groupInstruments(instruments: Instrument[]): InstrumentGroup[] {
+  const dxy    = instruments.filter((i) => i.symbol === "DXY");
+  const majors = instruments.filter((i) => i.category === "forex" && i.tier === "major");
+  const minors = instruments.filter((i) => i.category === "forex" && i.tier !== "major");
+  const commodities = instruments.filter((i) => i.category === "commodity");
+  const indices = instruments.filter((i) => i.category === "index" && i.symbol !== "DXY");
+
+  const groups: InstrumentGroup[] = [
+    { id: "majors", label: "FX Majors", description: "The most liquid currency pairs, traded during the London and New York sessions", instruments: majors },
+    { id: "minors", label: "FX Minors", description: "Cross pairs among major currencies — no direct CFTC contract, so COT bias is derived from each leg's currency positioning", instruments: minors },
+    { id: "commodities", label: "Commodities", description: "Metals and energy with a strong correlation to USD flows", instruments: commodities },
+    { id: "indices", label: "Indices", description: "Equity indices — some carry a direct CFTC COT contract, others are price-only", instruments: indices },
+    { id: "dollar", label: "Dollar Index", description: "The master bias: DXY direction sets the tone for all USD pairs simultaneously", instruments: dxy },
+  ];
+
+  return groups.filter((g) => g.instruments.length > 0);
+}

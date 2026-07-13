@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Sparkline, Skeleton, Icon } from "@/components/ui";
@@ -8,6 +8,8 @@ import { cn } from "@/lib/cn";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import { CotLockScreen } from "@/components/cot/CotLockScreen";
 import { SignalBars } from "@/components/cot/SignalBars";
+import { useInstruments } from "@/lib/hooks/useInstruments";
+import { deriveMetaMap, groupInstruments, type GroupId } from "@/lib/pairs";
 import type { CotEntry } from "@/lib/cot/types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -385,6 +387,126 @@ function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: bool
   );
 }
 
+// ── Filter dropdown (category or currency, replaces the old per-pair pill row) ──
+
+type CotFilter =
+  | { kind: "all" }
+  | { kind: "group"; id: GroupId; label: string }
+  | { kind: "currency"; code: string };
+
+function CotFilterDropdown({
+  filter, onChange, groups, currencies, resultCount,
+}: {
+  filter: CotFilter;
+  onChange: (f: CotFilter) => void;
+  groups: { id: GroupId; label: string; instruments: { symbol: string }[] }[];
+  currencies: string[];
+  resultCount: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDown(e: MouseEvent) {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") setOpen(false); }
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const activeLabel =
+    filter.kind === "all" ? "All pairs" :
+    filter.kind === "group" ? filter.label :
+    filter.code;
+
+  function select(f: CotFilter) {
+    onChange(f);
+    setOpen(false);
+  }
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={cn(
+          "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all active:scale-95 border",
+          filter.kind !== "all" ? "bg-teal text-white border-teal" : "bg-panel-2 text-ink-mid border-line"
+        )}
+      >
+        <Icon name="tune" size={14} />
+        {activeLabel}
+        <span className="tabular-nums text-[11px] opacity-75">{resultCount}</span>
+        <Icon name={open ? "expand_less" : "expand_more"} size={14} />
+      </button>
+
+      {open && (
+        <div className="absolute left-0 top-full mt-1.5 z-20 w-[240px] rounded-xl border border-line bg-panel shadow-md overflow-hidden">
+          <button
+            type="button"
+            onClick={() => select({ kind: "all" })}
+            className={cn(
+              "w-full text-left px-3.5 py-2 text-[12.5px] font-semibold transition-colors hover:bg-hover",
+              filter.kind === "all" ? "text-teal" : "text-ink-strong"
+            )}
+          >
+            All pairs
+          </button>
+
+          <div className="px-3.5 pt-2.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-ink-dim border-t border-line">
+            By category
+          </div>
+          {groups.map((g) => {
+            const activeGroup = filter.kind === "group" && filter.id === g.id;
+            return (
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => select({ kind: "group", id: g.id, label: g.label })}
+                className={cn(
+                  "w-full flex items-center justify-between px-3.5 py-1.5 text-[12.5px] font-medium transition-colors hover:bg-hover",
+                  activeGroup ? "text-teal" : "text-ink-mid"
+                )}
+              >
+                {g.label}
+                <span className="tabular-nums text-[11px] opacity-60">{g.instruments.length}</span>
+              </button>
+            );
+          })}
+
+          <div className="px-3.5 pt-2.5 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-ink-dim border-t border-line">
+            By currency
+          </div>
+          <div className="grid grid-cols-4 gap-1.5 px-3.5 pb-3">
+            {currencies.map((c) => {
+              const activeCur = filter.kind === "currency" && filter.code === c;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => select({ kind: "currency", code: c })}
+                  className={cn(
+                    "px-2 py-1 rounded-md text-[11.5px] font-semibold text-center transition-all active:scale-95",
+                    activeCur ? "bg-teal text-white" : "bg-panel-2 text-ink-mid border border-line"
+                  )}
+                >
+                  {c}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Loading skeleton ──────────────────────────────────────────────────────────
 
 function LoadingSkeleton() {
@@ -422,9 +544,10 @@ export function CotReports() {
   const [entries, setEntries]     = useState<CotEntry[]>([]);
   const [loading, setLoading]     = useState(true);
   const [retrying, setRetrying]   = useState(false);
-  const [selected, setSelected]   = useState("All");
+  const [filter, setFilter]       = useState<CotFilter>({ kind: "all" });
   const [locked, setLocked]       = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const { data: instruments = [] } = useInstruments();
 
   function load() {
     setLoadError(false);
@@ -456,12 +579,29 @@ export function CotReports() {
       .catch(() => { setRetrying(false); });
   }
 
-  const pairs = useMemo(() => ["All", ...entries.map((e) => e.pair)], [entries]);
+  const metaMap = useMemo(() => deriveMetaMap(instruments), [instruments]);
+  const groups  = useMemo(() => groupInstruments(instruments), [instruments]);
 
-  const visible = useMemo(
-    () => selected === "All" ? entries : entries.filter((e) => e.pair === selected),
-    [entries, selected]
-  );
+  // Derived from the instruments table, not hardcoded — any currency that
+  // appears as a leg of an active forex pair shows up as a filter option.
+  const currencies = useMemo(() => {
+    const set = new Set<string>();
+    for (const inst of instruments) {
+      if (inst.category !== "forex") continue;
+      const meta = metaMap[inst.symbol];
+      if (meta) { set.add(meta.base); set.add(meta.quote); }
+    }
+    return [...set].sort();
+  }, [instruments, metaMap]);
+
+  const visible = useMemo(() => {
+    if (filter.kind === "all") return entries;
+    if (filter.kind === "group") {
+      const symbols = new Set(groups.find((g) => g.id === filter.id)?.instruments.map((i) => i.symbol) ?? []);
+      return entries.filter((e) => symbols.has(e.pair));
+    }
+    return entries.filter((e) => metaMap[e.pair]?.currencies.includes(filter.code));
+  }, [entries, filter, groups, metaMap]);
 
   const loaded    = entries.filter((e) => e.totalWeeks > 0).length;
   const hasData   = loaded > 0;
@@ -567,27 +707,16 @@ export function CotReports() {
         </div>
       )}
 
-      {/* ── Pair pills (summary + filter, merged) ── */}
+      {/* ── Filter dropdown ── */}
       {!loading && (
-        <div className="flex items-center gap-1.5 mb-5 flex-wrap">
-          {pairs.map((p) => {
-            const entry = p === "All" ? null : entries.find((e) => e.pair === p);
-            return (
-              <button
-                key={p}
-                type="button"
-                onClick={() => setSelected(p)}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all active:scale-95",
-                  selected === p ? "bg-teal text-white" : "bg-panel-2 text-ink-dim border border-line"
-                )}
-              >
-                {entry && <SignalBars signal={entry.signal} size="sm" />}
-                {p}
-                {entry && <span className="tabular-nums text-[11px] opacity-75">{entry.cotIndex}</span>}
-              </button>
-            );
-          })}
+        <div className="mb-5">
+          <CotFilterDropdown
+            filter={filter}
+            onChange={setFilter}
+            groups={groups}
+            currencies={currencies}
+            resultCount={visible.length}
+          />
         </div>
       )}
 

@@ -5,14 +5,13 @@ import Link from "next/link";
 import { Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { useInstruments } from "@/lib/hooks/useInstruments";
-import { deriveMetaMap } from "@/lib/pairs";
-import type { Instrument } from "@prisma/client";
+import { deriveMetaMap, groupInstruments } from "@/lib/pairs";
 
 const FEATURES = ["COT Bias", "Trend Matrix", "DXY Confluence"] as const;
 
-// Subtle accent classes per group — keyed by a fixed group id, not by pair
-// symbol, so a new instrument only needs a category/tier to land in the
-// right visual group automatically.
+// Subtle accent classes per group — keyed by the shared group id (lib/pairs.ts),
+// not by pair symbol, so a new instrument only needs a category/tier to land
+// in the right visual group automatically.
 const GROUP_ACCENT: Record<string, { barCls: string; hoverBorderCls: string; chipBgCls: string; chipTextCls: string; chipBorderCls: string }> = {
   majors:      { barCls: "bg-teal",        hoverBorderCls: "hover:border-teal",        chipBgCls: "bg-[color-mix(in_srgb,var(--teal)_12%,transparent)]",        chipTextCls: "text-teal",        chipBorderCls: "border-[color-mix(in_srgb,var(--teal)_25%,transparent)]" },
   minors:      { barCls: "bg-teal-bright", hoverBorderCls: "hover:border-teal-bright", chipBgCls: "bg-[color-mix(in_srgb,var(--teal-bright)_12%,transparent)]", chipTextCls: "text-teal-bright", chipBorderCls: "border-[color-mix(in_srgb,var(--teal-bright)_25%,transparent)]" },
@@ -21,35 +20,10 @@ const GROUP_ACCENT: Record<string, { barCls: string; hoverBorderCls: string; chi
   dollar:      { barCls: "bg-coral",       hoverBorderCls: "hover:border-coral",       chipBgCls: "bg-[color-mix(in_srgb,var(--coral)_12%,transparent)]",       chipTextCls: "text-coral",       chipBorderCls: "border-[color-mix(in_srgb,var(--coral)_25%,transparent)]" },
 };
 
-interface Group {
-  id: string;
-  label: string;
-  description: string;
-  instruments: Instrument[];
-}
-
-function buildGroups(instruments: Instrument[]): Group[] {
-  const dxy    = instruments.filter((i) => i.symbol === "DXY");
-  const majors = instruments.filter((i) => i.category === "forex" && i.tier === "major");
-  const minors = instruments.filter((i) => i.category === "forex" && i.tier !== "major");
-  const commodities = instruments.filter((i) => i.category === "commodity");
-  const indices = instruments.filter((i) => i.category === "index" && i.symbol !== "DXY");
-
-  const groups: Group[] = [
-    { id: "majors", label: "FX Majors", description: "The most liquid currency pairs, traded during the London and New York sessions", instruments: majors },
-    { id: "minors", label: "FX Minors", description: "Cross pairs among major currencies — no direct CFTC contract, so COT bias is derived from each leg's currency positioning", instruments: minors },
-    { id: "commodities", label: "Commodities", description: "Metals and energy with a strong correlation to USD flows", instruments: commodities },
-    { id: "indices", label: "Indices", description: "Equity indices — some carry a direct CFTC COT contract, others are price-only", instruments: indices },
-    { id: "dollar", label: "Dollar Index", description: "The master bias: DXY direction sets the tone for all USD pairs simultaneously", instruments: dxy },
-  ];
-
-  return groups.filter((g) => g.instruments.length > 0);
-}
-
 export default function PairsPage() {
   const { data: instruments = [] } = useInstruments();
   const metaMap = useMemo(() => deriveMetaMap(instruments), [instruments]);
-  const groups  = useMemo(() => buildGroups(instruments), [instruments]);
+  const groups  = useMemo(() => groupInstruments(instruments), [instruments]);
   const totalPairs = instruments.length;
 
   return (
