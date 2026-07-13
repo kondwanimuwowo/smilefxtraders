@@ -431,7 +431,7 @@ function CotFilterDropdown({
   }
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative flex items-center gap-1.5" ref={ref}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -445,6 +445,17 @@ function CotFilterDropdown({
         <span className="tabular-nums text-[11px] opacity-75">{resultCount}</span>
         <Icon name={open ? "expand_less" : "expand_more"} size={14} />
       </button>
+
+      {filter.kind !== "all" && (
+        <button
+          type="button"
+          onClick={() => onChange({ kind: "all" })}
+          title="Clear filter"
+          className="flex items-center justify-center size-7 rounded-lg transition-colors active:scale-95 bg-panel-2 text-ink-dim border border-line hover:text-coral hover:border-coral"
+        >
+          <Icon name="close" size={14} />
+        </button>
+      )}
 
       {open && (
         <div className="absolute left-0 top-full mt-1.5 z-20 w-[240px] rounded-xl border border-line bg-panel shadow-md overflow-hidden">
