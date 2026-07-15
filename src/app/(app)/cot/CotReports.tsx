@@ -171,36 +171,38 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
     >
       {/* ── Card header ── */}
       <div className="px-5 pt-4 pb-3 flex items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span
-              title={entry.label}
-              className="font-display font-bold text-[20px] tracking-[-0.02em] cursor-help text-ink-strong"
-            >
-              {entry.pair}
-            </span>
-            {/* Signal */}
-            <SignalBars signal={entry.signal} size="md" />
-            {entry.totalWeeks > 0 && <HistoryBadge weeks={entry.totalWeeks} />}
-            {entry.synthetic && (
+        <div className="flex items-start gap-3">
+          {/* Signal — sized to match the COT Index ring below */}
+          <SignalBars signal={entry.signal} size="xl" className="shrink-0" />
+          <div>
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span
-                title={`No direct CFTC contract exists for ${entry.pair} — this signal is derived from its two legs' own currency positioning.`}
-                className="inline-flex items-center justify-center size-5 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
+                title={entry.label}
+                className="font-display font-bold text-[20px] tracking-[-0.02em] cursor-help text-ink-strong"
               >
-                <Icon name="auto_awesome" size={12} />
+                {entry.pair}
               </span>
-            )}
-            {entry.usdBase && (
-              <span
-                title="Positions shown for the foreign currency futures (JPY/CHF/CAD). Net positive = bullish on the USD pair."
-                className="inline-flex items-center justify-center size-5 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
-              >
-                <Icon name="swap_horiz" size={12} />
-              </span>
-            )}
-          </div>
-          <div className="text-[12px] text-ink-dim">
-            CFTC report week ending {entry.reportDate}
+              {entry.totalWeeks > 0 && <HistoryBadge weeks={entry.totalWeeks} />}
+              {entry.synthetic && (
+                <span
+                  title={`No direct CFTC contract exists for ${entry.pair} — this signal is derived from its two legs' own currency positioning.`}
+                  className="inline-flex items-center justify-center size-5 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
+                >
+                  <Icon name="auto_awesome" size={12} />
+                </span>
+              )}
+              {entry.usdBase && (
+                <span
+                  title="Positions shown for the foreign currency futures (JPY/CHF/CAD). Net positive = bullish on the USD pair."
+                  className="inline-flex items-center justify-center size-5 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
+                >
+                  <Icon name="swap_horiz" size={12} />
+                </span>
+              )}
+            </div>
+            <div className="text-[12px] text-ink-dim">
+              CFTC report week ending {entry.reportDate}
+            </div>
           </div>
         </div>
 
@@ -694,7 +696,7 @@ export function CotReports() {
 
       {/* ── Color key ── */}
       {!loading && entries.length > 0 && (
-        <div className="flex items-center gap-5 mb-5 text-[11.5px] flex-wrap text-ink-dim">
+        <div className="flex items-center gap-5 mb-5 text-[13px] flex-wrap text-ink-dim">
           <span className="font-semibold text-ink-mid">Color key</span>
           <span className="flex items-center gap-1.5">
             <SignalBars signal="bear" size="sm" />

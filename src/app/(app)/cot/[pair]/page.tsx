@@ -207,41 +207,44 @@ export default function CotPairPage() {
 
       {/* ── Page header ── */}
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
-        <div>
-          <div className="flex items-center gap-3 mb-1 flex-wrap">
-            <h1
-              title={data?.label}
-              className={cn("font-display font-bold text-[28px] tracking-[-0.025em] text-ink-strong", data?.label && "cursor-help")}
-            >
-              {pair.toUpperCase()}
-            </h1>
+        <div className="flex items-start gap-4">
+          {/* Signal — sized to match the COT Index ring, with its bias label */}
+          {data && <SignalBars signal={data.signal} size="xl" showLabel className="shrink-0" />}
+          <div>
+            <div className="flex items-center gap-3 mb-1 flex-wrap">
+              <h1
+                title={data?.label}
+                className={cn("font-display font-bold text-[28px] tracking-[-0.025em] text-ink-strong", data?.label && "cursor-help")}
+              >
+                {pair.toUpperCase()}
+              </h1>
+              {data && (
+                <>
+                  {data.synthetic && (
+                    <span
+                      title={`No direct CFTC contract exists for ${data.pair} — this signal is derived from its two legs' own currency positioning.`}
+                      className="inline-flex items-center justify-center size-6 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
+                    >
+                      <Icon name="auto_awesome" size={13} />
+                    </span>
+                  )}
+                  {data.usdBase && (
+                    <span
+                      title="Positions shown for the foreign currency futures. Net positive = bullish on the USD pair."
+                      className="inline-flex items-center justify-center size-6 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
+                    >
+                      <Icon name="swap_horiz" size={13} />
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
             {data && (
-              <>
-                <SignalBars signal={data.signal} size="lg" />
-                {data.synthetic && (
-                  <span
-                    title={`No direct CFTC contract exists for ${data.pair} — this signal is derived from its two legs' own currency positioning.`}
-                    className="inline-flex items-center justify-center size-6 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
-                  >
-                    <Icon name="auto_awesome" size={13} />
-                  </span>
-                )}
-                {data.usdBase && (
-                  <span
-                    title="Positions shown for the foreign currency futures. Net positive = bullish on the USD pair."
-                    className="inline-flex items-center justify-center size-6 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
-                  >
-                    <Icon name="swap_horiz" size={13} />
-                  </span>
-                )}
-              </>
+              <p className="text-[13px] text-ink-dim">
+                CFTC report week ending {data.reportDate} · {total.toLocaleString()} weeks in database
+              </p>
             )}
           </div>
-          {data && (
-            <p className="text-[13px] text-ink-dim">
-              CFTC report week ending {data.reportDate} · {total.toLocaleString()} weeks in database
-            </p>
-          )}
         </div>
 
         {/* Current reading summary */}
@@ -315,7 +318,7 @@ export default function CotPairPage() {
       {!error && (
         <div className="rounded-2xl border border-line bg-panel">
           {/* Color key — static, not sticky. You read it once at the top. */}
-          <div className="flex items-center gap-5 px-5 py-3 text-[11.5px] flex-wrap border-b border-line text-ink-dim">
+          <div className="flex items-center gap-5 px-5 py-3 text-[13px] flex-wrap border-b border-line text-ink-dim">
             <span className="font-semibold text-ink-mid">Color key</span>
             <span className="flex items-center gap-1.5">
               <span className="inline-block w-3 h-3 rounded-sm bg-[rgba(8,174,170,0.65)]" />
