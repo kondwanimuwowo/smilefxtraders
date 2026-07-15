@@ -57,9 +57,9 @@ function computeBadges(trades: Trade[], stats: TradeStats, plan: string) {
     },
     {
       icon: "workspace_premium",
-      label: "Funded",
-      desc: "Upgraded to Funded Track",
-      earned: plan === "funded",
+      label: "Pro",
+      desc: "Upgraded to Pro",
+      earned: plan === "pro",
     },
   ];
 }
@@ -99,9 +99,9 @@ export function Profile() {
   // reference, which is invalid CSS — the background never rendered, so the
   // badge has always been text-only on transparent.
   const PLAN_LABEL: Record<string, { label: string; cls: string }> = {
-    free:   { label: "Starter",      cls: "text-ink-dim" },
-    pro:    { label: "Pro Trader",   cls: "text-teal"    },
-    funded: { label: "Funded Track", cls: "text-gold"    },
+    free: { label: "Starter", cls: "text-ink-dim" },
+    edge: { label: "Edge",    cls: "text-teal"    },
+    pro:  { label: "Pro",     cls: "text-gold"    },
   };
   const planCfg = PLAN_LABEL[plan];
 

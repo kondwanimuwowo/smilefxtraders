@@ -12,15 +12,15 @@ export default async function AdminPage() {
   const weekStart  = subDays(now, 7);
 
   const [
-    totalUsers, freeUsers, proUsers, fundedUsers,
+    totalUsers, freeUsers, edgeUsers, proUsers,
     newUsersMonth, totalTrades, tradesMonth,
     totalPosts, postsMonth,
     recentUsers,
   ] = await Promise.all([
     prisma.user.count(),
-    prisma.user.count({ where: { plan: "FREE"   } }),
-    prisma.user.count({ where: { plan: "PRO"    } }),
-    prisma.user.count({ where: { plan: "FUNDED" } }),
+    prisma.user.count({ where: { plan: "FREE" } }),
+    prisma.user.count({ where: { plan: "EDGE" } }),
+    prisma.user.count({ where: { plan: "PRO"  } }),
     prisma.user.count({ where: { createdAt: { gte: monthStart } } }),
     prisma.trade.count(),
     prisma.trade.count({ where: { date: { gte: monthStart } } }),
@@ -36,8 +36,8 @@ export default async function AdminPage() {
 
   const stats = [
     { label: "Total members",       value: totalUsers.toLocaleString(),   icon: "group",          colorCls: "text-teal"  },
-    { label: "Pro subscribers",      value: proUsers.toLocaleString(),      icon: "trending_up",    colorCls: "text-teal"  },
-    { label: "Funded Track",         value: fundedUsers.toLocaleString(),   icon: "workspace_premium", colorCls: "text-gold" },
+    { label: "Edge subscribers",     value: edgeUsers.toLocaleString(),     icon: "trending_up",    colorCls: "text-teal"  },
+    { label: "Pro subscribers",      value: proUsers.toLocaleString(),      icon: "workspace_premium", colorCls: "text-gold" },
     { label: "New this month",       value: newUsersMonth.toLocaleString(), icon: "person_add",     colorCls: "text-teal"  },
     { label: "Trades all time",      value: totalTrades.toLocaleString(),   icon: "menu_book",      colorCls: "text-ink-mid" },
     { label: "Trades this month",    value: tradesMonth.toLocaleString(),   icon: "show_chart",     colorCls: "text-teal"  },
@@ -80,9 +80,9 @@ export default async function AdminPage() {
         </h2>
         <div className="flex flex-col gap-3">
           {[
-            { label: "Starter (Free)", count: freeUsers,   barCls: "bg-ink-dim", textCls: "text-ink-dim" },
-            { label: "Pro Trader",     count: proUsers,    barCls: "bg-teal",    textCls: "text-teal"    },
-            { label: "Funded Track",   count: fundedUsers, barCls: "bg-gold",    textCls: "text-gold"    },
+            { label: "Starter (Free)", count: freeUsers, barCls: "bg-ink-dim", textCls: "text-ink-dim" },
+            { label: "Edge",           count: edgeUsers, barCls: "bg-teal",    textCls: "text-teal"    },
+            { label: "Pro",            count: proUsers,  barCls: "bg-gold",    textCls: "text-gold"    },
           ].map(({ label, count, barCls, textCls }) => (
             <div key={label} className="flex items-center gap-3">
               <span className="w-28 text-[12.5px] text-ink-mid">{label}</span>
@@ -127,11 +127,11 @@ export default async function AdminPage() {
                   className={cn(
                     "text-[11px] font-semibold px-2.5 py-0.5 rounded-full",
                     u.plan === "FREE" ? "bg-panel-2 text-ink-dim"
-                      : u.plan === "PRO" ? "bg-[rgba(8,174,170,0.12)] text-teal"
+                      : u.plan === "EDGE" ? "bg-[rgba(8,174,170,0.12)] text-teal"
                         : "bg-[rgba(248,185,61,0.12)] text-gold"
                   )}
                 >
-                  {u.plan === "FREE" ? "Free" : u.plan === "PRO" ? "Pro" : "Funded"}
+                  {u.plan === "FREE" ? "Free" : u.plan === "EDGE" ? "Edge" : "Pro"}
                 </span>
                 <span className="text-[11px] shrink-0 text-ink-dim">
                   {fmtMonthDay(u.createdAt)}

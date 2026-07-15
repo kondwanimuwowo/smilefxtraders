@@ -62,8 +62,8 @@ export default async function AdminAcademyPage() {
       {/* Course cards */}
       <div className="flex flex-col gap-4">
         {courses.map((course) => {
-          const tierCls   = course.tier === "free" ? "bg-panel-2 text-ink-dim" : course.tier === "pro" ? "bg-[rgba(8,174,170,0.12)] text-teal" : "bg-[rgba(248,185,61,0.12)] text-gold";
-          const tierLabel = course.tier === "free" ? "Free" : course.tier === "pro" ? "Pro" : "Funded Track";
+          const tierCls   = course.tier === "free" ? "bg-panel-2 text-ink-dim" : course.tier === "edge" ? "bg-[rgba(8,174,170,0.12)] text-teal" : "bg-[rgba(248,185,61,0.12)] text-gold";
+          const tierLabel = course.tier === "free" ? "Free" : course.tier === "edge" ? "Edge" : "Pro";
           const totalCompletions = course.lessons.reduce((s, l) => s + (completionMap.get(l.id) ?? 0), 0);
           const maxCompletions   = Math.max(...course.lessons.map((l) => completionMap.get(l.id) ?? 0), 1);
 

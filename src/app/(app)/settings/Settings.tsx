@@ -20,7 +20,7 @@ function MembershipSection() {
 
   if (!user || user.plan === "free") return null;
 
-  const PLAN_LABELS: Record<string, string> = { pro: "Pro Trader", PRO: "Pro Trader", funded: "Funded Track", FUNDED: "Funded Track" };
+  const PLAN_LABELS: Record<string, string> = { edge: "Edge", EDGE: "Edge", pro: "Pro", PRO: "Pro" };
   const planLabel = PLAN_LABELS[user.plan] ?? user.plan;
 
   function handleCancel() {

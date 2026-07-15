@@ -117,7 +117,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
             {state === "loading" && "Analysing your trade…"}
             {state === "done"    && result && `Grade: ${result.grade} · ${trade.pair} ${trade.dir}`}
             {state === "error"   && "Review failed. Tap to retry"}
-            {state === "locked"  && "Pro & Funded Track feature"}
+            {state === "locked"  && "Edge & Pro feature"}
           </div>
         </div>
 

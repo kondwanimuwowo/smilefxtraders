@@ -9,17 +9,17 @@ const LENCO_KEY  = process.env.LENCO_API_KEY ?? "";
 // ── Plan pricing (amount in the smallest currency unit) ─────────────────────
 
 const PLAN_PRICES: Record<string, Record<string, { zmw: number; usd: number }>> = {
-  pro: {
-    monthly: { zmw: 29900, usd: 2000 },   // K299 / $20
-    annual:  { zmw: 23900, usd: 1600 },   // 20% discount → K239 / $16
+  edge: {
+    monthly: { zmw: 24900, usd: 1500 },   // K249 / $15
+    annual:  { zmw: 19900, usd: 1200 },   // 20% discount → K199 / $12
   },
-  funded: {
-    monthly: { zmw: 59900, usd: 4000 },   // K599 / $40
-    annual:  { zmw: 47900, usd: 3200 },   // 20% discount → K479 / $32
+  pro: {
+    monthly: { zmw: 54900, usd: 3500 },   // K549 / $35
+    annual:  { zmw: 43900, usd: 2800 },   // 20% discount → K439 / $28
   },
 };
 
-const DB_PLAN: Record<string, "PRO" | "FUNDED"> = { pro: "PRO", funded: "FUNDED" };
+const DB_PLAN: Record<string, "EDGE" | "PRO"> = { edge: "EDGE", pro: "PRO" };
 
 // ── POST /api/checkout/mobile-money ─────────────────────────────────────────
 
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
   const body = await req.json() as {
-    plan:     "pro" | "funded";
+    plan:     "edge" | "pro";
     cycle:    "monthly" | "annual";
     phone:    string;
     operator: string;

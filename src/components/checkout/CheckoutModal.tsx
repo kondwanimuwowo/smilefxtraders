@@ -8,14 +8,14 @@ import { Icon } from "@/components/ui";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type PaidPlan  = "pro" | "funded";
+type PaidPlan  = "edge" | "pro";
 type BillingCy = "monthly" | "annual";
 type Method    = "mobile" | "card";
 type Screen    = "method" | "waiting" | "success";
 
 const PLAN_PRICES: Record<PaidPlan, { monthly: number; annual: number; name: string }> = {
-  pro:    { monthly: 299,  annual: 239,  name: "Pro Trader"   },
-  funded: { monthly: 599,  annual: 479,  name: "Funded Track" },
+  edge: { monthly: 249, annual: 199, name: "Edge" },
+  pro:  { monthly: 549, annual: 439, name: "Pro"  },
 };
 
 const OPERATORS = ZM_OPERATORS;

@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     if (user) {
       const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id }, select: { plan: true } }).catch(() => null);
       if (dbUser && dbUser.plan === "FREE") {
-        return NextResponse.json({ error: "MacroEdge AI narration requires a Pro or Funded Track plan.", upgrade: true }, { status: 403 });
+        return NextResponse.json({ error: "MacroEdge AI narration requires an Edge or Pro plan.", upgrade: true }, { status: 403 });
       }
     }
 

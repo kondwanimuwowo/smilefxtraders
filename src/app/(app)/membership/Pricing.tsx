@@ -11,7 +11,7 @@ import { FAQAccordion } from "@/components/marketing/FAQAccordion";
 import { PLAN_META, DEFAULT_PRICES } from "@/lib/plans";
 import type { PlanPrices } from "@/lib/plans";
 
-type PaidPlan = "pro" | "funded";
+type PaidPlan = "edge" | "pro";
 
 function usePlanPrices() {
   return useQuery<PlanPrices[]>({
@@ -30,7 +30,7 @@ const FAQ = [
   { q: "What is the Gavo AI Trade Review?",
     a: "After logging a trade, you can request a review from Gavo, our AI trading coach. Gavo grades your trade against the SMC rulebook, giving you a letter grade (A+–D), a verdict, what you did well, and what to improve." },
   { q: "What is the 1-on-1 mentorship?",
-    a: "Funded Track members get monthly private video review sessions with Kondwani. He reviews your journal, identifies patterns in your trading, and gives you a personalised improvement plan." },
+    a: "Pro members get monthly private video review sessions with Kondwani. He reviews your journal, identifies patterns in your trading, and gives you a personalised improvement plan." },
   { q: "Is there a free trial for Pro?",
     a: "Not currently. The Starter plan is free forever and gives you access to all the tools. You only need to upgrade when you want unlimited journal entries and live alerts." },
 ];
@@ -47,7 +47,7 @@ export function Pricing() {
   function handleUpgradeSuccess(newPlan: PaidPlan) {
     if (user) setUser({ ...user, plan: newPlan });
     queryClient.invalidateQueries({ queryKey: ["plan-prices"] });
-    toast(`You're now on ${newPlan === "pro" ? "Pro Trader" : "Funded Track"}!`, "teal", "check_circle");
+    toast(`You're now on ${newPlan === "edge" ? "Edge" : "Pro"}!`, "teal", "check_circle");
     router.push("/dashboard");
   }
 
@@ -118,7 +118,7 @@ export function Pricing() {
                         : "bg-[linear-gradient(135deg,var(--gold),#e09b25)] text-navy-deep"
                     }`}
                   >
-                    {m.id === "pro" ? "Upgrade to Pro" : "Join Funded Track"}
+                    {m.id === "edge" ? "Upgrade to Edge" : "Join Pro"}
                   </button>
                 );
               }}
@@ -147,6 +147,12 @@ export function Pricing() {
           titleClassName="font-display font-bold text-[20px] mb-4 tracking-[-0.02em] text-ink-strong"
           items={FAQ}
         />
+        <p className="text-center text-[13px] mt-6 text-ink-dim">
+          Need lifetime access?{" "}
+          <a href="mailto:support@smilefxtraders.com" className="font-semibold text-teal">
+            Contact our sales team
+          </a>
+        </p>
       </div>
 
       {checkoutPlan && (

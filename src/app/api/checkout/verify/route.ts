@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
           const created = await createNotification(dbUser.id, {
             type:      "PAYMENT_CONFIRMED",
             title:     "Payment confirmed",
-            body:      `Your ${sub.plan === "FUNDED" ? "Funded Track" : "Pro Trader"} plan is now active.`,
+            body:      `Your ${sub.plan === "PRO" ? "Pro" : "Edge"} plan is now active.`,
             icon:      "workspace_premium",
             tone:      "gold",
             href:      "/settings",

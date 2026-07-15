@@ -91,8 +91,8 @@ export function Sidebar() {
     : "?";
 
   const planLabel =
-    user?.plan === "funded" ? "Funded Track" :
-    user?.plan === "pro"    ? "Pro Trader"   : "Starter";
+    user?.plan === "pro"  ? "Pro"  :
+    user?.plan === "edge" ? "Edge" : "Starter";
 
   // Mobile: full-width drawer, labels always visible (never collapsed)
   // Desktop: collapsible icon-rail

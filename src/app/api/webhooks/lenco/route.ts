@@ -153,7 +153,7 @@ async function notifyPaymentConfirmed(sub: SubWithUser, renewsAt: Date) {
   const created = await createNotification(sub.userId, {
     type:      "PAYMENT_CONFIRMED",
     title:     "Payment confirmed",
-    body:      `Your ${sub.plan === "FUNDED" ? "Funded Track" : "Pro Trader"} plan is now active.`,
+    body:      `Your ${sub.plan === "PRO" ? "Pro" : "Edge"} plan is now active.`,
     icon:      "workspace_premium",
     tone:      "gold",
     href:      "/settings",

@@ -87,11 +87,11 @@ export default async function AdminStudentsPage() {
                         className={cn(
                           "text-[11px] font-semibold px-2.5 py-0.5 rounded-full",
                           u.plan === "FREE" ? "bg-panel-2 text-ink-dim"
-                            : u.plan === "PRO" ? "bg-[rgba(8,174,170,0.12)] text-teal"
+                            : u.plan === "EDGE" ? "bg-[rgba(8,174,170,0.12)] text-teal"
                               : "bg-[rgba(248,185,61,0.12)] text-gold"
                         )}
                       >
-                        {u.plan === "FREE" ? "Free" : u.plan === "PRO" ? "Pro" : "Funded"}
+                        {u.plan === "FREE" ? "Free" : u.plan === "EDGE" ? "Edge" : "Pro"}
                       </span>
                     ),
                   },

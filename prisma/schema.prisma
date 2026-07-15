@@ -53,8 +53,8 @@ enum Role {
 
 enum Plan {
   FREE
+  EDGE
   PRO
-  FUNDED
 }
 
 enum Experience {

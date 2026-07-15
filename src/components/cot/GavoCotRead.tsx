@@ -44,7 +44,7 @@ export function GavoCotRead({ pair }: { pair: string }) {
             {state === "loading" && "Reading the data…"}
             {state === "done" && "AI narration"}
             {state === "error" && "Read failed. Tap to retry"}
-            {state === "locked" && "Pro & Funded Track feature"}
+            {state === "locked" && "Edge & Pro feature"}
           </div>
         </div>
 

@@ -138,7 +138,7 @@ export default function LearnPage() {
             <MarketingCard
               icon="groups_3"
               title="Weekly live calls"
-              description={<>Join Kondwani live to mark up the week&apos;s setups and ask questions in real time. <span className="text-[var(--gold-dark)] font-semibold">Funded Track</span></>}
+              description={<>Join Kondwani live to mark up the week&apos;s setups and ask questions in real time. <span className="text-[var(--gold-dark)] font-semibold">Pro plan</span></>}
             />
             <MarketingCard
               icon="reviews"

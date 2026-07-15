@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     if (dbUser.plan === "FREE") {
-      return NextResponse.json({ error: "Community posting requires a Pro or Funded Track plan." }, { status: 403 });
+      return NextResponse.json({ error: "Community posting requires an Edge or Pro plan." }, { status: 403 });
     }
 
     const body = await req.json() as { text: string; pair?: string; dir?: string; result?: string };

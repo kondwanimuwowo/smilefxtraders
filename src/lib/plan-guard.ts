@@ -26,7 +26,7 @@ export async function requirePaidPlan(feature: string): Promise<NextResponse | n
 
   if (dbUser?.plan === "FREE") {
     return NextResponse.json(
-      { error: `${feature} requires a Pro or Funded Track plan.`, upgrade: true },
+      { error: `${feature} requires an Edge or Pro plan.`, upgrade: true },
       { status: 403 },
     );
   }

@@ -711,7 +711,7 @@ export function Alerts() {
         <div className="mt-6 rounded-2xl px-5 py-4 flex items-start gap-3 bg-[rgba(248,185,61,0.06)] border border-[rgba(248,185,61,0.2)]">
           <Icon name="workspace_premium" size={17} fill className="text-gold shrink-0 mt-px" />
           <p className="text-[12.5px] leading-relaxed text-ink-mid">
-            <strong className="text-ink-strong">Pro & Funded Track traders</strong> receive alerts in real time via this feed and push notifications. Free plan members see alerts with a 4-hour delay. Upgrade in{" "}
+            <strong className="text-ink-strong">Edge & Pro traders</strong> receive alerts in real time via this feed and push notifications. Free plan members see alerts with a 4-hour delay. Upgrade in{" "}
             <a href="/membership" className="text-gold no-underline">Membership</a>.
           </p>
         </div>

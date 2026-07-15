@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
   try {
     // ... auth checks
     if (dbUser && dbUser.plan === "FREE") {
-      return NextResponse.json({ error: "AI Review requires a Pro or Funded Track plan.", upgrade: true }, { status: 403 });
+      return NextResponse.json({ error: "AI Review requires an Edge or Pro plan.", upgrade: true }, { status: 403 });
     }
     // ... async operations
     return NextResponse.json(json);

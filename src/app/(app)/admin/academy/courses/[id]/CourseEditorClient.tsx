@@ -23,9 +23,9 @@ interface Course {
 const ICON_OPTIONS  = ["school", "psychology", "health_and_safety", "bar_chart", "videocam", "workspace_premium", "star", "trending_up"];
 const COLOR_OPTIONS = ["var(--teal)", "var(--gold)", "var(--coral)", "var(--navy)", "var(--teal-bright)"];
 const TIER_OPTIONS  = [
-  { value: "free",   label: "Free" },
-  { value: "pro",    label: "Pro" },
-  { value: "funded", label: "Funded Track" },
+  { value: "free", label: "Free" },
+  { value: "edge", label: "Edge" },
+  { value: "pro",  label: "Pro" },
 ];
 
 export function CourseEditorClient({ course }: { course: Course }) {

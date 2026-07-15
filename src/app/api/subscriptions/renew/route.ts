@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
     const created = await createNotification(sub.userId, {
       type:      "PLAN_EXPIRING",
       title:     "Your plan renews soon",
-      body:      `Your ${sub.plan === "FUNDED" ? "Funded Track" : "Pro Trader"} plan renews on ${sub.renewsAt.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}.`,
+      body:      `Your ${sub.plan === "PRO" ? "Pro" : "Edge"} plan renews on ${sub.renewsAt.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}.`,
       icon:      "schedule",
       tone:      "gold",
       href:      "/settings",

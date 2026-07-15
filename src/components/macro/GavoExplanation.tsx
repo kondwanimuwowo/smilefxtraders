@@ -54,7 +54,7 @@ export function GavoExplanation({ subjectType, subjectKey }: Props) {
             {state === "loading" && "Reading the data…"}
             {state === "done" && "AI narration"}
             {state === "error" && "Explanation failed. Tap to retry"}
-            {state === "locked" && "Pro & Funded Track feature"}
+            {state === "locked" && "Edge & Pro feature"}
           </div>
         </div>
 

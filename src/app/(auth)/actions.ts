@@ -61,7 +61,7 @@ export async function demoLoginAction() {
           username:    "demo_trader",
           email:       data.user.email!,
           phone:       "+260970000000",
-          plan:        "PRO",
+          plan:        "EDGE",
           level:       3,
           streak:      7,
           riskPct:     0.5,

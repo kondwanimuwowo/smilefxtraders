@@ -22,7 +22,7 @@ export function MarketingPlanCard({ meta, prices, annual = false }: Props) {
           variant={m.popular ? "primary" : "ghost"}
           fullWidth
         >
-          {m.id === "free" ? "Get started free" : m.id === "pro" ? "Start Pro" : "Join Funded Track"}
+          {m.id === "free" ? "Get started free" : m.id === "edge" ? "Start Edge" : "Join Pro"}
         </Button>
       )}
     />

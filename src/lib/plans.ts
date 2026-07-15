@@ -4,7 +4,7 @@ export interface PlanFeature {
 }
 
 export interface PlanMeta {
-  id: "free" | "pro" | "funded";
+  id: "free" | "edge" | "pro";
   name: string;
   icon: string;
   color: string;
@@ -12,6 +12,8 @@ export interface PlanMeta {
   popular?: boolean;
   features: PlanFeature[];
 }
+
+// Elite (K1,499 / $85) is planned but deferred — not built this pass.
 
 export interface PlanPrices {
   planId: string;
@@ -22,9 +24,9 @@ export interface PlanPrices {
 }
 
 export const DEFAULT_PRICES: PlanPrices[] = [
-  { planId: "free",   monthlyZmw: 0,   annualZmw: 0,   monthlyUsd: 0,  annualUsd: 0  },
-  { planId: "pro",    monthlyZmw: 299, annualZmw: 239, monthlyUsd: 29, annualUsd: 23 },
-  { planId: "funded", monthlyZmw: 599, annualZmw: 479, monthlyUsd: 79, annualUsd: 63 },
+  { planId: "free", monthlyZmw: 0,   annualZmw: 0,   monthlyUsd: 0,  annualUsd: 0  },
+  { planId: "edge", monthlyZmw: 249, annualZmw: 199, monthlyUsd: 15, annualUsd: 12 },
+  { planId: "pro",  monthlyZmw: 549, annualZmw: 439, monthlyUsd: 35, annualUsd: 28 },
 ];
 
 export const PLAN_META: PlanMeta[] = [
@@ -47,11 +49,12 @@ export const PLAN_META: PlanMeta[] = [
       { text: "Gavo AI Trade Review",                     included: false },
       { text: "COT Reports",                              included: false },
       { text: "Leaderboard",                              included: false },
+      { text: "Smile as you trade",                       included: true  },
     ],
   },
   {
-    id: "pro",
-    name: "Pro Trader",
+    id: "edge",
+    name: "Edge",
     icon: "trending_up",
     color: "var(--teal)",
     tagline: "The full toolkit for serious SMC traders.",
@@ -69,21 +72,23 @@ export const PLAN_META: PlanMeta[] = [
       { text: "Leaderboard",                                    included: true  },
       { text: "Priority support",                               included: true  },
       { text: "1-on-1 mentorship with Kondwani",                included: false },
+      { text: "Smile as you trade",                             included: true  },
     ],
   },
   {
-    id: "funded",
-    name: "Funded Track",
+    id: "pro",
+    name: "Pro",
     icon: "workspace_premium",
     color: "var(--gold)",
-    tagline: "Everything in Pro, plus personal mentorship toward prop funding.",
+    tagline: "Everything in Edge, plus personal mentorship toward prop funding.",
     features: [
-      { text: "Everything in Pro Trader",                       included: true  },
+      { text: "Everything in Edge",                             included: true  },
       { text: "1-on-1 mentorship with Kondwani",                included: true  },
       { text: "Monthly private video review session",           included: true  },
       { text: "Personalised 30-day prop firm challenge plan",   included: true  },
       { text: "Priority alert notifications",                   included: true  },
-      { text: "Private Funded Track channel",                   included: true  },
+      { text: "Private Pro channel",                             included: true  },
+      { text: "Smile as you trade",                             included: true  },
     ],
   },
 ];

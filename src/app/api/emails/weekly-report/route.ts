@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   // Fetch all Pro/Funded users with weeklyReport enabled
   const users = await prisma.user.findMany({
     where: {
-      plan:      { in: ["PRO", "FUNDED"] },
+      plan:      { in: ["EDGE", "PRO"] },
       notifPrefs: { path: ["weeklyReport"], equals: true },
     },
     select: {

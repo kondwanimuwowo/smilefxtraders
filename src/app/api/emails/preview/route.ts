@@ -49,27 +49,27 @@ export async function POST(req: NextRequest) {
       from: "hello",
       ...paymentConfirmedEmail({
         name:         "Mwila Kunda",
-        plan:         "PRO",
-        amount:       "K750",
+        plan:         "EDGE",
+        amount:       "K249",
         billingCycle: "monthly",
-        reference:    "SMFX-PRO-9F2A61C4",
+        reference:    "SMFX-EDGE-9F2A61C4",
         renewsAt:     inWeek(30),
       }),
     },
 
-    "payment-failed": { from: "hello", ...paymentFailedEmail({ name: "Mwila Kunda", plan: "PRO" }) },
+    "payment-failed": { from: "hello", ...paymentFailedEmail({ name: "Mwila Kunda", plan: "EDGE" }) },
 
     "cancellation": {
       from: "hello",
-      ...cancellationEmail({ name: "Mwila Kunda", plan: "PRO", accessUntil: inWeek(18) }),
+      ...cancellationEmail({ name: "Mwila Kunda", plan: "EDGE", accessUntil: inWeek(18) }),
     },
 
     "renewal-reminder": {
       from: "hello",
-      ...renewalReminderEmail({ name: "Mwila Kunda", plan: "FUNDED", renewsAt: inWeek(3) }),
+      ...renewalReminderEmail({ name: "Mwila Kunda", plan: "PRO", renewsAt: inWeek(3) }),
     },
 
-    "plan-expired": { from: "hello", ...planExpiredEmail({ name: "Mwila Kunda", plan: "PRO" }) },
+    "plan-expired": { from: "hello", ...planExpiredEmail({ name: "Mwila Kunda", plan: "EDGE" }) },
 
     "weekly-report": {
       from: "hello",

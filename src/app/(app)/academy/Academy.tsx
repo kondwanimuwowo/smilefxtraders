@@ -8,7 +8,7 @@ import { Icon, Chip, Button } from "@/components/ui";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type PlanTier = "free" | "pro" | "funded";
+type PlanTier = "free" | "edge" | "pro";
 
 interface DBLesson {
   id:       string;
@@ -82,13 +82,13 @@ function useMarkComplete() {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const TIER_CONFIG: Record<PlanTier, { label: string; textCls: string; badgeCls: string }> = {
-  free:   { label: "Free",         textCls: "text-ink-dim", badgeCls: "text-ink-dim bg-panel-2"              },
-  pro:    { label: "Pro",          textCls: "text-teal",    badgeCls: "text-teal bg-[rgba(8,174,170,0.12)]"  },
-  funded: { label: "Funded Track", textCls: "text-gold",    badgeCls: "text-gold bg-[rgba(248,185,61,0.12)]" },
+  free: { label: "Free", textCls: "text-ink-dim", badgeCls: "text-ink-dim bg-panel-2"              },
+  edge: { label: "Edge", textCls: "text-teal",    badgeCls: "text-teal bg-[rgba(8,174,170,0.12)]"  },
+  pro:  { label: "Pro",  textCls: "text-gold",    badgeCls: "text-gold bg-[rgba(248,185,61,0.12)]" },
 };
 
 function tierAccess(userPlan: PlanTier, courseTier: string): boolean {
-  const rank: Record<string, number> = { free: 0, pro: 1, funded: 2 };
+  const rank: Record<string, number> = { free: 0, edge: 1, pro: 2 };
   return (rank[userPlan] ?? 0) >= (rank[courseTier] ?? 0);
 }
 
@@ -457,8 +457,8 @@ export function Academy() {
   }
 
   const freeCourses = courses.filter((c) => c.tier === "free");
+  const edgeCourses = courses.filter((c) => c.tier === "edge");
   const proCourses  = courses.filter((c) => c.tier === "pro");
-  const fundCourses = courses.filter((c) => c.tier === "funded");
 
   return (
     <div className="view">
@@ -501,15 +501,15 @@ export function Academy() {
         )}
       </section>
 
-      {/* Pro tier */}
+      {/* Edge tier */}
       <section className="mb-7">
         <div className="flex items-center gap-2 mb-3">
-          <span className="font-display font-semibold text-[16px] text-ink-strong">Pro Trader</span>
-          <Chip tone="teal">Pro plan</Chip>
+          <span className="font-display font-semibold text-[16px] text-ink-strong">Edge</span>
+          <Chip tone="teal">Edge plan</Chip>
         </div>
         {isLoading ? <SkeletonGrid /> : (
           <div className={`grid gap-4 ${COURSE_GRID_COLS}`}>
-            {proCourses.map((c) => (
+            {edgeCourses.map((c) => (
               <CourseCard
                 key={c.id} course={c}
                 canAccess={tierAccess(plan, c.tier)}
@@ -522,15 +522,15 @@ export function Academy() {
         )}
       </section>
 
-      {/* Funded track tier */}
+      {/* Pro tier */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <span className="font-display font-semibold text-[16px] text-ink-strong">Funded Track</span>
-          <Chip tone="gold">Funded plan</Chip>
+          <span className="font-display font-semibold text-[16px] text-ink-strong">Pro</span>
+          <Chip tone="gold">Pro plan</Chip>
         </div>
         {isLoading ? <SkeletonGrid /> : (
           <div className={`grid gap-4 ${COURSE_GRID_COLS}`}>
-            {fundCourses.map((c) => (
+            {proCourses.map((c) => (
               <CourseCard
                 key={c.id} course={c}
                 canAccess={tierAccess(plan, c.tier)}

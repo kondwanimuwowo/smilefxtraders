@@ -6,7 +6,7 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { Icon } from "@/components/ui";
 
-const TIER_OPTIONS  = [{ value: "free", label: "Free" }, { value: "pro", label: "Pro" }, { value: "funded", label: "Funded Track" }];
+const TIER_OPTIONS  = [{ value: "free", label: "Free" }, { value: "edge", label: "Edge" }, { value: "pro", label: "Pro" }];
 // COLOR_OPTIONS values feed runtime string concatenation below (`${color}20`
 // alpha suffix, dynamic `${c}` swatch backgrounds/outlines) - stays inline,
 // same as CourseEditorClient.tsx's icon/colour pickers.

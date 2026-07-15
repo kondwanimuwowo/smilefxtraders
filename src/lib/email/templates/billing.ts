@@ -3,9 +3,9 @@
 import { emailShell, para, receiptTable, centeredCard, APP } from "../layout";
 
 const PLAN_LABELS: Record<string, string> = {
-  PRO:    "Pro Trader",
-  FUNDED: "Funded Track",
-  FREE:   "Starter",
+  EDGE: "Edge",
+  PRO:  "Pro",
+  FREE: "Starter",
 };
 
 function planLabel(plan: string): string {

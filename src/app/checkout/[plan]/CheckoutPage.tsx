@@ -10,8 +10,8 @@ import { cn } from "@/lib/cn";
 // ── Plan config ───────────────────────────────────────────────────────────────
 
 const PLANS = {
-  pro: {
-    name:    "Pro Trader",
+  edge: {
+    name:    "Edge",
     icon:    "trending_up",
     color:   "#08AEAA",
     tagline: "Full toolkit for serious SMC traders.",
@@ -23,22 +23,24 @@ const PLANS = {
       "COT data integration",
       "Community posting & comments",
       "Leaderboard participation",
+      "Smile as you trade",
     ],
-    price: { monthly: { usd: 20, zmw: 299 }, annual: { usd: 16, zmw: 239 } },
+    price: { monthly: { usd: 15, zmw: 249 }, annual: { usd: 12, zmw: 199 } },
   },
-  funded: {
-    name:    "Funded Track",
+  pro: {
+    name:    "Pro",
     icon:    "workspace_premium",
     color:   "#F8B93D",
-    tagline: "Everything in Pro + 1-on-1 mentorship.",
+    tagline: "Everything in Edge + 1-on-1 mentorship.",
     features: [
-      "Everything in Pro Trader",
+      "Everything in Edge",
       "1-on-1 mentorship with Kondwani",
       "Priority alert notifications",
-      "Private Funded Track community",
+      "Private Pro community",
       "Monthly strategy review calls",
+      "Smile as you trade",
     ],
-    price: { monthly: { usd: 40, zmw: 599 }, annual: { usd: 32, zmw: 479 } },
+    price: { monthly: { usd: 35, zmw: 549 }, annual: { usd: 28, zmw: 439 } },
   },
 } as const;
 
@@ -57,7 +59,7 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
 
   useEffect(() => {
     paramsPromise.then(({ plan }) => {
-      if (plan === "pro" || plan === "funded") setPlanId(plan);
+      if (plan === "edge" || plan === "pro") setPlanId(plan);
       else router.replace("/pricing");
     });
   }, [paramsPromise, router]);
@@ -353,7 +355,7 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
               type="submit"
               className={cn(
                 "w-full py-3.5 rounded-xl font-semibold text-[14px] transition-all active:scale-98",
-                planId === "funded" ? "text-[var(--navy-deep)]" : "text-white"
+                planId === "pro" ? "text-[var(--navy-deep)]" : "text-white"
               )}
               style={{ background: plan.color }}
             >

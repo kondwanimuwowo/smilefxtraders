@@ -8,7 +8,7 @@ export function CotLockScreen() {
         <Icon name="lock" size={36} fill className="text-gold mb-4" />
         <h2 className="font-display font-bold text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">COT Reports</h2>
         <p className="text-[13.5px] leading-relaxed mb-6 text-ink-dim">
-          CFTC Commitments of Traders data is available on the <strong className="text-ink-strong">Pro Trader</strong> and <strong className="text-ink-strong">Funded Track</strong> plans. Understand institutional positioning to align your bias with smart money.
+          CFTC Commitments of Traders data is available on the <strong className="text-ink-strong">Edge</strong> and <strong className="text-ink-strong">Pro</strong> plans. Understand institutional positioning to align your bias with smart money.
         </p>
         <a
           href="/membership"

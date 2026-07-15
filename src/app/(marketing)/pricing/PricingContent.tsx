@@ -12,7 +12,7 @@ const FAQ_ITEMS = [
   { q: "Is there a free trial for Pro?", a: "Not currently. The Starter plan is free forever and gives you access to all the core tools. Upgrade when the limits become a constraint." },
   { q: "What frameworks does the platform support?", a: "SMC (Smart Money Concepts) and Supply & Demand. You choose your framework during onboarding, and all tools (the validator, alerts, and journal) reflect your choice." },
   { q: "Can I cancel at any time?", a: "Yes. No contracts, no lock-ins. Cancel from your account settings and you keep access until the end of your billing period." },
-  { q: "What is the 1-on-1 mentorship?", a: "Funded Track members get monthly private sessions with Kondwani. He reviews your journal, identifies patterns, and gives you a personalised improvement plan." },
+  { q: "What is the 1-on-1 mentorship?", a: "Pro members get monthly private sessions with Kondwani. He reviews your journal, identifies patterns, and gives you a personalised improvement plan." },
   { q: "Do annual plans cost less?", a: "Yes, annual billing saves 20% on all paid plans." },
 ];
 
@@ -76,6 +76,12 @@ export function PricingContent({ prices }: Props) {
           </div>
           <p className="reveal text-center text-[12.5px] text-ink-dim mt-5">
             All prices in ZMW (Kwacha). Annual billing saves 20%.
+          </p>
+          <p className="reveal text-center text-[12.5px] text-ink-dim mt-2">
+            Need lifetime access?{" "}
+            <a href="mailto:support@smilefxtraders.com" className="font-semibold text-teal">
+              Contact our sales team
+            </a>
           </p>
         </div>
       </section>

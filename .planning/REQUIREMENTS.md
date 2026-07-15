@@ -53,7 +53,7 @@ Shipped 2026-07-12: Gavo, the platform's AI trading coach, integrated into `/cot
 
 - [x] **GAVO-01**: User can request an AI-generated "Gavo COT Read" narration for the current pair, rendered above the heat-map table on `/cot/[pair]`
 - [x] **GAVO-02**: Narration is a pure COT read — current large-spec/commercial positioning, WoW change, divergence, and where `cotIndex` sits in its own range (mirrors the content the removed card-level DivergencePanel used to show, now AI-narrated instead of templated)
-- [x] **GAVO-03**: Feature is gated to Pro & Funded Track plans — Free plan gets a 403 + upgrade CTA, matching `/api/macro/explain`'s existing convention
+- [x] **GAVO-03**: Feature is gated to Edge & Pro plans — Free plan gets a 403 + upgrade CTA, matching `/api/macro/explain`'s existing convention
 - [x] **GAVO-04**: Narration is cached per pair, keyed off an input hash of the current COT reading; regenerated only when the underlying data changes (mirrors `GavoMacroExplanation`'s cache pattern — avoids re-billing the same reading)
 - [x] **GAVO-05**: UI reuses the idle/loading/done/error/locked state machine and visual treatment established by `GavoExplanation.tsx` (same card style, title, Explain/Retry/Regenerate/Upgrade affordances) for consistency with the MacroEdge feature
 

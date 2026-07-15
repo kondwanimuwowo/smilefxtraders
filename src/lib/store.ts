@@ -86,7 +86,7 @@ export interface AppUser {
   loc?: string;
   joinedAt?: string;
   role: "student" | "instructor";
-  plan: "free" | "pro" | "funded";
+  plan: "free" | "edge" | "pro";
   level: number;
   streak: number;
   avatarSeed?: number;
