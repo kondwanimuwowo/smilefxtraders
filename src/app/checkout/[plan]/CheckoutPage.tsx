@@ -10,6 +10,10 @@ import { clearPendingPlan } from "@/lib/pending-plan";
 
 // ── Plan config ───────────────────────────────────────────────────────────────
 
+// Annual billing is quoted at a 20% discount off the monthly rate, but it's
+// charged as a single up-front payment covering all 12 months — not the
+// discounted monthly figure alone. `monthlyEquivalent` is shown for context;
+// `zmw` in the annual price is the real amount charged (monthlyEquivalent * 12).
 const PLANS = {
   edge: {
     name:    "Edge",
@@ -25,7 +29,10 @@ const PLANS = {
       "Community posting & comments",
       "Leaderboard participation",
     ],
-    price: { monthly: { usd: 15, zmw: 249 }, annual: { usd: 12, zmw: 199 } },
+    price: {
+      monthly: { zmw: 249 },
+      annual:  { zmw: 199 * 12, monthlyEquivalent: 199 },
+    },
   },
   pro: {
     name:    "Pro",
@@ -39,13 +46,16 @@ const PLANS = {
       "Private Pro community",
       "Monthly strategy review calls",
     ],
-    price: { monthly: { usd: 35, zmw: 549 }, annual: { usd: 28, zmw: 439 } },
+    price: {
+      monthly: { zmw: 549 },
+      annual:  { zmw: 439 * 12, monthlyEquivalent: 439 },
+    },
   },
 } as const;
 
 type PlanId  = keyof typeof PLANS;
 type Cycle   = "monthly" | "annual";
-type Currency = "ZMW" | "USD";
+type PayMethod = "mobile" | "card";
 type Step    = "form" | "waiting" | "success" | "failed";
 
 const OPERATORS = ZM_OPERATORS;
@@ -64,19 +74,20 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
   }, [paramsPromise, router]);
 
   const [cycle,    setCycle]    = useState<Cycle>("monthly");
-  const [currency, setCurrency] = useState<Currency>("ZMW");
   const [phone,    setPhone]    = useState("");
   const [operator, setOperator] = useState<ZmOperator>(OPERATORS[0].value);
   const [autoPicked, setAutoPicked] = useState(false);
   const [step,     setStep]     = useState<Step>("form");
+  const [payMethod, setPayMethod] = useState<PayMethod>("mobile");
   const [errMsg,   setErrMsg]   = useState("");
   const [reference, setReference] = useState("");
   const [polling,   setPolling]   = useState(false);
+  const [cardLoading, setCardLoading] = useState(false);
 
   if (!planId) return null;
   const plan = PLANS[planId];
-  const price = plan.price[cycle][currency === "ZMW" ? "zmw" : "usd"];
-  const symbol = currency === "ZMW" ? "K" : "$";
+  const price = plan.price[cycle].zmw;
+  const symbol = "K";
 
   function handlePhoneChange(value: string) {
     setPhone(value);
@@ -88,12 +99,13 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setErrMsg("");
+    setPayMethod("mobile");
     setStep("waiting");
 
     const res = await fetch("/api/checkout/mobile-money", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan: planId, cycle, phone, operator, currency }),
+      body: JSON.stringify({ plan: planId, cycle, phone, operator, currency: "ZMW" }),
     });
 
     const data = await res.json().catch(() => ({}));
@@ -104,6 +116,35 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
       return;
     }
 
+    setReference(data.reference);
+    setStep("waiting");
+    startPolling(data.reference);
+  }
+
+  async function payWithCard() {
+    setErrMsg("");
+    setCardLoading(true);
+
+    const res = await fetch("/api/checkout/card", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plan: planId, cycle }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setCardLoading(false);
+
+    if (!res.ok || !data.checkoutUrl) {
+      setErrMsg(data.error ?? "Could not start card payment. Please try again.");
+      return;
+    }
+
+    const popup = window.open(data.checkoutUrl, "lenco_card", "width=480,height=720");
+    if (!popup) {
+      setErrMsg("Please allow popups for this site to pay by card.");
+      return;
+    }
+
+    setPayMethod("card");
     setReference(data.reference);
     setStep("waiting");
     startPolling(data.reference);
@@ -175,13 +216,15 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
           {step === "waiting" ? (
             <>
               <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[rgba(248,185,61,0.12)] border-2 border-gold">
-                <Icon name="phone_android" size={32} className="animate-pulse text-gold" />
+                <Icon name={payMethod === "card" ? "credit_card" : "phone_android"} size={32} className="animate-pulse text-gold" />
               </div>
               <h2 className="font-display font-bold text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">
-                Check your phone
+                {payMethod === "card" ? "Complete your card payment" : "Check your phone"}
               </h2>
               <p className="text-[13.5px] mb-3 text-ink-dim">
-                A USSD prompt has been sent to <strong className="text-ink-strong">{phone}</strong>. Approve the payment to activate your plan.
+                {payMethod === "card"
+                  ? "Finish entering your card details in the popup window to activate your plan."
+                  : <>A USSD prompt has been sent to <strong className="text-ink-strong">{phone}</strong>. Approve the payment to activate your plan.</>}
               </p>
               <p className="text-[12px] mb-6 text-ink-dim">
                 {polling ? "Waiting for confirmation…" : "Your plan will activate automatically once payment is confirmed."}
@@ -217,7 +260,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-app-bg">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-5xl">
 
         {/* Back link */}
         <button type="button" onClick={() => router.push("/pricing")}
@@ -227,36 +270,84 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
           Back to Pricing
         </button>
 
-        {/* Plan summary card */}
-        <div className="rounded-2xl p-5 mb-4 bg-panel" style={{ border: `1px solid ${plan.color}40` }}>
-          <div className="flex items-start gap-3 mb-3">
-            <div className="size-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: `${plan.color}20`, border: `1px solid ${plan.color}40` }}
-            >
-              <Icon name={plan.icon} size={20} style={{ color: plan.color }} />
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.05fr] gap-6 items-start">
+
+          {/* ── Left: plan summary + order total + trust strip ── */}
+          <div className="flex flex-col gap-4">
+            <div className="rounded-2xl p-6 bg-panel" style={{ border: `1px solid ${plan.color}40` }}>
+              <div className="flex items-start gap-3 mb-4">
+                <div className="size-11 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: `${plan.color}20`, border: `1px solid ${plan.color}40` }}
+                >
+                  <Icon name={plan.icon} size={22} style={{ color: plan.color }} />
+                </div>
+                <div>
+                  <div className="font-display font-bold text-[19px] tracking-[-0.02em] text-ink-strong">{plan.name}</div>
+                  <div className="text-[12.5px] text-ink-dim">{plan.tagline}</div>
+                </div>
+              </div>
+              <ul className="space-y-2 mb-5">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-center gap-2 text-[13px] text-ink-mid">
+                    <Icon name="check_circle" size={15} className="text-teal shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              {/* Order summary */}
+              <div className="pt-4 border-t border-line">
+                <div className="flex items-center justify-between text-[13px] text-ink-dim mb-1.5">
+                  <span>{plan.name} plan</span>
+                  <span className="capitalize">{cycle} billing</span>
+                </div>
+                {cycle === "annual" && (
+                  <div className="flex items-center justify-between text-[13px] text-ink-dim mb-1.5">
+                    <span>{symbol}{plan.price.annual.monthlyEquivalent.toLocaleString()}/mo &times; 12 months</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between pt-2 mt-1 border-t border-line">
+                  <span className="font-semibold text-[13.5px] text-ink-strong">Total due today</span>
+                  <span className="font-display font-bold tabular-nums text-[19px] tracking-[-0.02em]" style={{ color: plan.color }}>
+                    {symbol}{price.toLocaleString()}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div>
-              <div className="font-display font-bold text-[18px] tracking-[-0.02em] text-ink-strong">{plan.name}</div>
-              <div className="text-[12.5px] text-ink-dim">{plan.tagline}</div>
+
+            {/* Trust strip */}
+            <div className="rounded-2xl p-5 bg-panel border border-line flex flex-col gap-3">
+              <div className="flex items-center gap-2.5 text-[13px] text-ink-mid">
+                <Icon name="lock" size={16} className="text-teal shrink-0" />
+                Payments are processed securely by Lenco &mdash; we never see or store your card or mobile money details.
+              </div>
+              <div className="flex items-center gap-2.5 text-[13px] text-ink-mid">
+                <Icon name="verified_user" size={16} className="text-teal shrink-0" />
+                Encrypted end-to-end. Cancel or change your plan anytime from Settings.
+              </div>
             </div>
           </div>
-          <ul className="space-y-1.5">
-            {plan.features.map((f) => (
-              <li key={f} className="flex items-center gap-2 text-[12.5px] text-ink-mid">
-                <Icon name="check_circle" size={14} className="text-teal" />
-                {f}
-              </li>
-            ))}
-          </ul>
-        </div>
 
-        {/* Payment form */}
-        <div className="rounded-2xl p-5 bg-panel border border-line">
-          <h2 className="font-display font-bold text-[18px] mb-4 tracking-[-0.02em] text-ink-strong">
-            Payment details
-          </h2>
+          {/* ── Right: payment form ── */}
+          <div className="flex flex-col gap-4">
 
-          {/* Billing cycle */}
+            {/* Continue with Free account instead — sits above payment details, visible not buried */}
+            {needsOnboarding && (
+              <button
+                type="button"
+                onClick={() => { clearPendingPlan(); router.push("/onboarding"); }}
+                className="w-full text-center text-[13.5px] font-semibold py-3 rounded-xl border border-line bg-panel-2 text-ink-strong hover:bg-hover transition-colors"
+              >
+                Continue with Free account instead
+              </button>
+            )}
+
+            <div className="rounded-2xl p-5 bg-panel border border-line">
+              <h2 className="font-display font-bold text-[18px] mb-4 tracking-[-0.02em] text-ink-strong">
+                Payment details
+              </h2>
+
+              {/* Billing cycle */}
           <div className="mb-4">
             <label className="block text-[11px] font-semibold uppercase tracking-wide mb-2 text-ink-dim">Billing cycle</label>
             <div className="flex rounded-xl overflow-hidden border border-line">
@@ -272,28 +363,19 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
             </div>
           </div>
 
-          {/* Currency */}
-          <div className="mb-4">
-            <label className="block text-[11px] font-semibold uppercase tracking-wide mb-2 text-ink-dim">Currency</label>
-            <div className="flex rounded-xl overflow-hidden border border-line">
-              {(["ZMW", "USD"] as const).map((c) => (
-                <button key={c} type="button" onClick={() => setCurrency(c)}
-                  className={`flex-1 py-2.5 text-[13px] font-semibold transition-all ${
-                    currency === c ? "bg-navy text-white" : "bg-panel-2 text-ink-mid"
-                  }`}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Amount display */}
-          <div className="flex items-center justify-center mb-4 py-3 rounded-xl bg-panel-2 border border-line">
-            <span className="font-display font-bold tabular-nums text-[32px] tracking-[-0.03em]" style={{ color: plan.color }}>
-              {symbol}{price.toLocaleString()}
-            </span>
-            <span className="text-[13px] ml-2 mt-1 text-ink-dim">/{cycle === "annual" ? "yr" : "mo"}</span>
+          <div className="flex flex-col items-center justify-center mb-4 py-3 rounded-xl bg-panel-2 border border-line">
+            <div className="flex items-center">
+              <span className="font-display font-bold tabular-nums text-[32px] tracking-[-0.03em]" style={{ color: plan.color }}>
+                {symbol}{price.toLocaleString()}
+              </span>
+              <span className="text-[13px] ml-2 mt-1 text-ink-dim">/{cycle === "annual" ? "yr" : "mo"}</span>
+            </div>
+            {cycle === "annual" && (
+              <span className="text-[11.5px] mt-1 text-ink-dim">
+                {symbol}{plan.price.annual.monthlyEquivalent.toLocaleString()}/mo billed annually
+              </span>
+            )}
           </div>
 
           <form onSubmit={submit} className="space-y-4">
@@ -342,6 +424,19 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
                   );
                 })}
               </div>
+
+              <button
+                type="button"
+                disabled={cardLoading}
+                onClick={payWithCard}
+                className={cn(
+                  "w-full mt-2.5 py-3 rounded-xl text-[13.5px] font-semibold flex items-center justify-center gap-2 bg-panel-2 border border-line text-ink-strong transition-opacity",
+                  cardLoading && "opacity-70"
+                )}
+              >
+                <Icon name="credit_card" size={16} />
+                {cardLoading ? "Opening secure payment…" : "Pay with Visa/Mastercard/etc."}
+              </button>
             </div>
 
             {errMsg && (
@@ -365,17 +460,9 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
               You will receive a USSD prompt on your phone to confirm the payment.
             </p>
           </form>
+            </div>
+          </div>
         </div>
-
-        {needsOnboarding && (
-          <button
-            type="button"
-            onClick={() => { clearPendingPlan(); router.push("/onboarding"); }}
-            className="w-full text-center text-[12.5px] mt-4 text-ink-dim hover:text-ink-mid transition-colors"
-          >
-            Continue on Starter instead
-          </button>
-        )}
       </div>
     </div>
   );

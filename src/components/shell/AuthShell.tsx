@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { Avatar, Icon } from "@/components/ui";
 import { prisma } from "@/lib/prisma";
 
@@ -8,14 +9,26 @@ const FEATURES = [
   { icon: "notifications_active", text: "Live setup alerts from your instructor" },
 ];
 
-const AVATAR_SEEDS = [11, 7, 2, 4];
+function seedFromId(id: string): number {
+  let n = 0;
+  for (let i = 0; i < id.length; i++) n += id.charCodeAt(i);
+  return n;
+}
 
 export async function AuthShell({ children }: { children: ReactNode }) {
   let memberCount = 0;
+  let members: { id: string; name: string }[] = [];
   try {
-    memberCount = await prisma.user.count();
+    [memberCount, members] = await Promise.all([
+      prisma.user.count(),
+      prisma.user.findMany({
+        take: 3,
+        orderBy: { createdAt: "desc" },
+        select: { id: true, name: true },
+      }),
+    ]);
   } catch (err) {
-    console.error("[auth-shell] member count unavailable", err);
+    console.error("[auth-shell] member data unavailable", err);
   }
 
   const memberLabel = memberCount === 0
@@ -27,9 +40,9 @@ export async function AuthShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-[1.05fr_1fr]">
       {/* ── Brand panel — full version, desktop+ only ── */}
-      <div className="hidden md:flex flex-col justify-between p-12 min-h-screen bg-[linear-gradient(160deg,#0B425D_0%,#082A3B_70%)]">
+      <div className="hidden md:flex flex-col justify-between p-12 h-screen md:sticky md:top-0 md:self-start bg-[linear-gradient(160deg,#0B425D_0%,#082A3B_70%)]">
         {/* Logo */}
-        <div className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3">
           <BrandMarkAuth />
           <div className="leading-[1.05]">
             <div className="font-display font-bold text-xl text-white">Smile FX</div>
@@ -37,7 +50,7 @@ export async function AuthShell({ children }: { children: ReactNode }) {
               Traders
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Headline */}
         <div>
@@ -62,22 +75,24 @@ export async function AuthShell({ children }: { children: ReactNode }) {
         </div>
 
         {/* Avatar stack + real count */}
-        <div className="flex items-center gap-3">
-          <div className="flex">
-            {AVATAR_SEEDS.map((seed, i) => (
-              <div key={seed} className={i ? "-ml-2.5" : "ml-0"}>
-                <Avatar seed={seed} name="FX" size={30} ring="var(--navy-deep)" />
-              </div>
-            ))}
+        {members.length > 0 && (
+          <div className="flex items-center gap-3">
+            <div className="flex">
+              {members.map((member, i) => (
+                <div key={member.id} className={i ? "-ml-2.5" : "ml-0"}>
+                  <Avatar seed={seedFromId(member.id)} name={member.name} size={30} ring="var(--navy-deep)" />
+                </div>
+              ))}
+            </div>
+            <span className="text-[13px] text-[rgba(255,255,255,0.7)]">
+              {memberLabel}
+            </span>
           </div>
-          <span className="text-[13px] text-[rgba(255,255,255,0.7)]">
-            {memberLabel}
-          </span>
-        </div>
+        )}
       </div>
 
       {/* ── Brand header — compact version, mobile only ── */}
-      <div className="flex md:hidden items-center gap-3 px-5 py-6 bg-[linear-gradient(160deg,#0B425D_0%,#082A3B_70%)]">
+      <Link href="/" className="flex md:hidden items-center gap-3 px-5 py-6 bg-[linear-gradient(160deg,#0B425D_0%,#082A3B_70%)]">
         <BrandMarkAuth size={38} />
         <div className="leading-[1.05]">
           <div className="font-display font-bold text-base text-white">Smile FX Traders</div>
@@ -85,7 +100,7 @@ export async function AuthShell({ children }: { children: ReactNode }) {
             Trade smart money. Together.
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* ── Form panel ── */}
       <div className="flex items-center justify-center px-5 sm:px-8 py-8 md:py-12 min-h-0 md:min-h-screen bg-app-bg">

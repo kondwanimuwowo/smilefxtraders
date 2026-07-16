@@ -7,15 +7,18 @@ const LENCO_BASE = "https://api.lenco.co/access/v2";
 const LENCO_KEY  = process.env.LENCO_API_KEY ?? "";
 
 // ── Plan pricing (amount in the smallest currency unit) ─────────────────────
+// Annual is a single up-front charge covering all 12 months, not the
+// discounted monthly-equivalent rate alone — K199/mo annual for Edge means
+// the customer pays K199 x 12 = K2,388 once, not K199 total.
 
-const PLAN_PRICES: Record<string, Record<string, { zmw: number; usd: number }>> = {
+const PLAN_PRICES: Record<string, Record<string, { zmw: number }>> = {
   edge: {
-    monthly: { zmw: 24900, usd: 1500 },   // K249 / $15
-    annual:  { zmw: 19900, usd: 1200 },   // 20% discount → K199 / $12
+    monthly: { zmw: 24900 },        // K249
+    annual:  { zmw: 19900 * 12 },   // K199/mo x 12 = K2,388
   },
   pro: {
-    monthly: { zmw: 54900, usd: 3500 },   // K549 / $35
-    annual:  { zmw: 43900, usd: 2800 },   // 20% discount → K439 / $28
+    monthly: { zmw: 54900 },        // K549
+    annual:  { zmw: 43900 * 12 },   // K439/mo x 12 = K5,268
   },
 };
 
@@ -36,13 +39,14 @@ export async function POST(req: NextRequest) {
     cycle:    "monthly" | "annual";
     phone:    string;
     operator: string;
-    currency: "ZMW" | "USD";
   };
 
   const prices = PLAN_PRICES[body.plan]?.[body.cycle];
   if (!prices) return NextResponse.json({ error: "Invalid plan or cycle" }, { status: 400 });
 
-  const amount   = body.currency === "ZMW" ? prices.zmw : prices.usd;
+  // Mobile money in Zambia is ZMW-only.
+  const amount   = prices.zmw;
+  const currency = "ZMW" as const;
   const reference = `smfx_${body.plan}_${dbUser.id}_${Date.now()}`;
 
   // Keep the number as the user typed it (Airtel already works this way) but
@@ -62,7 +66,7 @@ export async function POST(req: NextRequest) {
       plan:         DB_PLAN[body.plan],
       status:       "PENDING",
       lencoReference: reference,
-      currency:     body.currency,
+      currency,
       amountCents:  amount,
       billingCycle: body.cycle,
     },
@@ -77,9 +81,9 @@ export async function POST(req: NextRequest) {
       "Authorization": `Bearer ${LENCO_KEY}`,
     },
     body: JSON.stringify({
-      amount:    (amount / 100).toFixed(2),
-      currency:  body.currency,
-      country:   body.currency === "ZMW" ? "zm" : undefined,
+      amount:   (amount / 100).toFixed(2),
+      currency,
+      country:  "zm",
       reference,
       phone,
       operator,

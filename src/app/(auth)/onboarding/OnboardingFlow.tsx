@@ -338,7 +338,7 @@ export function OnboardingFlow() {
           <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
             Pick the instruments you focus on. We&apos;ll tailor your watchlist and calendar.
           </p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-2">
             {instrumentOptions.map(({ key, label }) => {
               const selected = instruments.includes(key);
               return (
@@ -347,21 +347,14 @@ export function OnboardingFlow() {
                   type="button"
                   onClick={() => toggleInstrument(key)}
                   className={cn(
-                    "relative flex flex-col items-start p-4 rounded-xl border text-left transition-all",
+                    "flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl border text-center transition-all",
                     selected ? "border-teal bg-[rgba(8,174,170,0.08)]" : "border-line bg-panel-2"
                   )}
                 >
-                  <span className="font-semibold text-[15px] text-ink-strong">
-                    {key}
-                  </span>
-                  <span className="text-[12px] mt-0.5 text-ink-dim">
+                  <span className={cn("font-semibold text-[13px]", selected ? "text-ink-strong" : "text-ink-mid")}>
                     {label}
                   </span>
-                  {selected && (
-                    <span className="absolute top-2.5 right-2.5">
-                      <Icon name="check_circle" size={18} fill className="text-teal" />
-                    </span>
-                  )}
+                  {selected && <Icon name="check_circle" size={14} fill className="text-teal shrink-0" />}
                 </button>
               );
             })}

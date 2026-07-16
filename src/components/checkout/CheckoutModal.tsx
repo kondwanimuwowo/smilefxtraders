@@ -13,9 +13,11 @@ type BillingCy = "monthly" | "annual";
 type Method    = "mobile" | "card";
 type Screen    = "method" | "waiting" | "success";
 
-const PLAN_PRICES: Record<PaidPlan, { monthly: number; annual: number; name: string }> = {
-  edge: { monthly: 249, annual: 199, name: "Edge" },
-  pro:  { monthly: 549, annual: 439, name: "Pro"  },
+// Annual is a single up-front charge covering all 12 months, not the
+// discounted monthly-equivalent rate alone.
+const PLAN_PRICES: Record<PaidPlan, { monthly: number; annual: number; annualMonthlyEquivalent: number; name: string }> = {
+  edge: { monthly: 249, annual: 199 * 12, annualMonthlyEquivalent: 199, name: "Edge" },
+  pro:  { monthly: 549, annual: 439 * 12, annualMonthlyEquivalent: 439, name: "Pro"  },
 };
 
 const OPERATORS = ZM_OPERATORS;
@@ -148,10 +150,35 @@ export function CheckoutModal({
 
   // ── Card payment ──────────────────────────────────────────────────────────
 
-  function openCardPage() {
-    // Lenco hosted card page — opened in a new tab
-    const params = new URLSearchParams({ plan, cycle, currency: "ZMW" });
-    window.open(`/api/checkout/card?${params.toString()}`, "_blank");
+  async function payWithCard() {
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/checkout/card", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ plan, cycle }),
+      });
+      const data = await res.json() as { reference?: string; checkoutUrl?: string; error?: string };
+      if (!res.ok || !data.checkoutUrl || !data.reference) {
+        setError(data.error ?? "Could not start card payment. Please try again.");
+        setLoading(false);
+        return;
+      }
+      const popup = window.open(data.checkoutUrl, "lenco_card", "width=480,height=720");
+      if (!popup) {
+        setError("Please allow popups for this site to pay by card.");
+        setLoading(false);
+        return;
+      }
+      setRef(data.reference);
+      setScreen("waiting");
+      startPolling(data.reference);
+    } catch {
+      setError("Network error. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -171,7 +198,9 @@ export function CheckoutModal({
             </div>
             {screen !== "success" && (
               <div className="text-[12.5px] mt-0.5 text-ink-dim">
-                K{price}/mo · {cycle === "annual" ? "billed annually" : "billed monthly"} · ZMW
+                {cycle === "annual"
+                  ? `K${price.toLocaleString()}/yr (K${planCfg.annualMonthlyEquivalent}/mo) · billed annually · ZMW`
+                  : `K${price}/mo · billed monthly · ZMW`}
               </div>
             )}
           </div>
@@ -261,7 +290,7 @@ export function CheckoutModal({
                     onClick={submitMobileMoney}
                     className={`w-full py-3 rounded-xl text-[14px] font-bold transition-all active:scale-98 bg-[linear-gradient(135deg,var(--teal),#069E9A)] text-white shadow-[0_4px_14px_rgba(8,174,170,0.3)] ${loading ? "opacity-70" : "opacity-100"}`}
                   >
-                    {loading ? "Initiating…" : `Pay K${price}`}
+                    {loading ? "Initiating…" : `Pay K${price.toLocaleString()}`}
                   </button>
                 </div>
               ) : (
@@ -269,12 +298,23 @@ export function CheckoutModal({
                   <Icon name="credit_card" size={40} className="text-ink-dim" />
                   <div>
                     <div className="font-semibold text-[14.5px] mb-1 text-ink-strong">
-                      Card payments coming soon
+                      Pay by card
                     </div>
                     <p className="text-[13px] text-ink-dim">
-                      Use Mobile Money to pay now: Airtel, MTN, and Zamtel are all supported.
+                      Opens a secure Lenco payment window to enter your Visa, Mastercard, or other card.
                     </p>
                   </div>
+                  {error && (
+                    <div className="text-[12.5px] font-medium text-coral">{error}</div>
+                  )}
+                  <button
+                    type="button"
+                    disabled={loading}
+                    onClick={payWithCard}
+                    className={`w-full py-3 rounded-xl text-[14px] font-bold transition-all active:scale-98 bg-[linear-gradient(135deg,var(--teal),#069E9A)] text-white shadow-[0_4px_14px_rgba(8,174,170,0.3)] ${loading ? "opacity-70" : "opacity-100"}`}
+                  >
+                    {loading ? "Opening secure payment…" : `Pay K${price.toLocaleString()} with card`}
+                  </button>
                   <button
                     type="button"
                     onClick={() => setMethod("mobile")}
@@ -291,16 +331,18 @@ export function CheckoutModal({
           {screen === "waiting" && (
             <div className="flex flex-col items-center gap-5 py-4">
               <div className="size-16 rounded-full flex items-center justify-center bg-[rgba(8,174,170,0.1)] border-2 border-[rgba(8,174,170,0.3)]">
-                <Icon name="smartphone" size={32} className="text-teal" />
+                <Icon name={method === "card" ? "credit_card" : "smartphone"} size={32} className="text-teal" />
               </div>
 
               <div className="text-center">
                 <div className="font-display font-semibold text-[16px] mb-1 text-ink-strong">
-                  Check your phone
+                  {method === "card" ? "Complete your card payment" : "Check your phone"}
                 </div>
                 <p className="text-[13px] text-ink-dim">
-                  Approve the payment prompt from <strong className="text-ink-mid">{OPERATORS.find(o => o.value === operator)?.label}</strong>.
-                  This page will update automatically.
+                  {method === "card"
+                    ? "Finish entering your card details in the popup window."
+                    : <>Approve the payment prompt from <strong className="text-ink-mid">{OPERATORS.find(o => o.value === operator)?.label}</strong>.</>}
+                  {" "}This page will update automatically.
                 </p>
               </div>
 
