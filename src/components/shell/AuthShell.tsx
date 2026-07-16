@@ -35,7 +35,7 @@ export async function AuthShell({ children }: { children: ReactNode }) {
     ? "Be the first to join"
     : memberCount < 10
     ? `${memberCount} traders and growing`
-    : `${memberCount.toLocaleString()}+ traders growing across Africa`;
+    : `${memberCount.toLocaleString()}+ traders and growing`;
 
   return (
     <div className="min-h-screen md:h-screen grid grid-cols-1 md:grid-cols-[1.05fr_1fr] md:overflow-hidden">
@@ -104,7 +104,7 @@ export async function AuthShell({ children }: { children: ReactNode }) {
       </Link>
 
       {/* ── Form panel — scrolls independently of the fixed brand panel ── */}
-      <div className="flex items-center justify-center px-5 sm:px-8 py-8 md:py-12 min-h-0 md:h-screen md:overflow-y-auto bg-app-bg">
+      <div className="flex items-center justify-center px-5 sm:px-8 pt-12 pb-8 md:pt-16 md:pb-12 min-h-0 md:h-screen md:overflow-y-auto bg-app-bg">
         <div className="w-full max-w-[400px]">
           {children}
         </div>

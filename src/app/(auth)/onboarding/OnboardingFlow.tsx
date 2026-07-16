@@ -338,7 +338,7 @@ export function OnboardingFlow() {
           <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
             Pick the instruments you focus on. We&apos;ll tailor your watchlist and calendar.
           </p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-4 gap-2">
             {instrumentOptions.map(({ key, label }) => {
               const selected = instruments.includes(key);
               return (
