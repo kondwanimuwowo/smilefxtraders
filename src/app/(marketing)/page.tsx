@@ -45,14 +45,26 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Right: Hero illustration */}
-            <div className="reveal flex items-center justify-center" data-delay="160">
-              <img
-                src="/hero-illustration.svg"
-                alt=""
-                aria-hidden="true"
-                className="w-full max-w-[480px] h-auto block"
-              />
+            {/* Right: Hero chart mock */}
+            <div className="reveal relative flex items-center justify-center" data-delay="160">
+              {/* Glow — echoes the hero's own radial gradients */}
+              <div className="absolute inset-0 rounded-[24px] bg-[radial-gradient(ellipse_at_50%_50%,rgba(48,232,223,0.35)_0%,transparent_70%)] blur-3xl" aria-hidden="true" />
+              <div className="mock relative w-full max-w-[480px] shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
+                <div className="mock-bar">
+                  <Icon name="candlestick_chart" size={18} className="text-teal" />
+                  <span className="font-semibold text-[13px] ml-1">Market Structure</span>
+                  <span className="chip ml-auto text-[11px]">
+                    <span className="size-1.5 rounded-full bg-teal-bright animate-live" />
+                    Live
+                  </span>
+                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/candles-smc.png"
+                  alt="Annotated candlestick chart showing break of market structure, change of character, fair value gap, and order block"
+                  className="w-full h-auto block"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -255,7 +267,15 @@ export default async function HomePage() {
               </div>
             ))}
           </div>
-          <div className="reveal text-center mt-9">
+
+          {/* Lifetime access */}
+          <div className="reveal text-center mt-8">
+            <Button href="mailto:support@smilefxtraders.com" hardNav size="lg" variant="ghost">
+              Need lifetime access? Contact our sales team
+            </Button>
+          </div>
+
+          <div className="reveal text-center mt-6">
             <Link href="/pricing" className="link-arrow text-[15px]">
               See full pricing &amp; FAQ <Icon name="arrow_forward" />
             </Link>
