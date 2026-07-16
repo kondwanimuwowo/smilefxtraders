@@ -23,7 +23,7 @@ export default function AboutPage() {
       </section>
 
       {/* Instructor story */}
-      <section className="section">
+      <section className="section" id="story">
         <div className="container">
           <div className="instr-grid">
             <div className="reveal relative">
