@@ -95,12 +95,14 @@ export async function signupAction(formData: FormData) {
   const security = await validateSignupSecurity(email, ip);
   if (!security.ok) return { error: security.error };
 
+  const plan = validPlan(formData.get("plan"));
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${APP_URL}/auth/callback`,
+      emailRedirectTo: `${APP_URL}/auth/callback${plan ? `?plan=${plan}` : ""}`,
       data: { full_name: name, username },
     },
   });
@@ -123,8 +125,6 @@ export async function signupAction(formData: FormData) {
   if (!data.session) {
     return { pendingVerification: true, email };
   }
-
-  const plan = validPlan(formData.get("plan"));
 
   revalidatePath("/", "layout");
   redirect(plan ? `/onboarding?plan=${plan}` : "/onboarding");
