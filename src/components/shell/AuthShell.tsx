@@ -38,9 +38,10 @@ export async function AuthShell({ children }: { children: ReactNode }) {
     : `${memberCount.toLocaleString()}+ traders growing across Africa`;
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[1.05fr_1fr]">
-      {/* ── Brand panel — full version, desktop+ only ── */}
-      <div className="hidden md:flex flex-col justify-between p-12 h-screen md:sticky md:top-0 md:self-start bg-[linear-gradient(160deg,#0B425D_0%,#082A3B_70%)]">
+    <div className="min-h-screen md:h-screen grid grid-cols-1 md:grid-cols-[1.05fr_1fr] md:overflow-hidden">
+      {/* ── Brand panel — full version, desktop+ only. Fixed in place; only the
+          form panel beside it scrolls. ── */}
+      <div className="hidden md:flex flex-col justify-between p-12 md:h-screen bg-[linear-gradient(160deg,#0B425D_0%,#082A3B_70%)]">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
           <BrandMarkAuth />
@@ -102,8 +103,8 @@ export async function AuthShell({ children }: { children: ReactNode }) {
         </div>
       </Link>
 
-      {/* ── Form panel ── */}
-      <div className="flex items-center justify-center px-5 sm:px-8 py-8 md:py-12 min-h-0 md:min-h-screen bg-app-bg">
+      {/* ── Form panel — scrolls independently of the fixed brand panel ── */}
+      <div className="flex items-center justify-center px-5 sm:px-8 py-8 md:py-12 min-h-0 md:h-screen md:overflow-y-auto bg-app-bg">
         <div className="w-full max-w-[400px]">
           {children}
         </div>
