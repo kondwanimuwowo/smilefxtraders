@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { AuthShell } from "@/components/shell/AuthShell";
 import { SignupForm } from "./SignupForm";
 
@@ -6,7 +7,9 @@ export const metadata = { title: "Create account | Smile FX Traders" };
 export default function SignupPage() {
   return (
     <AuthShell>
-      <SignupForm />
+      <Suspense fallback={null}>
+        <SignupForm />
+      </Suspense>
     </AuthShell>
   );
 }

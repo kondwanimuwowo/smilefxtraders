@@ -39,9 +39,13 @@ function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onC
   );
 }
 
+const CHECKOUT_PLANS = ["edge", "pro"];
+
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const planParam = searchParams.get("plan");
+  const plan = planParam && CHECKOUT_PLANS.includes(planParam) ? planParam : null;
   const [error, setError] = useState<string | null>(() => {
     const code = searchParams.get("error");
     return code ? CALLBACK_ERRORS[code] ?? "Something went wrong signing you in. Please try again." : null;
@@ -59,7 +63,7 @@ export function LoginForm() {
       if (result?.error) {
         setError(result.error);
       } else {
-        router.push("/dashboard");
+        router.push(plan ? `/checkout/${plan}` : "/dashboard");
         router.refresh();
       }
     });
@@ -87,7 +91,7 @@ export function LoginForm() {
       const supabase = createClient();
       await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: { redirectTo: `${window.location.origin}/auth/callback${plan ? `?plan=${plan}` : ""}` },
       });
     } catch {
       setError(`${provider === "google" ? "Google" : "Facebook"} sign-in failed. Please try again.`);
@@ -176,7 +180,7 @@ export function LoginForm() {
 
       <p className="text-center text-[13.5px] mt-6 text-ink-mid">
         New here?{" "}
-        <Link href="/signup" className="font-semibold hover:underline text-teal">
+        <Link href={`/signup${plan ? `?plan=${plan}` : ""}`} className="font-semibold hover:underline text-teal">
           Create an account
         </Link>
       </p>

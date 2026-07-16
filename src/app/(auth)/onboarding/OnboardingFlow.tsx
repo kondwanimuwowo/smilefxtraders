@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button, Icon } from "@/components/ui";
 import { saveOnboardingAction } from "../actions";
 import type { Framework } from "@/lib/frameworks";
@@ -43,6 +44,8 @@ const EXPERIENCE_OPTIONS = [
 ];
 
 export function OnboardingFlow() {
+  const searchParams = useSearchParams();
+  const plan = searchParams.get("plan");
   const { data: dbInstruments = [] } = useInstruments();
   const instrumentOptions = dbInstruments.length
     ? dbInstruments.map((i) => ({ key: i.symbol, label: i.label }))
@@ -80,6 +83,7 @@ export function OnboardingFlow() {
     instruments.forEach((ins) => fd.append("instruments", ins));
     fd.set("riskPct", String(riskPct));
     fd.set("experience", experience);
+    fd.set("plan", plan ?? "");
     startTransition(async () => {
       const result = await saveOnboardingAction(fd);
       if (result?.error) setServerError(result.error);

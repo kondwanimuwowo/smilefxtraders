@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui";
+import { createClient } from "@/lib/supabase/client";
 import { PlanCard } from "./PlanCard";
 import type { PlanMeta, PlanPrices } from "@/lib/plans";
 
@@ -11,6 +13,15 @@ interface Props {
 }
 
 export function MarketingPlanCard({ meta, prices, annual = false }: Props) {
+  const [authed, setAuthed] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data }) => setAuthed(!!data.session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, s) => setAuthed(!!s));
+    return () => subscription.unsubscribe();
+  }, []);
+
   return (
     <PlanCard
       meta={meta}
@@ -18,7 +29,8 @@ export function MarketingPlanCard({ meta, prices, annual = false }: Props) {
       annual={annual}
       renderCta={(m) => (
         <Button
-          href={m.id === "free" ? "/signup" : `/signup?plan=${m.id}`}
+          href={m.id === "free" ? "/signup" : authed ? `/checkout/${m.id}` : `/signup?plan=${m.id}`}
+          hardNav={m.id !== "free"}
           variant={m.popular ? "primary" : "ghost"}
           fullWidth
         >

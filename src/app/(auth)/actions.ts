@@ -11,6 +11,11 @@ import { validateSignupSecurity } from "@/lib/bot-protection";
 import { isValidPhone } from "@/lib/validation";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.smilefxtraders.com";
+const CHECKOUT_PLANS = ["edge", "pro"];
+
+function validPlan(value: FormDataEntryValue | null): string | null {
+  return typeof value === "string" && CHECKOUT_PLANS.includes(value) ? value : null;
+}
 
 export async function loginAction(formData: FormData) {
   const supabase = await createClient();
@@ -119,8 +124,10 @@ export async function signupAction(formData: FormData) {
     return { pendingVerification: true, email };
   }
 
+  const plan = validPlan(formData.get("plan"));
+
   revalidatePath("/", "layout");
-  redirect("/onboarding");
+  redirect(plan ? `/onboarding?plan=${plan}` : "/onboarding");
 }
 
 export async function saveOnboardingAction(formData: FormData) {
@@ -175,8 +182,10 @@ export async function saveOnboardingAction(formData: FormData) {
     await sendEmail({ from: "kondwani", to: dbUser.email, subject, html });
   }
 
+  const plan = validPlan(formData.get("plan"));
+
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  redirect(plan ? `/checkout/${plan}` : "/dashboard");
 }
 
 export async function updateProfileAction(formData: FormData) {

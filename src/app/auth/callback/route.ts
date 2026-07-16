@@ -4,12 +4,16 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { authCookieOptions } from "@/lib/supabase/cookie-options";
 
+const CHECKOUT_PLANS = ["edge", "pro"];
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code       = searchParams.get("code");
   const next       = searchParams.get("next"); // e.g. /reset-password (from forgot-password flow)
   const token_hash = searchParams.get("token_hash");
   const type       = searchParams.get("type"); // "invite" | "recovery" — from our custom email template links
+  const planParam  = searchParams.get("plan");
+  const plan       = planParam && CHECKOUT_PLANS.includes(planParam) ? planParam : null;
 
   // Supabase's hosted /verify endpoint reports failures (expired or
   // already-consumed links) via error params on the redirect, not a code —
@@ -101,7 +105,7 @@ export async function GET(request: Request) {
       },
     }).catch(() => null);
 
-    return NextResponse.redirect(`${origin}/onboarding`);
+    return NextResponse.redirect(`${origin}/onboarding${plan ? `?plan=${plan}` : ""}`);
   }
 
   // Trigger already created the row (the common case now) — backfill the
@@ -131,8 +135,8 @@ export async function GET(request: Request) {
   // Email-verification signups have a Prisma row (created at signup) but
   // haven't onboarded yet — route by onboarding state, not row existence.
   if (existing.instruments.length === 0) {
-    return NextResponse.redirect(`${origin}/onboarding`);
+    return NextResponse.redirect(`${origin}/onboarding${plan ? `?plan=${plan}` : ""}`);
   }
 
-  return NextResponse.redirect(`${origin}/dashboard`);
+  return NextResponse.redirect(`${origin}${plan ? `/checkout/${plan}` : "/dashboard"}`);
 }

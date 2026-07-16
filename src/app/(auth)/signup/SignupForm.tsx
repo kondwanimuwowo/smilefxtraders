@@ -2,10 +2,13 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Input, Field, Button, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { signupAction } from "../actions";
+
+const CHECKOUT_PLANS = ["edge", "pro"];
 
 function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onClick: () => void; icon: string; label: string }) {
   return (
@@ -30,6 +33,10 @@ function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onC
 }
 
 export function SignupForm() {
+  const searchParams = useSearchParams();
+  const planParam = searchParams.get("plan");
+  const plan = planParam && CHECKOUT_PLANS.includes(planParam) ? planParam : null;
+
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -79,7 +86,7 @@ export function SignupForm() {
       const supabase = createClient();
       await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: { redirectTo: `${window.location.origin}/auth/callback${plan ? `?plan=${plan}` : ""}` },
       });
     } catch {
       setError(`${provider === "google" ? "Google" : "Facebook"} sign-up failed. Please try again.`);
@@ -152,6 +159,8 @@ export function SignupForm() {
         <div className="flex-1 h-px bg-line" />
       </div>
 
+      <input type="hidden" name="plan" value={plan ?? ""} />
+
       <div className="grid grid-cols-2 gap-4 mb-4">
         <Field label="Full name" half>
           <Input name="name" placeholder="Mwila Kunda" required autoComplete="name" />
@@ -179,7 +188,7 @@ export function SignupForm() {
 
       <p className="text-center text-[13.5px] mt-6 text-ink-mid">
         Already a member?{" "}
-        <Link href="/login" className="font-semibold hover:underline text-teal">
+        <Link href={`/login${plan ? `?plan=${plan}` : ""}`} className="font-semibold hover:underline text-teal">
           Sign in
         </Link>
       </p>
