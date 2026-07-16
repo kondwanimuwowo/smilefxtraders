@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Input, Field, Button, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { loginAction, demoLoginAction } from "../actions";
+import { CHECKOUT_PLANS, setPendingPlan } from "@/lib/pending-plan";
 
 // Friendly copy for the ?error= codes /auth/callback redirects here with —
 // without this, someone clicking an expired/consumed email link lands on a
@@ -39,13 +40,16 @@ function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onC
   );
 }
 
-const CHECKOUT_PLANS = ["edge", "pro"];
-
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const planParam = searchParams.get("plan");
   const plan = planParam && CHECKOUT_PLANS.includes(planParam) ? planParam : null;
+
+  useEffect(() => {
+    setPendingPlan(plan);
+  }, [plan]);
+
   const [error, setError] = useState<string | null>(() => {
     const code = searchParams.get("error");
     return code ? CALLBACK_ERRORS[code] ?? "Something went wrong signing you in. Please try again." : null;

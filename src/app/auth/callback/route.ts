@@ -3,8 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { authCookieOptions } from "@/lib/supabase/cookie-options";
-
-const CHECKOUT_PLANS = ["edge", "pro"];
+import { PENDING_PLAN_COOKIE, resolvePendingPlan } from "@/lib/pending-plan";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -12,8 +11,6 @@ export async function GET(request: Request) {
   const next       = searchParams.get("next"); // e.g. /reset-password (from forgot-password flow)
   const token_hash = searchParams.get("token_hash");
   const type       = searchParams.get("type"); // "invite" | "recovery" — from our custom email template links
-  const planParam  = searchParams.get("plan");
-  const plan       = planParam && CHECKOUT_PLANS.includes(planParam) ? planParam : null;
 
   // Supabase's hosted /verify endpoint reports failures (expired or
   // already-consumed links) via error params on the redirect, not a code —
@@ -27,6 +24,9 @@ export async function GET(request: Request) {
   }
 
   const cookieStore = await cookies();
+  const planParam = searchParams.get("plan");
+  const plan = resolvePendingPlan(cookieStore.get(PENDING_PLAN_COOKIE)?.value) ?? resolvePendingPlan(planParam);
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -105,7 +105,8 @@ export async function GET(request: Request) {
       },
     }).catch(() => null);
 
-    return NextResponse.redirect(`${origin}/onboarding${plan ? `?plan=${plan}` : ""}`);
+    if (plan) cookieStore.delete(PENDING_PLAN_COOKIE);
+    return NextResponse.redirect(`${origin}${plan ? `/checkout/${plan}` : "/onboarding"}`);
   }
 
   // Trigger already created the row (the common case now) — backfill the
@@ -134,9 +135,11 @@ export async function GET(request: Request) {
 
   // Email-verification signups have a Prisma row (created at signup) but
   // haven't onboarded yet — route by onboarding state, not row existence.
-  if (existing.instruments.length === 0) {
-    return NextResponse.redirect(`${origin}/onboarding${plan ? `?plan=${plan}` : ""}`);
+  // A pending paid plan still goes to checkout first, same as a brand-new signup.
+  if (existing.instruments.length === 0 && !plan) {
+    return NextResponse.redirect(`${origin}/onboarding`);
   }
 
+  if (plan) cookieStore.delete(PENDING_PLAN_COOKIE);
   return NextResponse.redirect(`${origin}${plan ? `/checkout/${plan}` : "/dashboard"}`);
 }

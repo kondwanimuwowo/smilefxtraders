@@ -37,10 +37,28 @@ const INSTRUMENTS_FALLBACK = [
   { key: "NAS100", label: "NAS100" },
 ];
 
-const EXPERIENCE_OPTIONS = [
+const SKILL_OPTIONS = [
   { value: "Beginner",     desc: "New to trading: start at Foundations" },
   { value: "Intermediate", desc: "Know structure & liquidity, refining entries" },
   { value: "Advanced",     desc: "Consistent, working toward funding" },
+];
+
+const DURATION_OPTIONS = [
+  { value: "<6m",   label: "Less than 6 months" },
+  { value: "6-12m", label: "6–12 months" },
+  { value: "1-3y",  label: "1–3 years" },
+  { value: "3y+",   label: "3+ years" },
+];
+
+const GOAL_OPTIONS = [
+  { value: "consistency", label: "Build consistency",         desc: "Trade with a repeatable process, not gut feel" },
+  { value: "funded",      label: "Pass a funded challenge",   desc: "Get evaluated and trade with prop firm capital" },
+  { value: "learn",       label: "Learn from scratch",        desc: "New to SMC/Supply & Demand, starting at the basics" },
+  { value: "grow_live",   label: "Grow a live account",       desc: "Already trading, want to scale it up" },
+];
+
+const COUNTRIES = [
+  "Zambia", "South Africa", "Nigeria", "Kenya", "Ghana", "Zimbabwe", "Tanzania", "Uganda", "Other",
 ];
 
 export function OnboardingFlow() {
@@ -51,9 +69,13 @@ export function OnboardingFlow() {
     ? dbInstruments.map((i) => ({ key: i.symbol, label: i.label }))
     : INSTRUMENTS_FALLBACK;
   const [step, setStep] = useState(0);
+  const [country,      setCountry]      = useState("Zambia");
   const [phone,        setPhone]        = useState("");
   const [phoneTouched, setPhoneTouched] = useState(false);
   const [framework,   setFramework]   = useState<Framework>("SMC");
+  const [tradingDuration, setTradingDuration] = useState("");
+  const [skill,       setSkill]       = useState("Intermediate");
+  const [goal,        setGoal]        = useState("");
   const [instruments, setInstruments] = useState<string[]>([]);
   const [riskPct,     setRiskPct]     = useState(0.5);
 
@@ -64,11 +86,10 @@ export function OnboardingFlow() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instrumentOptions]);
-  const [experience,  setExperience]  = useState("Intermediate");
   const [isPending,   startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const totalSteps = 5;
+  const totalSteps = 7;
   const phoneValid = isValidPhone(phone);
 
   const toggleInstrument = (key: string) =>
@@ -78,17 +99,26 @@ export function OnboardingFlow() {
 
   function handleFinish() {
     const fd = new FormData();
+    fd.set("country", country);
     fd.set("phone", phone.trim());
     fd.set("framework", framework);
+    fd.set("tradingDuration", tradingDuration);
+    fd.set("experience", skill);
+    fd.set("goal", goal);
     instruments.forEach((ins) => fd.append("instruments", ins));
     fd.set("riskPct", String(riskPct));
-    fd.set("experience", experience);
     fd.set("plan", plan ?? "");
     startTransition(async () => {
       const result = await saveOnboardingAction(fd);
       if (result?.error) setServerError(result.error);
     });
   }
+
+  const canContinue =
+    (step !== 0 || phoneValid) &&
+    (step !== 2 || tradingDuration !== "") &&
+    (step !== 4 || goal !== "") &&
+    (step !== 5 || instruments.length > 0);
 
   return (
     <div className="flex flex-col">
@@ -105,7 +135,7 @@ export function OnboardingFlow() {
         Step {step + 1} of {totalSteps}
       </div>
 
-      {/* Step 0 — Phone */}
+      {/* Step 0 — General: Country + Phone */}
       {step === 0 && (
         <>
           <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
@@ -114,6 +144,15 @@ export function OnboardingFlow() {
           <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
             Used for account recovery and important alerts. Include your country code.
           </p>
+          <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">Country</label>
+          <select
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border text-[15px] mb-4 bg-panel-2 border-line text-ink-strong"
+          >
+            {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">Phone number</label>
           <input
             type="tel"
             inputMode="tel"
@@ -182,8 +221,116 @@ export function OnboardingFlow() {
         </>
       )}
 
-      {/* Step 2 — Instruments */}
+      {/* Step 2 — Experience: how long have you been trading */}
       {step === 2 && (
+        <>
+          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
+            How long have you been trading?
+          </h1>
+          <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
+            No judgment — everyone starts somewhere.
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            {DURATION_OPTIONS.map(({ value, label }) => {
+              const active = tradingDuration === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setTradingDuration(value)}
+                  className={cn(
+                    "flex items-center justify-center p-4 rounded-xl border text-center font-semibold text-[14px] transition-all",
+                    active ? "border-teal bg-[rgba(8,174,170,0.08)] text-ink-strong" : "border-line bg-panel-2 text-ink-mid"
+                  )}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Step 3 — Skill level */}
+      {step === 3 && (
+        <>
+          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
+            Which best describes you?
+          </h1>
+          <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
+            We&apos;ll point you to the right place in the Academy.
+          </p>
+          <div className="flex flex-col gap-2.5">
+            {SKILL_OPTIONS.map(({ value, desc }) => {
+              const active = skill === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setSkill(value)}
+                  className={cn(
+                    "flex items-center justify-between p-4 rounded-xl border text-left transition-all",
+                    active ? "border-teal bg-[rgba(8,174,170,0.08)]" : "border-line bg-panel-2"
+                  )}
+                >
+                  <div>
+                    <div className="font-semibold text-[14.5px] text-ink-strong">
+                      {value}
+                    </div>
+                    <div className="text-[12.5px] mt-0.5 text-ink-dim">{desc}</div>
+                  </div>
+                  <Icon
+                    name={active ? "radio_button_checked" : "radio_button_unchecked"}
+                    size={20}
+                    className={cn("shrink-0", active ? "text-teal" : "text-ink-dim")}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Step 4 — Goals */}
+      {step === 4 && (
+        <>
+          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
+            What&apos;s your main goal right now?
+          </h1>
+          <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
+            Helps us tailor tips and Academy suggestions.
+          </p>
+          <div className="flex flex-col gap-2.5">
+            {GOAL_OPTIONS.map(({ value, label, desc }) => {
+              const active = goal === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setGoal(value)}
+                  className={cn(
+                    "flex items-center justify-between p-4 rounded-xl border text-left transition-all",
+                    active ? "border-teal bg-[rgba(8,174,170,0.08)]" : "border-line bg-panel-2"
+                  )}
+                >
+                  <div>
+                    <div className="font-semibold text-[14.5px] text-ink-strong">{label}</div>
+                    <div className="text-[12.5px] mt-0.5 text-ink-dim">{desc}</div>
+                  </div>
+                  <Icon
+                    name={active ? "radio_button_checked" : "radio_button_unchecked"}
+                    size={20}
+                    className={cn("shrink-0", active ? "text-teal" : "text-ink-dim")}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Step 5 — Instruments */}
+      {step === 5 && (
         <>
           <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
             What do you trade?
@@ -222,8 +369,8 @@ export function OnboardingFlow() {
         </>
       )}
 
-      {/* Step 3 — Risk */}
-      {step === 3 && (
+      {/* Step 6 — Risk */}
+      {step === 6 && (
         <>
           <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
             Set your risk
@@ -253,46 +400,6 @@ export function OnboardingFlow() {
         </>
       )}
 
-      {/* Step 4 — Experience */}
-      {step === 4 && (
-        <>
-          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
-            Your experience
-          </h1>
-          <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
-            We&apos;ll point you to the right place in the Academy.
-          </p>
-          <div className="flex flex-col gap-2.5">
-            {EXPERIENCE_OPTIONS.map(({ value, desc }) => {
-              const active = experience === value;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setExperience(value)}
-                  className={cn(
-                    "flex items-center justify-between p-4 rounded-xl border text-left transition-all",
-                    active ? "border-teal bg-[rgba(8,174,170,0.08)]" : "border-line bg-panel-2"
-                  )}
-                >
-                  <div>
-                    <div className="font-semibold text-[14.5px] text-ink-strong">
-                      {value}
-                    </div>
-                    <div className="text-[12.5px] mt-0.5 text-ink-dim">{desc}</div>
-                  </div>
-                  <Icon
-                    name={active ? "radio_button_checked" : "radio_button_unchecked"}
-                    size={20}
-                    className={cn("shrink-0", active ? "text-teal" : "text-ink-dim")}
-                  />
-                </button>
-              );
-            })}
-          </div>
-        </>
-      )}
-
       {/* Navigation */}
       {serverError && (
         <p className="text-[12.5px] mt-5 text-coral">{serverError}</p>
@@ -309,10 +416,7 @@ export function OnboardingFlow() {
             variant="primary"
             fullWidth
             iconRight="arrow_forward"
-            disabled={
-              (step === 0 && !phoneValid) ||
-              (step === 2 && instruments.length === 0)
-            }
+            disabled={!canContinue}
             onClick={() => {
               if (step === 0 && !phoneValid) { setPhoneTouched(true); return; }
               setStep(step + 1);

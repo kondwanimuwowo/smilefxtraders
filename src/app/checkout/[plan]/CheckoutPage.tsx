@@ -6,6 +6,7 @@ import { ZM_OPERATORS, detectZmOperator, type ZmOperator } from "@/lib/mobile-mo
 import { NetworkLogo } from "@/components/checkout/NetworkLogo";
 import { Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { clearPendingPlan } from "@/lib/pending-plan";
 
 // ── Plan config ───────────────────────────────────────────────────────────────
 
@@ -51,7 +52,7 @@ const OPERATORS = ZM_OPERATORS;
 
 // ── Checkout page ─────────────────────────────────────────────────────────────
 
-export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan: string }> }) {
+export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise: Promise<{ plan: string }>; needsOnboarding: boolean }) {
   const router = useRouter();
   const [planId, setPlanId] = useState<PlanId | null>(null);
 
@@ -157,10 +158,10 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
           </p>
           <button
             type="button"
-            onClick={() => router.push("/dashboard")}
+            onClick={() => router.push(needsOnboarding ? "/onboarding" : "/dashboard")}
             className="w-full py-3 rounded-xl font-semibold text-[14px] bg-teal text-white"
           >
-            Go to Dashboard
+            {needsOnboarding ? "Continue setup" : "Go to Dashboard"}
           </button>
         </div>
       </div>
@@ -365,6 +366,16 @@ export function CheckoutPage({ paramsPromise }: { paramsPromise: Promise<{ plan:
             </p>
           </form>
         </div>
+
+        {needsOnboarding && (
+          <button
+            type="button"
+            onClick={() => { clearPendingPlan(); router.push("/onboarding"); }}
+            className="w-full text-center text-[12.5px] mt-4 text-ink-dim hover:text-ink-mid transition-colors"
+          >
+            Continue on Starter instead
+          </button>
+        )}
       </div>
     </div>
   );

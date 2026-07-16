@@ -2,19 +2,33 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email/send";
 import { welcomeEmail } from "@/lib/email/templates/welcome";
 import { validateSignupSecurity } from "@/lib/bot-protection";
 import { isValidPhone } from "@/lib/validation";
+import { PENDING_PLAN_COOKIE, resolvePendingPlan } from "@/lib/pending-plan";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.smilefxtraders.com";
 const CHECKOUT_PLANS = ["edge", "pro"];
 
 function validPlan(value: FormDataEntryValue | null): string | null {
   return typeof value === "string" && CHECKOUT_PLANS.includes(value) ? value : null;
+}
+
+// The cookie set client-side the moment a plan link is visited is the
+// primary source — it survives regardless of what Supabase does to a query
+// param appended to emailRedirectTo/OAuth redirectTo. formData is a fallback.
+async function pendingPlan(formData: FormData): Promise<string | null> {
+  const cookieStore = await cookies();
+  return resolvePendingPlan(cookieStore.get(PENDING_PLAN_COOKIE)?.value) ?? validPlan(formData.get("plan"));
+}
+
+async function clearPendingPlanCookie() {
+  const cookieStore = await cookies();
+  cookieStore.delete(PENDING_PLAN_COOKIE);
 }
 
 export async function loginAction(formData: FormData) {
@@ -95,7 +109,7 @@ export async function signupAction(formData: FormData) {
   const security = await validateSignupSecurity(email, ip);
   if (!security.ok) return { error: security.error };
 
-  const plan = validPlan(formData.get("plan"));
+  const plan = await pendingPlan(formData);
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
@@ -127,7 +141,11 @@ export async function signupAction(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect(plan ? `/onboarding?plan=${plan}` : "/onboarding");
+  if (plan) {
+    await clearPendingPlanCookie();
+    redirect(`/checkout/${plan}`);
+  }
+  redirect("/onboarding");
 }
 
 export async function saveOnboardingAction(formData: FormData) {
@@ -140,10 +158,13 @@ export async function saveOnboardingAction(formData: FormData) {
     return { error: "Enter a valid phone number in international format, e.g. +260971234567." };
   }
 
+  const country = (formData.get("country") as string ?? "").trim() || null;
   const instruments = formData.getAll("instruments") as string[];
   const riskPct = parseFloat(formData.get("riskPct") as string);
   const experience = formData.get("experience") as string;
   const framework = (formData.get("framework") as string) || "SMC";
+  const tradingDuration = (formData.get("tradingDuration") as string ?? "").trim() || null;
+  const goal = (formData.get("goal") as string ?? "").trim() || null;
 
   // This is the one place a public.users profile row gets created — a
   // signed-up-but-not-onboarded auth.users row has no profile/community
@@ -151,22 +172,28 @@ export async function saveOnboardingAction(formData: FormData) {
   const dbUser = await prisma.user.upsert({
     where: { supabaseId: user.id },
     update: {
+      location: country,
       phone,
       instruments,
       riskPct,
       experience: experience.toUpperCase() as "BEGINNER" | "INTERMEDIATE" | "ADVANCED",
       framework,
+      tradingDuration,
+      goal,
     },
     create: {
       supabaseId:  user.id,
       email:       user.email ?? "",
       name:        (user.user_metadata?.full_name as string | undefined) ?? user.email?.split("@")[0] ?? "Trader",
       username:    (user.user_metadata?.username as string | undefined) ?? `trader_${user.id.slice(0, 8)}`,
+      location: country,
       phone,
       instruments,
       riskPct,
       experience: experience.toUpperCase() as "BEGINNER" | "INTERMEDIATE" | "ADVANCED",
       framework,
+      tradingDuration,
+      goal,
     },
   });
 
@@ -182,7 +209,11 @@ export async function saveOnboardingAction(formData: FormData) {
     await sendEmail({ from: "kondwani", to: dbUser.email, subject, html });
   }
 
-  const plan = validPlan(formData.get("plan"));
+  // Checkout now happens before onboarding for paid signups, so this
+  // normally just goes to the dashboard — the plan branch stays only as a
+  // defensive fallback in case a stale pending-plan cookie is still present.
+  const plan = await pendingPlan(formData);
+  if (plan) await clearPendingPlanCookie();
 
   revalidatePath("/", "layout");
   redirect(plan ? `/checkout/${plan}` : "/dashboard");

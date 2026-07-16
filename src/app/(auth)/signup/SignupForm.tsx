@@ -1,14 +1,21 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Input, Field, Button, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { signupAction } from "../actions";
+import { CHECKOUT_PLANS, setPendingPlan } from "@/lib/pending-plan";
 
-const CHECKOUT_PLANS = ["edge", "pro"];
+function suggestUsername(fullName: string): string {
+  const parts = fullName.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const base = (parts.length > 1 ? parts[0] + parts[parts.length - 1] : (parts[0] ?? "")).replace(/[^a-z0-9]/g, "");
+  if (!base) return "";
+  const suffix = Math.floor(10000 + Math.random() * 90000);
+  return `${base}_${suffix}`;
+}
 
 function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onClick: () => void; icon: string; label: string }) {
   return (
@@ -36,6 +43,19 @@ export function SignupForm() {
   const searchParams = useSearchParams();
   const planParam = searchParams.get("plan");
   const plan = planParam && CHECKOUT_PLANS.includes(planParam) ? planParam : null;
+
+  useEffect(() => {
+    setPendingPlan(plan);
+  }, [plan]);
+
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameEdited, setUsernameEdited] = useState(false);
+
+  function handleNameChange(value: string) {
+    setName(value);
+    if (!usernameEdited) setUsername(suggestUsername(value));
+  }
 
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -163,10 +183,23 @@ export function SignupForm() {
 
       <div className="grid grid-cols-2 gap-4 mb-4">
         <Field label="Full name" half>
-          <Input name="name" placeholder="Mwila Kunda" required autoComplete="name" />
+          <Input
+            name="name"
+            placeholder="Mwila Kunda"
+            required
+            autoComplete="name"
+            value={name}
+            onChange={(e) => handleNameChange(e.target.value)}
+          />
         </Field>
         <Field label="Username" half>
-          <Input name="username" placeholder="@mwila_ict" required />
+          <Input
+            name="username"
+            placeholder="@mwila_ict"
+            required
+            value={username}
+            onChange={(e) => { setUsername(e.target.value); setUsernameEdited(true); }}
+          />
         </Field>
         <Field label="Email" style={{ gridColumn: "1 / -1" }}>
           <Input type="email" name="email" placeholder="you@email.com" required autoComplete="email" />

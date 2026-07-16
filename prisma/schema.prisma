@@ -25,6 +25,8 @@ model User {
   experience Experience @default(BEGINNER)
   instruments String[] // e.g. ["EURUSD","XAUUSD"]
   framework  String   @default("SMC") // "SMC" | "SnD"
+  tradingDuration String? @map("trading_duration") // "<6m" | "6-12m" | "1-3y" | "3y+"
+  goal            String? // "consistency" | "funded" | "learn" | "grow_live"
   notifPrefs    Json?     @map("notif_prefs")
   privacyPrefs  Json?     @map("privacy_prefs")
   planExpiresAt DateTime? @map("plan_expires_at")
