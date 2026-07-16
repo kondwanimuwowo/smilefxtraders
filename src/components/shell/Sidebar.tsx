@@ -464,11 +464,20 @@ function NavLink({
 function BrandMark() {
   return (
     <div className="size-[34px] shrink-0 rounded-lg overflow-hidden">
+      {/* --sidebar flips white (light) / near-black (dark) — the flat navy
+          mark only has contrast on the light surface, so dark theme keeps
+          the self-contained white-on-navy chip instead. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/smile-logo-dark.png"
+        alt="Smile FX Traders"
+        className="block dark:hidden w-full h-full object-contain"
+      />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/smile-fx-logo-wht-navy-bg.png"
         alt="Smile FX Traders"
-        className="w-full h-full object-contain"
+        className="hidden dark:block w-full h-full object-contain"
       />
     </div>
   );

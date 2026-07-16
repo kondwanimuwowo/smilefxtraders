@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui";
+import { Button, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { SOCIAL_LINKS } from "@/lib/social-links";
 
 const NAV = [
   { href: "/features", label: "Features" },
@@ -19,7 +20,7 @@ function BrandLogo({ scrolled }: { scrolled: boolean }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={scrolled ? "/smile-fx-logo-wht-navy-bg.png" : "/smile-fx-logo-wht.png"}
+      src={scrolled ? "/smile-logo-dark.png" : "/smile-fx-logo-wht.png"}
       alt="Smile FX Traders"
       width={38}
       height={38}
@@ -257,6 +258,28 @@ export function MarketingNav() {
         </div>
 
         <div className="flex-1" />
+
+        <div
+          className="flex gap-2.5 justify-center pb-4"
+          style={{
+            opacity: mobileOpen ? 1 : 0,
+            transform: mobileOpen ? "translateY(0)" : "translateY(8px)",
+            transition: "opacity 320ms var(--ease-app, cubic-bezier(0.16,1,0.3,1)) 300ms, transform 320ms var(--ease-app, cubic-bezier(0.16,1,0.3,1)) 300ms",
+          }}
+        >
+          {SOCIAL_LINKS.map((s) => (
+            <a
+              key={s.label}
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={s.label}
+              className="w-[38px] h-[38px] rounded-[10px] grid place-items-center transition-all hover:-translate-y-0.5 bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.8)]"
+            >
+              <Icon name={s.icon} size={18} />
+            </a>
+          ))}
+        </div>
 
         <p
           className="text-xs text-[rgba(255,255,255,0.4)] text-center pb-2"

@@ -66,6 +66,13 @@ export function PricingContent({ prices }: Props) {
             ))}
           </div>
 
+          {/* Lifetime access */}
+          <div className="reveal text-center mt-8">
+            <Button href="mailto:support@smilefxtraders.com" hardNav size="lg" variant="ghost">
+              Need lifetime access? Contact our sales team
+            </Button>
+          </div>
+
           {/* Money-back */}
           <div className="reveal flex items-center gap-4 mt-10 mx-auto max-w-[640px] py-5 px-6 bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.2)] rounded-[18px]">
             <Icon name="verified_user" size={28} className="text-teal shrink-0" />
@@ -76,12 +83,6 @@ export function PricingContent({ prices }: Props) {
           </div>
           <p className="reveal text-center text-[12.5px] text-ink-dim mt-5">
             All prices in ZMW (Kwacha). Annual billing saves 20%.
-          </p>
-          <p className="reveal text-center text-[12.5px] text-ink-dim mt-2">
-            Need lifetime access?{" "}
-            <a href="mailto:support@smilefxtraders.com" className="font-semibold text-teal">
-              Contact our sales team
-            </a>
           </p>
         </div>
       </section>

@@ -127,6 +127,16 @@ export function Pricing() {
         })}
       </div>
 
+      {/* Lifetime access */}
+      <div className="text-center mb-10">
+        <a
+          href="mailto:support@smilefxtraders.com"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-[14px] font-bold border border-line text-ink-strong hover:bg-hover transition-colors"
+        >
+          Need lifetime access? Contact our sales team
+        </a>
+      </div>
+
       <div
         className="rounded-2xl px-6 py-5 flex items-center gap-4 mb-10 bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.2)]"
       >
@@ -147,12 +157,6 @@ export function Pricing() {
           titleClassName="font-display font-bold text-[20px] mb-4 tracking-[-0.02em] text-ink-strong"
           items={FAQ}
         />
-        <p className="text-center text-[13px] mt-6 text-ink-dim">
-          Need lifetime access?{" "}
-          <a href="mailto:support@smilefxtraders.com" className="font-semibold text-teal">
-            Contact our sales team
-          </a>
-        </p>
       </div>
 
       {checkoutPlan && (

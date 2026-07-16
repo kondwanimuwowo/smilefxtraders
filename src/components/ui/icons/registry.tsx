@@ -119,6 +119,15 @@ import {
   SaveIcon,
   TargetIcon,
 } from "./custom";
+import {
+  WhatsAppIcon,
+  InstagramIcon,
+  FacebookIcon,
+  DiscordIcon,
+  YouTubeIcon,
+  TelegramIcon,
+  XIcon,
+} from "./brand";
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -314,6 +323,15 @@ export const ICON_REGISTRY: Record<string, IconComponent> = {
   squares_plus: SquaresPlusIcon,
   bolt: BoltIcon,
   layers: Square3Stack3DIcon,
+
+  // Brand marks (social links)
+  whatsapp: WhatsAppIcon,
+  instagram: InstagramIcon,
+  facebook: FacebookIcon,
+  discord: DiscordIcon,
+  youtube: YouTubeIcon,
+  telegram: TelegramIcon,
+  x_twitter: XIcon,
 };
 
 export type IconName = keyof typeof ICON_REGISTRY;
