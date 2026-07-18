@@ -169,7 +169,7 @@ function CourseCard({
           </span>
         </div>
 
-        <h3 className="font-display font-bold text-[15px] mb-1.5 leading-snug text-ink-strong">
+        <h3 className="font-display font-medium text-[15px] mb-1.5 leading-snug text-ink-strong">
           {course.title}
         </h3>
         <p className="text-[12.5px] leading-relaxed mb-3 text-ink-dim">
@@ -265,7 +265,7 @@ function LessonList({
           <Icon name={course.icon} size={26} style={{ color: course.color }} />
         </div>
         <div className="flex-1 min-w-0">
-          <h2 className="font-display font-bold text-[22px] tracking-[-0.02em] text-ink-strong">
+          <h2 className="font-display font-medium text-[22px] tracking-[-0.02em] text-ink-strong">
             {course.title}
           </h2>
           <p className="text-[13px] mt-0.5 text-ink-dim">{course.description}</p>
@@ -464,7 +464,7 @@ export function Academy() {
     <div className="view">
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
+          <h1 className="font-display font-medium text-2xl tracking-[-0.02em] text-ink-strong">
             Academy
           </h1>
           <p className="text-[13px] mt-0.5 text-ink-dim">

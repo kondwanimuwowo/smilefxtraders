@@ -125,7 +125,7 @@ export function SignupForm() {
         <div className="size-14 rounded-2xl flex items-center justify-center mb-5 bg-[rgba(8,174,170,0.08)] border border-[rgba(8,174,170,0.2)]">
           <Icon name="mark_email_unread" size={28} className="text-teal" />
         </div>
-        <h1 className="font-display font-semibold mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
+        <h1 className="font-display font-medium mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
           Check your email
         </h1>
         <p className="text-[14px] leading-relaxed mb-1 text-ink-mid">
@@ -163,7 +163,7 @@ export function SignupForm() {
         Join the community
       </div>
 
-      <h1 className="font-display font-semibold mb-6 text-[26px] tracking-[-0.01em] text-ink-strong">
+      <h1 className="font-display font-medium mb-6 text-[26px] tracking-[-0.01em] text-ink-strong">
         Create your account
       </h1>
 

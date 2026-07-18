@@ -42,7 +42,7 @@ export function PricingAdmin({ initial }: Props) {
   return (
     <div className="view">
       <div className="mb-8">
-        <h1 className="font-display font-bold text-[26px] tracking-[-0.02em] text-ink-strong">
+        <h1 className="font-display font-medium text-[26px] tracking-[-0.02em] text-ink-strong">
           Pricing Configuration
         </h1>
         <p className="text-[14px] mt-1 text-ink-dim">

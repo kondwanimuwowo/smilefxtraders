@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
 const client = new Anthropic();
@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
   try {
     // Plan gate — AI review requires PRO or FUNDED
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getAuthedUser(supabase);
     if (user) {
       const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id }, select: { plan: true } }).catch(() => null);
       if (dbUser && dbUser.plan === "FREE") {

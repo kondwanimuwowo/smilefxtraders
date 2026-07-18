@@ -94,7 +94,7 @@ export function AlertsManager() {
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="font-display font-bold text-[24px] tracking-[-0.02em] text-ink-strong">
+          <h1 className="font-display font-medium text-[24px] tracking-[-0.02em] text-ink-strong">
             Alerts Manager
           </h1>
           <p className="text-[13px] mt-0.5 text-ink-dim">

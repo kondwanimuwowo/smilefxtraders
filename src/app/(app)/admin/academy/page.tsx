@@ -29,7 +29,7 @@ export default async function AdminAcademyPage() {
     <div className="view">
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 className="font-display font-bold text-[24px] tracking-[-0.02em] text-ink-strong">
+          <h1 className="font-display font-medium text-[24px] tracking-[-0.02em] text-ink-strong">
             Course Builder
           </h1>
           <p className="text-[13px] mt-0.5 text-ink-dim">

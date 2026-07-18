@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
 export async function requireInstructor() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthedUser(supabase);
   if (!user) redirect("/login");
 
   const dbUser = await prisma.user.findUnique({

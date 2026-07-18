@@ -509,7 +509,7 @@ export function Journal() {
       <div className="flex items-start justify-between mb-5">
         <div>
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
+            <h1 className="font-display font-medium text-2xl tracking-[-0.02em] text-ink-strong">
               Trade Journal
             </h1>
             {streak.n >= 2 && (

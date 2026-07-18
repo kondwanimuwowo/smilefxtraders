@@ -361,7 +361,7 @@ export function Settings() {
 
   return (
     <div className="view">
-      <h1 className="font-display font-bold mb-5 text-2xl tracking-[-0.02em] text-ink-strong">
+      <h1 className="font-display font-medium mb-5 text-2xl tracking-[-0.02em] text-ink-strong">
         Settings
       </h1>
 

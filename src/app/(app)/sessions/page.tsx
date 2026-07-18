@@ -95,7 +95,7 @@ export default function SessionsPage() {
         <div className="text-[11px] font-semibold uppercase tracking-[0.26em] mb-1.5 text-teal">
           GMT+2 · Africa / Lusaka
         </div>
-        <h1 className="font-display font-bold leading-tight text-[28px] tracking-[-0.02em] text-ink-strong">
+        <h1 className="font-display font-medium leading-tight text-[28px] tracking-[-0.02em] text-ink-strong">
           Market Sessions
         </h1>
         <p className="text-[13.5px] mt-2 max-w-xl leading-relaxed text-ink-dim">
@@ -108,7 +108,7 @@ export default function SessionsPage() {
 
       {/* ── Session Guide ── */}
       <div className="mt-10">
-        <h2 className="font-display font-bold mb-1 text-[18px] tracking-[-0.015em] text-ink-strong">
+        <h2 className="font-display font-medium mb-1 text-[18px] tracking-[-0.015em] text-ink-strong">
           Session Guide
         </h2>
         <p className="text-[13px] mb-5 text-ink-dim">
@@ -153,7 +153,7 @@ export default function SessionsPage() {
 
       {/* ── Killzone Reference ── */}
       <div className="mt-10 mb-2">
-        <h2 className="font-display font-bold mb-1 text-[18px] tracking-[-0.015em] text-ink-strong">
+        <h2 className="font-display font-medium mb-1 text-[18px] tracking-[-0.015em] text-ink-strong">
           Killzone Reference
         </h2>
         <p className="text-[13px] mb-5 text-ink-dim">

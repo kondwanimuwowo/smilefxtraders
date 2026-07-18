@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Input, Field, Button, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
@@ -41,7 +41,6 @@ function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onC
 }
 
 export function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const planParam = searchParams.get("plan");
   const plan = planParam && CHECKOUT_PLANS.includes(planParam) ? planParam : null;
@@ -63,13 +62,10 @@ export function LoginForm() {
     setError(null);
     const data = new FormData(e.currentTarget);
     startTransition(async () => {
+      // loginAction redirects itself on success (same response cycle as the
+      // session cookie it sets) — it only ever returns when there's an error.
       const result = await loginAction(data);
-      if (result?.error) {
-        setError(result.error);
-      } else {
-        router.push(plan ? `/checkout/${plan}` : "/dashboard");
-        router.refresh();
-      }
+      if (result?.error) setError(result.error);
     });
   }
 
@@ -77,13 +73,11 @@ export function LoginForm() {
     setIsDemo(true);
     setError(null);
     startTransition(async () => {
+      // demoLoginAction redirects itself on success — see handleSubmit above.
       const result = await demoLoginAction();
       if (result?.error) {
         setError(result.error);
         setIsDemo(false);
-      } else {
-        router.push("/dashboard");
-        router.refresh();
       }
     });
   }
@@ -114,7 +108,7 @@ export function LoginForm() {
         Welcome back
       </div>
 
-      <h1 className="font-display font-semibold mb-6 text-[26px] tracking-[-0.01em] text-ink-strong">
+      <h1 className="font-display font-medium mb-6 text-[26px] tracking-[-0.01em] text-ink-strong">
         Sign in to your desk
       </h1>
 

@@ -64,7 +64,7 @@ export function Calendar() {
     <div className="view flex flex-col min-h-[calc(100vh-60px)]">
       <div className="flex items-start justify-between gap-4 mb-5 flex-wrap">
         <div>
-          <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
+          <h1 className="font-display font-medium text-2xl tracking-[-0.02em] text-ink-strong">
             Economic Calendar
           </h1>
           <p className="text-[13px] mt-0.5 text-ink-dim">

@@ -71,7 +71,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
     <div className="grid grid-cols-1 md:grid-cols-[380px_minmax(0,1fr)] gap-5">
       {/* Course fields */}
       <div className="rounded-2xl p-5 flex flex-col gap-4 bg-panel border border-line">
-        <h2 className="font-display font-semibold text-[16px] text-ink-strong">Course settings</h2>
+        <h2 className="font-display font-medium text-[16px] text-ink-strong">Course settings</h2>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] font-semibold text-ink-mid">Title</span>
@@ -155,7 +155,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
       {/* Lessons list */}
       <div className="rounded-2xl p-5 bg-panel border border-line">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display font-semibold text-[16px] text-ink-strong">
+          <h2 className="font-display font-medium text-[16px] text-ink-strong">
             Lessons <span className="text-ink-dim">({course.lessons.length})</span>
           </h2>
           <button

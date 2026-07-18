@@ -191,7 +191,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
           <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[rgba(8,174,170,0.12)] border-2 border-teal">
             <Icon name="check_circle" size={32} className="text-teal" />
           </div>
-          <h2 className="font-display font-bold text-[24px] mb-2 tracking-[-0.02em] text-ink-strong">
+          <h2 className="font-display font-medium text-[24px] mb-2 tracking-[-0.02em] text-ink-strong">
             You&apos;re on {plan.name}!
           </h2>
           <p className="text-[13.5px] mb-6 text-ink-dim">
@@ -218,7 +218,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
               <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[rgba(248,185,61,0.12)] border-2 border-gold">
                 <Icon name={payMethod === "card" ? "credit_card" : "phone_android"} size={32} className="animate-pulse text-gold" />
               </div>
-              <h2 className="font-display font-bold text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">
+              <h2 className="font-display font-medium text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">
                 {payMethod === "card" ? "Complete your card payment" : "Check your phone"}
               </h2>
               <p className="text-[13.5px] mb-3 text-ink-dim">
@@ -242,7 +242,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
               <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[rgba(234,82,61,0.12)] border-2 border-coral">
                 <Icon name="error" size={32} className="text-coral" />
               </div>
-              <h2 className="font-display font-bold text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">Payment failed</h2>
+              <h2 className="font-display font-medium text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">Payment failed</h2>
               <p className="text-[13.5px] mb-6 text-ink-dim">{errMsg}</p>
               <button
                 type="button"
@@ -343,7 +343,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
             )}
 
             <div className="rounded-2xl p-5 bg-panel border border-line">
-              <h2 className="font-display font-bold text-[18px] mb-4 tracking-[-0.02em] text-ink-strong">
+              <h2 className="font-display font-medium text-[18px] mb-4 tracking-[-0.02em] text-ink-strong">
                 Payment details
               </h2>
 

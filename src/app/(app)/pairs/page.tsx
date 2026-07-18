@@ -32,7 +32,7 @@ export default function PairsPage() {
       {/* ── Header ── */}
       <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
         <div>
-          <h1 className="font-display font-bold text-[26px] tracking-[-0.025em] text-ink-strong">
+          <h1 className="font-display font-medium text-[26px] tracking-[-0.025em] text-ink-strong">
             Pair Overviews
           </h1>
           <p className="text-[13px] mt-1 text-ink-dim">
@@ -58,7 +58,7 @@ export default function PairsPage() {
               <div className="flex items-center gap-3 mb-4">
                 <div className={cn("w-1 h-5 rounded-full shrink-0", accent.barCls)} />
                 <div>
-                  <h2 className="font-display font-bold text-[15px] tracking-[-0.01em] text-ink-strong">
+                  <h2 className="font-display font-medium text-[15px] tracking-[-0.01em] text-ink-strong">
                     {group.label}
                   </h2>
                   <p className="text-[12px] mt-0.5 text-ink-dim">

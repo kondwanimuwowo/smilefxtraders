@@ -113,7 +113,11 @@ async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }>
     return { user: dbToAppUser(db), trades: dbTrades.map(dbTradeToStore) };
   } catch (err) {
     unstable_rethrow(err);
-    return { user: null, trades: [] };
+    // getUser() throws (rather than returning a null user) when the session
+    // cookie itself is broken — e.g. an invalid/expired refresh token. Don't
+    // render the shell with a null user in that case; send them to login for
+    // real, same as the "no user at all" path above.
+    redirect("/login");
   }
 }
 

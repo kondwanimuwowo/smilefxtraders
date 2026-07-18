@@ -1,22 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Open_Sans, Ubuntu } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import Script from "next/script";
 import { ConsentGatedAnalytics } from "@/components/ConsentGatedAnalytics";
 import { CookieConsent } from "@/components/CookieConsent";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+// Body/UI font — see --font-sans in globals.css's @theme block.
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-space-grotesk",
+// Headings/display font — see --font-display in globals.css's @theme block.
+const ubuntu = Ubuntu({
+  variable: "--font-ubuntu",
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+  weight: ["300", "400", "500", "700"],
   display: "swap",
 });
 
@@ -41,7 +43,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${plusJakartaSans.variable}`}
+      className={`${openSans.variable} ${ubuntu.variable}`}
     >
       <head>
         <link rel="icon" href="/favicon.png" type="image/png" />

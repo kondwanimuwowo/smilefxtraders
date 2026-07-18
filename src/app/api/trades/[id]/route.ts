@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import type { Trade, AIReviewResult } from "@/lib/store";
@@ -49,7 +49,7 @@ type Params = { params: Promise<{ id: string }> };
 export async function PATCH(req: NextRequest, { params }: Params) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getAuthedUser(supabase);
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } }).catch(() => null);
@@ -101,7 +101,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthedUser(supabase);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } }).catch(() => null);

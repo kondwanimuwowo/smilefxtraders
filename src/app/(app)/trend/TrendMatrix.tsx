@@ -309,7 +309,7 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
       {/* ── Header ── */}
       <div className="flex items-start justify-between mb-5 gap-4">
         <div>
-          <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
+          <h1 className="font-display font-medium text-2xl tracking-[-0.02em] text-ink-strong">
             Trend Matrix
           </h1>
           <p className="text-[13px] mt-0.5 text-ink-dim">

@@ -115,7 +115,7 @@ export function ResetPasswordForm() {
           <Icon name="link_off" size={32} className="text-coral" />
         </div>
         <div>
-          <h1 className="font-display font-semibold mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
+          <h1 className="font-display font-medium mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
             Link expired or invalid
           </h1>
           <p className="text-[14.5px] leading-[1.6] text-ink-mid">
@@ -143,7 +143,7 @@ export function ResetPasswordForm() {
           <Icon name="lock_open" size={32} className="text-teal" />
         </div>
         <div>
-          <h1 className="font-display font-semibold mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
+          <h1 className="font-display font-medium mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
             Password set
           </h1>
           <p className="text-[14.5px] text-ink-mid">
@@ -160,7 +160,7 @@ export function ResetPasswordForm() {
         {isInvite ? "Welcome" : "New password"}
       </div>
 
-      <h1 className="font-display font-semibold mb-6 text-[26px] tracking-[-0.01em] text-ink-strong">
+      <h1 className="font-display font-medium mb-6 text-[26px] tracking-[-0.01em] text-ink-strong">
         {isInvite ? "Set your password" : "Set a new password"}
       </h1>
 

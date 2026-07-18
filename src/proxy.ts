@@ -6,6 +6,14 @@ const PUBLIC_PREFIXES = ["/login", "/signup", "/onboarding", "/forgot-password",
 // Note: /api is already public, so /api/webhooks/lenco is covered — no extra entry needed.
 const PUBLIC_EXACT    = ["/"]; // exact match only
 
+// Paths that never need the session result at all — each does its own auth
+// independently (route handlers via the request-scoped server client, OAuth
+// callback/webhooks via their own verification). Skipped before touching
+// Supabase, unlike the rest of PUBLIC_PREFIXES below (login/signup etc. are
+// public in the sense of not requiring a session, but still need the
+// session check to redirect an already-authenticated visitor away).
+const SKIP_AUTH_PREFIXES = ["/api", "/auth"];
+
 // ── Host-based domain split ──────────────────────────────────────────
 // smilefxtraders.com      → marketing/public pages only
 // app.smilefxtraders.com  → the app (dashboard, auth, checkout, api)
@@ -57,6 +65,20 @@ export async function proxy(request: NextRequest) {
     return crossHostRedirect(request, MARKETING_HOST);
   }
 
+  // Skip Supabase entirely for paths whose result is never used here. This
+  // matters beyond avoiding wasted work: a dashboard page mounts a burst of
+  // ~15 parallel /api/* fetches, and getSession() isn't purely local — when
+  // the access token is near expiry it refreshes over the network via the
+  // setAll callback. Running that on every one of those parallel requests
+  // raced them all against the same refresh token; Supabase invalidates a
+  // refresh token the instant one request uses it, so every other
+  // concurrent request failed with "Invalid Refresh Token" — and if the
+  // actual page navigation lost that race, the guard below saw no session
+  // and bounced the whole page back to /login.
+  if (SKIP_AUTH_PREFIXES.some((p) => pathname.startsWith(p))) {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -81,9 +103,10 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  // getSession reads the JWT from the cookie locally — no network round-trip.
-  // We use it here only for route protection (fast path). The layout server
-  // component calls getUser() for proper server-side validation before DB work.
+  // getSession reads the JWT from the cookie locally when the token is still
+  // valid, but refreshes over the network when it's expired. We use it here
+  // only for route protection (fast path). The layout server component calls
+  // getUser() for proper server-side validation before DB work.
   const {
     data: { session },
   } = await supabase.auth.getSession();

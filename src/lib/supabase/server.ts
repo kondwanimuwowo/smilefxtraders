@@ -27,3 +27,17 @@ export async function createClient() {
     }
   );
 }
+
+// getUser() throws (rather than returning a null user) when the session
+// cookie itself is broken — e.g. an invalid/expired refresh token. Route
+// handlers that call it directly turn that into an unhandled 500 instead of
+// the graceful 401/empty-response they already have for "no user". Use this
+// wherever a route just needs "who is this, if anyone" for reading/gating.
+export async function getAuthedUser(supabase: Awaited<ReturnType<typeof createClient>>) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+  } catch {
+    return null;
+  }
+}

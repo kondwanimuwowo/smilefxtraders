@@ -210,7 +210,7 @@ export default function FxOrdersDatePage() {
       {/* ── Header ── */}
       <div className="flex items-start justify-between gap-4 mb-2 flex-wrap">
         <div>
-          <h1 className="font-display font-bold text-[22px] tracking-[-0.02em] text-ink-strong">
+          <h1 className="font-display font-medium text-[22px] tracking-[-0.02em] text-ink-strong">
             {loading ? "Loading…" : error ? "No data" : fmtDay(date)}
           </h1>
           <p className="text-[13px] mt-0.5 text-ink-dim">

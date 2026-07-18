@@ -59,7 +59,7 @@ export default function NewCoursePage() {
       </div>
 
       <div className="max-w-lg rounded-2xl p-6 flex flex-col gap-4 bg-panel border border-line">
-        <h1 className="font-display font-bold text-[20px] text-ink-strong">Create a new course</h1>
+        <h1 className="font-display font-medium text-[20px] text-ink-strong">Create a new course</h1>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] font-semibold text-ink-mid">Title</span>

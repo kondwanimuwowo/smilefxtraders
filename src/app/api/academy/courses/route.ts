@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
 // GET /api/academy/courses — published courses + lessons + user's completedIds
 
 export async function GET() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthedUser(supabase);
 
   const courses = await prisma.course.findMany({
     where:   { published: true },

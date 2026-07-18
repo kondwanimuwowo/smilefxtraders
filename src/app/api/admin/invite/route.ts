@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/lib/prisma";
 
@@ -15,7 +15,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.smilefxtraders.c
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthedUser(supabase);
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   const dbUser = await prisma.user.findUnique({

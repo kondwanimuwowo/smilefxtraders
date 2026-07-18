@@ -246,7 +246,7 @@ export default function TradeDetailPage() {
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="font-display font-bold text-[32px] tracking-[-0.025em] text-ink-strong">
+            <h1 className="font-display font-medium text-[32px] tracking-[-0.025em] text-ink-strong">
               {t.pair}
             </h1>
             <DirPill dir={t.dir} />

@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { SubjectType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { fetchConfluence } from "@/lib/macro/confluence";
 import { GAVO_MACRO_SYSTEM_PROMPT, buildCurrencyExplainMessage, buildPairExplainMessage } from "@/lib/macro/gavoPrompt";
 import type { BreakdownEntry } from "@/lib/macro/scoring";
@@ -17,7 +17,7 @@ const client = new Anthropic();
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getAuthedUser(supabase);
     if (user) {
       const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id }, select: { plan: true } }).catch(() => null);
       if (dbUser && dbUser.plan === "FREE") {

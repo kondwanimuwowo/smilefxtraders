@@ -249,7 +249,7 @@ export function PostAlertModal({ onClose }: { onClose: () => void }) {
     >
       <div className="w-full max-w-lg rounded-2xl p-6 overflow-y-auto bg-panel border border-line shadow-[0_10px_26px_rgba(0,0,0,0.38)] max-h-[90vh]">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-display font-bold text-[18px] text-ink-strong">Post Alert</h2>
+          <h2 className="font-display font-medium text-[18px] text-ink-strong">Post Alert</h2>
           <button type="button" onClick={onClose} className="text-ink-dim">
             <Icon name="close" size={20} />
           </button>
@@ -590,7 +590,7 @@ export function Alerts() {
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">
+          <h1 className="font-display font-medium text-2xl tracking-[-0.02em] text-ink-strong">
             Setup Alerts
           </h1>
           <p className="text-[13px] mt-0.5 text-ink-dim">

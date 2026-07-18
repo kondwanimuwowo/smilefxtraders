@@ -52,7 +52,16 @@ export async function loginAction(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  return { success: true };
+
+  // Redirect from inside the server action itself, not via a follow-up
+  // client-side router.push — that's a separate navigation that can race
+  // ahead of the browser committing the session cookie this action just
+  // set, and proxy.ts bounces it straight back to /login. Redirecting here
+  // ties the navigation to the same response that carries the Set-Cookie
+  // header, so the cookie is guaranteed to be there first.
+  const plan = await pendingPlan(formData);
+  if (plan) await clearPendingPlanCookie();
+  redirect(plan ? `/checkout/${plan}` : "/dashboard");
 }
 
 export async function demoLoginAction() {
@@ -94,7 +103,7 @@ export async function demoLoginAction() {
   }
 
   revalidatePath("/", "layout");
-  return { success: true };
+  redirect("/dashboard");
 }
 
 export async function signupAction(formData: FormData) {

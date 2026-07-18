@@ -28,7 +28,7 @@ export default function MacroEdgeOverviewPage() {
   return (
     <div className="view">
       <div className="mb-5">
-        <h1 className="font-display font-bold text-2xl tracking-[-0.02em] text-ink-strong">MacroEdge</h1>
+        <h1 className="font-display font-medium text-2xl tracking-[-0.02em] text-ink-strong">MacroEdge</h1>
         <p className="text-[13px] mt-0.5 text-ink-dim">
           Fundamental currency scores and pair bias, built from economic calendar releases plus FRED/World
           Bank indicator data. See a currency&apos;s full breakdown or a pair&apos;s bias from the tables below.

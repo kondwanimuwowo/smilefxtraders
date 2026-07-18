@@ -55,7 +55,7 @@ export async function AuthShell({ children }: { children: ReactNode }) {
 
         {/* Headline */}
         <div>
-          <h1 className="font-display font-semibold text-white leading-tight text-[34px] tracking-[-0.02em]">
+          <h1 className="font-display font-medium text-white leading-tight text-[34px] tracking-[-0.02em]">
             Trade smart money.<br />Together.
           </h1>
           <p className="mt-4 leading-relaxed max-w-[380px] text-[15px] text-[rgba(255,255,255,0.7)]">

@@ -46,7 +46,7 @@ function UploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
       <div className="rounded-2xl p-6 w-full max-w-md bg-panel border border-line shadow-[0_10px_26px_rgba(0,0,0,0.38)]">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="font-display font-bold text-[18px] text-ink-strong">
+            <h2 className="font-display font-medium text-[18px] text-ink-strong">
               Upload FXO Image
             </h2>
             <p className="text-[12px] mt-0.5 text-ink-dim">
@@ -321,7 +321,7 @@ export default function FxOrdersPage() {
       {/* ── Page header ── */}
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
-          <h1 className="font-display font-bold text-[26px] tracking-[-0.025em] text-ink-strong">
+          <h1 className="font-display font-medium text-[26px] tracking-[-0.025em] text-ink-strong">
             FX Option Expiries
           </h1>
           <p className="text-[13px] mt-1 text-ink-dim">

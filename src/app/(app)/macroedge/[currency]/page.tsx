@@ -95,7 +95,7 @@ export default function CurrencyProfilePage() {
         <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg tracking-wide bg-panel-2 text-ink-mid border border-line">
           {C}
         </span>
-        <h1 className="font-display font-bold text-[28px] tracking-[-0.025em] text-ink-strong">
+        <h1 className="font-display font-medium text-[28px] tracking-[-0.025em] text-ink-strong">
           MacroEdge — {C}
         </h1>
       </div>

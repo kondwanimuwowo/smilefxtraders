@@ -39,7 +39,7 @@ export function ForgotPasswordForm() {
           <Icon name="mark_email_read" size={32} className="text-teal" />
         </div>
         <div>
-          <h1 className="font-display font-semibold mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
+          <h1 className="font-display font-medium mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
             Check your inbox
           </h1>
           <p className="text-[14.5px] leading-[1.6] text-ink-mid">
@@ -60,7 +60,7 @@ export function ForgotPasswordForm() {
         Password reset
       </div>
 
-      <h1 className="font-display font-semibold mb-2 text-[26px] tracking-[-0.01em] text-ink-strong">
+      <h1 className="font-display font-medium mb-2 text-[26px] tracking-[-0.01em] text-ink-strong">
         Forgot your password?
       </h1>
       <p className="mb-6 text-[14.5px] leading-[1.6] text-ink-mid">

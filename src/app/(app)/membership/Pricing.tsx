@@ -56,7 +56,7 @@ export function Pricing() {
   return (
     <div className="view">
       <div className="text-center mb-8">
-        <h1 className="font-display font-bold text-[30px] tracking-[-0.03em] text-ink-strong">
+        <h1 className="font-display font-medium text-[30px] tracking-[-0.03em] text-ink-strong">
           Simple, transparent pricing
         </h1>
         <p className="text-[15px] mt-2 max-w-lg mx-auto text-ink-dim">

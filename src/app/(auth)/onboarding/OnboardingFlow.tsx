@@ -15,14 +15,14 @@ const FRAMEWORKS: {
 }[] = [
   {
     key: "SMC", label: "Smart Money Concepts (ICT)", sub: "Order blocks, FVGs, liquidity sweeps", icon: "psychology",
-    selectedCls: "border-teal bg-[color-mix(in_srgb,var(--teal)_8%,transparent)]",
+    selectedCls: "shadow-[0_0_0_2px_var(--teal)] bg-[color-mix(in_srgb,var(--teal)_8%,transparent)]",
     iconBoxCls:  "bg-[color-mix(in_srgb,var(--teal)_15%,transparent)]",
     iconCls:     "text-teal",
     radioCls:    "text-teal",
   },
   {
     key: "SnD", label: "Supply & Demand", sub: "Fresh zones, impulsive origins, premium/discount", icon: "layers",
-    selectedCls: "border-gold bg-[color-mix(in_srgb,var(--gold)_8%,transparent)]",
+    selectedCls: "shadow-[0_0_0_2px_var(--gold)] bg-[color-mix(in_srgb,var(--gold)_8%,transparent)]",
     iconBoxCls:  "bg-[color-mix(in_srgb,var(--gold)_15%,transparent)]",
     iconCls:     "text-gold",
     radioCls:    "text-gold",
@@ -138,7 +138,7 @@ export function OnboardingFlow() {
       {/* Step 0 — General: Country + Phone */}
       {step === 0 && (
         <>
-          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
+          <h1 className="font-display font-medium mb-1 text-2xl text-ink-strong">
             How can we reach you?
           </h1>
           <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
@@ -176,7 +176,7 @@ export function OnboardingFlow() {
       {/* Step 1 — Framework */}
       {step === 1 && (
         <>
-          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
+          <h1 className="font-display font-medium mb-1 text-2xl text-ink-strong">
             What&apos;s your trading system?
           </h1>
           <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
@@ -191,8 +191,8 @@ export function OnboardingFlow() {
                   type="button"
                   onClick={() => setFramework(key)}
                   className={cn(
-                    "relative flex items-center gap-4 p-4 rounded-xl border text-left transition-all",
-                    selected ? selectedCls : "border-line bg-panel-2"
+                    "relative flex items-center gap-4 p-4 rounded-xl text-left transition-all",
+                    selected ? selectedCls : "shadow-md bg-panel-2"
                   )}
                 >
                   <div
@@ -224,7 +224,7 @@ export function OnboardingFlow() {
       {/* Step 2 — Experience: how long have you been trading */}
       {step === 2 && (
         <>
-          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
+          <h1 className="font-display font-medium mb-1 text-2xl text-ink-strong">
             How long have you been trading?
           </h1>
           <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
@@ -239,8 +239,8 @@ export function OnboardingFlow() {
                   type="button"
                   onClick={() => setTradingDuration(value)}
                   className={cn(
-                    "flex items-center justify-center p-4 rounded-xl border text-center font-semibold text-[14px] transition-all",
-                    active ? "border-teal bg-[rgba(8,174,170,0.08)] text-ink-strong" : "border-line bg-panel-2 text-ink-mid"
+                    "flex items-center justify-center p-4 rounded-xl text-center font-semibold text-[14px] transition-all",
+                    active ? "shadow-[0_0_0_2px_var(--teal)] bg-[rgba(8,174,170,0.08)] text-ink-strong" : "shadow-md bg-panel-2 text-ink-mid"
                   )}
                 >
                   {label}
@@ -254,7 +254,7 @@ export function OnboardingFlow() {
       {/* Step 3 — Skill level */}
       {step === 3 && (
         <>
-          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
+          <h1 className="font-display font-medium mb-1 text-2xl text-ink-strong">
             Which best describes you?
           </h1>
           <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
@@ -269,8 +269,8 @@ export function OnboardingFlow() {
                   type="button"
                   onClick={() => setSkill(value)}
                   className={cn(
-                    "flex items-center justify-between p-4 rounded-xl border text-left transition-all",
-                    active ? "border-teal bg-[rgba(8,174,170,0.08)]" : "border-line bg-panel-2"
+                    "flex items-center justify-between p-4 rounded-xl text-left transition-all",
+                    active ? "shadow-[0_0_0_2px_var(--teal)] bg-[rgba(8,174,170,0.08)]" : "shadow-md bg-panel-2"
                   )}
                 >
                   <div>
@@ -294,7 +294,7 @@ export function OnboardingFlow() {
       {/* Step 4 — Goals */}
       {step === 4 && (
         <>
-          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
+          <h1 className="font-display font-medium mb-1 text-2xl text-ink-strong">
             What&apos;s your main goal right now?
           </h1>
           <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
@@ -309,8 +309,8 @@ export function OnboardingFlow() {
                   type="button"
                   onClick={() => setGoal(value)}
                   className={cn(
-                    "flex items-center justify-between p-4 rounded-xl border text-left transition-all",
-                    active ? "border-teal bg-[rgba(8,174,170,0.08)]" : "border-line bg-panel-2"
+                    "flex items-center justify-between p-4 rounded-xl text-left transition-all",
+                    active ? "shadow-[0_0_0_2px_var(--teal)] bg-[rgba(8,174,170,0.08)]" : "shadow-md bg-panel-2"
                   )}
                 >
                   <div>
@@ -332,13 +332,13 @@ export function OnboardingFlow() {
       {/* Step 5 — Instruments */}
       {step === 5 && (
         <>
-          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
+          <h1 className="font-display font-medium mb-1 text-2xl text-ink-strong">
             What do you trade?
           </h1>
           <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
             Pick the instruments you focus on. We&apos;ll tailor your watchlist and calendar.
           </p>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
             {instrumentOptions.map(({ key, label }) => {
               const selected = instruments.includes(key);
               return (
@@ -347,8 +347,8 @@ export function OnboardingFlow() {
                   type="button"
                   onClick={() => toggleInstrument(key)}
                   className={cn(
-                    "flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl border text-center transition-all",
-                    selected ? "border-teal bg-[rgba(8,174,170,0.08)]" : "border-line bg-panel-2"
+                    "flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-center transition-all",
+                    selected ? "shadow-[0_0_0_2px_var(--teal)] bg-[rgba(8,174,170,0.08)]" : "shadow-sm bg-panel-2"
                   )}
                 >
                   <span className={cn("font-semibold text-[13px]", selected ? "text-ink-strong" : "text-ink-mid")}>
@@ -365,7 +365,7 @@ export function OnboardingFlow() {
       {/* Step 6 — Risk */}
       {step === 6 && (
         <>
-          <h1 className="font-display font-semibold mb-1 text-2xl text-ink-strong">
+          <h1 className="font-display font-medium mb-1 text-2xl text-ink-strong">
             Set your risk
           </h1>
           <p className="text-[13.5px] mb-6 leading-relaxed text-ink-mid">

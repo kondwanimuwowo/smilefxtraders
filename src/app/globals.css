@@ -135,9 +135,9 @@
 
 /* ─── Tailwind theme registration ────────────────────────────────────────────── */
 @theme inline {
-  /* Fonts */
-  --font-sans:    var(--font-inter);
-  --font-display: var(--font-space-grotesk);
+  /* Fonts — body/UI vs headings, each a single source of truth. */
+  --font-sans:    var(--font-open-sans), sans-serif;
+  --font-display: var(--font-ubuntu), sans-serif;
 
   /* Brand colors as Tailwind utilities */
   --color-teal:         var(--teal);
@@ -339,7 +339,7 @@
      contents; the more-specific .marketing-theme h1/h2/h3/h4 rule below
      wins on marketing pages by selector specificity. This copy also
      covers the (app) shell's <main>. */
-  main h1, main h2, main h3, main h4 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.08; margin: 0; }
+  main h1, main h2, main h3, main h4 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.02em; line-height: 1.08; margin: 0; }
   main p { margin: 0; }
 }
 
@@ -387,7 +387,7 @@
   .marketing-theme h2,
   .marketing-theme h3,
   .marketing-theme h4 {
-    @apply font-display font-semibold tracking-[-0.02em] leading-[1.08] m-0;
+    @apply font-display font-medium tracking-[-0.02em] leading-[1.08] m-0;
   }
   .marketing-theme p { @apply m-0; }
   .marketing-theme a { @apply no-underline; }

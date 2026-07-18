@@ -284,7 +284,7 @@ export default function PairOverviewPage() {
           <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
             <CurrencyChip code={meta.base} />
             {meta.quote && <CurrencyChip code={meta.quote} />}
-            <h1 className="font-display font-bold text-[28px] tracking-[-0.025em] text-ink-strong">
+            <h1 className="font-display font-medium text-[28px] tracking-[-0.025em] text-ink-strong">
               {P}
             </h1>
             <span className="text-[15px] text-ink-dim">·</span>

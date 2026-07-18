@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { NOTIF_PREF_DEFAULTS, resolvePrefs, type NotifPrefs } from "@/lib/notif-prefs";
@@ -10,7 +10,7 @@ type InputJsonValue = Prisma.InputJsonValue;
 
 export async function GET() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthedUser(supabase);
   if (!user) return NextResponse.json(NOTIF_PREF_DEFAULTS);
 
   const dbUser = await prisma.user.findUnique({
@@ -25,7 +25,7 @@ export async function GET() {
 
 export async function PUT(req: NextRequest) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthedUser(supabase);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id }, select: { id: true } });

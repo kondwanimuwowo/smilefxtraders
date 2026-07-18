@@ -48,7 +48,7 @@ export default async function AdminPage() {
   return (
     <div className="view">
       <div className="mb-6">
-        <h1 className="font-display font-bold text-[24px] tracking-[-0.02em] text-ink-strong">
+        <h1 className="font-display font-medium text-[24px] tracking-[-0.02em] text-ink-strong">
           Platform Stats
         </h1>
         <p className="text-[13px] mt-0.5 text-ink-dim">
@@ -75,7 +75,7 @@ export default async function AdminPage() {
 
       {/* Plan breakdown */}
       <div className="rounded-2xl p-5 mb-6 bg-panel border border-line">
-        <h2 className="font-display font-semibold text-[16px] mb-4 text-ink-strong">
+        <h2 className="font-display font-medium text-[16px] mb-4 text-ink-strong">
           Plan distribution
         </h2>
         <div className="flex flex-col gap-3">

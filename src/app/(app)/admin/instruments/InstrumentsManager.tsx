@@ -176,7 +176,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="font-display font-bold text-[24px] tracking-[-0.02em] text-ink-strong">
+          <h1 className="font-display font-medium text-[24px] tracking-[-0.02em] text-ink-strong">
             Instruments
           </h1>
           <p className="text-[13px] mt-0.5 text-ink-dim">
@@ -328,7 +328,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
             className="w-full max-w-[520px] rounded-2xl p-6 shadow-lg overflow-y-auto max-h-[90vh] bg-panel border border-line"
           >
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-display font-bold text-[18px] text-ink-strong">
+              <h2 className="font-display font-medium text-[18px] text-ink-strong">
                 {editId ? "Edit instrument" : "Add instrument"}
               </h2>
               <button onClick={() => setShowForm(false)} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-[var(--bg-soft)]">
