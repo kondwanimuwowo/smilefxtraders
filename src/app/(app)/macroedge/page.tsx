@@ -39,7 +39,7 @@ export default function MacroEdgeOverviewPage() {
         <div className="grid gap-3 grid-cols-2 mb-5">
           <Link
             href={`/macroedge/${strongest.currency}`}
-            className="flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-panel border border-line hover:border-teal-bright transition-colors"
+            className="flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-panel shadow-md hover:shadow-[0_0_0_2px_var(--teal-bright)] transition-shadow"
           >
             <span className="flex items-center justify-center size-9 rounded-xl shrink-0 bg-[rgba(48,232,223,0.10)]">
               <Icon name="trending_up" size={17} className="text-teal-bright" />
@@ -53,7 +53,7 @@ export default function MacroEdgeOverviewPage() {
           </Link>
           <Link
             href={`/macroedge/${weakest.currency}`}
-            className="flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-panel border border-line hover:border-coral-bright transition-colors"
+            className="flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-panel shadow-md hover:shadow-[0_0_0_2px_var(--coral-bright)] transition-shadow"
           >
             <span className="flex items-center justify-center size-9 rounded-xl shrink-0 bg-[rgba(255,89,66,0.10)]">
               <Icon name="trending_down" size={17} className="text-coral-bright" />
@@ -69,8 +69,8 @@ export default function MacroEdgeOverviewPage() {
       )}
 
       <div className="grid gap-5 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
-        <Panel pad={0}>
-          <div className="px-5 py-4 border-b border-line">
+        <Panel pad={0} className="overflow-hidden">
+          <div className="px-5 py-4 bg-panel-2 rounded-t-2xl">
             <div className="text-[15px] font-semibold text-ink-strong">Currency Scoreboard</div>
             <div className="text-[12px] mt-0.5 text-ink-dim">Weighted fundamental score, highest first</div>
           </div>
@@ -120,8 +120,8 @@ export default function MacroEdgeOverviewPage() {
           )}
         </Panel>
 
-        <Panel pad={0}>
-          <div className="px-5 py-4 border-b border-line">
+        <Panel pad={0} className="overflow-hidden">
+          <div className="px-5 py-4 bg-panel-2 rounded-t-2xl">
             <div className="text-[15px] font-semibold text-ink-strong">Pair Bias</div>
             <div className="text-[12px] mt-0.5 text-ink-dim">Base score minus quote score, thresholded into a bias label</div>
           </div>

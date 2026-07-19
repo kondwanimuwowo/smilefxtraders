@@ -59,7 +59,7 @@ export default async function AdminPage() {
       {/* Stats grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl p-4 bg-panel border border-line">
+          <div key={s.label} className="rounded-2xl p-4 bg-panel shadow-sm">
             <div className="flex items-center gap-2 mb-2">
               <Icon name={s.icon} size={18} className={s.colorCls} />
               <span className="text-[11px] uppercase tracking-wide font-semibold text-ink-dim">
@@ -74,7 +74,7 @@ export default async function AdminPage() {
       </div>
 
       {/* Plan breakdown */}
-      <div className="rounded-2xl p-5 mb-6 bg-panel border border-line">
+      <div className="rounded-2xl p-5 mb-6 bg-panel shadow-md">
         <h2 className="font-display font-medium text-[16px] mb-4 text-ink-strong">
           Plan distribution
         </h2>
@@ -101,8 +101,8 @@ export default async function AdminPage() {
       </div>
 
       {/* Recent signups */}
-      <div className="rounded-2xl overflow-hidden bg-panel border border-line">
-        <div className="px-5 py-4 border-b border-line flex items-center gap-2">
+      <div className="rounded-2xl overflow-hidden bg-panel shadow-md">
+        <div className="px-5 py-4 bg-panel-2 flex items-center gap-2">
           <Icon name="person_add" size={18} className="text-teal" />
           <span className="font-display font-semibold text-[15px] text-ink-strong">
             New members (last 7 days)
@@ -113,9 +113,12 @@ export default async function AdminPage() {
             No new signups this week.
           </div>
         ) : (
-          <div className="divide-y divide-line">
-            {recentUsers.map((u) => (
-              <div key={u.id} className="flex items-center gap-3 px-5 py-3">
+          <div>
+            {recentUsers.map((u, i) => (
+              <div
+                key={u.id}
+                className={cn("flex items-center gap-3 px-5 py-3", i < recentUsers.length - 1 && "border-b border-line")}
+              >
                 <div className="size-8 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0 bg-[linear-gradient(135deg,var(--teal),var(--navy))] text-white">
                   {u.name[0]?.toUpperCase()}
                 </div>

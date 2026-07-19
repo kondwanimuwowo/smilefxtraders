@@ -75,9 +75,9 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
       className="fixed inset-0 z-[200] flex items-start justify-center pt-[15vh] bg-[rgba(8,42,59,0.55)] backdrop-blur-[6px]"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-full rounded-2xl overflow-hidden shadow-lg max-w-[560px] bg-panel border border-line">
+      <div className="w-full rounded-2xl overflow-hidden shadow-lg max-w-[560px] bg-panel">
         {/* Input */}
-        <div className="flex items-center gap-2.5 px-[18px] py-3.5 border-b border-line">
+        <div className="flex items-center gap-2.5 px-[18px] py-3.5 bg-panel-2">
           <Icon name="search" size={20} className="text-ink-dim" />
           <input
             ref={inputRef}

@@ -43,7 +43,7 @@ function UploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(0,0,0,0.55)] backdrop-blur-[4px]"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="rounded-2xl p-6 w-full max-w-md bg-panel border border-line shadow-[0_10px_26px_rgba(0,0,0,0.38)]">
+      <div className="rounded-2xl p-6 w-full max-w-md bg-panel shadow-[0_10px_26px_rgba(0,0,0,0.38)]">
         <div className="flex items-center justify-between mb-5">
           <div>
             <h2 className="font-display font-medium text-[18px] text-ink-strong">
@@ -105,8 +105,8 @@ function UploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
           {msg && (
             <div
               className={cn(
-                "rounded-xl px-3 py-2.5 text-[12.5px] border",
-                status === "error" ? "bg-[rgba(234,82,61,0.07)] border-[rgba(234,82,61,0.2)] text-coral" : "bg-[rgba(8,174,170,0.07)] border-[rgba(8,174,170,0.2)] text-teal"
+                "rounded-xl px-3 py-2.5 text-[12.5px]",
+                status === "error" ? "shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral" : "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.07)] text-teal"
               )}
             >
               {msg}
@@ -138,7 +138,7 @@ function StatChip({
   icon, value, label, color,
 }: { icon: string; value: string | number; label: string; color?: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 min-w-0 bg-panel border border-line">
+    <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 min-w-0 bg-panel shadow-sm">
       {/* background/icon/value color come from a caller-supplied var(--x) string — genuinely per-instance, not enumerable */}
       <div
         className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0"
@@ -170,12 +170,12 @@ function DateCard({ summary, isToday }: { summary: FxDateSummary; isToday: boole
     <Link
       href={`/fx-orders/${summary.date}`}
       className={cn(
-        "group flex flex-col rounded-2xl overflow-hidden transition-all duration-150 bg-panel border",
-        isToday ? "border-[rgba(8,174,170,0.45)] shadow-[0_0_0_1px_rgba(8,174,170,0.12),0_4px_20px_rgba(8,174,170,0.06)]" : "border-line shadow-none"
+        "group flex flex-col rounded-2xl overflow-hidden transition-all duration-150 bg-panel",
+        isToday ? "shadow-[0_0_0_2px_var(--teal),0_4px_20px_rgba(8,174,170,0.06)]" : "shadow-sm"
       )}
     >
       {/* Top strip — date + day name */}
-      <div className={cn("px-5 pt-5 pb-4 border-b border-line", isToday ? "bg-[rgba(8,174,170,0.03)]" : "bg-panel-2")}>
+      <div className={cn("px-5 pt-5 pb-4", isToday ? "bg-[rgba(8,174,170,0.03)]" : "bg-panel-2")}>
         <div className="flex items-start justify-between gap-3">
           <div>
             <div
@@ -233,11 +233,11 @@ function DateCard({ summary, isToday }: { summary: FxDateSummary; isToday: boole
       </div>
 
       {/* Pair chip row */}
-      <div className="flex flex-wrap gap-1.5 px-5 pb-4 pt-3 border-t border-line">
+      <div className="flex flex-wrap gap-1.5 px-5 pb-4 pt-3 bg-panel-2">
         {summary.pairs.map((pair) => (
           <span
             key={pair}
-            className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-panel-2 border border-line text-ink-dim tracking-[0.01em]"
+            className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-panel text-ink-dim tracking-[0.01em]"
           >
             {PAIR_LABELS[pair] ?? pair}
           </span>
@@ -251,13 +251,13 @@ function DateCard({ summary, isToday }: { summary: FxDateSummary; isToday: boole
 
 function CardSkeleton() {
   return (
-    <div className="rounded-2xl overflow-hidden bg-panel border border-line">
-      <div className="px-5 pt-5 pb-4 border-b border-line bg-panel-2">
+    <div className="rounded-2xl overflow-hidden bg-panel shadow-sm">
+      <div className="px-5 pt-5 pb-4 bg-panel-2">
         <Skeleton h={28} r={6} />
         <div className="mt-2.5"><Skeleton h={11} r={4} style={{ width: "40%" }} /></div>
       </div>
       <div className="px-5 py-4"><Skeleton h={20} r={6} style={{ width: "55%" }} /></div>
-      <div className="px-5 pb-4 pt-3 flex gap-1.5 flex-wrap border-t border-line">
+      <div className="px-5 pb-4 pt-3 flex gap-1.5 flex-wrap bg-panel-2">
         {Array.from({ length: 8 }).map((_, i) => (
           <Skeleton key={i} h={20} r={4} style={{ width: 50 }} />
         ))}
@@ -333,8 +333,8 @@ export default function FxOrdersPage() {
           {syncMsg && (
             <div
               className={cn(
-                "flex items-start gap-2 text-[12px] font-medium px-3 py-2 rounded-xl max-w-sm border",
-                syncErr ? "bg-[rgba(234,82,61,0.07)] text-coral border-[rgba(234,82,61,0.2)]" : "bg-[rgba(8,174,170,0.07)] text-teal border-[rgba(8,174,170,0.2)]"
+                "flex items-start gap-2 text-[12px] font-medium px-3 py-2 rounded-xl max-w-sm",
+                syncErr ? "shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral" : "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.07)] text-teal"
               )}
             >
               <Icon name={syncErr ? "error" : "check_circle"} size={14} fill className="shrink-0 mt-px" />
@@ -387,7 +387,7 @@ export default function FxOrdersPage() {
       )}
 
       {/* ── Education callout ── */}
-      <div className="rounded-2xl px-5 py-4 mb-7 flex items-start gap-3 bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.2)]">
+      <div className="rounded-2xl px-5 py-4 mb-7 flex items-start gap-3 shadow-sm bg-[rgba(248,185,61,0.05)]">
         <Icon name="tips_and_updates" size={16} fill className="text-gold shrink-0 mt-px" />
         <div>
           <div className="text-[12.5px] font-semibold mb-0.5 text-gold">
@@ -408,8 +408,8 @@ export default function FxOrdersPage() {
           {Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
         </div>
       ) : summaries.length === 0 ? (
-        <div className="rounded-2xl p-12 flex flex-col items-center gap-4 text-center bg-panel border border-line">
-          <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.15)]">
+        <div className="rounded-2xl p-12 flex flex-col items-center gap-4 text-center bg-panel shadow-md">
+          <div className="flex items-center justify-center w-16 h-16 rounded-2xl shadow-[0_0_0_1px_rgba(8,174,170,0.15)] bg-[rgba(8,174,170,0.06)]">
             <Icon name="event_busy" size={32} className="text-teal" />
           </div>
           <div>

@@ -38,14 +38,14 @@ export function Drawer({ open, onClose, title, width = 460, footer, children }: 
     >
       <div
         className={cn(
-          "flex flex-col h-full w-full bg-panel shadow-[-10px_0_26px_rgba(0,0,0,0.3)] border-l border-line transition-transform duration-[260ms] ease-app",
+          "flex flex-col h-full w-full bg-panel shadow-[-10px_0_26px_rgba(0,0,0,0.3)] transition-transform duration-[260ms] ease-app",
           open ? "translate-x-0" : "translate-x-[calc(100%+70px)]"
         )}
         style={{ maxWidth: width }}
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between gap-4 px-6 pb-4 border-b border-line shrink-0 pt-[calc(1rem+var(--safe-top))]">
+        <div className="flex items-center justify-between gap-4 px-6 pb-4 shrink-0 pt-[calc(1rem+var(--safe-top))]">
           <div className="font-display text-[18px] font-semibold text-ink-strong">
             {title}
           </div>
@@ -67,7 +67,7 @@ export function Drawer({ open, onClose, title, width = 460, footer, children }: 
 
         {/* Footer */}
         {footer && open && (
-          <div className="flex items-center justify-end gap-3 px-6 pt-4 border-t border-line shrink-0 pb-[calc(1rem+var(--safe-bottom))]">
+          <div className="flex items-center justify-end gap-3 px-6 pt-4 bg-panel-2 shrink-0 pb-[calc(1rem+var(--safe-bottom))]">
             {footer}
           </div>
         )}

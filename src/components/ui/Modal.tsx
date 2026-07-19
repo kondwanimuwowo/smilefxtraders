@@ -33,12 +33,12 @@ export function Modal({ open, onClose, title, sub, width = 560, footer, children
       onMouseDown={onClose}
     >
       <div
-        className="relative w-full rounded-[18px] flex flex-col animate-modal-pop bg-panel shadow-[0_10px_26px_rgba(0,0,0,0.38)] border border-line"
+        className="relative w-full rounded-[18px] overflow-hidden flex flex-col animate-modal-pop bg-panel shadow-[0_10px_26px_rgba(0,0,0,0.38)]"
         style={{ maxWidth: width }}
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 px-6 pt-5 pb-4 border-b border-line">
+        <div className="flex items-start justify-between gap-4 px-6 pt-5 pb-4">
           <div className="min-w-0">
             <div className="font-display text-[19px] font-semibold text-ink-strong tracking-[-0.01em]">
               {title}
@@ -61,7 +61,7 @@ export function Modal({ open, onClose, title, sub, width = 560, footer, children
 
         {/* Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 px-6 pt-4 border-t border-line pb-[calc(1rem+var(--safe-bottom))]">
+          <div className="flex items-center justify-end gap-3 px-6 pt-4 bg-panel-2 pb-[calc(1rem+var(--safe-bottom))]">
             {footer}
           </div>
         )}

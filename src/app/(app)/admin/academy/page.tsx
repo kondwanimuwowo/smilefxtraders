@@ -52,7 +52,7 @@ export default async function AdminAcademyPage() {
           { label: "Lessons completed", value: totalProgressRecords,          colorCls: "text-teal"    },
           { label: "Total lessons",     value: totalLessons,                  colorCls: "text-ink-mid" },
         ].map(({ label, value, colorCls }) => (
-          <div key={label} className="rounded-2xl p-4 bg-panel border border-line">
+          <div key={label} className="rounded-2xl p-4 bg-panel shadow-sm">
             <div className="text-[11px] uppercase tracking-wide font-semibold mb-1 text-ink-dim">{label}</div>
             <div className={cn("font-display font-bold tabular-nums text-[24px] tracking-[-0.03em]", colorCls)}>{value}</div>
           </div>
@@ -68,13 +68,13 @@ export default async function AdminAcademyPage() {
           const maxCompletions   = Math.max(...course.lessons.map((l) => completionMap.get(l.id) ?? 0), 1);
 
           return (
-            <div key={course.id} className="rounded-2xl overflow-hidden bg-panel border border-line">
+            <div key={course.id} className="rounded-2xl overflow-hidden bg-panel shadow-md">
               {/* course.color is per-course DB-stored data (a raw var(--x) string
                   chosen from CourseEditorClient's COLOR_OPTIONS) consumed via
                   runtime string concatenation (`${course.color}20` alpha suffix)
                   - stays inline, can't be a static class. */}
               <div className="h-1" style={{ background: course.color }} />
-              <div className="px-5 py-4 flex items-center justify-between border-b border-line">
+              <div className="px-5 py-4 flex items-center justify-between bg-panel-2">
                 <div className="flex items-center gap-3">
                   <div
                     className="size-9 rounded-xl flex items-center justify-center shrink-0"
@@ -109,12 +109,15 @@ export default async function AdminAcademyPage() {
               </div>
 
               {/* Lesson completion bars */}
-              <div className="px-5 py-3 divide-y divide-line">
+              <div className="px-5 py-3">
                 {course.lessons.map((lesson, i) => {
                   const count = completionMap.get(lesson.id) ?? 0;
                   const pct   = Math.round((count / maxCompletions) * 100);
                   return (
-                    <div key={lesson.id} className="flex items-center gap-3 py-2">
+                    <div
+                      key={lesson.id}
+                      className={cn("flex items-center gap-3 py-2 px-2 -mx-2 rounded-lg", i < course.lessons.length - 1 && "border-b border-line")}
+                    >
                       <div className="size-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 bg-panel-2 text-ink-dim">
                         {i + 1}
                       </div>

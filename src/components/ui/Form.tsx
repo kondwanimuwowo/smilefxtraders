@@ -33,7 +33,7 @@ export function Field({ label, hint, half, children, style }: FieldProps) {
 // triggers iOS Safari's auto-zoom-on-focus, a real mobile UX bug. Buttons/labels
 // elsewhere in this file are unaffected since only focusable text fields zoom.
 const inputCls =
-  "w-full rounded-[9px] border px-3 py-2.5 text-base sm:text-[13.5px] outline-none transition-colors placeholder:text-[var(--ink-dim)] focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong";
+  "w-full rounded-[9px] px-3 py-2.5 text-base sm:text-[13.5px] outline-none transition-shadow placeholder:text-[var(--ink-dim)] shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong";
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input className={inputCls} {...props} />;
@@ -105,8 +105,8 @@ export function Select({ value, onChange, options, disabled, compact, borderless
   }, [open]);
 
   const triggerCls = compact
-    ? "w-full rounded-lg border px-2.5 py-1.5 text-[12px] flex items-center justify-between gap-1.5 outline-none transition-colors"
-    : "w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] flex items-center justify-between gap-2 outline-none transition-colors";
+    ? "w-full rounded-lg px-2.5 py-1.5 text-[12px] flex items-center justify-between gap-1.5 outline-none transition-shadow"
+    : "w-full rounded-[9px] px-3 py-2.5 text-[13.5px] flex items-center justify-between gap-2 outline-none transition-shadow";
 
   const displayLabel = selected?.l ?? placeholder ?? "—";
   const isPlaceholder = !selected;
@@ -121,9 +121,10 @@ export function Select({ value, onChange, options, disabled, compact, borderless
         className={cn(
           triggerCls,
           "bg-panel-2 disabled:opacity-50",
-          borderless ? "border-transparent" : open ? "border-teal" : "border-line",
-          isPlaceholder ? "text-ink-dim" : "text-ink-strong",
-          open && !borderless && "shadow-[0_0_0_3px_rgba(8,174,170,0.18)]"
+          !borderless && (open
+            ? "shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)]"
+            : "shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)]"),
+          isPlaceholder ? "text-ink-dim" : "text-ink-strong"
         )}
       >
         <span className="truncate text-left">{displayLabel}</span>
@@ -141,7 +142,7 @@ export function Select({ value, onChange, options, disabled, compact, borderless
         createPortal(
           <div
             ref={listRef}
-            className="bg-panel border border-line rounded-[10px] shadow-[0_6px_20px_rgba(0,0,0,0.22)] overflow-hidden max-h-[300px] overflow-y-auto"
+            className="bg-panel rounded-[10px] shadow-[0_6px_20px_rgba(0,0,0,0.22)] overflow-hidden max-h-[300px] overflow-y-auto"
             style={{
               position:     "fixed",
               ...clampPosition({ triggerRect: rect, width: compact ? 160 : (rect.width ?? 200), estimatedHeight: 300 }),

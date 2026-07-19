@@ -35,7 +35,7 @@ export function InviteUserForm() {
   }
 
   return (
-    <div className="rounded-2xl p-5 mb-6 flex items-center gap-3 bg-panel border border-line">
+    <div className="rounded-2xl p-5 mb-6 flex items-center gap-3 bg-panel shadow-md">
       <Icon name="person_add" size={18} className="text-gold" />
       <input
         type="email"
@@ -43,7 +43,7 @@ export function InviteUserForm() {
         onChange={(e) => setEmail(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleInvite()}
         placeholder="Invite a trader by email…"
-        className="flex-1 rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-teal bg-panel-2 border-line text-ink-strong"
+        className="flex-1 rounded-[9px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
       />
       <Button type="button" variant="primary" icon="send" loading={sending} onClick={handleInvite}>
         Send invite

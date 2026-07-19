@@ -82,11 +82,11 @@ export function LessonEditorClient({ courseId, lesson }: { courseId: string; les
   return (
     <div className="flex flex-col gap-5">
       {/* Top bar */}
-      <div className="rounded-2xl p-4 flex flex-wrap items-center gap-4 bg-panel border border-line">
+      <div className="rounded-2xl p-4 flex flex-wrap items-center gap-4 bg-panel shadow-md">
         <div className="flex-1 min-w-[200px] flex flex-col gap-1">
           <label className="text-[11px] font-semibold uppercase tracking-wide text-ink-dim">Title</label>
           <input
-            className="rounded-xl px-3 py-2 text-[14px] font-semibold outline-none bg-panel-2 border border-line text-ink-strong"
+            className="rounded-xl px-3 py-2 text-[14px] font-semibold outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
             value={title} onChange={(e) => setTitle(e.target.value)}
           />
         </div>
@@ -94,7 +94,7 @@ export function LessonEditorClient({ courseId, lesson }: { courseId: string; les
         <div className="flex flex-col gap-1">
           <label className="text-[11px] font-semibold uppercase tracking-wide text-ink-dim">Duration</label>
           <input
-            className="rounded-xl px-3 py-2 text-[13.5px] outline-none w-24 bg-panel-2 border border-line text-ink-strong"
+            className="rounded-xl px-3 py-2 text-[13.5px] outline-none w-24 transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
             placeholder="18 min"
             value={duration} onChange={(e) => setDuration(e.target.value)}
           />
@@ -103,7 +103,7 @@ export function LessonEditorClient({ courseId, lesson }: { courseId: string; les
         <div className="flex flex-col gap-1">
           <label className="text-[11px] font-semibold uppercase tracking-wide text-ink-dim">Video URL</label>
           <input
-            className="rounded-xl px-3 py-2 text-[13.5px] outline-none w-48 bg-panel-2 border border-line text-ink-strong"
+            className="rounded-xl px-3 py-2 text-[13.5px] outline-none w-48 transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
             placeholder="https://…"
             value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)}
           />
@@ -125,18 +125,18 @@ export function LessonEditorClient({ courseId, lesson }: { courseId: string; les
       </div>
 
       {/* Summary */}
-      <div className="rounded-2xl p-4 flex flex-col gap-1.5 bg-panel border border-line">
+      <div className="rounded-2xl p-4 flex flex-col gap-1.5 bg-panel shadow-md">
         <label className="text-[12px] font-semibold text-ink-mid">Summary (shown on lesson card)</label>
         <input
-          className="rounded-xl px-3 py-2 text-[13.5px] outline-none bg-panel-2 border border-line text-ink-strong"
+          className="rounded-xl px-3 py-2 text-[13.5px] outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
           value={summary} onChange={(e) => setSummary(e.target.value)}
         />
       </div>
 
       {/* Body editor */}
-      <div className="rounded-2xl overflow-hidden bg-panel border border-line">
+      <div className="rounded-2xl overflow-hidden bg-panel shadow-md">
         {/* Tab bar */}
-        <div className="flex items-center gap-0 border-b px-4 border-line">
+        <div className="flex items-center gap-0 px-4 bg-panel-2">
           {(["edit", "preview"] as const).map((t) => (
             <button
               key={t}

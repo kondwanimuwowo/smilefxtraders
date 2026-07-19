@@ -21,11 +21,11 @@ export async function GET(req: NextRequest) {
       ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
       orderBy: { createdAt: "desc" },
       include: {
-        author:   { select: { id: true, name: true, username: true, role: true } },
+        author:   { select: { id: true, name: true, username: true, role: true, avatarUrl: true } },
         likes:    { select: { userId: true } },
         comments: {
           orderBy: { createdAt: "asc" },
-          include: { author: { select: { id: true, name: true } } },
+          include: { author: { select: { id: true, name: true, avatarUrl: true } } },
         },
       },
     });
@@ -45,6 +45,7 @@ export async function GET(req: NextRequest) {
       name:         p.author.name,
       handle:       p.author.username,
       avatarSeed:   seedFromId(p.author.id),
+      avatarUrl:    p.author.avatarUrl,
       isInstructor: p.author.role === "INSTRUCTOR",
       pair:         p.pair,
       dir:          p.dir ? p.dir.toLowerCase() : null,
@@ -58,6 +59,7 @@ export async function GET(req: NextRequest) {
         id:         c.id,
         name:       c.author.name,
         avatarSeed: seedFromId(c.author.id),
+        avatarUrl:  c.author.avatarUrl,
         text:       c.text,
         time:       c.createdAt.toISOString(),
       })),
@@ -104,7 +106,7 @@ export async function POST(req: NextRequest) {
         result:   resultEnum,
       },
       include: {
-        author:   { select: { id: true, name: true, username: true, role: true } },
+        author:   { select: { id: true, name: true, username: true, role: true, avatarUrl: true } },
         likes:    { select: { userId: true } },
         comments: true,
       },
@@ -115,6 +117,7 @@ export async function POST(req: NextRequest) {
       name:         post.author.name,
       handle:       post.author.username,
       avatarSeed:   seedFromId(post.author.id),
+      avatarUrl:    post.author.avatarUrl,
       isInstructor: post.author.role === "INSTRUCTOR",
       pair:         post.pair,
       dir:          post.dir ? post.dir.toLowerCase() : null,

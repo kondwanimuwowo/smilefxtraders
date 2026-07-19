@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { format, parseISO, getHours, getUTCHours, getUTCMinutes, fmtRelative, fmtMonthDay, fmtISODate, fmtWeekdayLong, fmtTime, isForexClosed, hoursUntilForexReopen } from "@/lib/date";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useStore } from "@/lib/store";
 import { useTrades, useAddTrade } from "@/lib/hooks/useTrades";
@@ -15,7 +16,6 @@ import { cn } from "@/lib/cn";
 import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
 import type { InstructorAlert } from "@/app/(app)/alerts/Alerts";
 import type { CalEvent } from "@/app/api/calendar/route";
-import { LogTradeModal } from "@/app/(app)/journal/LogTradeModal";
 import { CotBiasPanel } from "@/components/cot/CotBiasPanel";
 
 // ── Candle generator (seeded RNG — matches design reference) ──────────────────
@@ -129,7 +129,7 @@ function FeaturedAlertCard() {
     return (
       <Panel pad={0} className="overflow-hidden">
         <div className="animate-pulse">
-          <div className="h-14 border-b bg-panel-2 border-line" />
+          <div className="h-14 bg-panel-2" />
           <div className="p-5 space-y-3">
             <div className="h-4 w-2/3 rounded-lg bg-track" />
             <div className="h-3 w-full rounded-lg bg-track" />
@@ -179,9 +179,9 @@ function FeaturedAlertCard() {
   return (
     <Panel pad={0} className="overflow-hidden">
       {/* Card header */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-line">
+      <div className="flex items-center justify-between px-5 py-3.5 bg-panel-2">
         <div className="flex items-center gap-3">
-          <Avatar seed={3} name="Kondwani" size={36} ring="var(--gold)" />
+          <Avatar src="/kondwanimuwowo.png" name="Kondwani" size={36} ring="var(--gold)" />
           <div>
             <div className="flex items-center gap-2">
               <span className="font-semibold text-[13.5px] text-ink-strong">
@@ -413,7 +413,7 @@ function ActiveTradesPanel() {
           return (
             <div
               key={t.id}
-              className={cn("relative flex items-center gap-4 px-5 py-3.5", i > 0 && "border-t border-line", i % 2 === 0 ? "bg-transparent" : "bg-white/[0.01]")}
+              className={cn("relative flex items-center gap-4 px-5 py-3.5", i < active.length - 1 && "border-b border-line")}
             >
               {/* Direction accent bar */}
               <div className={cn("absolute left-0 top-3 bottom-3 rounded-r-full w-[3px] opacity-70", dirBgCls)} />
@@ -465,7 +465,7 @@ function ActiveTradesPanel() {
       </div>
 
       {/* Footer pulse */}
-      <div className="flex items-center gap-2 px-5 py-2.5 border-t border-line bg-[rgba(248,185,61,0.03)]">
+      <div className="flex items-center gap-2 px-5 py-2.5 bg-[rgba(248,185,61,0.05)]">
         <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold shadow-[0_0_6px_var(--gold)] animate-[live-pulse_2s_infinite]" />
         <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-gold">
           {active.length} position{active.length !== 1 ? "s" : ""} live
@@ -551,7 +551,7 @@ function SessionCard() {
               Sessions
             </span>
             {isKillzone && (
-              <span className="text-[9px] font-bold uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-full bg-[rgba(48,232,223,0.08)] text-teal-bright border border-[rgba(48,232,223,0.22)]">
+              <span className="text-[9px] font-bold uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-full bg-[rgba(48,232,223,0.08)] text-teal-bright shadow-[0_0_0_2px_rgba(48,232,223,0.22)]">
                 Killzone
               </span>
             )}
@@ -560,7 +560,7 @@ function SessionCard() {
             <span className="text-[11px] tabular-nums font-semibold text-ink-strong">
               {timeLabel}
             </span>
-            <span className="text-[8.5px] font-bold uppercase tracking-[0.08em] px-1 py-0.5 rounded bg-panel-2 text-ink-dim border border-line">
+            <span className="text-[8.5px] font-bold uppercase tracking-[0.08em] px-1 py-0.5 rounded bg-panel-2 text-ink-dim shadow-sm">
               GMT+2
             </span>
           </div>
@@ -636,11 +636,11 @@ function SessionCard() {
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 export function Dashboard() {
+  const router = useRouter();
   const { user } = useStore();
   const { trades, stats } = useTrades();
   const { data: todayEvents = [], isLoading: eventsLoading } = useTodayEvents();
   const { rows: trendRows, updatedAt: trendUpdatedAt } = useTrendSnapshot();
-  const [logOpen, setLogOpen] = useState(false);
 
   // Last 4 trades for discipline checklist
   const recentTrades = trades.slice(0, 4);
@@ -660,7 +660,7 @@ export function Dashboard() {
             <span className="font-bold">{user?.name?.split(" ")[0] ?? "Trader"}</span>
           </h1>
         </div>
-        <Button variant="primary" icon="add" onClick={() => setLogOpen(true)}>Log a trade</Button>
+        <Button variant="primary" icon="add" onClick={() => router.push("/journal/new")}>Log a trade</Button>
       </div>
 
       {/* ── Stat tiles ── */}
@@ -813,7 +813,7 @@ export function Dashboard() {
                 {todayEvents.map((ev, i) => (
                   <div
                     key={ev.id}
-                    className={`flex items-center gap-2.5 py-2.5 ${i < todayEvents.length - 1 ? "border-b border-line" : ""}`}
+                    className={`flex items-center gap-2.5 py-2.5 px-2.5 -mx-2.5 rounded-lg ${i < todayEvents.length - 1 ? "border-b border-line" : ""}`}
                   >
                     <span className={cn("size-2 rounded-full shrink-0", IMPACT_CLS[ev.impact] ?? "bg-ink-dim")} />
                     <span className="text-[11px] shrink-0 tabular-nums text-ink-dim w-9">
@@ -898,7 +898,6 @@ export function Dashboard() {
 
         </div>
       </div>
-      <LogTradeModal open={logOpen} onClose={() => setLogOpen(false)} />
     </div>
   );
 }

@@ -37,8 +37,8 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
       className={cn(
         "rounded-2xl flex flex-col relative",
         meta.popular
-          ? "bg-[linear-gradient(175deg,rgba(8,174,170,0.07)_0%,transparent_40%),var(--panel,#fff)] border-2 border-[rgba(8,174,170,0.4)] mt-0"
-          : "bg-[var(--panel,#fff)] border border-[var(--line,#e5e9f0)] mt-3.5"
+          ? "bg-[linear-gradient(175deg,rgba(8,174,170,0.07)_0%,transparent_40%),var(--panel,#fff)] shadow-[0_0_0_2px_rgba(8,174,170,0.4),0_8px_24px_rgba(0,0,0,0.08)] mt-0"
+          : "bg-[var(--panel,#fff)] shadow-md mt-3.5"
       )}
     >
       {meta.popular && (

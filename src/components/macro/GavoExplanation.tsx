@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Icon } from "@/components/ui";
-import { cn } from "@/lib/cn";
 
 // Mirrors AIReview.tsx's idle/loading/done/error/locked state machine, but
 // the API response here is a single narration string, not a structured
@@ -42,8 +41,8 @@ export function GavoExplanation({ subjectType, subjectKey }: Props) {
   }
 
   return (
-    <div className="rounded-xl overflow-hidden border border-line">
-      <div className={cn("flex items-center gap-3 px-4 py-3.5 bg-panel-2", state !== "idle" && "border-b border-line")}>
+    <div className="rounded-xl overflow-hidden bg-panel shadow-md">
+      <div className="flex items-center gap-3 px-4 py-3.5 bg-panel-2">
         <div className="size-9 rounded-xl flex items-center justify-center shrink-0 bg-[linear-gradient(135deg,var(--teal),var(--navy))]">
           <Icon name="robot_2" size={18} className="text-white" />
         </div>

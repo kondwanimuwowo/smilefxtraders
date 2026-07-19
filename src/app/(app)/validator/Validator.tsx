@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Panel, PanelHead, Button, DirPill, Icon, Field, Select, SegRow, MonoInput, EmptyState } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import { LogTradeModal } from "@/app/(app)/journal/LogTradeModal";
-import type { Trade } from "@/lib/store";
 import {
   MODELS, MODEL_INFO, validate, FIB_LEVELS,
   BLANK_SETUP, type Framework, type Setup, type Status, type RuleResult, type ValidationResult,
@@ -47,8 +46,8 @@ function CheckToggle({ label, checked, onChange }: { label: string; checked: boo
       type="button"
       onClick={() => onChange(!checked)}
       className={cn(
-        "flex items-center gap-2.5 px-3 py-2 rounded-xl border text-left w-full transition-all",
-        checked ? "border-teal bg-[rgba(8,174,170,0.08)]" : "border-line bg-panel-2"
+        "flex items-center gap-2.5 px-3 py-2 rounded-xl text-left w-full transition-all",
+        checked ? "shadow-[0_0_0_2px_var(--teal)] bg-[rgba(8,174,170,0.08)]" : "shadow-sm bg-panel-2"
       )}
     >
       <Icon
@@ -67,10 +66,10 @@ function RuleRow({ rule }: { rule: RuleResult }) {
   return (
     <div
       className={cn(
-        "flex items-start gap-3 px-4 py-3 rounded-xl border transition-colors",
-        rule.status === "fail" ? "bg-[rgba(234,82,61,0.05)] border-[rgba(234,82,61,0.2)]"
-          : rule.status === "warn" ? "bg-[rgba(248,185,61,0.05)] border-[rgba(248,185,61,0.2)]"
-          : "bg-transparent border-line"
+        "flex items-start gap-3 px-4 py-3 rounded-xl transition-colors",
+        rule.status === "fail" ? "bg-[rgba(234,82,61,0.05)] shadow-[0_0_0_2px_rgba(234,82,61,0.2)]"
+          : rule.status === "warn" ? "bg-[rgba(248,185,61,0.05)] shadow-[0_0_0_2px_rgba(248,185,61,0.2)]"
+          : "bg-panel-2 shadow-sm"
       )}
     >
       <Icon
@@ -121,7 +120,7 @@ function ModelInfoCard({ framework, model }: { framework: Framework; model: stri
   const info = MODEL_INFO[framework]?.[model];
   if (!info) return null;
   return (
-    <div className="rounded-xl px-4 py-3.5 flex items-start gap-3 bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.18)]">
+    <div className="rounded-xl px-4 py-3.5 flex items-start gap-3 bg-[rgba(8,174,170,0.06)] shadow-[0_0_0_2px_rgba(8,174,170,0.18)]">
       <Icon name="lightbulb" size={17} fill className="text-teal shrink-0 mt-0.5" />
       <div>
         <div className="text-[12px] font-semibold mb-1 text-teal">{model}</div>
@@ -189,9 +188,9 @@ interface HistoryEntry {
 
 const HISTORY_KEY = "smfx_validator_history";
 
-function HistoryRow({ entry }: { entry: HistoryEntry }) {
+function HistoryRow({ entry, divider }: { entry: HistoryEntry; divider?: boolean }) {
   return (
-    <div className="flex items-center gap-3 py-2.5">
+    <div className={cn("flex items-center gap-3 py-2.5 px-2.5 -mx-2.5 rounded-lg", divider && "border-b border-line")}>
       <div
         className={cn(
           "shrink-0 w-9 h-9 rounded-xl flex items-center justify-center font-display font-bold text-[13px]",
@@ -205,7 +204,7 @@ function HistoryRow({ entry }: { entry: HistoryEntry }) {
         <div className="flex items-center gap-2 mb-1">
           <span className="font-semibold text-[13px] text-ink-strong">{entry.pair}</span>
           <DirPill dir={entry.dir} size="sm" />
-          <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold bg-panel-2 text-ink-dim border border-line">
+          <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold bg-panel text-ink-dim shadow-sm">
             {entry.framework}
           </span>
         </div>
@@ -229,13 +228,13 @@ function HistoryRow({ entry }: { entry: HistoryEntry }) {
 // ── Validator ─────────────────────────────────────────────────────────────────
 
 export function Validator() {
+  const router = useRouter();
   const { data: instruments = [] } = useInstruments();
   const pairs = instruments.map((i) => i.symbol);
   const pipValueMap = Object.fromEntries(instruments.map((i) => [i.symbol, i.pipValue]));
 
   const [setup,       setSetup]       = useState<Setup>(BLANK_SETUP("SMC"));
   const [history,     setHistory]     = useState<HistoryEntry[]>([]);
-  const [logOpen,     setLogOpen]     = useState(false);
   const [killzoneNow, setKillzoneNow] = useState(() => isInKillzone("London"));
   const [calcOpen,    setCalcOpen]    = useState(false);
   const [calcBalance, setCalcBalance] = useState("10000");
@@ -305,7 +304,7 @@ export function Validator() {
     ]);
   }
 
-  // Pre-fill LogTradeModal with setup details and calculator values
+  // Pre-fill the new-trade page (via sessionStorage handoff) with setup details and calculator values
   const tradePreset = {
     pair:       setup.pair,
     dir:        setup.dir as "long" | "short",
@@ -455,7 +454,7 @@ export function Validator() {
                   <span className="text-[11.5px] font-semibold uppercase tracking-wider text-ink-dim">
                     Fibonacci confluence
                   </span>
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[rgba(248,185,61,0.1)] text-gold border border-[rgba(248,185,61,0.2)]">
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[rgba(248,185,61,0.1)] text-gold shadow-[0_0_0_2px_rgba(248,185,61,0.2)]">
                     optional
                   </span>
                 </div>
@@ -480,7 +479,7 @@ export function Validator() {
                 </div>
 
                 {setup.fibConfluence && (
-                  <div className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5 bg-[rgba(248,185,61,0.06)] border border-[rgba(248,185,61,0.18)]">
+                  <div className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5 bg-[rgba(248,185,61,0.06)] shadow-[0_0_0_2px_rgba(248,185,61,0.18)]">
                     <Icon name="bolt" size={13} fill className="text-gold shrink-0 mt-px" />
                     <p className="text-[11.5px] leading-relaxed text-ink-dim">
                       Fibonacci confluence is active. If all main rules pass, this{" "}
@@ -537,7 +536,7 @@ export function Validator() {
                     </div>
 
                     {calcResult && (
-                      <div className="rounded-xl p-4 bg-panel-2 border border-line">
+                      <div className="rounded-xl p-4 bg-panel-2 shadow-sm">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4">
                           <div>
                             <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">
@@ -603,7 +602,7 @@ export function Validator() {
           {/* Verdict card */}
           <div
             className={cn("rounded-2xl p-5", GRADE_BG_CLS[result.grade] ?? "bg-[rgba(8,174,170,0.10)]")}
-            style={{ border: `1px solid ${GRADE_COLOR[result.grade]}33` }}
+            style={{ boxShadow: `0 0 0 2px ${GRADE_COLOR[result.grade]}55` }}
           >
             <div className="flex items-center gap-5 mb-3">
               <GradeRing grade={result.grade} score={result.score} />
@@ -631,7 +630,16 @@ export function Validator() {
             {/* Action — logging auto-saves to history */}
             <div className="flex gap-2.5 mt-1">
               {result.canLog ? (
-                <Button type="button" variant="primary" icon="add_task" onClick={() => { saveToHistory(); setLogOpen(true); }}>
+                <Button
+                  type="button"
+                  variant="primary"
+                  icon="add_task"
+                  onClick={() => {
+                    saveToHistory();
+                    sessionStorage.setItem("journal:preset", JSON.stringify(tradePreset));
+                    router.push("/journal/new");
+                  }}
+                >
                   Log this trade
                 </Button>
               ) : (
@@ -688,16 +696,13 @@ export function Validator() {
                   Clear
                 </button>
               </div>
-              <div className="px-5 pb-3 divide-y divide-line">
-                {history.map((h) => <HistoryRow key={h.id} entry={h} />)}
+              <div className="px-5 pb-3 flex flex-col gap-0.5">
+                {history.map((h, i) => <HistoryRow key={h.id} entry={h} divider={i < history.length - 1} />)}
               </div>
             </Panel>
           )}
         </div>
       </div>
-
-      {/* Pre-filled log modal */}
-      <LogTradeModal open={logOpen} onClose={() => setLogOpen(false)} preset={tradePreset} />
     </div>
   );
 }

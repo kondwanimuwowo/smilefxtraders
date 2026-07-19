@@ -10,7 +10,7 @@ const SESSION_GUIDE = [
     name:    "Sydney",
     time:    "23:00 – 08:00",
     textCls: "text-ink-mid",
-    borderCls: "border-[rgba(160,160,160,0.35)]",
+    ringCls: "shadow-[0_0_0_2px_rgba(160,160,160,0.35)]",
     bgCls:   "bg-[rgba(160,160,160,0.06)]",
     pairs:   ["AUD/USD", "NZD/USD", "USD/JPY"],
     note:    "Low-volatility open. Sets the weekly range on Sundays. Good for identifying liquidity pools before London arrives.",
@@ -19,7 +19,7 @@ const SESSION_GUIDE = [
     name:    "Tokyo",
     time:    "02:00 – 11:00",
     textCls: "text-gold",
-    borderCls: "border-[rgba(248,185,61,0.35)]",
+    ringCls: "shadow-[0_0_0_2px_rgba(248,185,61,0.35)]",
     bgCls:   "bg-[rgba(248,185,61,0.06)]",
     pairs:   ["USD/JPY", "AUD/USD", "NZD/USD", "EUR/JPY"],
     note:    "Asian range consolidation. EQH/EQL targets form here. Watch for SMT divergence between correlated JPY pairs.",
@@ -28,7 +28,7 @@ const SESSION_GUIDE = [
     name:    "Frankfurt",
     time:    "08:00 – 17:00",
     textCls: "text-teal",
-    borderCls: "border-[rgba(8,174,170,0.35)]",
+    ringCls: "shadow-[0_0_0_2px_rgba(8,174,170,0.35)]",
     bgCls:   "bg-[rgba(8,174,170,0.06)]",
     pairs:   ["EUR/USD", "GBP/USD", "USD/CHF"],
     note:    "European pre-open. Frankfurt often sweeps Asian session highs/lows before London continuation. Clean BOS setups.",
@@ -37,7 +37,7 @@ const SESSION_GUIDE = [
     name:    "London",
     time:    "09:00 – 18:00",
     textCls: "text-teal-bright",
-    borderCls: "border-[rgba(48,232,223,0.35)]",
+    ringCls: "shadow-[0_0_0_2px_rgba(48,232,223,0.35)]",
     bgCls:   "bg-[rgba(48,232,223,0.06)]",
     pairs:   ["EUR/USD", "GBP/USD", "GBP/JPY", "XAU/USD"],
     note:    "Highest volume session. Most BOS and CHoCH signals print here. London open (09:00–10:00) is a prime killzone, key for OB entries.",
@@ -46,7 +46,7 @@ const SESSION_GUIDE = [
     name:    "New York",
     time:    "14:00 – 23:00",
     textCls: "text-coral-bright",
-    borderCls: "border-[rgba(255,89,66,0.35)]",
+    ringCls: "shadow-[0_0_0_2px_rgba(255,89,66,0.35)]",
     bgCls:   "bg-[rgba(255,89,66,0.06)]",
     pairs:   ["EUR/USD", "GBP/USD", "USD/CAD", "XAU/USD", "NAS100"],
     note:    "NY open (14:00–16:00) overlaps London, producing the day's strongest directional move. News drives displacement. Hunt OB+FVG confluences.",
@@ -117,7 +117,7 @@ export default function SessionsPage() {
 
         <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
           {SESSION_GUIDE.map((s) => (
-            <div key={s.name} className={cn("rounded-2xl p-4 border", s.bgCls, s.borderCls)}>
+            <div key={s.name} className={cn("rounded-2xl p-4", s.bgCls, s.ringCls)}>
               {/* Session name + time */}
               <div className="flex items-start justify-between gap-2 mb-3">
                 <div>
@@ -135,7 +135,7 @@ export default function SessionsPage() {
                 {s.pairs.map((p) => (
                   <span
                     key={p}
-                    className="text-[10px] font-semibold px-2 py-0.5 rounded-lg tabular-nums bg-panel text-ink-mid border border-line"
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded-lg tabular-nums bg-panel text-ink-mid shadow-sm"
                   >
                     {p}
                   </span>
@@ -162,7 +162,7 @@ export default function SessionsPage() {
 
         <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
           {KILLZONES.map((k) => (
-            <div key={k.name} className="rounded-2xl p-4 flex gap-3 bg-panel border border-line">
+            <div key={k.name} className="rounded-2xl p-4 flex gap-3 bg-panel shadow-md">
               {/* Color accent bar */}
               <div className={cn("shrink-0 w-0.5 rounded-full", k.barCls)} />
               <div>

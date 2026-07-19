@@ -56,7 +56,7 @@ function MembershipSection() {
           Your plan stays active until the end of the current billing period. No pro-rata refunds.
         </p>
         {confirmOpen ? (
-          <div className="rounded-xl p-4 mb-2 bg-[rgba(234,82,61,0.06)] border border-[rgba(234,82,61,0.2)]">
+          <div className="rounded-xl p-4 mb-2 bg-[rgba(234,82,61,0.06)] shadow-[0_0_0_2px_var(--coral)]">
             <p className="text-[13px] font-semibold mb-3 text-coral">
               Cancel {planLabel}? You&apos;ll lose live alerts, AI reviews, and full Academy access.
             </p>
@@ -379,7 +379,7 @@ export function Settings() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Your name"
-                    className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong"
+                    className="w-full rounded-[9px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
                   />
                 </Field>
                 <Field label="Username" half>
@@ -390,7 +390,7 @@ export function Settings() {
                       value={handle}
                       onChange={(e) => setHandle(e.target.value.replace(/[@\s]/g, "_").toLowerCase())}
                       placeholder="your_handle"
-                      className="w-full rounded-[9px] border pl-7 pr-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong"
+                      className="w-full rounded-[9px] pl-7 pr-3 py-2.5 text-[13.5px] outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
                     />
                   </div>
                 </Field>
@@ -401,7 +401,7 @@ export function Settings() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong"
+                  className="w-full rounded-[9px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
                 />
                 <div className="flex items-center justify-between gap-3 mt-1.5">
                   <span className="text-[11px] text-ink-dim">
@@ -430,7 +430,7 @@ export function Settings() {
                   value={loc}
                   onChange={(e) => setLoc(e.target.value)}
                   placeholder="e.g. Lusaka, Zambia"
-                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong"
+                  className="w-full rounded-[9px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
                 />
               </Field>
               <div className="flex justify-end">
@@ -461,7 +461,7 @@ export function Settings() {
                   ]}
                 />
               ) : (
-                <div className="h-10 rounded-[10px] bg-panel-2 border border-line" />
+                <div className="h-10 rounded-[10px] bg-panel-2 shadow-sm" />
               )}
             </Field>
           </Section>
@@ -498,7 +498,7 @@ export function Settings() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="new-password"
-                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong"
+                  className="w-full rounded-[9px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
                 />
               </Field>
               <Field label="Confirm new password">
@@ -508,7 +508,7 @@ export function Settings() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="new-password"
-                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none focus:ring-2 focus:ring-[rgba(8,174,170,0.25)] focus:border-[var(--teal)] bg-panel-2 border-line text-ink-strong"
+                  className="w-full rounded-[9px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
                 />
               </Field>
               <div className="flex justify-end">
@@ -580,7 +580,7 @@ export function Settings() {
                         type="button"
                         onClick={() => toggleInstr(pair)}
                         className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
-                          active ? "bg-teal text-white" : "bg-panel-2 text-ink-dim border border-line"
+                          active ? "bg-teal text-white" : "bg-panel-2 text-ink-dim shadow-sm"
                         }`}
                       >
                         {pair}
@@ -665,13 +665,13 @@ export function Settings() {
           <MembershipSection />
 
           {/* Danger zone */}
-          <Panel style={{ border: "1px solid rgba(234,82,61,0.25)" }}>
+          <Panel style={{ boxShadow: "0 0 0 2px rgba(234,82,61,0.3)" }}>
             <PanelHead title="Danger zone" icon="warning" style={{ color: "var(--coral)" }} />
             <p className="text-[13px] leading-relaxed mb-4 text-ink-dim">
               Deleting your account will permanently remove all your trades, journal entries, community posts, and settings. This cannot be undone, and your email address can&apos;t be used to create another account afterward.
             </p>
             {deleteConfirmOpen ? (
-              <div className="rounded-xl p-4 bg-[rgba(234,82,61,0.06)] border border-[rgba(234,82,61,0.2)]">
+              <div className="rounded-xl p-4 bg-[rgba(234,82,61,0.06)] shadow-[0_0_0_2px_var(--coral)]">
                 <p className="text-[13px] font-semibold mb-3 text-coral">
                   Type your username (@{handle || "…"}) to confirm.
                 </p>
@@ -680,7 +680,7 @@ export function Settings() {
                   value={deleteTyped}
                   onChange={(e) => setDeleteTyped(e.target.value)}
                   placeholder={handle}
-                  className="w-full rounded-[9px] border px-3 py-2.5 text-[13.5px] outline-none mb-3 bg-panel-2 border-line text-ink-strong"
+                  className="w-full rounded-[9px] px-3 py-2.5 text-[13.5px] outline-none mb-3 transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
                 />
                 <div className="flex gap-3">
                   <Button

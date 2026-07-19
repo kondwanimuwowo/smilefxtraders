@@ -13,6 +13,7 @@ interface LeaderEntry {
   name:       string;
   handle:     string;
   avatarSeed: number;
+  avatarUrl:  string | null;
   winRate:    number;
   netR:       string;
 }
@@ -31,12 +32,12 @@ export async function GET() {
       userId: true,
       result: true,
       pnlR:   true,
-      user:   { select: { id: true, name: true, username: true } },
+      user:   { select: { id: true, name: true, username: true, avatarUrl: true } },
     },
   });
 
   const byUser = new Map<string, {
-    name: string; handle: string; avatarSeed: number;
+    name: string; handle: string; avatarSeed: number; avatarUrl: string | null;
     wins: number; total: number; netR: number;
   }>();
 
@@ -46,6 +47,7 @@ export async function GET() {
         name:       t.user.name,
         handle:     t.user.username,
         avatarSeed: seedFromId(t.user.id),
+        avatarUrl:  t.user.avatarUrl,
         wins:       0,
         total:      0,
         netR:       0,
@@ -65,6 +67,7 @@ export async function GET() {
       name:       u.name,
       handle:     u.handle,
       avatarSeed: u.avatarSeed,
+      avatarUrl:  u.avatarUrl,
       winRate:    Math.round((u.wins / u.total) * 100),
       netR:       (u.netR >= 0 ? "+" : "") + u.netR.toFixed(1) + "R",
     }));

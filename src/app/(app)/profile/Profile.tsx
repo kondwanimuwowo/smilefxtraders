@@ -11,7 +11,7 @@ import { Panel, PanelHead, Avatar, DirPill, Chip, Ring, Sparkline, Button, Icon 
 
 function StatBox({ label, value, sub, colorCls }: { label: string; value: string; sub?: string; colorCls?: string }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-xl px-4 py-3.5 bg-panel-2 border border-line">
+    <div className="flex flex-col gap-0.5 rounded-xl px-4 py-3.5 bg-panel-2 shadow-sm">
       <span className="text-[10.5px] font-semibold uppercase tracking-wider text-ink-dim">{label}</span>
       <span className={`font-display font-bold text-[22px] tabular-nums tracking-[-0.02em] ${colorCls ?? "text-ink-strong"}`}>
         {value}
@@ -66,9 +66,9 @@ function computeBadges(trades: Trade[], stats: TradeStats, plan: string) {
 
 // ── Trade history mini ────────────────────────────────────────────────────────
 
-function TradeHistoryRow({ label, value, colorCls }: { label: string; value: string; colorCls: string }) {
+function TradeHistoryRow({ label, value, colorCls, i }: { label: string; value: string; colorCls: string; i: number }) {
   return (
-    <div className="flex items-center justify-between py-2.5 border-b last:border-0 border-line">
+    <div className={`flex items-center justify-between py-2.5 px-2 rounded-lg ${i < 3 ? "border-b border-line" : ""}`}>
       <span className="text-[13px] text-ink-mid">{label}</span>
       <span className={`font-semibold text-[13px] tabular-nums ${colorCls}`}>{value}</span>
     </div>
@@ -125,7 +125,7 @@ export function Profile() {
         <div className="flex flex-col gap-4">
           <Panel>
             <div className="flex flex-col items-center text-center py-2">
-              <Avatar seed={seed} name={name} size={72} />
+              <Avatar src={user?.avatarUrl} seed={seed} name={name} size={72} />
               <div className="mt-3 font-display font-bold text-[20px] text-ink-strong">
                 {name}
               </div>
@@ -144,7 +144,7 @@ export function Profile() {
               )}
             </div>
 
-            <div className="mt-4 pt-4 border-t flex flex-col gap-2 border-line">
+            <div className="mt-4 pt-4 flex flex-col gap-2">
               {[
                 { icon: "bar_chart", label: "Experience",    value: experience.charAt(0).toUpperCase() + experience.slice(1) },
                 { icon: "percent",   label: "Risk per trade", value: `${riskPct}%` },
@@ -159,7 +159,7 @@ export function Profile() {
               ))}
             </div>
 
-            <div className="mt-4 pt-4 border-t border-line">
+            <div className="mt-4 pt-4">
               <Button type="button" variant="ghost" icon="settings" onClick={() => router.push("/settings")} fullWidth>
                 Edit profile
               </Button>
@@ -173,10 +173,10 @@ export function Profile() {
               {badges.map((b) => (
                 <div
                   key={b.label}
-                  className={`flex flex-col items-center text-center gap-1 rounded-xl py-3 px-1 border ${
+                  className={`flex flex-col items-center text-center gap-1 rounded-xl py-3 px-1 ${
                     b.earned
-                      ? "bg-[rgba(8,174,170,0.07)] border-[rgba(8,174,170,0.2)]"
-                      : "bg-panel-2 border-line opacity-45"
+                      ? "bg-[rgba(8,174,170,0.07)] shadow-[0_0_0_2px_var(--teal)]"
+                      : "bg-panel-2 shadow-sm opacity-45"
                   }`}
                   title={b.desc}
                 >
@@ -225,10 +225,10 @@ export function Profile() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Panel>
               <PanelHead title="Performance breakdown" icon="analytics" />
-              <TradeHistoryRow label="Avg win"       value={`+${stats.avgWin.toFixed(1)}R`}  colorCls="text-teal-bright"  />
-              <TradeHistoryRow label="Avg loss"      value={`${stats.avgLoss.toFixed(1)}R`}  colorCls="text-coral-bright" />
-              <TradeHistoryRow label="Closed trades" value={String(stats.closed)}            colorCls="text-ink-strong"   />
-              <TradeHistoryRow label="Open trades"   value={String(trades.filter(t => t.result === "open").length)} colorCls="text-gold" />
+              <TradeHistoryRow i={0} label="Avg win"       value={`+${stats.avgWin.toFixed(1)}R`}  colorCls="text-teal-bright"  />
+              <TradeHistoryRow i={1} label="Avg loss"      value={`${stats.avgLoss.toFixed(1)}R`}  colorCls="text-coral-bright" />
+              <TradeHistoryRow i={2} label="Closed trades" value={String(stats.closed)}            colorCls="text-ink-strong"   />
+              <TradeHistoryRow i={3} label="Open trades"   value={String(trades.filter(t => t.result === "open").length)} colorCls="text-gold" />
             </Panel>
 
             <Panel>
@@ -282,8 +282,8 @@ export function Profile() {
             <Panel>
               <PanelHead title="Recent trades" icon="history" />
               <div className="flex flex-col">
-                {recentTrades.map((t) => (
-                  <div key={t.id} className="flex items-center gap-3 py-2.5 border-b last:border-0 border-line">
+                {recentTrades.map((t, i) => (
+                  <div key={t.id} className={`flex items-center gap-3 py-2.5 px-2 rounded-lg ${i < recentTrades.length - 1 ? "border-b border-line" : ""}`}>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-[13px] text-ink-strong">{t.pair}</span>

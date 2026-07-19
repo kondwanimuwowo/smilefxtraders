@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Icon } from "@/components/ui";
 import { CTACard } from "@/components/marketing/CTACard";
 import { MarketingCard } from "@/components/marketing/MarketingCard";
 import { cn } from "@/lib/cn";
@@ -27,11 +26,9 @@ export default function AboutPage() {
         <div className="container">
           <div className="instr-grid">
             <div className="reveal relative">
-              <div className="rounded-3xl overflow-hidden aspect-[4/5] bg-navy-grad grid place-items-center relative shadow-[var(--shadow-card-lg)]">
-                <div className="text-center text-white/55 p-6">
-                  <Icon name="account_circle" size={64} />
-                  <div className="text-[13px] mt-2.5">Instructor portrait</div>
-                </div>
+              <div className="rounded-3xl overflow-hidden aspect-[4/5] bg-navy-grad relative shadow-[var(--shadow-card-lg)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/kondwanimuwowo.png" alt="Kondwani" className="w-full h-full object-cover" />
               </div>
             </div>
             <div>

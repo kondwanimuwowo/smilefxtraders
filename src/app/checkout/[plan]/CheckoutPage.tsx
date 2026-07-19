@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ZM_OPERATORS, detectZmOperator, type ZmOperator } from "@/lib/mobile-money";
 import { NetworkLogo } from "@/components/checkout/NetworkLogo";
 import { Icon } from "@/components/ui";
@@ -64,6 +64,7 @@ const OPERATORS = ZM_OPERATORS;
 
 export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise: Promise<{ plan: string }>; needsOnboarding: boolean }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [planId, setPlanId] = useState<PlanId | null>(null);
 
   useEffect(() => {
@@ -73,7 +74,11 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
     });
   }, [paramsPromise, router]);
 
-  const [cycle,    setCycle]    = useState<Cycle>("monthly");
+  // Preserves whichever billing-cycle toggle the user had selected on the
+  // page that linked here (Pricing/Membership), so it doesn't reset.
+  const [cycle, setCycle] = useState<Cycle>(
+    () => (searchParams.get("cycle") === "annual" ? "annual" : "monthly")
+  );
   const [phone,    setPhone]    = useState("");
   const [operator, setOperator] = useState<ZmOperator>(OPERATORS[0].value);
   const [autoPicked, setAutoPicked] = useState(false);
@@ -388,7 +393,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
                 onChange={(e) => handlePhoneChange(e.target.value)}
                 placeholder="+260 97 123 4567"
                 required
-                className="w-full px-4 py-3 rounded-xl text-[14px] bg-panel-2 border border-line text-ink-strong"
+                className="w-full px-4 py-3 rounded-xl text-[14px] bg-panel-2 shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] outline-none transition-shadow text-ink-strong"
               />
             </div>
 

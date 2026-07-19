@@ -193,9 +193,9 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl overflow-hidden bg-panel border border-line">
+      <div className="rounded-2xl overflow-hidden bg-panel shadow-md">
         {/* Column headers */}
-        <div className="grid grid-cols-[36px_1fr_90px_60px_60px_60px_80px_80px_80px_80px] gap-2 px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold border-b text-ink-dim border-line">
+        <div className="grid grid-cols-[36px_1fr_90px_60px_60px_60px_80px_80px_80px_80px] gap-2 px-4 py-2.5 text-[11px] uppercase tracking-widest font-semibold text-ink-dim bg-panel-2">
           <span>Ord</span>
           <span>Pair</span>
           <span>Category</span>
@@ -217,7 +217,10 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
         {sorted.map((inst, idx) => (
           <div
             key={inst.id}
-            className="grid grid-cols-[36px_1fr_90px_60px_60px_60px_80px_80px_80px_80px] items-center gap-2 px-4 py-3 border-b last:border-0 border-line hover:bg-[var(--bg-hover)] transition-colors"
+            className={cn(
+              "grid grid-cols-[36px_1fr_90px_60px_60px_60px_80px_80px_80px_80px] items-center gap-2 px-4 py-3 hover:bg-[var(--bg-hover)] transition-colors",
+              idx < sorted.length - 1 && "border-b border-line"
+            )}
           >
             {/* Order arrows */}
             <div className="flex flex-col gap-0.5">
@@ -325,7 +328,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
           onClick={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}
         >
           <div
-            className="w-full max-w-[520px] rounded-2xl p-6 shadow-lg overflow-y-auto max-h-[90vh] bg-panel border border-line"
+            className="w-full max-w-[520px] rounded-2xl p-6 shadow-lg overflow-y-auto max-h-[90vh] bg-panel"
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display font-medium text-[18px] text-ink-strong">
@@ -450,7 +453,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
             </div>
 
             {error && (
-              <div className="mt-4 px-3.5 py-2.5 rounded-xl text-[13px] bg-[rgba(234,82,61,0.1)] text-coral border border-[rgba(234,82,61,0.2)]">
+              <div className="mt-4 px-3.5 py-2.5 rounded-xl text-[13px] bg-[rgba(234,82,61,0.1)] text-coral shadow-[0_0_0_1px_rgba(234,82,61,0.2)]">
                 {error}
               </div>
             )}

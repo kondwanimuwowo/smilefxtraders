@@ -1,16 +1,14 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import type { Trade } from "@/lib/store";
 import { useTrades, useDeleteTrade } from "@/lib/hooks/useTrades";
 import {
-  Button, DirPill, Chip, StatTile, Stars, Icon, EmptyState, Panel, Sparkline,
+  Button, DirPill, Chip, StatTile, Stars, Icon, EmptyState, Panel, Sparkline, Select,
 } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import { LogTradeModal } from "./LogTradeModal";
-import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -40,6 +38,19 @@ function pnlCls(t: Trade): { textCls: string; bgCls: string; shadowCls: string }
   return t.pnlR >= 0
     ? { textCls: "text-teal-bright", bgCls: "bg-teal-bright", shadowCls: "shadow-[0_0_4px_var(--teal-bright)]" }
     : { textCls: "text-coral-bright", bgCls: "bg-coral-bright", shadowCls: "shadow-[0_0_4px_var(--coral-bright)]" };
+}
+
+function StatusPill({ result }: { result: Trade["result"] }) {
+  const cfg = {
+    win:  { label: "Win",  cls: "text-teal-bright bg-[rgba(48,232,223,0.12)]" },
+    loss: { label: "Loss", cls: "text-coral-bright bg-[rgba(255,89,66,0.12)]" },
+    open: { label: "Open", cls: "text-gold bg-[rgba(248,185,61,0.12)]" },
+  }[result];
+  return (
+    <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-bold uppercase tracking-[0.04em]", cfg.cls)}>
+      {cfg.label}
+    </span>
+  );
 }
 
 function currentStreak(trades: Trade[]) {
@@ -130,11 +141,64 @@ function SessionBar({ session, count, max }: { session: string; count: number; m
   );
 }
 
+// ── Equity hero ───────────────────────────────────────────────────────────────
+// Full-width headline chart, above the fold — cumulative R is the first thing
+// a trader should see, not something buried in a sidebar card.
+
+function EquityHero({ trades }: { trades: Trade[] }) {
+  const { stats } = useTrades();
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => setWidth(entries[0].contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  if (stats.equity.length < 2) return null;
+
+  const equityColor    = stats.netR >= 0 ? "var(--teal-bright)" : "var(--coral-bright)";
+  const equityColorCls = stats.netR >= 0 ? "text-teal-bright" : "text-coral-bright";
+
+  return (
+    <Panel className="mb-5">
+      <div className="flex items-center justify-between mb-1 gap-3 flex-wrap">
+        <div>
+          <div className="font-display font-semibold text-[15px] text-ink-strong">
+            Equity curve
+          </div>
+          <p className="text-[12px] text-ink-dim">
+            Cumulative R · {stats.closed} closed trade{stats.closed !== 1 ? "s" : ""} · {trades.length} total logged
+          </p>
+        </div>
+        <span className={cn("font-display font-bold tabular-nums text-[28px] tracking-[-0.01em]", equityColorCls)}>
+          {stats.netR >= 0 ? "+" : ""}{stats.netR.toFixed(1)}R
+        </span>
+      </div>
+      <div ref={wrapRef} className="w-full h-[140px] mt-3">
+        {width > 0 && (
+          <Sparkline data={stats.equity} width={width} height={140} color={equityColor} strokeW={2} fill />
+        )}
+      </div>
+      <div className="flex justify-between mt-1.5">
+        <span className="text-[10.5px] tabular-nums text-ink-dim">
+          {Math.min(...stats.equity).toFixed(1)}R
+        </span>
+        <span className="text-[10.5px] tabular-nums text-ink-dim">
+          {Math.max(...stats.equity).toFixed(1)}R
+        </span>
+      </div>
+    </Panel>
+  );
+}
+
 // ── Analytics panel ────────────────────────────────────────────────────────────
 
 function AnalyticsPanel({ trades }: { trades: Trade[] }) {
   const { stats } = useTrades();
-  const sparkRef  = useRef<HTMLDivElement>(null);
 
   const sessionCounts = useMemo(() => {
     const counts: Record<string, number> = { London: 0, "New York": 0, Asia: 0 };
@@ -180,48 +244,8 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
       .map(([model, count]) => ({ model: model.split("→")[0].split("+")[0].trim(), count }));
   }, [trades]);
 
-  const equityColor = (stats.netR ?? 0) >= 0 ? "var(--teal-bright)" : "var(--coral-bright)";
-  const equityColorCls = (stats.netR ?? 0) >= 0 ? "text-teal-bright" : "text-coral-bright";
-
   return (
-    <div className="flex flex-col gap-4">
-
-      {/* Equity curve */}
-      {stats.equity.length > 1 && (
-        <Panel>
-          <div className="px-4 pt-4 pb-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="font-display font-semibold text-[14px] text-ink-strong">
-                Equity curve
-              </span>
-              <span className={`font-display font-bold tabular-nums text-[18px] tracking-[-0.01em] ${equityColorCls}`}>
-                {stats.netR >= 0 ? "+" : ""}{stats.netR.toFixed(1)}R
-              </span>
-            </div>
-            <p className="text-[11px] mb-3 text-ink-dim">
-              Cumulative R · {stats.closed} closed trades
-            </p>
-            <div ref={sparkRef} className="w-full h-20">
-              <Sparkline
-                data={stats.equity}
-                width={260}
-                height={80}
-                color={equityColor}
-                strokeW={2}
-                fill
-              />
-            </div>
-            <div className="flex justify-between mt-1.5">
-              <span className="text-[9.5px] tabular-nums text-ink-dim">
-                {Math.min(...stats.equity).toFixed(1)}R
-              </span>
-              <span className="text-[9.5px] tabular-nums text-ink-dim">
-                {Math.max(...stats.equity).toFixed(1)}R
-              </span>
-            </div>
-          </div>
-        </Panel>
-      )}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
       {/* Avg win / avg loss / hold time */}
       <Panel>
@@ -382,6 +406,9 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
           {pnlLabel(trade)}
         </span>
       </td>
+      <td className="px-4 py-3">
+        <StatusPill result={trade.result} />
+      </td>
       <td className="px-4 py-3 hidden xl:table-cell">
         <Stars value={trade.rating ?? 0} size={13} />
       </td>
@@ -413,46 +440,96 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
 
 // ── Pagination ────────────────────────────────────────────────────────────────
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE_OPTIONS = ["10", "15", "25", "50"];
 
-function Pagination({ page, total, onChange }: { page: number; total: number; onChange: (p: number) => void }) {
-  const pages = Math.ceil(total / PAGE_SIZE);
-  if (pages <= 1) return null;
+// Rows-per-page + page nav, plus a totals strip for the currently filtered
+// set (not just the visible page) — count, win rate, net R at a glance
+// without scrolling through every row.
+function TableFooter({
+  trades, page, pageSize, onPageChange, onPageSizeChange,
+}: {
+  trades: Trade[];
+  page: number;
+  pageSize: number;
+  onPageChange: (p: number) => void;
+  onPageSizeChange: (n: number) => void;
+}) {
+  const total = trades.length;
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+
+  const closed   = trades.filter((t) => t.result !== "open");
+  const wins     = closed.filter((t) => t.result === "win").length;
+  const winRate  = closed.length ? Math.round((wins / closed.length) * 100) : null;
+  const netR     = trades.reduce((s, t) => s + t.pnlR, 0);
+
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-t border-line">
-      <span className="text-[12px] text-ink-dim">
-        {Math.min((page - 1) * PAGE_SIZE + 1, total)}–{Math.min(page * PAGE_SIZE, total)} of {total}
-      </span>
-      <div className="flex items-center gap-1.5">
-        <button
-          type="button"
-          disabled={page === 1}
-          onClick={() => onChange(page - 1)}
-          className="p-1.5 rounded-lg hover:bg-hover disabled:opacity-30 transition-colors text-ink-mid"
-        >
-          <Icon name="chevron_left" size={18} />
-        </button>
-        {Array.from({ length: Math.min(pages, 5) }).map((_, i) => {
-          const p = i + 1;
-          return (
+    <div className="bg-panel-2">
+      <div className="flex items-center justify-between px-4 py-3 flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-[12px] text-ink-dim">Rows per page</span>
+          <div className="w-[74px]">
+            <Select
+              compact
+              value={String(pageSize)}
+              onChange={(v) => onPageSizeChange(Number(v))}
+              options={PAGE_SIZE_OPTIONS}
+            />
+          </div>
+        </div>
+
+        {pages > 1 && (
+          <div className="flex items-center gap-1.5">
             <button
-              key={p}
               type="button"
-              onClick={() => onChange(p)}
-              className={`size-7 rounded-lg text-[12px] font-semibold transition-colors ${page === p ? "bg-teal text-white" : "text-ink-mid"}`}
+              disabled={page === 1}
+              onClick={() => onPageChange(page - 1)}
+              className="p-1.5 rounded-lg hover:bg-hover disabled:opacity-30 transition-colors text-ink-mid"
             >
-              {p}
+              <Icon name="chevron_left" size={18} />
             </button>
-          );
-        })}
-        <button
-          type="button"
-          disabled={page === pages}
-          onClick={() => onChange(page + 1)}
-          className="p-1.5 rounded-lg hover:bg-hover disabled:opacity-30 transition-colors text-ink-mid"
-        >
-          <Icon name="chevron_right" size={18} />
-        </button>
+            {Array.from({ length: Math.min(pages, 5) }).map((_, i) => {
+              const p = i + 1;
+              return (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => onPageChange(p)}
+                  className={`size-7 rounded-lg text-[12px] font-semibold transition-colors ${page === p ? "bg-teal text-white" : "text-ink-mid"}`}
+                >
+                  {p}
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              disabled={page === pages}
+              onClick={() => onPageChange(page + 1)}
+              className="p-1.5 rounded-lg hover:bg-hover disabled:opacity-30 transition-colors text-ink-mid"
+            >
+              <Icon name="chevron_right" size={18} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between px-4 py-2.5 border-t border-line text-[12px] flex-wrap gap-2">
+        <span className="text-ink-dim">
+          Trades: <strong className="text-ink-strong">{total}</strong>
+        </span>
+        <div className="flex items-center gap-4">
+          <span className="text-ink-dim">
+            Win rate:{" "}
+            <strong className={winRate == null ? "text-ink-strong" : winRate >= 50 ? "text-teal-bright" : "text-coral-bright"}>
+              {winRate == null ? "—" : `${winRate}%`}
+            </strong>
+          </span>
+          <span className="text-ink-dim">
+            Net R:{" "}
+            <strong className={netR >= 0 ? "text-teal-bright" : "text-coral-bright"}>
+              {netR >= 0 ? "+" : ""}{netR.toFixed(1)}R
+            </strong>
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -465,14 +542,11 @@ export function Journal() {
   const { toast } = useStore();
   const { trades, stats } = useTrades();
   const { mutate: deleteTrade } = useDeleteTrade();
-  const pairs = useInstrumentSymbols();
 
   const [filter, setFilter]     = useState<Filter>("All");
-  const [pairFilter, setPair]   = useState<string | null>(null);
   const [search, setSearch]     = useState("");
   const [page, setPage]         = useState(1);
-  const [logOpen, setLogOpen]   = useState(false);
-  const [editing, setEditing]   = useState<Trade | null>(null);
+  const [pageSize, setPageSize] = useState(15);
 
   const streak = useMemo(() => currentStreak(trades), [trades]);
 
@@ -481,7 +555,6 @@ export function Journal() {
     if (filter === "Wins")   list = list.filter((t) => t.result === "win");
     if (filter === "Losses") list = list.filter((t) => t.result === "loss");
     if (filter === "Open")   list = list.filter((t) => t.result === "open");
-    if (pairFilter)          list = list.filter((t) => t.pair === pairFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter((t) =>
@@ -492,13 +565,13 @@ export function Journal() {
       );
     }
     return list;
-  }, [trades, filter, pairFilter, search]);
+  }, [trades, filter, search]);
 
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   function handleFilterChange(f: Filter) { setFilter(f); setPage(1); }
-  function handlePairToggle(pair: string) { setPair((p) => (p === pair ? null : pair)); setPage(1); }
   function handleSearch(v: string)        { setSearch(v); setPage(1); }
+  function handlePageSizeChange(n: number) { setPageSize(n); setPage(1); }
 
   const openCount  = trades.filter((t) => t.result === "open").length;
   const netRTone   = stats.netR > 0 ? "up" : stats.netR < 0 ? "down" : "neutral";
@@ -516,8 +589,8 @@ export function Journal() {
               <span
                 className={`inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${
                   streak.type === "win"
-                    ? "bg-[rgba(8,174,170,0.1)] text-teal-bright border border-[rgba(8,174,170,0.28)]"
-                    : "bg-[rgba(234,82,61,0.1)] text-coral-bright border border-[rgba(234,82,61,0.28)]"
+                    ? "bg-[rgba(8,174,170,0.1)] text-teal-bright shadow-[0_0_0_2px_rgba(8,174,170,0.28)]"
+                    : "bg-[rgba(234,82,61,0.1)] text-coral-bright shadow-[0_0_0_2px_rgba(234,82,61,0.28)]"
                 }`}
               >
                 <Icon
@@ -536,10 +609,13 @@ export function Journal() {
               : `${trades.length} trade${trades.length !== 1 ? "s" : ""} logged · ${stats.closed} closed`}
           </p>
         </div>
-        <Button type="button" variant="primary" icon="add_task" onClick={() => { setEditing(null); setLogOpen(true); }}>
+        <Button type="button" variant="primary" icon="add_task" onClick={() => router.push("/journal/new")}>
           Log trade
         </Button>
       </div>
+
+      {/* ── Equity curve (hero) — hidden for now, not rendering correctly, see EquityHero for the implementation to revisit ── */}
+      {/* <EquityHero trades={trades} /> */}
 
       {/* ── Stats ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
@@ -579,135 +655,115 @@ export function Journal() {
         </div>
       </div>
 
-      {/* ── Main content ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-5">
-
-        {/* ── Left: table ── */}
-        <div className="flex flex-col gap-3">
-          {/* Filter bar */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center rounded-xl p-0.5 bg-panel-2 border border-line">
-              {FILTERS.map((f) => (
-                <button
-                  key={f}
-                  type="button"
-                  onClick={() => handleFilterChange(f)}
-                  className={`px-3.5 py-1.5 rounded-[10px] text-[12.5px] font-semibold transition-all ${
-                    filter === f ? "bg-panel text-ink-strong shadow-[0_1px_4px_rgba(0,0,0,0.12)]" : "text-ink-dim"
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
-
-            {/* Pair chips */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {pairs.map((pair) => (
-                <button
-                  key={pair}
-                  type="button"
-                  onClick={() => handlePairToggle(pair)}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
-                    pairFilter === pair ? "bg-teal text-white" : "bg-panel-2 text-ink-dim border border-line"
-                  }`}
-                >
-                  {pair}
-                </button>
-              ))}
-            </div>
-
-            {/* Search */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl flex-1 min-w-0 bg-panel-2 border border-line">
-              <Icon name="search" size={15} className="text-ink-dim shrink-0" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => handleSearch(e.target.value)}
-                placeholder="Search pair, model, notes…"
-                className="flex-1 bg-transparent text-[12.5px] outline-none text-ink-strong"
-              />
-              {search && (
-                <button type="button" onClick={() => handleSearch("")} className="text-ink-dim">
-                  <Icon name="close" size={14} />
-                </button>
-              )}
-            </div>
+      {/* ── Table (full width) ── */}
+      <div className="flex flex-col gap-3 mb-5">
+        {/* Filter bar */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center rounded-xl p-0.5 bg-panel-2 shadow-sm">
+            {FILTERS.map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => handleFilterChange(f)}
+                className={`px-3.5 py-1.5 rounded-[10px] text-[12.5px] font-semibold transition-all ${
+                  filter === f ? "bg-panel text-ink-strong shadow-[0_1px_4px_rgba(0,0,0,0.12)]" : "text-ink-dim"
+                }`}
+              >
+                {f}
+              </button>
+            ))}
           </div>
 
-          {/* Table */}
-          <div className="rounded-2xl overflow-hidden bg-panel border border-line">
-            {filtered.length === 0 ? (
-              <EmptyState
-                icon="menu_book"
-                title={trades.length === 0 ? "No trades yet" : "No trades match"}
-                body={
-                  trades.length === 0
-                    ? "Log your first trade to start building your performance record."
-                    : "Try adjusting your filter or search."
-                }
-                action={
-                  trades.length === 0 ? (
-                    <Button type="button" variant="primary" icon="add_task" onClick={() => setLogOpen(true)}>
-                      Log trade
-                    </Button>
-                  ) : undefined
-                }
-              />
-            ) : (
-              <>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="border-b border-line">
-                        {[
-                          { label: "Date",    cls: "" },
-                          { label: "Pair",    cls: "" },
-                          { label: "Model",   cls: "hidden lg:table-cell" },
-                          { label: "Session", cls: "hidden xl:table-cell" },
-                          { label: "R:R",     cls: "hidden lg:table-cell text-right" },
-                          { label: "P&L",     cls: "text-right" },
-                          { label: "Rating",  cls: "hidden xl:table-cell" },
-                          { label: "Rules",   cls: "hidden lg:table-cell text-center" },
-                          { label: "",        cls: "" },
-                        ].map((h) => (
-                          <th
-                            key={h.label}
-                            className={`px-4 py-2.5 text-[10.5px] font-semibold uppercase tracking-wider text-ink-dim ${h.cls}`}
-                          >
-                            {h.label}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paginated.map((t) => (
-                        <TradeRow
-                          key={t.id}
-                          trade={t}
-                          onView={(id) => router.push(`/journal/${id}`)}
-                          onEdit={() => { setEditing(t); setLogOpen(true); }}
-                        />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <Pagination page={page} total={filtered.length} onChange={setPage} />
-              </>
+          {/* Search */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl flex-1 min-w-0 bg-panel-2 shadow-sm">
+            <Icon name="search" size={15} className="text-ink-dim shrink-0" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => handleSearch(e.target.value)}
+              placeholder="Search pair, model, notes…"
+              className="flex-1 bg-transparent text-[12.5px] outline-none text-ink-strong"
+            />
+            {search && (
+              <button type="button" onClick={() => handleSearch("")} className="text-ink-dim">
+                <Icon name="close" size={14} />
+              </button>
             )}
           </div>
         </div>
 
-        {/* ── Right: analytics ── */}
-        <AnalyticsPanel trades={trades} />
+        {/* Table */}
+        <div className="rounded-2xl overflow-hidden bg-panel shadow-md">
+          {filtered.length === 0 ? (
+            <EmptyState
+              icon="menu_book"
+              title={trades.length === 0 ? "No trades yet" : "No trades match"}
+              body={
+                trades.length === 0
+                  ? "Log your first trade to start building your performance record."
+                  : "Try adjusting your filter or search."
+              }
+              action={
+                trades.length === 0 ? (
+                  <Button type="button" variant="primary" icon="add_task" onClick={() => router.push("/journal/new")}>
+                    Log trade
+                  </Button>
+                ) : undefined
+              }
+            />
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-panel-2">
+                      {[
+                        { label: "Date",    cls: "" },
+                        { label: "Pair",    cls: "" },
+                        { label: "Model",   cls: "hidden lg:table-cell" },
+                        { label: "Session", cls: "hidden xl:table-cell" },
+                        { label: "R:R",     cls: "hidden lg:table-cell text-right" },
+                        { label: "P&L",     cls: "text-right" },
+                        { label: "Status",  cls: "" },
+                        { label: "Rating",  cls: "hidden xl:table-cell" },
+                        { label: "Rules",   cls: "hidden lg:table-cell text-center" },
+                        { label: "",        cls: "" },
+                      ].map((h) => (
+                        <th
+                          key={h.label}
+                          className={`px-4 py-2.5 text-[10.5px] font-semibold uppercase tracking-wider text-ink-dim ${h.cls}`}
+                        >
+                          {h.label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginated.map((t) => (
+                      <TradeRow
+                        key={t.id}
+                        trade={t}
+                        onView={(id) => router.push(`/journal/${id}`)}
+                        onEdit={() => router.push(`/journal/${t.id}/edit`)}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <TableFooter
+                trades={filtered}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={handlePageSizeChange}
+              />
+            </>
+          )}
+        </div>
       </div>
 
-      {/* ── Log / edit modal ── */}
-      <LogTradeModal
-        open={logOpen}
-        onClose={() => { setLogOpen(false); setEditing(null); }}
-        edit={editing}
-      />
+      {/* ── Analytics (below table, full width) ── */}
+      <AnalyticsPanel trades={trades} />
     </div>
   );
 }

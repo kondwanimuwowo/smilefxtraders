@@ -36,7 +36,7 @@ export function BottomTabBar() {
   );
 
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 flex items-stretch pb-safe bg-sidebar border-t border-line">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 flex items-stretch pb-safe bg-sidebar shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
       {TABS.map((tab) => {
         const active = tab.isMore ? mobileSidebarOpen || !isOnPromotedRoute
           : pathname === tab.href || pathname.startsWith(tab.href + "/");

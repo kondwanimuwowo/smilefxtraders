@@ -22,8 +22,8 @@ export function StatTile({ label, value, sub, tone = "neutral", icon }: StatTile
   return (
     <div
       className={cn(
-        "rounded-2xl border p-4 transition-all bg-panel",
-        tone === "gold" ? "border-gold shadow-[0_0_20px_rgba(248,185,61,0.15)]" : "border-line shadow-none"
+        "rounded-2xl p-4 transition-all bg-panel",
+        tone === "gold" ? "shadow-[0_0_0_2px_var(--gold),0_0_20px_rgba(248,185,61,0.15)]" : "shadow-sm"
       )}
     >
       <div className="flex items-center justify-between">

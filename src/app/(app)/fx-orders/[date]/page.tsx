@@ -102,12 +102,12 @@ function PairCard({ record, liveSpot }: { record: FxOrderRecord; liveSpot: strin
   return (
     <div
       className={cn(
-        "flex flex-col rounded-2xl overflow-hidden bg-panel border",
-        hasAlert ? "border-[rgba(8,174,170,0.3)] shadow-[0_0_0_1px_rgba(8,174,170,0.1)]" : "border-line shadow-none"
+        "flex flex-col rounded-2xl overflow-hidden bg-panel",
+        hasAlert ? "shadow-[0_0_0_2px_var(--teal)]" : "shadow-sm"
       )}
     >
       {/* Card header */}
-      <div className={cn("flex items-center justify-between px-4 py-3 border-b border-line", hasAlert ? "bg-[rgba(8,174,170,0.03)]" : "bg-panel-2")}>
+      <div className={cn("flex items-center justify-between px-4 py-3", hasAlert ? "bg-[rgba(8,174,170,0.03)]" : "bg-panel-2")}>
         <div className="flex items-center gap-2">
           <span className="font-display font-bold text-[14px] tracking-[-0.01em] text-ink-strong">
             {PAIR_LABELS[record.pair] ?? record.pair}
@@ -135,7 +135,7 @@ function PairCard({ record, liveSpot }: { record: FxOrderRecord; liveSpot: strin
       </div>
 
       {/* Footer — always at bottom */}
-      <div className="px-4 py-2 text-[10.5px] mt-auto border-t border-line text-ink-dim">
+      <div className="px-4 py-2 text-[10.5px] mt-auto bg-panel-2 text-ink-dim">
         {sorted.length} level{sorted.length !== 1 ? "s" : ""} · 10am NY Cut
       </div>
     </div>
@@ -251,7 +251,7 @@ export default function FxOrdersDatePage() {
 
       {/* ── Legend ── */}
       {!loading && !error && (
-        <div className="flex items-center gap-4 flex-wrap rounded-xl px-4 py-2.5 mb-5 bg-panel-2 border border-line">
+        <div className="flex items-center gap-4 flex-wrap rounded-xl px-4 py-2.5 mb-5 shadow-sm bg-panel-2">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">Key</span>
           <div className="flex items-center gap-1.5 text-[11.5px] text-teal-bright">
             <div className="w-2 h-2 rounded-full bg-teal-bright" />
@@ -276,7 +276,7 @@ export default function FxOrdersDatePage() {
 
       {/* ── Error ── */}
       {error && (
-        <div className="rounded-2xl px-5 py-4 text-[13px] bg-[rgba(234,82,61,0.06)] border border-[rgba(234,82,61,0.2)] text-coral">
+        <div className="rounded-2xl px-5 py-4 text-[13px] shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.06)] text-coral">
           {error}
         </div>
       )}

@@ -225,10 +225,9 @@ export default async function HomePage() {
         <div className="container">
           <div className="instr-grid">
             <div className="reveal relative">
-              <div className="rounded-3xl overflow-hidden aspect-[4/5] bg-[linear-gradient(165deg,#0C4359_0%,#082A3B_78%)] grid place-items-center relative shadow-[var(--shadow-card-lg)]">
-                <div className="text-center text-white/55 p-6">
-                  <Icon name="account_circle" size={64} />
-                </div>
+              <div className="rounded-3xl overflow-hidden aspect-[4/5] bg-[linear-gradient(165deg,#0C4359_0%,#082A3B_78%)] relative shadow-[var(--shadow-card-lg)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/kondwanimuwowo.png" alt="Kondwani" className="w-full h-full object-cover" />
               </div>
             </div>
             <div>

@@ -4,6 +4,7 @@ import { Topbar } from "@/components/shell/Topbar";
 import { BottomTabBar } from "@/components/shell/BottomTabBar";
 import { StoreHydrator } from "@/components/shell/StoreHydrator";
 import { NotificationsPoller } from "@/components/shell/NotificationsPoller";
+import { PageWidthWrapper } from "@/components/shell/PageWidthWrapper";
 import { ToastHost } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
@@ -133,9 +134,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           <Topbar />
           <main className="flex-1 overflow-y-auto overflow-x-hidden">
-            <div className="mx-auto w-full px-4 sm:px-6 pt-5 pb-24 md:pb-12 max-w-[1320px]">
-              {children}
-            </div>
+            <PageWidthWrapper>{children}</PageWidthWrapper>
           </main>
         </div>
         <BottomTabBar />

@@ -96,7 +96,7 @@ export function SessionTimeline() {
   const nowLeft    = gmt2 !== null ? leftPct(offsetFrom23(gmt2)) : null;
 
   return (
-    <div className="relative rounded-2xl px-4 sm:px-5 py-4 overflow-hidden bg-panel border border-line">
+    <div className="relative rounded-2xl px-4 sm:px-5 py-4 overflow-hidden bg-panel shadow-md">
       {/* World map background */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -114,12 +114,12 @@ export function SessionTimeline() {
             Session Timeline
           </span>
           {isKillzone && (
-            <span className="text-[9.5px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-[rgba(48,232,223,0.08)] text-teal-bright border border-[rgba(48,232,223,0.22)]">
+            <span className="text-[9.5px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-[rgba(48,232,223,0.08)] text-teal-bright shadow-[0_0_0_1px_rgba(48,232,223,0.22)]">
               London · NY Overlap
             </span>
           )}
           {closed && (
-            <span className="text-[9.5px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-panel-2 text-ink-dim border border-line">
+            <span className="text-[9.5px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-panel-2 text-ink-dim shadow-sm">
               Weekend · Closed
             </span>
           )}
@@ -130,7 +130,7 @@ export function SessionTimeline() {
             <span className="text-[13px] font-semibold tabular-nums text-ink-strong">
               {timeLabel}
             </span>
-            <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded tracking-[0.1em] bg-panel-2 text-ink-dim border border-line">
+            <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded tracking-[0.1em] bg-panel-2 text-ink-dim shadow-sm">
               GMT+2
             </span>
           </div>

@@ -57,7 +57,7 @@ export function PricingAdmin({ initial }: Props) {
           const isFree = meta.id === "free";
 
           return (
-            <div key={meta.id} className="rounded-2xl px-[28px] py-6 bg-panel border border-line">
+            <div key={meta.id} className="rounded-2xl px-[28px] py-6 bg-panel shadow-md">
               <div className="flex items-center gap-3 mb-5">
                 {/* meta.color is a raw var(--x) string from PLAN_META consumed via
                     `${meta.color}18` alpha-suffix concatenation - stays inline. */}
@@ -94,7 +94,7 @@ export function PricingAdmin({ initial }: Props) {
                         <label className="block text-[12px] font-semibold mb-1.5 text-ink-mid">
                           {labels[field]}
                         </label>
-                        <div className="flex items-center rounded-xl overflow-hidden border border-line bg-panel-2">
+                        <div className="flex items-center rounded-xl overflow-hidden shadow-sm bg-panel-2">
                           <span className="px-3 text-[13px] font-semibold py-2.5 border-r border-line bg-panel text-ink-dim">
                             {prefixes[field]}
                           </span>
@@ -134,7 +134,7 @@ export function PricingAdmin({ initial }: Props) {
         })}
       </div>
 
-      <div className="mt-6 rounded-xl px-5 py-4 flex items-start gap-3 bg-[rgba(248,185,61,0.08)] border border-[rgba(248,185,61,0.25)]">
+      <div className="mt-6 rounded-xl px-5 py-4 flex items-start gap-3 bg-[rgba(248,185,61,0.08)] shadow-[0_0_0_1px_rgba(248,185,61,0.25)]">
         <Icon name="info" size={18} className="mt-px text-gold" />
         <p className="text-[13px] leading-[1.6] text-ink-mid">
           Annual prices are per month (billed as a lump sum). Example: K239/mo annual = K2,868 charged once a year.

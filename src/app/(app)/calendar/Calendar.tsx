@@ -79,10 +79,10 @@ export function Calendar() {
               type="button"
               onClick={() => setFilter(c)}
               className={cn(
-                "text-[12px] font-semibold px-3 py-1.5 rounded-lg border transition-colors",
+                "text-[12px] font-semibold px-3 py-1.5 rounded-lg transition-colors",
                 filter === c
-                  ? "bg-teal text-navy-deep border-teal"
-                  : "bg-panel-2 text-ink-dim border-line hover:text-ink-strong"
+                  ? "bg-teal text-navy-deep shadow-[0_0_0_2px_var(--teal)]"
+                  : "bg-panel-2 text-ink-dim hover:text-ink-strong"
               )}
             >
               {c}
@@ -107,8 +107,8 @@ export function Calendar() {
       ) : (
         <div className="flex flex-col gap-5">
           {grouped.map(([date, dayEvents]) => (
-            <Panel key={date} pad={0}>
-              <div className="px-5 py-3.5 border-b border-line">
+            <Panel key={date} pad={0} className="overflow-hidden">
+              <div className="px-5 py-3.5 bg-panel-2 rounded-t-2xl">
                 <div className="text-[13px] font-semibold text-ink-strong">{fmtDateHeading(date)}</div>
               </div>
               {dayEvents.map((ev, i) => (
@@ -126,7 +126,7 @@ export function Calendar() {
                   <ImpactDots level={ev.impact} />
                   <Link
                     href={`/macroedge/${ev.currency}`}
-                    className="text-[11px] font-bold px-2 py-0.5 rounded-lg tracking-wide bg-panel-2 text-ink-mid border border-line hover:text-teal hover:border-teal/40 transition-colors shrink-0"
+                    className="text-[11px] font-bold px-2 py-0.5 rounded-lg tracking-wide bg-panel-2 text-ink-mid hover:text-teal hover:shadow-[0_0_0_1px_var(--teal-bright)] transition-colors shrink-0"
                   >
                     {ev.currency}
                   </Link>

@@ -10,7 +10,7 @@ interface PanelProps extends HTMLAttributes<HTMLDivElement> {
 export function Panel({ pad = 20, children, style, className = "", ...rest }: PanelProps) {
   return (
     <div
-      className={cn("rounded-2xl border bg-panel border-line", className)}
+      className={cn("rounded-2xl bg-panel shadow-md", className)}
       style={{ padding: pad, ...style }}
       {...rest}
     >

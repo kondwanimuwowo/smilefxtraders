@@ -36,7 +36,7 @@ interface Verdict {
   desc:       string;
   textCls:    string;
   bgCls:      string;
-  borderCls:  string;
+  ringCls:    string;
   iconBgCls:  string;
   icon:       string;
   cotScore:   number;
@@ -71,11 +71,11 @@ function computeVerdict(
   const dxy = usdBase ? rawDxy : -rawDxy;
   const total = cot + htf + dxy;
 
-  if (total >= 2)  return { tone: "confirmed_bull", label: "Confirmed Bullish", desc: "All three factors point the same way: institutional bias is bullish, and longs have full confluence behind them this week.", textCls: "text-teal-bright",  bgCls: "bg-[rgba(48,232,223,0.07)]", borderCls: "border-[rgba(48,232,223,0.22)]", iconBgCls: "bg-[rgba(48,232,223,0.22)]", icon: "trending_up",   cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  if (total === 1) return { tone: "lean_bull",       label: "Bullish Lean",      desc: "Two of the three factors lean bullish, which is a usable directional edge. Confirm it with HTF structure before committing.", textCls: "text-teal",         bgCls: "bg-[rgba(8,174,170,0.06)]",  borderCls: "border-[rgba(8,174,170,0.18)]",  iconBgCls: "bg-[rgba(8,174,170,0.18)]",  icon: "arrow_upward",  cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  if (total === 0) return { tone: "mixed",           label: "No Clear Bias",     desc: "The factors disagree this week, so neither COT nor trend alignment gives you an edge. Wait until they line up.", textCls: "text-gold",         bgCls: "bg-[rgba(248,185,61,0.06)]", borderCls: "border-[rgba(248,185,61,0.18)]", iconBgCls: "bg-[rgba(248,185,61,0.18)]", icon: "remove",        cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  if (total === -1)return { tone: "lean_bear",       label: "Bearish Lean",      desc: "Two of the three factors lean bearish, which is a usable directional edge. Wait for an HTF structure shift before selling.", textCls: "text-coral",        bgCls: "bg-[rgba(234,82,61,0.06)]",  borderCls: "border-[rgba(234,82,61,0.18)]",  iconBgCls: "bg-[rgba(234,82,61,0.18)]",  icon: "arrow_downward",cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  return               { tone: "confirmed_bear",  label: "Confirmed Bearish", desc: "All three factors point the same way: institutional bias is bearish, and shorts have full confluence behind them this week.", textCls: "text-coral-bright", bgCls: "bg-[rgba(255,89,66,0.07)]",  borderCls: "border-[rgba(255,89,66,0.22)]",  iconBgCls: "bg-[rgba(255,89,66,0.22)]",  icon: "trending_down", cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total >= 2)  return { tone: "confirmed_bull", label: "Confirmed Bullish", desc: "All three factors point the same way: institutional bias is bullish, and longs have full confluence behind them this week.", textCls: "text-teal-bright",  bgCls: "bg-[rgba(48,232,223,0.07)]", ringCls: "shadow-[0_0_0_2px_var(--teal-bright)]", iconBgCls: "bg-[rgba(48,232,223,0.22)]", icon: "trending_up",   cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total === 1) return { tone: "lean_bull",       label: "Bullish Lean",      desc: "Two of the three factors lean bullish, which is a usable directional edge. Confirm it with HTF structure before committing.", textCls: "text-teal",         bgCls: "bg-[rgba(8,174,170,0.06)]",  ringCls: "shadow-[0_0_0_2px_var(--teal)]",        iconBgCls: "bg-[rgba(8,174,170,0.18)]",  icon: "arrow_upward",  cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total === 0) return { tone: "mixed",           label: "No Clear Bias",     desc: "The factors disagree this week, so neither COT nor trend alignment gives you an edge. Wait until they line up.", textCls: "text-gold",         bgCls: "bg-[rgba(248,185,61,0.06)]", ringCls: "shadow-[0_0_0_2px_var(--gold)]",        iconBgCls: "bg-[rgba(248,185,61,0.18)]", icon: "remove",        cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total === -1)return { tone: "lean_bear",       label: "Bearish Lean",      desc: "Two of the three factors lean bearish, which is a usable directional edge. Wait for an HTF structure shift before selling.", textCls: "text-coral",        bgCls: "bg-[rgba(234,82,61,0.06)]",  ringCls: "shadow-[0_0_0_2px_var(--coral)]",       iconBgCls: "bg-[rgba(234,82,61,0.18)]",  icon: "arrow_downward",cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  return               { tone: "confirmed_bear",  label: "Confirmed Bearish", desc: "All three factors point the same way: institutional bias is bearish, and shorts have full confluence behind them this week.", textCls: "text-coral-bright", bgCls: "bg-[rgba(255,89,66,0.07)]",  ringCls: "shadow-[0_0_0_2px_var(--coral-bright)]", iconBgCls: "bg-[rgba(255,89,66,0.22)]",  icon: "trending_down", cotScore: cot, htfScore: htf, dxyScore: dxy, total };
 }
 
 // ── Bias cell ─────────────────────────────────────────────────────────────────
@@ -96,7 +96,7 @@ function BiasCell({ tf, bias }: { tf: string; bias: Bias | undefined }) {
         style={{
           width: 50, height: 38,
           background: cfg ? cfg.bg : "var(--panel-2)",
-          border: `1px solid ${cfg ? cfg.color + "33" : "var(--line)"}`,
+          boxShadow: `0 0 0 1px ${cfg ? `color-mix(in srgb, ${cfg.color} 20%, transparent)` : "var(--line)"}`,
           color: cfg ? cfg.color : "var(--ink-dim)",
         }}
       >
@@ -125,7 +125,7 @@ function FactorBadge({ label: factorLabel, score }: { label: string; score: numb
   return (
     <div
       className="flex items-center gap-2 rounded-xl px-3 py-2.5"
-      style={{ background: bg, border: `1px solid ${color}33` }}
+      style={{ background: bg, boxShadow: `0 0 0 1px color-mix(in srgb, ${color} 20%, transparent)` }}
     >
       <Icon name={icon} size={15} fill style={{ color, flexShrink: 0 }} />
       <div>
@@ -172,7 +172,7 @@ function fmtTime(time: string): string {
 function CurrencyChip({ code }: { code: string }) {
   if (!code) return null;
   return (
-    <span className="inline-flex items-center text-[11px] font-bold px-2 py-0.5 rounded-lg tracking-wide bg-panel-2 text-ink-mid border border-line">
+    <span className="inline-flex items-center text-[11px] font-bold px-2 py-0.5 rounded-lg tracking-wide bg-panel-2 text-ink-mid">
       {code}
     </span>
   );
@@ -258,7 +258,7 @@ export default function PairOverviewPage() {
         <button onClick={() => router.back()} className="flex items-center gap-1.5 mb-5 text-[13px] font-semibold hover:opacity-75 text-ink-dim">
           <Icon name="arrow_back" size={16} /> Back
         </button>
-        <div className="rounded-2xl px-5 py-4 text-[13px] bg-[rgba(234,82,61,0.07)] border border-[rgba(234,82,61,0.2)] text-coral">
+        <div className="rounded-2xl px-5 py-4 text-[13px] shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral">
           Unknown pair: {P}
         </div>
       </div>
@@ -290,7 +290,7 @@ export default function PairOverviewPage() {
             <span className="text-[15px] text-ink-dim">·</span>
             <span className="text-[15px] text-ink-mid">{meta.label}</span>
             {meta.usdBase && (
-              <span className="text-[10px] px-2 py-0.5 rounded-lg bg-panel-2 text-ink-dim border border-line">
+              <span className="text-[10px] px-2 py-0.5 rounded-lg bg-panel-2 text-ink-dim">
                 USD-base
               </span>
             )}
@@ -317,7 +317,7 @@ export default function PairOverviewPage() {
       </div>
 
       {/* ── Weekly Bias Card ── */}
-      <div className={cn("rounded-2xl px-6 py-5 mb-6 border-2", verdict.bgCls, verdict.borderCls)}>
+      <div className={cn("rounded-2xl px-6 py-5 mb-6", verdict.bgCls, verdict.ringCls)}>
         <div className="text-[10.5px] font-semibold uppercase tracking-widest mb-3 text-ink-dim">
           Weekly Bias · Three-Factor Confluence
         </div>
@@ -369,7 +369,7 @@ export default function PairOverviewPage() {
             />
 
             {tfs.length === 0 ? (
-              <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 text-[12.5px] leading-relaxed bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.18)] text-ink-mid">
+              <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 text-[12.5px] leading-relaxed shadow-sm bg-[rgba(248,185,61,0.05)] text-ink-mid">
                 <Icon name="info" size={15} fill className="text-gold shrink-0 mt-px" />
                 <span>
                   No trend data for {P}.{" "}
@@ -412,7 +412,7 @@ export default function PairOverviewPage() {
 
           {/* Economic Calendar */}
           <Panel pad={0}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+            <div className="flex items-center justify-between px-5 py-4 shadow-[inset_0_-1px_0_var(--line)]">
               <div>
                 <div className="text-[15px] font-semibold text-ink-strong">
                   Economic Calendar
@@ -511,13 +511,16 @@ export default function PairOverviewPage() {
             ) : cotData && cotSig ? (
               <>
                 {/* Signal */}
-                <div className={cn("flex items-center gap-2.5 rounded-xl px-3 py-2.5 mb-4 border", cotSig.bgCls, cotSig.borderCls)}>
+                <div
+                  className={cn("flex items-center gap-2.5 rounded-xl px-3 py-2.5 mb-4", cotSig.bgCls)}
+                  style={{ boxShadow: `0 0 0 1px color-mix(in srgb, ${cotSig.strokeColor} 25%, transparent)` }}
+                >
                   <Icon name={cotSig.icon} size={16} fill className={cotSig.textCls} />
                   <span className={cn("font-semibold text-[13px]", cotSig.textCls)}>
                     {cotSig.label}
                   </span>
                   {meta.usdBase && (
-                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-lg bg-panel-2 text-ink-dim border border-line">
+                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-lg bg-panel-2 text-ink-dim">
                       inverted
                     </span>
                   )}
@@ -589,7 +592,10 @@ export default function PairOverviewPage() {
                 return (
                   <>
                     <div className="flex items-stretch gap-2 mb-3">
-                      <div className={cn("flex items-center gap-2 rounded-xl px-3 py-2.5 flex-1 border", dxySig.bgCls, dxySig.borderCls)}>
+                      <div
+                        className={cn("flex items-center gap-2 rounded-xl px-3 py-2.5 flex-1", dxySig.bgCls)}
+                        style={{ boxShadow: `0 0 0 1px color-mix(in srgb, ${dxySig.strokeColor} 25%, transparent)` }}
+                      >
                         <Icon name={dxySig.icon} size={14} fill className={dxySig.textCls} />
                         <div>
                           <div className="text-[10px] uppercase tracking-wide font-semibold text-ink-dim">DXY COT</div>
@@ -598,8 +604,8 @@ export default function PairOverviewPage() {
                       </div>
                       <div
                         className={cn(
-                          "flex items-center gap-2 rounded-xl px-3 py-2.5 border",
-                          confirms ? "bg-[rgba(8,174,170,0.07)] border-[rgba(8,174,170,0.2)]" : "bg-[rgba(234,82,61,0.07)] border-[rgba(234,82,61,0.2)]"
+                          "flex items-center gap-2 rounded-xl px-3 py-2.5",
+                          confirms ? "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.07)]" : "shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)]"
                         )}
                       >
                         <Icon
@@ -643,7 +649,7 @@ export default function PairOverviewPage() {
                 </div>
               ))}
             </div>
-            <div className="mt-3 rounded-xl px-3 py-2.5 flex items-center gap-2 text-[11.5px] bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.15)] text-gold">
+            <div className="mt-3 rounded-xl px-3 py-2.5 flex items-center gap-2 text-[11.5px] shadow-sm bg-[rgba(248,185,61,0.05)] text-gold">
               <Icon name="construction" size={13} />
               Manual entry or journal integration coming soon
             </div>

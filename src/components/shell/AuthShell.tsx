@@ -17,14 +17,14 @@ function seedFromId(id: string): number {
 
 export async function AuthShell({ children }: { children: ReactNode }) {
   let memberCount = 0;
-  let members: { id: string; name: string }[] = [];
+  let members: { id: string; name: string; avatarUrl: string | null }[] = [];
   try {
     [memberCount, members] = await Promise.all([
       prisma.user.count(),
       prisma.user.findMany({
         take: 3,
         orderBy: { createdAt: "desc" },
-        select: { id: true, name: true },
+        select: { id: true, name: true, avatarUrl: true },
       }),
     ]);
   } catch (err) {
@@ -81,7 +81,7 @@ export async function AuthShell({ children }: { children: ReactNode }) {
             <div className="flex">
               {members.map((member, i) => (
                 <div key={member.id} className={i ? "-ml-2.5" : "ml-0"}>
-                  <Avatar seed={seedFromId(member.id)} name={member.name} size={30} ring="var(--navy-deep)" />
+                  <Avatar src={member.avatarUrl ?? undefined} seed={seedFromId(member.id)} name={member.name} size={30} ring="var(--navy-deep)" />
                 </div>
               ))}
             </div>

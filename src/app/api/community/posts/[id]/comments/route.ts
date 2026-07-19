@@ -35,7 +35,7 @@ export async function POST(
 
   const comment = await prisma.postComment.create({
     data: { postId, authorId: dbUser.id, text: text.trim() },
-    include: { author: { select: { id: true, name: true } } },
+    include: { author: { select: { id: true, name: true, avatarUrl: true } } },
   });
 
   // Notify the post author — in-app for every reply; email only for the first
@@ -83,6 +83,7 @@ export async function POST(
     id:         comment.id,
     name:       comment.author.name,
     avatarSeed: seedFromId(comment.author.id),
+    avatarUrl:  comment.author.avatarUrl,
     text:       comment.text,
     time:       comment.createdAt.toISOString(),
   }, { status: 201 });

@@ -62,15 +62,18 @@ function PositionBar({ value, max, barCls }: { value: number; max: number; barCl
 
 // ── History table ─────────────────────────────────────────────────────────────
 
+// Bottom-border row divider for the history table.
+const historyCellCls = "py-2 px-3 tabular-nums whitespace-nowrap border-b border-line";
+
 function HistoryTable({ history }: { history: CotEntry["history"] }) {
   const rows = history.slice(0, 4);
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-[11.5px] border-collapse">
         <thead>
-          <tr className="border-b border-line">
+          <tr>
             {["Date", "Large Spec", "Commercials", "Small Spec", "WoW Chg"].map((h) => (
-              <th key={h} className="text-left py-2 px-3 font-semibold tabular-nums whitespace-nowrap text-ink-dim">{h}</th>
+              <th key={h} className={cn(historyCellCls, "text-left font-semibold bg-panel-2 text-ink-dim")}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -79,24 +82,24 @@ function HistoryTable({ history }: { history: CotEntry["history"] }) {
             const prev = rows[i + 1];
             const chg  = prev ? w.largeSpecNet - prev.largeSpecNet : null;
             return (
-              <tr key={w.date} className={i < rows.length - 1 ? "border-b border-line" : ""}>
-                <td className="py-2 px-3 tabular-nums whitespace-nowrap text-ink-mid">
+              <tr key={w.date}>
+                <td className={cn(historyCellCls, "text-ink-mid")}>
                   {fmtDate(w.date)}
                 </td>
-                <td className={cn("py-2 px-3 tabular-nums font-medium", w.largeSpecNet >= 0 ? "text-teal-bright" : "text-coral-bright")}>
+                <td className={cn(historyCellCls, "font-medium", w.largeSpecNet >= 0 ? "text-teal-bright" : "text-coral-bright")}>
                   {fmt(w.largeSpecNet)}
                   {prev && (
                     <Icon name={w.largeSpecNet > prev.largeSpecNet ? "arrow_upward" : "arrow_downward"}
                       size={11} className="text-current ml-0.5 opacity-70" />
                   )}
                 </td>
-                <td className={cn("py-2 px-3 tabular-nums font-medium", w.commercialNet >= 0 ? "text-teal" : "text-coral")}>
+                <td className={cn(historyCellCls, "font-medium", w.commercialNet >= 0 ? "text-teal" : "text-coral")}>
                   {fmt(w.commercialNet)}
                 </td>
-                <td className="py-2 px-3 tabular-nums text-ink-dim">
+                <td className={cn(historyCellCls, "text-ink-dim")}>
                   {fmt(w.smallSpecNet)}
                 </td>
-                <td className={cn("py-2 px-3 tabular-nums font-semibold", chg === null ? "text-ink-dim" : chg >= 0 ? "text-teal-bright" : "text-coral-bright")}>
+                <td className={cn(historyCellCls, "font-semibold", chg === null ? "text-ink-dim" : chg >= 0 ? "text-teal-bright" : "text-coral-bright")}>
                   {chg === null ? "—" : fmt(chg)}
                 </td>
               </tr>
@@ -131,7 +134,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
   // No DB data yet — render a placeholder card
   if (!entry.history.length) {
     return (
-      <div className="rounded-2xl p-5 flex items-center gap-4 bg-panel border border-line">
+      <div className="rounded-2xl p-5 flex items-center gap-4 bg-panel shadow-md">
         <div className="size-10 rounded-full flex items-center justify-center shrink-0 bg-panel-2">
           <Icon name="hourglass_empty" size={18} className="text-ink-dim" />
         </div>
@@ -164,7 +167,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
     // Outer wrapper is relative + no overflow clip so the floating dropdown can escape
     <div className="relative">
     <div
-      className="rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-150 h-full bg-panel border border-line shadow-md hover:border-teal"
+      className="rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-150 h-full bg-panel shadow-md hover:shadow-[0_0_0_2px_var(--teal)]"
       onClick={() => onOpen(entry.pair)}
       role="button"
       aria-label={`Open ${entry.pair} COT detail`}
@@ -291,7 +294,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
       </div>
 
       {/* ── History table toggle (button only — inside card so it clips correctly) ── */}
-      <div className="mt-auto border-t border-line" onClick={(e) => e.stopPropagation()}>
+      <div className="mt-auto bg-panel-2" onClick={(e) => e.stopPropagation()}>
         <button
           type="button"
           onClick={() => setHistOpen((o) => !o)}
@@ -309,7 +312,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
     {/* Floating dropdown — sibling of the card so overflow-hidden doesn't clip it */}
     {histOpen && (
       <div
-        className="absolute left-0 right-0 top-full z-20 px-2 pb-3 bg-panel border border-t-0 border-line rounded-b-2xl shadow-[0_12px_32px_rgba(0,0,0,0.2)]"
+        className="absolute left-0 right-0 top-full z-20 px-2 pb-3 bg-panel rounded-b-2xl shadow-[0_12px_32px_rgba(0,0,0,0.2)]"
         onClick={(e) => e.stopPropagation()}
       >
         <HistoryTable history={entry.history} />
@@ -325,7 +328,7 @@ function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: bool
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="mb-5 rounded-xl border bg-[rgba(248,185,61,0.05)] border-[rgba(248,185,61,0.15)]">
+    <div className="mb-5 rounded-xl shadow-sm bg-[rgba(248,185,61,0.05)]">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -367,17 +370,17 @@ function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: bool
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-[12.5px] leading-relaxed text-ink-mid">
-            <div className="rounded-xl px-4 py-3 bg-[rgba(8,174,170,0.05)] border border-[rgba(8,174,170,0.15)]">
+            <div className="rounded-xl px-4 py-3 shadow-sm bg-[rgba(8,174,170,0.05)]">
               <div className="font-semibold mb-1 text-teal">Extreme readings: reversal or continuation?</div>
               At COT Index &gt; 80, large specs are near their most bullish in a year. Always check price structure — if price has not yet moved proportionally, COT is leading; if price has already run hard, the extreme may be signalling a top.
             </div>
-            <div className="rounded-xl px-4 py-3 bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.15)]">
+            <div className="rounded-xl px-4 py-3 shadow-sm bg-[rgba(248,185,61,0.05)]">
               <div className="font-semibold mb-1 text-gold">DXY is your master bias</div>
               When the USD Index (DXY) COT Index is low, that&apos;s a tailwind for EURUSD, GBPUSD, NZDUSD, AUDUSD, and XAUUSD longs simultaneously. Cross-reference DXY with your pairs for the strongest setups.
             </div>
           </div>
 
-          <div className="mt-4 rounded-xl px-4 py-3 text-[12px] leading-relaxed bg-panel-2 border border-line text-ink-dim">
+          <div className="mt-4 rounded-xl px-4 py-3 text-[12px] leading-relaxed shadow-sm bg-panel-2 text-ink-dim">
             <strong className="text-ink-strong">Data source:</strong>{" "}
             {hasData
               ? `CFTC Legacy Futures-Only report (publicreporting.cftc.gov). ${totalHistory.toLocaleString()} total weeks across ${entriesCount} instruments. Synced automatically after each release — CFTC publishes Tuesday's data on Fridays ~15:30 ET.`
@@ -460,7 +463,7 @@ function CotFilterDropdown({
       )}
 
       {open && (
-        <div className="absolute left-0 top-full mt-1.5 z-20 w-[240px] rounded-xl border border-line bg-panel shadow-md overflow-hidden">
+        <div className="absolute left-0 top-full mt-1.5 z-20 w-[240px] rounded-xl bg-panel shadow-md overflow-hidden">
           <button
             type="button"
             onClick={() => select({ kind: "all" })}
@@ -526,7 +529,7 @@ function LoadingSkeleton() {
   return (
     <div className="grid gap-5 grid-cols-[repeat(auto-fill,minmax(min(520px,100%),1fr))]">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="rounded-2xl p-5 flex flex-col gap-4 bg-panel border border-line">
+        <div key={i} className="rounded-2xl p-5 flex flex-col gap-4 bg-panel shadow-md">
           <div className="flex items-start justify-between">
             <div className="flex flex-col gap-2">
               <Skeleton h={22} w={120} r={6} />
@@ -641,10 +644,10 @@ export function CotReports() {
           {/* Status badge */}
           <div
             className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-xl text-[12px] border",
-              allLoaded ? "bg-[rgba(8,174,170,0.08)] border-[rgba(8,174,170,0.2)] text-teal"
-                : hasData ? "bg-[rgba(248,185,61,0.08)] border-[rgba(248,185,61,0.2)] text-gold"
-                  : "bg-panel-2 border-line text-ink-dim"
+              "flex items-center gap-2 px-3 py-1.5 rounded-xl text-[12px]",
+              allLoaded ? "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.08)] text-teal"
+                : hasData ? "shadow-[0_0_0_1px_rgba(248,185,61,0.2)] bg-[rgba(248,185,61,0.08)] text-gold"
+                  : "bg-panel-2 text-ink-dim"
             )}
           >
             <span
@@ -678,7 +681,7 @@ export function CotReports() {
 
       {/* ── Load error ── */}
       {loadError && (
-        <div className="mb-5 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-[13px] bg-[rgba(234,82,61,0.07)] border border-[rgba(234,82,61,0.2)] text-coral">
+        <div className="mb-5 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-[13px] shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral">
           <span>Couldn&apos;t load COT data. Please try again.</span>
           <button
             type="button"

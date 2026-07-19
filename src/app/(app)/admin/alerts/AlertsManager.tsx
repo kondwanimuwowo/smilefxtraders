@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Icon, Button } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { fmtMonthDay } from "@/lib/date";
 import {
-  PostAlertModal,
   useUpdateAlertStatus,
   useDeleteAlert,
 } from "@/app/(app)/alerts/Alerts";
@@ -74,7 +74,7 @@ function useAlerts() {
 // ── Component ──────────────────────────────────────────────────────────────────
 
 export function AlertsManager() {
-  const [showPostModal, setShowPostModal] = useState(false);
+  const router = useRouter();
   const [expandedId, setExpandedId]       = useState<string | null>(null);
   const { data: alerts = [], isLoading }  = useAlerts();
   const { mutate: updateStatus }          = useUpdateAlertStatus();
@@ -89,8 +89,6 @@ export function AlertsManager() {
 
   return (
     <div className="view">
-      {showPostModal && <PostAlertModal onClose={() => setShowPostModal(false)} />}
-
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
@@ -101,7 +99,7 @@ export function AlertsManager() {
             Post and manage setup alerts. Students receive them in real-time.
           </p>
         </div>
-        <Button variant="primary" icon="add_alert" onClick={() => setShowPostModal(true)}>
+        <Button variant="primary" icon="add_alert" onClick={() => router.push("/alerts/new")}>
           Post Alert
         </Button>
       </div>
@@ -115,7 +113,7 @@ export function AlertsManager() {
           { label: "SL Hit",   value: slHits,  colorCls: "text-coral",      sub: null },
           { label: "Win rate", value: total > 0 ? `${hitRate}%` : "—", colorCls: hitRate >= 50 ? "text-teal" : "text-coral", sub: "tp hits / total" },
         ].map(({ label, value, colorCls, sub }) => (
-          <div key={label} className="rounded-2xl p-4 bg-panel border border-line">
+          <div key={label} className="rounded-2xl p-4 bg-panel shadow-sm">
             <div className="text-[11px] uppercase tracking-wide font-semibold mb-1 text-ink-dim">{label}</div>
             <div className={cn("font-display font-bold tabular-nums text-[24px] tracking-[-0.03em]", colorCls)}>{value}</div>
             {sub && <div className="text-[11px] mt-0.5 text-ink-dim">{sub}</div>}
@@ -124,9 +122,9 @@ export function AlertsManager() {
       </div>
 
       {/* Alerts list */}
-      <div className="rounded-2xl overflow-hidden bg-panel border border-line">
+      <div className="rounded-2xl overflow-hidden bg-panel shadow-md">
         {/* Table header */}
-        <div className="hidden sm:grid grid-cols-[80px_44px_1fr_90px_80px_60px_80px_40px] px-5 py-2.5 text-[11px] uppercase tracking-wide font-semibold border-b border-line text-ink-dim bg-panel-2">
+        <div className="hidden sm:grid grid-cols-[80px_44px_1fr_90px_80px_60px_80px_40px] px-5 py-2.5 text-[11px] uppercase tracking-wide font-semibold text-ink-dim bg-panel-2">
           <span>Pair</span><span>Dir</span><span>Model</span>
           <span>Status</span><span className="text-right">Entry</span>
           <span className="text-right">R:R</span><span className="text-right">Posted</span>
@@ -134,9 +132,9 @@ export function AlertsManager() {
         </div>
 
         {isLoading ? (
-          <div className="divide-y divide-line">
+          <div>
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="px-5 py-4 animate-pulse flex gap-3">
+              <div key={i} className={cn("px-5 py-4 animate-pulse flex gap-3", i < 3 && "border-b border-line")}>
                 <div className="h-4 w-16 rounded bg-track" />
                 <div className="h-4 flex-1 rounded bg-track" />
               </div>
@@ -149,21 +147,21 @@ export function AlertsManager() {
             </div>
             <button
               type="button"
-              onClick={() => setShowPostModal(true)}
+              onClick={() => router.push("/alerts/new")}
               className="mt-3 text-[13px] font-semibold text-teal"
             >
               Post your first setup →
             </button>
           </div>
         ) : (
-          <div className="divide-y divide-line">
-            {alerts.map((a) => {
+          <div>
+            {alerts.map((a, i) => {
               const s = STATUS_STYLE[a.status] ?? STATUS_STYLE.closed;
               const isExpanded = expandedId === a.id;
               const postedDate = fmtMonthDay(a.timePosted);
 
               return (
-                <div key={a.id}>
+                <div key={a.id} className={i < alerts.length - 1 ? "border-b border-line" : undefined}>
                   {/* Main row */}
                   <div
                     className={cn("hidden sm:grid grid-cols-[80px_44px_1fr_90px_80px_60px_80px_40px] items-center px-5 py-3", a.status === "active" && "bg-[rgba(8,174,170,0.02)]")}
@@ -230,7 +228,7 @@ export function AlertsManager() {
 
                   {/* Expanded controls */}
                   {isExpanded && (
-                    <div className="px-5 py-4 flex flex-col gap-3 border-t border-line bg-panel-2">
+                    <div className="px-5 py-4 flex flex-col gap-3 bg-panel-2">
                       {/* Level summary */}
                       <div className="flex flex-wrap gap-4 text-[12px] text-ink-mid">
                         <span>Entry <strong className="text-ink-strong">{a.entry}</strong></span>
@@ -258,7 +256,7 @@ export function AlertsManager() {
                             style={{
                               background: STATUS_STYLE[status].bg,
                               color: STATUS_STYLE[status].color,
-                              border: `1px solid ${STATUS_STYLE[status].color}33`,
+                              boxShadow: `0 0 0 1px ${STATUS_STYLE[status].color}33`,
                             }}
                           >
                             {STATUS_STYLE[status].label}
@@ -267,7 +265,7 @@ export function AlertsManager() {
                         <button
                           type="button"
                           onClick={() => { if (confirm("Delete this alert permanently?")) deleteAlert(a.id); }}
-                          className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11.5px] font-semibold transition-all hover:opacity-80 bg-[rgba(234,82,61,0.08)] text-coral border border-[rgba(234,82,61,0.2)]"
+                          className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11.5px] font-semibold transition-all hover:opacity-80 bg-[rgba(234,82,61,0.08)] text-coral shadow-[0_0_0_1px_rgba(234,82,61,0.2)]"
                         >
                           <Icon name="delete" size={13} />
                           Delete

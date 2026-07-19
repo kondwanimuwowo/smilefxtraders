@@ -172,10 +172,10 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
 
   // ── Full mode (detail page) ───────────────────────────────────────────────
   return (
-    <div className="rounded-2xl overflow-hidden bg-panel border border-line">
+    <div className="rounded-2xl overflow-hidden bg-panel shadow-md">
 
       {/* Header */}
-      <div className="px-5 pt-4 pb-3 flex items-start justify-between gap-3 border-b border-line">
+      <div className="px-5 pt-4 pb-3 flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">
@@ -197,7 +197,7 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
         </div>
 
         {/* Current net callout */}
-        <div className="flex flex-col items-end gap-0.5 shrink-0 px-3 py-2 rounded-xl bg-panel-2 border border-line">
+        <div className="flex flex-col items-end gap-0.5 shrink-0 px-3 py-2 rounded-xl bg-panel-2 shadow-sm">
           <span className="text-[10px] uppercase tracking-wide font-medium text-ink-dim">Current net</span>
           <span className={cn(
             "font-display font-bold tabular-nums text-[18px] tracking-[-0.01em]",
@@ -228,7 +228,7 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
       </div>
 
       {/* Peak / current / trough anchors */}
-      <div className="px-5 py-3 grid grid-cols-3 gap-2 border-t border-line bg-panel-2">
+      <div className="px-5 py-3 grid grid-cols-3 gap-2 bg-panel-2">
         <div>
           <div className="text-[10px] uppercase tracking-wide font-medium mb-0.5 text-ink-dim">Period peak</div>
           <div className="font-semibold tabular-nums text-[13px] text-teal-bright">{fmtNet(peakNet)}</div>

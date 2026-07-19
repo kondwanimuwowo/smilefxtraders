@@ -12,12 +12,12 @@ const FEATURES = ["COT Bias", "Trend Matrix", "DXY Confluence"] as const;
 // Subtle accent classes per group — keyed by the shared group id (lib/pairs.ts),
 // not by pair symbol, so a new instrument only needs a category/tier to land
 // in the right visual group automatically.
-const GROUP_ACCENT: Record<string, { barCls: string; hoverBorderCls: string; chipBgCls: string; chipTextCls: string; chipBorderCls: string }> = {
-  majors:      { barCls: "bg-teal",        hoverBorderCls: "hover:border-teal",        chipBgCls: "bg-[color-mix(in_srgb,var(--teal)_12%,transparent)]",        chipTextCls: "text-teal",        chipBorderCls: "border-[color-mix(in_srgb,var(--teal)_25%,transparent)]" },
-  minors:      { barCls: "bg-teal-bright", hoverBorderCls: "hover:border-teal-bright", chipBgCls: "bg-[color-mix(in_srgb,var(--teal-bright)_12%,transparent)]", chipTextCls: "text-teal-bright", chipBorderCls: "border-[color-mix(in_srgb,var(--teal-bright)_25%,transparent)]" },
-  commodities: { barCls: "bg-gold",        hoverBorderCls: "hover:border-gold",        chipBgCls: "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)]",        chipTextCls: "text-gold",        chipBorderCls: "border-[color-mix(in_srgb,var(--gold)_25%,transparent)]" },
-  indices:     { barCls: "bg-navy",        hoverBorderCls: "hover:border-navy",        chipBgCls: "bg-[color-mix(in_srgb,var(--navy)_12%,transparent)]",        chipTextCls: "text-navy",        chipBorderCls: "border-[color-mix(in_srgb,var(--navy)_25%,transparent)]" },
-  dollar:      { barCls: "bg-coral",       hoverBorderCls: "hover:border-coral",       chipBgCls: "bg-[color-mix(in_srgb,var(--coral)_12%,transparent)]",       chipTextCls: "text-coral",       chipBorderCls: "border-[color-mix(in_srgb,var(--coral)_25%,transparent)]" },
+const GROUP_ACCENT: Record<string, { barCls: string; hoverShadowCls: string; chipBgCls: string; chipTextCls: string }> = {
+  majors:      { barCls: "bg-teal",        hoverShadowCls: "hover:shadow-[0_0_0_2px_var(--teal)]",        chipBgCls: "bg-[color-mix(in_srgb,var(--teal)_12%,transparent)]",        chipTextCls: "text-teal" },
+  minors:      { barCls: "bg-teal-bright", hoverShadowCls: "hover:shadow-[0_0_0_2px_var(--teal-bright)]", chipBgCls: "bg-[color-mix(in_srgb,var(--teal-bright)_12%,transparent)]", chipTextCls: "text-teal-bright" },
+  commodities: { barCls: "bg-gold",        hoverShadowCls: "hover:shadow-[0_0_0_2px_var(--gold)]",        chipBgCls: "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)]",        chipTextCls: "text-gold" },
+  indices:     { barCls: "bg-navy",        hoverShadowCls: "hover:shadow-[0_0_0_2px_var(--navy)]",        chipBgCls: "bg-[color-mix(in_srgb,var(--navy)_12%,transparent)]",        chipTextCls: "text-navy" },
+  dollar:      { barCls: "bg-coral",       hoverShadowCls: "hover:shadow-[0_0_0_2px_var(--coral)]",       chipBgCls: "bg-[color-mix(in_srgb,var(--coral)_12%,transparent)]",       chipTextCls: "text-coral" },
 };
 
 export default function PairsPage() {
@@ -39,7 +39,7 @@ export default function PairsPage() {
             Select a pair for its COT bias, trend alignment, DXY confluence, and key levels.
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-2xl px-4 py-2.5 shrink-0 bg-panel border border-line">
+        <div className="flex items-center gap-2 rounded-2xl px-4 py-2.5 shrink-0 bg-panel shadow-sm">
           <Icon name="currency_exchange" size={16} className="text-teal" />
           <span className="font-display font-bold text-[18px] text-ink-strong">
             {totalPairs}
@@ -75,10 +75,10 @@ export default function PairsPage() {
                     <Link
                       key={inst.symbol}
                       href={`/pair/${inst.symbol}`}
-                      className={cn("group flex flex-col rounded-2xl overflow-hidden transition-all duration-150 bg-panel border border-line", accent.hoverBorderCls)}
+                      className={cn("group flex flex-col rounded-2xl overflow-hidden transition-all duration-150 bg-panel shadow-sm", accent.hoverShadowCls)}
                     >
                       {/* Top — pair name */}
-                      <div className="px-5 pt-5 pb-4 border-b border-line bg-panel-2">
+                      <div className="px-5 pt-5 pb-4 bg-panel-2">
                         <div className="flex items-start justify-between gap-2">
                           <div>
                             <div className="font-display font-bold leading-none text-[22px] tracking-[-0.02em] text-ink-strong">
@@ -100,13 +100,13 @@ export default function PairsPage() {
                       <div className="px-5 py-3.5 flex items-center justify-between gap-3">
                         {/* Base / quote chips */}
                         <div className="flex items-center gap-1.5">
-                          <span className={cn("text-[10.5px] font-bold px-2 py-0.5 rounded-md border", accent.chipBgCls, accent.chipTextCls, accent.chipBorderCls)}>
+                          <span className={cn("text-[10.5px] font-bold px-2 py-0.5 rounded-md", accent.chipBgCls, accent.chipTextCls)}>
                             {meta?.base ?? inst.symbol}
                           </span>
                           {meta?.quote && (
                             <>
                               <span className="text-[10px] text-ink-dim">/</span>
-                              <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-panel-2 text-ink-dim border border-line">
+                              <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-panel-2 text-ink-dim">
                                 {meta.quote}
                               </span>
                             </>

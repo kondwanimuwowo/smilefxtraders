@@ -141,7 +141,8 @@ export default function FeaturesPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <span className="avatar avatar-ring w-[30px] h-[30px] text-xs bg-[linear-gradient(135deg,#1672A1,#0B425D)]">K</span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/kondwanimuwowo.png" alt="Kondwani" className="avatar avatar-ring w-[30px] h-[30px] object-cover" />
                   <span className="font-bold text-[13px] ml-1">Kondwani</span>
                   <span className="chip gold text-[10px]">LEAD INSTRUCTOR</span>
                   <span className="ml-auto inline-flex items-center gap-[5px] text-[11px] font-extrabold text-coral">

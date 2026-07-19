@@ -4,7 +4,7 @@ import { Icon } from "@/components/ui";
 export function CotLockScreen() {
   return (
     <div className="view flex flex-col items-center justify-center min-h-[60vh]">
-      <div className="rounded-3xl px-10 py-12 text-center max-w-md bg-panel border border-line">
+      <div className="rounded-3xl px-10 py-12 text-center max-w-md bg-panel shadow-md">
         <Icon name="lock" size={36} fill className="text-gold mb-4" />
         <h2 className="font-display font-medium text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">COT Reports</h2>
         <p className="text-[13.5px] leading-relaxed mb-6 text-ink-dim">

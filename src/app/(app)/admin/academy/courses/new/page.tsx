@@ -58,30 +58,30 @@ export default function NewCoursePage() {
         <span className="text-[13px] font-medium text-ink-strong">New course</span>
       </div>
 
-      <div className="max-w-lg rounded-2xl p-6 flex flex-col gap-4 bg-panel border border-line">
+      <div className="max-w-lg rounded-2xl p-6 flex flex-col gap-4 bg-panel shadow-md">
         <h1 className="font-display font-medium text-[20px] text-ink-strong">Create a new course</h1>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] font-semibold text-ink-mid">Title</span>
-          <input className="rounded-xl px-3 py-2 text-[14px] outline-none bg-panel-2 border border-line text-ink-strong"
+          <input className="rounded-xl px-3 py-2 text-[14px] outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
             value={title} onChange={(e) => handleTitleChange(e.target.value)} placeholder="e.g. Advanced SMC Models" />
         </label>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] font-semibold text-ink-mid">Slug</span>
-          <input className="rounded-xl px-3 py-2 text-[14px] outline-none bg-panel-2 border border-line text-ink-strong"
+          <input className="rounded-xl px-3 py-2 text-[14px] outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
             value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="advanced-smc-models" />
         </label>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] font-semibold text-ink-mid">Description</span>
-          <textarea rows={3} className="rounded-xl px-3 py-2 text-[13.5px] outline-none resize-none bg-panel-2 border border-line text-ink-strong"
+          <textarea rows={3} className="rounded-xl px-3 py-2 text-[13.5px] outline-none resize-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
             value={description} onChange={(e) => setDescription(e.target.value)} />
         </label>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] font-semibold text-ink-mid">Tier</span>
-          <select className="rounded-xl px-3 py-2 text-[13.5px] outline-none bg-panel-2 border border-line text-ink-strong"
+          <select className="rounded-xl px-3 py-2 text-[13.5px] outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
             value={tier} onChange={(e) => setTier(e.target.value)}>
             {TIER_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
@@ -93,7 +93,7 @@ export default function NewCoursePage() {
             {ICON_OPTIONS.map((ic) => (
               <button key={ic} type="button" onClick={() => setIcon(ic)}
                 className="size-9 rounded-xl flex items-center justify-center"
-                style={{ background: icon === ic ? `${color}20` : "var(--panel-2)", border: `1px solid ${icon === ic ? color : "var(--line)"}` }}>
+                style={{ background: icon === ic ? `${color}20` : "var(--panel-2)", boxShadow: `0 0 0 1px ${icon === ic ? color : "var(--line)"}` }}>
                 <Icon name={ic} size={18} style={{ color: icon === ic ? color : "var(--ink-dim)" }} />
               </button>
             ))}

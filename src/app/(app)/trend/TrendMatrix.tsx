@@ -186,7 +186,7 @@ function SummaryRow({ matrix, pairs }: { matrix: Matrix; pairs: string[] }) {
   });
 
   return (
-    <tr className="border-t-2 border-line">
+    <tr className="bg-panel-2">
       <td className="px-5 py-3">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">
           TF consensus
@@ -375,11 +375,11 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
 
       {/* ── Matrix table ── */}
       <p className="md:hidden text-xs mb-2 text-ink-dim">← Scroll to see all timeframes</p>
-      <Panel pad={0}>
+      <Panel pad={0} className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-line">
+              <tr className="bg-panel-2">
                 <th className="px-5 py-3 text-left">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">Pair</span>
                 </th>
@@ -395,8 +395,8 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
             </thead>
             <tbody>
               {loading
-                ? PAIRS.map((pair) => (
-                    <tr key={pair} className="border-t border-line">
+                ? PAIRS.map((pair, i) => (
+                    <tr key={pair} className={cn(i < PAIRS.length - 1 && "border-b border-line")}>
                       <td className="px-5 py-4">
                         <div className="h-4 w-16 rounded animate-pulse bg-track" />
                       </td>
@@ -415,7 +415,7 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
                     return (
                       <tr
                         key={pair}
-                        className={cn("group transition-colors hover:bg-hover", i > 0 && "border-t border-line")}
+                        className={cn("group transition-colors hover:bg-hover", i < PAIRS.length - 1 && "border-b border-line")}
                       >
                         <td className="px-5 py-3.5">
                           <div className="font-display font-bold text-[14px] text-ink-strong">{pair}</div>
@@ -442,7 +442,7 @@ export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
       </Panel>
 
       {/* ── How to use ── */}
-      <div className="mt-4 rounded-2xl px-5 py-4 flex items-start gap-3 bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.15)]">
+      <div className="mt-4 rounded-2xl px-5 py-4 flex items-start gap-3 bg-[rgba(8,174,170,0.06)] shadow-[0_0_0_2px_rgba(8,174,170,0.15)]">
         <Icon name="info" size={17} fill className="text-teal shrink-0 mt-px" />
         <p className="text-[12.5px] leading-relaxed text-ink-mid">
           {isInstructor

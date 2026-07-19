@@ -29,7 +29,7 @@ export function ResponsiveRow({ gridTemplateColumns, cells, className = "", styl
         ))}
       </div>
 
-      <div className="md:hidden flex flex-col gap-2 rounded-xl p-3.5 mb-2 bg-panel-2 border border-line">
+      <div className="md:hidden flex flex-col gap-2 rounded-xl p-3.5 mb-2 bg-panel-2 shadow-sm">
         {cells.map((c, i) => (
           <div key={i} className="flex items-center justify-between gap-3">
             <span className="text-[10.5px] font-semibold uppercase tracking-wide shrink-0 text-ink-dim">

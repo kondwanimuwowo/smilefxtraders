@@ -1,17 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { Icon, Chip } from "@/components/ui";
-import { CheckoutModal } from "@/components/checkout/CheckoutModal";
 import { PlanCard } from "@/components/pricing/PlanCard";
 import { FAQAccordion } from "@/components/marketing/FAQAccordion";
 import { PLAN_META, DEFAULT_PRICES } from "@/lib/plans";
 import type { PlanPrices } from "@/lib/plans";
-
-type PaidPlan = "edge" | "pro";
 
 function usePlanPrices() {
   return useQuery<PlanPrices[]>({
@@ -36,20 +33,10 @@ const FAQ = [
 ];
 
 export function Pricing() {
-  const { user, setUser, toast } = useStore();
-  const queryClient = useQueryClient();
+  const { user } = useStore();
   const router = useRouter();
-  const [annual,        setAnnual]        = useState(false);
-  const [checkoutPlan,  setCheckoutPlan]  = useState<PaidPlan | null>(null);
-  const [checkoutCycle, setCheckoutCycle] = useState<"monthly" | "annual">("monthly");
+  const [annual, setAnnual] = useState(false);
   const currentPlan = user?.plan ?? "free";
-
-  function handleUpgradeSuccess(newPlan: PaidPlan) {
-    if (user) setUser({ ...user, plan: newPlan });
-    queryClient.invalidateQueries({ queryKey: ["plan-prices"] });
-    toast(`You're now on ${newPlan === "edge" ? "Edge" : "Pro"}!`, "teal", "check_circle");
-    router.push("/dashboard");
-  }
 
   const { data: allPrices = DEFAULT_PRICES } = usePlanPrices();
 
@@ -93,7 +80,7 @@ export function Pricing() {
                 if (isCurrent) {
                   return (
                     <div
-                      className="w-full py-2.5 rounded-xl text-center text-[13.5px] font-semibold bg-panel-2 text-ink-dim border border-line"
+                      className="w-full py-2.5 rounded-xl text-center text-[13.5px] font-semibold bg-panel-2 text-ink-dim shadow-sm"
                     >
                       Current plan
                     </div>
@@ -102,7 +89,7 @@ export function Pricing() {
                 if (m.id === "free") {
                   return (
                     <div
-                      className="w-full py-2.5 rounded-xl text-center text-[13.5px] font-semibold bg-panel-2 text-ink-dim border border-line"
+                      className="w-full py-2.5 rounded-xl text-center text-[13.5px] font-semibold bg-panel-2 text-ink-dim shadow-sm"
                     >
                       Downgrade not available
                     </div>
@@ -111,7 +98,7 @@ export function Pricing() {
                 return (
                   <button
                     type="button"
-                    onClick={() => { setCheckoutPlan(m.id as PaidPlan); setCheckoutCycle(annual ? "annual" : "monthly"); }}
+                    onClick={() => router.push(`/checkout/${m.id}?cycle=${annual ? "annual" : "monthly"}`)}
                     className={`w-full py-2.5 rounded-xl text-[13.5px] font-bold transition-all active:scale-95 ${
                       m.popular
                         ? "bg-[linear-gradient(135deg,var(--teal),#069E9A)] text-white"
@@ -131,14 +118,14 @@ export function Pricing() {
       <div className="text-center mb-10">
         <a
           href="mailto:support@smilefxtraders.com"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-[14px] font-bold border border-line text-ink-strong hover:bg-hover transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-[14px] font-bold shadow-sm text-ink-strong hover:bg-hover transition-colors"
         >
           Need lifetime access? Contact our sales team
         </a>
       </div>
 
       <div
-        className="rounded-2xl px-6 py-5 flex items-center gap-4 mb-10 bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.2)]"
+        className="rounded-2xl px-6 py-5 flex items-center gap-4 mb-10 bg-[rgba(8,174,170,0.06)] shadow-[0_0_0_2px_var(--teal)]"
       >
         <Icon name="verified_user" size={30} fill className="text-teal shrink-0" />
         <div>
@@ -158,15 +145,6 @@ export function Pricing() {
           items={FAQ}
         />
       </div>
-
-      {checkoutPlan && (
-        <CheckoutModal
-          plan={checkoutPlan}
-          cycle={checkoutCycle}
-          onClose={() => setCheckoutPlan(null)}
-          onSuccess={handleUpgradeSuccess}
-        />
-      )}
     </div>
   );
 }

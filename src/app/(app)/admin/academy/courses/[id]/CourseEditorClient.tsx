@@ -70,13 +70,13 @@ export function CourseEditorClient({ course }: { course: Course }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-[380px_minmax(0,1fr)] gap-5">
       {/* Course fields */}
-      <div className="rounded-2xl p-5 flex flex-col gap-4 bg-panel border border-line">
+      <div className="rounded-2xl p-5 flex flex-col gap-4 bg-panel shadow-md">
         <h2 className="font-display font-medium text-[16px] text-ink-strong">Course settings</h2>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] font-semibold text-ink-mid">Title</span>
           <input
-            className="rounded-xl px-3 py-2 text-[13.5px] outline-none bg-panel-2 border border-line text-ink-strong"
+            className="rounded-xl px-3 py-2 text-[13.5px] outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
             value={title} onChange={(e) => setTitle(e.target.value)}
           />
         </label>
@@ -85,7 +85,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
           <span className="text-[12px] font-semibold text-ink-mid">Description</span>
           <textarea
             rows={3}
-            className="rounded-xl px-3 py-2 text-[13.5px] outline-none resize-none bg-panel-2 border border-line text-ink-strong"
+            className="rounded-xl px-3 py-2 text-[13.5px] outline-none resize-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
             value={description} onChange={(e) => setDescription(e.target.value)}
           />
         </label>
@@ -93,7 +93,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] font-semibold text-ink-mid">Tier</span>
           <select
-            className="rounded-xl px-3 py-2 text-[13.5px] outline-none bg-panel-2 border border-line text-ink-strong"
+            className="rounded-xl px-3 py-2 text-[13.5px] outline-none transition-shadow shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
             value={tier} onChange={(e) => setTier(e.target.value)}
           >
             {TIER_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -110,7 +110,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
                 className="size-9 rounded-xl flex items-center justify-center transition-all"
                 style={{
                   background: icon === ic ? `${color}20` : "var(--panel-2)",
-                  border: `1px solid ${icon === ic ? color : "var(--line)"}`,
+                  boxShadow: `0 0 0 1px ${icon === ic ? color : "var(--line)"}`,
                 }}
               >
                 <Icon name={ic} size={18} style={{ color: icon === ic ? color : "var(--ink-dim)" }} />
@@ -153,7 +153,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
       </div>
 
       {/* Lessons list */}
-      <div className="rounded-2xl p-5 bg-panel border border-line">
+      <div className="rounded-2xl p-5 bg-panel shadow-md">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-display font-medium text-[16px] text-ink-strong">
             Lessons <span className="text-ink-dim">({course.lessons.length})</span>
@@ -161,7 +161,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
           <button
             type="button"
             onClick={addLesson}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold bg-[rgba(8,174,170,0.1)] text-teal border border-[rgba(8,174,170,0.2)]"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold bg-[rgba(8,174,170,0.1)] text-teal shadow-[0_0_0_1px_rgba(8,174,170,0.2)]"
           >
             <Icon name="add" size={15} />
             Add lesson
@@ -173,7 +173,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
             <Link
               key={lesson.id}
               href={`/admin/academy/courses/${course.id}/lessons/${lesson.id}`}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:opacity-80 bg-panel-2 border border-line"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:opacity-80 bg-panel-2 shadow-sm"
             >
               <div className="size-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 bg-track text-ink-dim">
                 {i + 1}

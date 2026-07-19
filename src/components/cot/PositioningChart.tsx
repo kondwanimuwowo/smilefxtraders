@@ -160,9 +160,9 @@ export function PositioningChart({ rows, showRetail }: PositioningChartProps) {
   }
 
   return (
-    <div className="rounded-2xl mb-6 bg-panel border border-line">
+    <div className="rounded-2xl mb-6 bg-panel shadow-md">
       {/* Header + legend */}
-      <div className="flex items-center gap-4 px-5 py-3 flex-wrap border-b border-line">
+      <div className="flex items-center gap-4 px-5 py-3 flex-wrap bg-panel-2 rounded-t-2xl">
         <span className="text-[13px] font-semibold text-ink-strong">Positioning history</span>
         <div className="flex items-center gap-3.5">
           {visibleSeries.map((s) => (
@@ -315,7 +315,7 @@ export function PositioningChart({ rows, showRetail }: PositioningChartProps) {
           <div
             className={cn(
               "absolute z-10 pointer-events-none rounded-xl px-3 py-2.5 text-[11.5px] leading-relaxed",
-              "bg-panel border border-line shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+              "bg-panel shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
             )}
             style={{
               top: M.top + 4,

@@ -39,9 +39,9 @@ export default async function AdminStudentsPage() {
 
       <InviteUserForm />
 
-      <div className="rounded-2xl overflow-hidden bg-panel border border-line">
+      <div className="rounded-2xl overflow-hidden bg-panel shadow-md">
         {/* Table header — desktop only, mobile cards show labels inline */}
-        <div className="hidden md:grid px-5 py-2.5 text-[11px] uppercase tracking-wide font-semibold border-b border-line text-ink-dim bg-panel-2 grid-cols-[1fr_1fr_80px_60px_60px_80px]">
+        <div className="hidden md:grid px-5 py-2.5 text-[11px] uppercase tracking-wide font-semibold text-ink-dim bg-panel-2 grid-cols-[1fr_1fr_80px_60px_60px_80px]">
           <span>Name</span>
           <span>Email</span>
           <span>Plan</span>
@@ -55,12 +55,12 @@ export default async function AdminStudentsPage() {
             No students yet.
           </div>
         ) : (
-          <div className="md:divide-y divide-line px-3 py-3 md:p-0">
-            {users.map((u) => (
+          <div className="px-3 py-3 md:p-0">
+            {users.map((u, i) => (
               <ResponsiveRow
                 key={u.id}
                 gridTemplateColumns={GRID_COLS}
-                className="items-center px-5 py-3"
+                className={cn("items-center px-5 py-3", i < users.length - 1 && "border-b border-line")}
                 cells={[
                   {
                     label: "Name",

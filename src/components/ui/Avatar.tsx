@@ -13,9 +13,26 @@ interface AvatarProps {
   size?: number;
   ring?: string;
   className?: string;
+  src?: string;
 }
 
-export function Avatar({ seed = 1, name = "?", size = 36, ring, className = "" }: AvatarProps) {
+export function Avatar({ seed = 1, name = "?", size = 36, ring, className = "", src }: AvatarProps) {
+  if (src) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt={name}
+        className={`shrink-0 rounded-full object-cover ${className}`}
+        style={{
+          width: size,
+          height: size,
+          boxShadow: ring ? `0 0 0 2px var(--app-bg), 0 0 0 4px ${ring}` : undefined,
+        }}
+      />
+    );
+  }
+
   const [from, to] = GRADIENTS[seed % GRADIENTS.length];
   const initials = name
     .split(" ")

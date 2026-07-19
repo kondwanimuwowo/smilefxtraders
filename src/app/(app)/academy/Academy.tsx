@@ -140,14 +140,14 @@ function CourseCard({
 
   return (
     <div
-      className={`rounded-2xl overflow-hidden transition-all bg-panel ${canAccess ? "cursor-pointer" : "cursor-default opacity-65"}`}
-      style={{ border: complete ? `1px solid ${course.color}55` : "1px solid var(--line)" }}
+      className={`rounded-2xl overflow-hidden transition-all bg-panel ${canAccess ? "cursor-pointer" : "cursor-default opacity-65"} ${complete ? "" : "shadow-md"}`}
+      style={complete ? { boxShadow: `0 0 0 2px ${course.color}` } : undefined}
       onClick={canAccess ? onOpen : onUpgrade}
     >
       {complete && (
         <div
           className="flex items-center gap-2 px-5 py-2 text-[11.5px] font-semibold"
-          style={{ background: `${course.color}14`, borderBottom: `1px solid ${course.color}30`, color: course.color }}
+          style={{ background: `${course.color}14`, color: course.color }}
         >
           <Icon name="verified" size={14} fill />
           Course complete
@@ -210,7 +210,7 @@ function CourseCard({
 function LessonBody({ body }: { body: string | null }) {
   if (!body) {
     return (
-      <div className="rounded-xl flex flex-col items-center justify-center gap-2 py-10 bg-panel-2 border border-line">
+      <div className="rounded-xl flex flex-col items-center justify-center gap-2 py-10 bg-panel-2 shadow-sm">
         <Icon name="play_circle" size={44} fill className="text-teal" />
         <span className="text-[13px] font-medium text-ink-dim">
           Video coming soon, instructor will upload
@@ -221,7 +221,7 @@ function LessonBody({ body }: { body: string | null }) {
 
   return (
     <div
-      className="prose-lesson rounded-xl px-6 py-5 bg-panel-2 border border-line"
+      className="prose-lesson rounded-xl px-6 py-5 bg-panel-2 shadow-sm"
       dangerouslySetInnerHTML={{ __html: renderMarkdown(body) }}
     />
   );
@@ -272,7 +272,7 @@ function LessonList({
         </div>
       </div>
 
-      <div className="rounded-2xl px-5 py-3.5 mb-5 flex items-center gap-4 bg-panel border border-line">
+      <div className="rounded-2xl px-5 py-3.5 mb-5 flex items-center gap-4 bg-panel shadow-md">
         <div className="flex-1">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[12px] font-semibold text-ink-mid">
@@ -305,8 +305,8 @@ function LessonList({
             <div
               id={`lesson-${lesson.id}`}
               key={lesson.id}
-              className={`rounded-2xl border overflow-hidden ${
-                isPlaying ? "bg-[rgba(8,174,170,0.07)] border-[rgba(8,174,170,0.3)]" : "bg-panel border-line"
+              className={`rounded-2xl overflow-hidden ${
+                isPlaying ? "bg-[rgba(8,174,170,0.07)] shadow-[0_0_0_2px_var(--teal)]" : "bg-panel shadow-sm"
               }`}
             >
               <button
@@ -347,10 +347,10 @@ function LessonList({
                     <button
                       type="button"
                       onClick={() => markComplete({ lessonId: lesson.id, completed: !isDone })}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[12.5px] font-semibold transition-all border ${
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[12.5px] font-semibold transition-all ${
                         isDone
-                          ? "bg-[rgba(8,174,170,0.1)] text-teal border-[rgba(8,174,170,0.2)]"
-                          : "bg-panel-2 text-ink-mid border-line"
+                          ? "bg-[rgba(8,174,170,0.1)] text-teal shadow-[0_0_0_2px_var(--teal)]"
+                          : "bg-panel-2 text-ink-mid shadow-sm"
                       }`}
                     >
                       <Icon name={isDone ? "check_circle" : "radio_button_unchecked"} size={16} fill={isDone} />
@@ -389,14 +389,14 @@ function ProgressBanner({ completedIds, totalLessons, isLoading }: { completedId
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl px-5 py-4 mb-6 animate-pulse bg-panel border border-line h-[72px]" />
+      <div className="rounded-2xl px-5 py-4 mb-6 animate-pulse bg-panel shadow-md h-[72px]" />
     );
   }
 
   if (done === 0) return null;
 
   return (
-    <div className="rounded-2xl px-5 py-4 mb-6 flex items-center gap-5 bg-panel border border-line">
+    <div className="rounded-2xl px-5 py-4 mb-6 flex items-center gap-5 bg-panel shadow-md">
       <div className="flex-1">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[13px] font-semibold text-ink-strong">Your progress</span>
@@ -427,7 +427,7 @@ function SkeletonGrid() {
   return (
     <div className={`grid gap-4 ${COURSE_GRID_COLS}`}>
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="rounded-2xl animate-pulse bg-panel border border-line h-[200px]" />
+        <div key={i} className="rounded-2xl animate-pulse bg-panel shadow-md h-[200px]" />
       ))}
     </div>
   );

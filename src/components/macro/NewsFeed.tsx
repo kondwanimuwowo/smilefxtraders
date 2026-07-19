@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Icon, Panel, PanelHead, Skeleton } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import type { MacroNewsItem } from "@/types/macro";
 
 function timeAgo(iso: string): string {
@@ -37,7 +38,7 @@ export function NewsFeed({ currency }: { currency?: string }) {
           {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} h={40} r={8} />)}
         </div>
       ) : items.length === 0 ? (
-        <div className="rounded-xl px-4 py-4 flex items-start gap-3 text-[12.5px] bg-panel-2 border border-line text-ink-dim">
+        <div className="rounded-xl px-4 py-4 flex items-start gap-3 text-[12.5px] bg-panel-2 shadow-sm text-ink-dim">
           <Icon name="rss_feed" size={16} className="text-ink-dim shrink-0 mt-px" />
           <span>No recent news{currency ? ` tagged ${currency}` : ""} yet — the news sync job populates this.</span>
         </div>
@@ -49,7 +50,10 @@ export function NewsFeed({ currency }: { currency?: string }) {
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`flex items-start gap-2.5 py-2.5 hover:opacity-75 transition-opacity ${i < items.length - 1 ? "border-b border-line" : ""}`}
+              className={cn(
+                "flex items-start gap-2.5 py-2.5 px-2 -mx-2 rounded-lg hover:opacity-75 transition-opacity",
+                i < items.length - 1 && "border-b border-line"
+              )}
             >
               <Icon name="open_in_new" size={13} className="text-ink-dim shrink-0 mt-0.5" />
               <div className="min-w-0 flex-1">

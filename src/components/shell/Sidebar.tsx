@@ -11,7 +11,7 @@ import { signoutAction } from "@/app/(auth)/actions";
 import { navActiveRowClass, navActiveIconClass } from "@/lib/nav-active-style";
 import { clampPosition } from "@/lib/hooks/useClampedPosition";
 import { cn } from "@/lib/cn";
-import { Icon } from "@/components/ui";
+import { Avatar, Icon } from "@/components/ui";
 
 interface NavItem {
   href: string;
@@ -120,7 +120,7 @@ export function Sidebar() {
        *          inline to override 'hidden', and the transform slides it in/out.
        */}
       <aside
-        className="hidden md:flex flex-col h-full border-r overflow-hidden shrink-0 bg-sidebar border-line"
+        className="hidden md:flex flex-col h-full overflow-hidden shrink-0 bg-sidebar border-r border-line"
         style={isMobile ? {
           display: "flex",
           position: "fixed",
@@ -139,7 +139,7 @@ export function Sidebar() {
       >
         {/* ── Header (pinned) ─────────────────────────────────────────────────── */}
         <div
-          className="shrink-0 flex items-center border-b h-14 px-3.5 border-line"
+          className="shrink-0 flex items-center h-14 px-3.5 bg-topbar-bg shadow-sm"
           style={{
             justifyContent: effectiveCollapsed ? "center" : "space-between",
             transition: "justify-content 260ms var(--ease-app)",
@@ -221,7 +221,7 @@ export function Sidebar() {
 
         {/* ── Footer (pinned) ─────────────────────────────────────────────────── */}
         <div
-          className="shrink-0 border-t overflow-x-hidden border-line"
+          className="shrink-0 overflow-x-hidden bg-topbar-bg shadow-[0_-1px_2px_0_rgba(0,0,0,0.05)]"
           style={{ padding: effectiveCollapsed ? "8px" : "8px 10px" }}
         >
           {user && (
@@ -326,9 +326,13 @@ function ProfileButton({
         aria-label="Account menu"
         aria-expanded={open}
       >
-        <div className={cn("size-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0", avatarCls)}>
-          {initials}
-        </div>
+        {user.avatarUrl ? (
+          <Avatar src={user.avatarUrl} name={user.name} size={28} />
+        ) : (
+          <div className={cn("size-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0", avatarCls)}>
+            {initials}
+          </div>
+        )}
 
         <div
           className="overflow-hidden whitespace-nowrap text-left flex-1"
@@ -363,7 +367,7 @@ function ProfileButton({
       {open && menuRect && typeof document !== "undefined" && createPortal(
         <div
           ref={menuRef}
-          className="rounded-xl overflow-hidden bg-panel border border-line shadow-[0_-8px_24px_rgba(0,0,0,0.32),0_2px_10px_rgba(0,0,0,0.16)] z-[9999]"
+          className="rounded-xl overflow-hidden bg-panel shadow-[0_-8px_24px_rgba(0,0,0,0.32),0_2px_10px_rgba(0,0,0,0.16)] z-[9999]"
           style={{
             position: "fixed",
             ...clampPosition({ triggerRect: menuRect, width: menuWidth, estimatedHeight: 260, direction: "up" }),
@@ -371,10 +375,14 @@ function ProfileButton({
           }}
         >
           {/* Identity header */}
-          <div className="flex items-center gap-2.5 px-3.5 py-3 border-b border-line">
-            <div className={cn("size-8 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0", avatarCls)}>
-              {initials}
-            </div>
+          <div className="flex items-center gap-2.5 px-3.5 py-3 bg-panel-2">
+            {user.avatarUrl ? (
+              <Avatar src={user.avatarUrl} name={user.name} size={32} />
+            ) : (
+              <div className={cn("size-8 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0", avatarCls)}>
+                {initials}
+              </div>
+            )}
             <div className="min-w-0">
               <div className="text-[13px] font-semibold truncate text-ink-strong">
                 {user.name}
@@ -399,7 +407,7 @@ function ProfileButton({
           ))}
 
           {/* Sign out */}
-          <div className="border-t border-line">
+          <div className="bg-panel-2">
             <button
               type="button"
               onClick={() => { setOpen(false); onSignout(); }}

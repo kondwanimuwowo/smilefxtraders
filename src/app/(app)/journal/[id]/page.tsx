@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import type { Trade, AIReviewResult } from "@/lib/store";
@@ -8,7 +8,6 @@ import { useTrades, useDeleteTrade, useUpdateTrade } from "@/lib/hooks/useTrades
 import { Button, DirPill, Chip, Stars, Icon, CandleChart } from "@/components/ui";
 import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
 import { AIReview } from "@/components/AIReview";
-import { LogTradeModal } from "../LogTradeModal";
 import { MODEL_BRIEF, FIB_TAG_OPTIONS } from "@/lib/frameworks";
 import { cn } from "@/lib/cn";
 
@@ -99,7 +98,7 @@ function resultBgCls(t: Trade) {
 
 function MetaBox({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-xl px-4 py-3.5 bg-panel-2 border border-line">
+    <div className="flex flex-col gap-0.5 rounded-xl px-4 py-3.5 bg-panel-2 shadow-sm">
       <span className="text-[10.5px] font-semibold uppercase tracking-wider text-ink-dim">
         {label}
       </span>
@@ -138,7 +137,6 @@ export default function TradeDetailPage() {
   const { mutate: updateTrade } = useUpdateTrade();
 
   const trade = trades.find((t) => t.id === id) ?? null;
-  const [editing, setEditing] = useState(false);
 
   const { candles, zones, lines, marks } = useMemo(() => {
     if (!trade) return { candles: [], zones: [], lines: [], marks: [] };
@@ -202,12 +200,12 @@ export default function TradeDetailPage() {
           </button>
 
           {/* Prev / next */}
-          <div className="flex items-center rounded-lg overflow-hidden border border-line">
+          <div className="flex items-center rounded-lg overflow-hidden shadow-sm">
             <button
               type="button"
               disabled={!olderTrade}
               onClick={() => olderTrade && router.push(`/journal/${olderTrade.id}`)}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-[11.5px] font-semibold transition-colors hover:bg-hover disabled:opacity-30 text-ink-dim border-r border-line"
+              className="flex items-center gap-1 px-2.5 py-1.5 text-[11.5px] font-semibold transition-colors hover:bg-hover disabled:opacity-30 text-ink-dim"
               title={olderTrade ? `${olderTrade.pair} ${olderTrade.date}` : undefined}
             >
               <Icon name="chevron_left" size={15} />
@@ -227,7 +225,7 @@ export default function TradeDetailPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button type="button" variant="ghost" icon="edit" onClick={() => setEditing(true)}>
+          <Button type="button" variant="ghost" icon="edit" onClick={() => router.push(`/journal/${t.id}/edit`)}>
             Edit
           </Button>
           <Button
@@ -251,7 +249,7 @@ export default function TradeDetailPage() {
             </h1>
             <DirPill dir={t.dir} />
             {t.framework === "SnD" && (
-              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-[rgba(248,185,61,0.12)] text-gold border border-[rgba(248,185,61,0.25)]">
+              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-[rgba(248,185,61,0.12)] text-gold shadow-[0_0_0_2px_rgba(248,185,61,0.25)]">
                 S&D
               </span>
             )}
@@ -273,7 +271,7 @@ export default function TradeDetailPage() {
         {/* PnL badge */}
         <div className="flex gap-3 items-start">
           {pipMove && (
-            <div className="flex flex-col items-end rounded-2xl px-4 py-3.5 shrink-0 bg-panel-2 border border-line">
+            <div className="flex flex-col items-end rounded-2xl px-4 py-3.5 shrink-0 bg-panel-2 shadow-sm">
               <span
                 className={`font-bold tabular-nums text-[20px] ${t.result === "win" ? "text-teal-bright" : "text-coral-bright"}`}
               >
@@ -296,7 +294,7 @@ export default function TradeDetailPage() {
       </div>
 
       {/* ── Chart ── */}
-      <div className="rounded-2xl overflow-hidden mb-6 h-[380px] border border-line">
+      <div className="rounded-2xl overflow-hidden mb-6 h-[380px] shadow-md">
         {t.chartUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={t.chartUrl} alt="Trade chart" className="w-full h-full object-cover" />
@@ -312,7 +310,7 @@ export default function TradeDetailPage() {
         <div className="flex flex-col gap-4">
 
           {/* Model */}
-          <div className="rounded-xl px-4 py-4 flex items-start gap-3 bg-panel border border-line">
+          <div className="rounded-xl px-4 py-4 flex items-start gap-3 bg-panel shadow-sm">
             <Icon name="schema" size={20} className="shrink-0 mt-0.5 text-teal" />
             <div>
               <div className="font-semibold text-[14px] mb-0.5 text-ink-strong">
@@ -326,7 +324,7 @@ export default function TradeDetailPage() {
 
           {/* Price levels */}
           {hasPrices && (
-            <div className="rounded-xl px-4 py-4 bg-panel border border-line">
+            <div className="rounded-xl px-4 py-4 bg-panel shadow-sm">
               <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-3 text-ink-dim">
                 Price levels
               </div>
@@ -371,7 +369,7 @@ export default function TradeDetailPage() {
 
           {/* Timing */}
           {hasTiming && (
-            <div className="rounded-xl px-4 py-4 bg-panel border border-line">
+            <div className="rounded-xl px-4 py-4 bg-panel shadow-sm">
               <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-3 text-ink-dim">
                 Timing
               </div>
@@ -412,7 +410,7 @@ export default function TradeDetailPage() {
           </div>
 
           {/* Execution + Discipline */}
-          <div className="rounded-xl px-4 py-4 flex items-center justify-between gap-4 bg-panel border border-line">
+          <div className="rounded-xl px-4 py-4 flex items-center justify-between gap-4 bg-panel shadow-sm">
             <div>
               <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2 text-ink-dim">
                 Execution quality
@@ -442,7 +440,7 @@ export default function TradeDetailPage() {
             const fibTags   = t.tags.filter((tag) => fibTagSet.has(tag));
             const otherTags = t.tags.filter((tag) => !fibTagSet.has(tag));
             return (
-              <div className="rounded-xl px-4 py-4 bg-panel border border-line">
+              <div className="rounded-xl px-4 py-4 bg-panel shadow-sm">
                 <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2.5 text-ink-dim">
                   Tags
                 </div>
@@ -451,7 +449,7 @@ export default function TradeDetailPage() {
                   {fibTags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[rgba(248,185,61,0.13)] border border-[rgba(248,185,61,0.3)] text-gold"
+                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[rgba(248,185,61,0.13)] shadow-[0_0_0_2px_rgba(248,185,61,0.3)] text-gold"
                     >
                       <Icon name="architecture" size={11} />
                       {tag}
@@ -469,7 +467,7 @@ export default function TradeDetailPage() {
 
           {/* Notes */}
           {t.note && (
-            <div className="rounded-xl px-4 py-4 bg-panel border border-line">
+            <div className="rounded-xl px-4 py-4 bg-panel shadow-sm">
               <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2 text-ink-dim">
                 Notes
               </div>
@@ -481,7 +479,7 @@ export default function TradeDetailPage() {
 
           {/* Discipline breach — merged with mistake if both present */}
           {!t.discipline && (
-            <div className="flex items-start gap-3 rounded-xl px-4 py-4 bg-[rgba(234,82,61,0.07)] border border-[rgba(234,82,61,0.22)]">
+            <div className="flex items-start gap-3 rounded-xl px-4 py-4 bg-[rgba(234,82,61,0.07)] shadow-[0_0_0_2px_rgba(234,82,61,0.22)]">
               <Icon name="warning" size={18} fill className="text-coral shrink-0 mt-px" />
               <div>
                 <div className="font-semibold text-[13px] mb-1 text-coral">
@@ -504,13 +502,6 @@ export default function TradeDetailPage() {
           />
         </div>
       </div>
-
-      {/* ── Edit modal ── */}
-      <LogTradeModal
-        open={editing}
-        onClose={() => setEditing(false)}
-        edit={t}
-      />
     </div>
   );
 }

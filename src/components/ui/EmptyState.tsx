@@ -12,7 +12,7 @@ export function EmptyState({ icon, title, body, action }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center text-center px-6 py-12">
       <div className="float">
-        <div className="w-16 h-16 rounded-2xl grid place-items-center mb-4 bg-[radial-gradient(circle,rgba(8,174,170,0.10)_0%,transparent_70%)] border border-[rgba(8,174,170,0.15)]">
+        <div className="w-16 h-16 rounded-2xl grid place-items-center mb-4 bg-[radial-gradient(circle,rgba(8,174,170,0.10)_0%,transparent_70%)] shadow-sm">
           <Icon name={icon} size={28} className="text-ink-dim" />
         </div>
       </div>

@@ -12,6 +12,7 @@ interface ApiComment {
   id:         string;
   name:       string;
   avatarSeed: number;
+  avatarUrl?: string | null;
   text:       string;
   time:       string;
 }
@@ -21,6 +22,7 @@ interface ApiPost {
   name:         string;
   handle:       string;
   avatarSeed:   number;
+  avatarUrl?:   string | null;
   isInstructor: boolean;
   pair:         string | null;
   dir:          string | null;
@@ -196,10 +198,14 @@ function PostCard({ post }: { post: ApiPost }) {
 
   return (
     <div
-      className={`rounded-2xl overflow-hidden bg-panel border ${post.isInstructor ? "border-[rgba(248,185,61,0.3)]" : "border-line"}`}
+      className={`rounded-2xl overflow-hidden ${
+        post.isInstructor
+          ? "bg-[color-mix(in_srgb,var(--gold)_8%,transparent)] shadow-[0_0_0_2px_var(--gold)]"
+          : "bg-panel shadow-md"
+      }`}
     >
       {post.isInstructor && (
-        <div className="flex items-center gap-2 px-5 py-2 text-[11.5px] font-semibold bg-[rgba(248,185,61,0.08)] border-b border-[rgba(248,185,61,0.2)] text-gold">
+        <div className="flex items-center gap-2 px-5 py-2 text-[11.5px] font-semibold bg-[rgba(248,185,61,0.08)] text-gold">
           <Icon name="workspace_premium" size={14} fill />
           Instructor post · Kondwani
         </div>
@@ -207,7 +213,7 @@ function PostCard({ post }: { post: ApiPost }) {
 
       {/* Header */}
       <div className="flex items-start gap-3 px-5 pt-4 pb-3">
-        <Avatar seed={post.avatarSeed} name={post.name} size={38} />
+        <Avatar src={post.avatarUrl ?? undefined} seed={post.avatarSeed} name={post.name} size={38} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-[14px] text-ink-strong">{post.name}</span>
@@ -234,7 +240,7 @@ function PostCard({ post }: { post: ApiPost }) {
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1 px-5 py-3 border-t border-line">
+      <div className="flex items-center gap-1 px-5 py-3">
         <button
           type="button"
           onClick={() => toggleLike()}
@@ -256,10 +262,10 @@ function PostCard({ post }: { post: ApiPost }) {
 
       {/* Comments */}
       {(commentOpen || post.commentList.length > 0) && (
-        <div className="px-5 pb-4 pt-3 flex flex-col gap-3 border-t border-line">
+        <div className="px-5 pb-4 pt-3 flex flex-col gap-3">
           {post.commentList.map((c) => (
             <div key={c.id} className="flex items-start gap-2.5">
-              <Avatar seed={c.avatarSeed} name={c.name} size={28} />
+              <Avatar src={c.avatarUrl ?? undefined} seed={c.avatarSeed} name={c.name} size={28} />
               <div className="flex-1 rounded-xl px-3 py-2 bg-panel-2">
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-[12px] font-semibold text-ink-strong">{c.name}</span>
@@ -272,7 +278,7 @@ function PostCard({ post }: { post: ApiPost }) {
 
           {commentOpen && (
             <div className="flex items-center gap-2.5 mt-1">
-              <Avatar seed={user?.avatarSeed ?? 99} name={user?.name ?? "You"} size={28} />
+              <Avatar src={user?.avatarUrl} seed={user?.avatarSeed ?? 99} name={user?.name ?? "You"} size={28} />
               <div className="flex-1 flex items-center gap-2 rounded-xl px-3 py-2 bg-panel-2 border border-line">
                 <input
                   ref={inputRef}
@@ -329,8 +335,8 @@ function TogglePill({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-lg px-2.5 py-1 text-[11.5px] font-semibold transition-all border ${
-        active ? activeClass : "bg-panel-2 text-ink-dim border-line"
+      className={`rounded-lg px-2.5 py-1 text-[11.5px] font-semibold transition-all ${
+        active ? activeClass : "bg-panel-2 text-ink-dim shadow-sm"
       }`}
     >
       {children}
@@ -372,11 +378,11 @@ function ComposeBox() {
   }
 
   return (
-    <div className="rounded-2xl overflow-hidden bg-panel border border-line">
+    <div className="rounded-2xl overflow-hidden bg-panel shadow-md">
       {/* Writing area */}
       <div className="flex items-start gap-3 px-4 pt-4 pb-3">
         <div className="shrink-0 mt-1">
-          <Avatar seed={user?.avatarSeed ?? 99} name={user?.name ?? "You"} size={34} />
+          <Avatar src={user?.avatarUrl} seed={user?.avatarSeed ?? 99} name={user?.name ?? "You"} size={34} />
         </div>
         <textarea
           value={text}
@@ -388,7 +394,7 @@ function ComposeBox() {
       </div>
 
       {/* Action bar */}
-      <div className="flex items-center gap-2 px-5 py-3 flex-wrap border-t border-line">
+      <div className="flex items-center gap-2 px-5 py-3 flex-wrap">
         {/* Pair picker */}
         <div className="w-[130px]">
           <Select
@@ -406,14 +412,14 @@ function ComposeBox() {
             <div className="w-px h-4 shrink-0 bg-line" />
             <TogglePill
               active={dir === "long"}
-              activeClass="bg-[rgba(8,174,170,0.15)] text-teal border-[rgba(8,174,170,0.3)]"
+              activeClass="bg-[rgba(8,174,170,0.15)] text-teal shadow-[0_0_0_2px_var(--teal)]"
               onClick={() => setDir(dir === "long" ? "" : "long")}
             >
               Long
             </TogglePill>
             <TogglePill
               active={dir === "short"}
-              activeClass="bg-[rgba(234,82,61,0.12)] text-coral border-[rgba(234,82,61,0.3)]"
+              activeClass="bg-[rgba(234,82,61,0.12)] text-coral shadow-[0_0_0_2px_var(--coral)]"
               onClick={() => setDir(dir === "short" ? "" : "short")}
             >
               Short
@@ -421,14 +427,14 @@ function ComposeBox() {
             <div className="w-px h-4 shrink-0 bg-line" />
             <TogglePill
               active={result === "WIN"}
-              activeClass="bg-[rgba(8,174,170,0.12)] text-teal-bright border-[rgba(8,174,170,0.25)]"
+              activeClass="bg-[rgba(8,174,170,0.12)] text-teal-bright shadow-[0_0_0_2px_var(--teal)]"
               onClick={() => setResult(result === "WIN" ? "" : "WIN")}
             >
               Win
             </TogglePill>
             <TogglePill
               active={result === "LOSS"}
-              activeClass="bg-[rgba(234,82,61,0.1)] text-coral border-[rgba(234,82,61,0.25)]"
+              activeClass="bg-[rgba(234,82,61,0.1)] text-coral shadow-[0_0_0_2px_var(--coral)]"
               onClick={() => setResult(result === "LOSS" ? "" : "LOSS")}
             >
               Loss
@@ -476,6 +482,7 @@ interface LeaderEntry {
   name:       string;
   handle:     string;
   avatarSeed: number;
+  avatarUrl:  string | null;
   winRate:    number;
   netR:       string;
 }
@@ -515,7 +522,7 @@ function Leaderboard() {
               >
                 {i + 1}
               </div>
-              <Avatar seed={l.avatarSeed} name={l.name} size={30} />
+              <Avatar src={l.avatarUrl ?? undefined} seed={l.avatarSeed} name={l.name} size={30} />
               <div className="flex-1 min-w-0">
                 <div className="text-[12.5px] font-semibold truncate text-ink-strong">{l.name}</div>
                 <div className="text-[11px] text-ink-dim">{l.winRate}% win rate</div>
@@ -556,7 +563,7 @@ function CommunityStats() {
       <PanelHead title="Community stats" icon="groups" />
       <div className="grid grid-cols-2 gap-3">
         {stats.map(({ label, value, icon }) => (
-          <div key={label} className="rounded-xl px-3 py-3 flex flex-col gap-1 bg-panel-2 border border-line">
+          <div key={label} className="rounded-xl px-3 py-3 flex flex-col gap-1 bg-panel-2 shadow-sm">
             <Icon name={icon} size={16} className="text-teal" />
             <div className="font-display font-bold text-[18px] text-ink-strong">{value}</div>
             <div className="text-[11px] text-ink-dim">{label}</div>
@@ -600,10 +607,10 @@ export function Community() {
                 key={tab.id}
                 type="button"
                 onClick={() => setFilter(tab.id)}
-                className={`px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all border ${
+                className={`px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all ${
                   filter === tab.id
-                    ? "bg-[rgba(8,174,170,0.12)] text-teal border-[rgba(8,174,170,0.25)]"
-                    : "bg-transparent text-ink-dim border-transparent"
+                    ? "bg-[rgba(8,174,170,0.12)] text-teal shadow-[0_0_0_2px_var(--teal)]"
+                    : "bg-transparent text-ink-dim"
                 }`}
               >
                 {tab.label}
@@ -612,7 +619,7 @@ export function Community() {
           </div>
 
           {error instanceof Error ? (
-            <div className="rounded-2xl px-5 py-10 text-center bg-panel border border-line">
+            <div className="rounded-2xl px-5 py-10 text-center bg-panel shadow-md">
               <Icon name="wifi_off" size={28} className="text-ink-dim mb-2" />
               <p className="text-[13px] font-medium mb-1 text-ink-strong">Could not load posts</p>
               <p className="text-[12.5px] text-ink-dim">{error.message}</p>
@@ -620,7 +627,7 @@ export function Community() {
           ) : isLoading ? (
             <div className="flex flex-col gap-4">
               {[0, 1, 2].map((i) => (
-                <div key={i} className="rounded-2xl h-36 animate-pulse bg-panel border border-line" />
+                <div key={i} className="rounded-2xl h-36 animate-pulse bg-panel shadow-md" />
               ))}
             </div>
           ) : filtered.length === 0 ? (
@@ -641,7 +648,7 @@ export function Community() {
                   type="button"
                   onClick={() => fetchNextPage()}
                   disabled={isFetchingNextPage}
-                  className="w-full py-3 rounded-2xl text-[13px] font-semibold transition-all bg-panel border border-line text-ink-mid"
+                  className="w-full py-3 rounded-2xl text-[13px] font-semibold transition-all bg-panel shadow-sm text-ink-mid"
                 >
                   {isFetchingNextPage ? "Loading…" : "Load more"}
                 </button>

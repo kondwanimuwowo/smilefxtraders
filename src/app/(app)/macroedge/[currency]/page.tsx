@@ -73,7 +73,7 @@ export default function CurrencyProfilePage() {
         <button onClick={() => router.back()} className="flex items-center gap-1.5 mb-5 text-[13px] font-semibold hover:opacity-75 text-ink-dim">
           <Icon name="arrow_back" size={16} /> Back
         </button>
-        <div className="rounded-2xl px-5 py-4 text-[13px] bg-[rgba(234,82,61,0.07)] border border-[rgba(234,82,61,0.2)] text-coral">
+        <div className="rounded-2xl px-5 py-4 text-[13px] bg-[rgba(234,82,61,0.07)] shadow-[0_0_0_2px_rgba(234,82,61,0.2)] text-coral">
           MacroEdge doesn&apos;t track a calendar/currency profile for {C}.
         </div>
       </div>
@@ -92,7 +92,7 @@ export default function CurrencyProfilePage() {
       </button>
 
       <div className="flex items-center gap-2.5 mb-1.5">
-        <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg tracking-wide bg-panel-2 text-ink-mid border border-line">
+        <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg tracking-wide bg-panel-2 text-ink-mid shadow-sm">
           {C}
         </span>
         <h1 className="font-display font-medium text-[28px] tracking-[-0.025em] text-ink-strong">
@@ -114,7 +114,7 @@ export default function CurrencyProfilePage() {
         {scoresLoading ? (
           <Skeleton h={80} r={12} />
         ) : !score ? (
-          <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 text-[12.5px] leading-relaxed bg-[rgba(248,185,61,0.05)] border border-[rgba(248,185,61,0.18)] text-ink-mid">
+          <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 text-[12.5px] leading-relaxed bg-[rgba(248,185,61,0.05)] shadow-[0_0_0_2px_rgba(248,185,61,0.18)] text-ink-mid">
             <Icon name="info" size={15} fill className="text-gold shrink-0 mt-px" />
             <span>
               No score computed yet for {C}. Scores are built from calendar releases (surprise vs.
@@ -140,7 +140,7 @@ export default function CurrencyProfilePage() {
               {score.breakdown.map((b) => (
                 <div
                   key={b.indicatorType}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 bg-panel-2 border border-line"
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 bg-panel-2 shadow-sm"
                 >
                   <span
                     className={cn(
@@ -175,8 +175,8 @@ export default function CurrencyProfilePage() {
       )}
 
       <div className="grid gap-5 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <Panel pad={0}>
-          <div className="px-5 py-4 border-b border-line">
+        <Panel pad={0} className="overflow-hidden">
+          <div className="px-5 py-4 bg-panel-2 rounded-t-2xl">
             <div className="text-[15px] font-semibold text-ink-strong">Upcoming Events</div>
             <div className="text-[12px] mt-0.5 text-ink-dim">Not yet released</div>
           </div>
@@ -206,8 +206,8 @@ export default function CurrencyProfilePage() {
           )}
         </Panel>
 
-        <Panel pad={0}>
-          <div className="px-5 py-4 border-b border-line">
+        <Panel pad={0} className="overflow-hidden">
+          <div className="px-5 py-4 bg-panel-2 rounded-t-2xl">
             <div className="text-[15px] font-semibold text-ink-strong">Recent Releases</div>
             <div className="text-[12px] mt-0.5 text-ink-dim">Actual values reported</div>
           </div>
@@ -242,8 +242,8 @@ export default function CurrencyProfilePage() {
       </div>
 
       {relatedPairBiases.length > 0 && (
-        <Panel className="mt-5" pad={0}>
-          <div className="px-5 py-4 border-b border-line">
+        <Panel className="mt-5 overflow-hidden" pad={0}>
+          <div className="px-5 py-4 bg-panel-2 rounded-t-2xl">
             <div className="text-[15px] font-semibold text-ink-strong">Pair Bias</div>
             <div className="text-[12px] mt-0.5 text-ink-dim">Pairs involving {C}, base score minus quote score</div>
           </div>

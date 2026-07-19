@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import type { Trade, AIReviewResult } from "@/lib/store";
 import { Icon } from "@/components/ui";
-import { cn } from "@/lib/cn";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -100,10 +99,10 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
   const tipLabel = trade.framework === "SnD" ? "S&D tip: " : "ICT tip: ";
 
   return (
-    <div className="rounded-xl overflow-hidden border border-line">
+    <div className="rounded-xl overflow-hidden bg-panel shadow-md">
 
       {/* Header */}
-      <div className={cn("flex items-center gap-3 px-4 py-3.5 bg-panel-2", state !== "idle" && "border-b border-line")}>
+      <div className="flex items-center gap-3 px-4 py-3.5 bg-panel-2">
         <div className="size-9 rounded-xl flex items-center justify-center shrink-0 bg-[linear-gradient(135deg,var(--teal),var(--navy))]">
           <Icon name="robot_2" size={18} className="text-white" />
         </div>
