@@ -372,6 +372,24 @@
   /* --shadow-card-sm/md/lg/xl live in the brand palette :root block above
      (also back the shadow-card-* Tailwind utilities) — referenced via
      var() below, not redeclared here. */
+
+  /* Marketing is always light, regardless of the dashboard theme toggle —
+     re-pin the shared surface tokens here so they don't inherit the
+     [data-theme="dark"] values cascading down from <html>. */
+  --app-bg:     #F6F8FA;
+  --sidebar:    #FFFFFF;
+  --panel:      #FFFFFF;
+  --panel-2:    #EEF2F6;
+  --bg-tint:    #ECF4F4;
+  --line:       rgba(11, 66, 93, 0.13);
+  --ink:        rgba(8, 42, 59, 0.90);
+  --ink-mid:    rgba(8, 42, 59, 0.60);
+  --ink-dim:    rgba(8, 42, 59, 0.42);
+  --ink-strong: #082A3B;
+  --hover:      rgba(8, 42, 59, 0.05);
+  --track:      rgba(8, 42, 59, 0.10);
+  --row-hover:  rgba(8, 42, 59, 0.035);
+  --topbar-bg:  rgba(255, 255, 255, 0.78);
 }
 
 @layer components {

@@ -9,7 +9,7 @@ interface FeatureBlockCta {
 }
 
 interface FeatureBlockProps {
-  icon: string;
+  icon?: string;
   title: string;
   lead: string;
   bullets: string[];
@@ -21,9 +21,11 @@ export function FeatureBlock({ icon, title, lead, bullets, cta, className }: Fea
   return (
     <div className={cn("feature-text reveal", className)}>
       <div className="flex items-center gap-3">
-        <div className="icon-chip">
-          <Icon name={icon} />
-        </div>
+        {icon && (
+          <div className="icon-chip">
+            <Icon name={icon} />
+          </div>
+        )}
         <h3 className="m-0">{title}</h3>
       </div>
       <p className="lead">{lead}</p>

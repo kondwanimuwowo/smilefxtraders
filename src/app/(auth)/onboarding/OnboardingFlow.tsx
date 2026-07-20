@@ -2,11 +2,12 @@
 
 import { useState, useTransition, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Button, Icon } from "@/components/ui";
+import { Button, Icon, PhoneField } from "@/components/ui";
 import { saveOnboardingAction } from "../actions";
 import type { Framework } from "@/lib/frameworks";
 import { useInstruments } from "@/lib/hooks/useInstruments";
 import { isValidPhone } from "@/lib/validation";
+import { DEFAULT_COUNTRY_ISO2, findCountryByIso2, toE164 } from "@/lib/countries";
 import { cn } from "@/lib/cn";
 
 const FRAMEWORKS: {
@@ -57,10 +58,6 @@ const GOAL_OPTIONS = [
   { value: "grow_live",   label: "Grow a live account",       desc: "Already trading, want to scale it up" },
 ];
 
-const COUNTRIES = [
-  "Zambia", "South Africa", "Nigeria", "Kenya", "Ghana", "Zimbabwe", "Tanzania", "Uganda", "Other",
-];
-
 export function OnboardingFlow() {
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan");
@@ -69,8 +66,8 @@ export function OnboardingFlow() {
     ? dbInstruments.map((i) => ({ key: i.symbol, label: i.label }))
     : INSTRUMENTS_FALLBACK;
   const [step, setStep] = useState(0);
-  const [country,      setCountry]      = useState("Zambia");
-  const [phone,        setPhone]        = useState("");
+  const [countryIso2,   setCountryIso2]   = useState(DEFAULT_COUNTRY_ISO2);
+  const [nationalNumber, setNationalNumber] = useState("");
   const [phoneTouched, setPhoneTouched] = useState(false);
   const [framework,   setFramework]   = useState<Framework>("SMC");
   const [tradingDuration, setTradingDuration] = useState("");
@@ -90,6 +87,8 @@ export function OnboardingFlow() {
   const [serverError, setServerError] = useState<string | null>(null);
 
   const totalSteps = 7;
+  const country = findCountryByIso2(countryIso2);
+  const phone = toE164(country.dialCode, nationalNumber);
   const phoneValid = isValidPhone(phone);
 
   const toggleInstrument = (key: string) =>
@@ -99,8 +98,8 @@ export function OnboardingFlow() {
 
   function handleFinish() {
     const fd = new FormData();
-    fd.set("country", country);
-    fd.set("phone", phone.trim());
+    fd.set("country", country.name);
+    fd.set("phone", phone);
     fd.set("framework", framework);
     fd.set("tradingDuration", tradingDuration);
     fd.set("experience", skill);
@@ -142,32 +141,22 @@ export function OnboardingFlow() {
             How can we reach you?
           </h1>
           <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
-            Used for account recovery and important alerts. Include your country code.
+            Used for account recovery and important alerts. Pick your country and we&apos;ll handle the code.
           </p>
-          <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">Country</label>
-          <select
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border text-[15px] mb-4 bg-panel-2 border-line text-ink-strong"
-          >
-            {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
           <label className="block text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">Phone number</label>
-          <input
-            type="tel"
-            inputMode="tel"
-            autoFocus
-            placeholder="+260971234567"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            onBlur={() => setPhoneTouched(true)}
-            className={`w-full px-4 py-3 rounded-xl border text-[15px] bg-panel-2 text-ink-strong ${
-              phoneTouched && !phoneValid ? "border-coral" : "border-line"
-            }`}
-          />
+          <div onBlur={() => setPhoneTouched(true)}>
+            <PhoneField
+              countryIso2={countryIso2}
+              onCountryChange={setCountryIso2}
+              national={nationalNumber}
+              onNationalChange={setNationalNumber}
+              invalid={phoneTouched && !phoneValid}
+              autoFocus
+            />
+          </div>
           {phoneTouched && !phoneValid && (
             <p className="text-[12.5px] mt-2 text-coral">
-              Enter a valid phone number in international format, e.g. +260971234567.
+              Enter a valid phone number.
             </p>
           )}
         </>

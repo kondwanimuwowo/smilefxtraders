@@ -38,7 +38,7 @@ export async function AuthShell({ children }: { children: ReactNode }) {
     : `${memberCount.toLocaleString()}+ traders and growing`;
 
   return (
-    <div className="min-h-screen md:h-screen grid grid-cols-1 md:grid-cols-[1.05fr_1fr] md:overflow-hidden">
+    <div className="min-h-screen md:h-screen grid grid-cols-1 md:grid-cols-[1fr_1.05fr] md:overflow-hidden">
       {/* ── Brand panel — full version, desktop+ only. Fixed in place; only the
           form panel beside it scrolls. ── */}
       <div className="hidden md:flex flex-col justify-between p-12 md:h-screen bg-[linear-gradient(160deg,#0B425D_0%,#082A3B_70%)]">

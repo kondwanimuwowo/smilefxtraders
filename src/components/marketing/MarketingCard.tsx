@@ -4,7 +4,8 @@ import { Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 
 interface MarketingCardProps {
-  icon: string;
+  icon?: string;
+  iconNode?: ReactNode;
   title: string;
   description: ReactNode;
   href?: string;
@@ -13,12 +14,12 @@ interface MarketingCardProps {
   dataDelay?: number;
 }
 
-export function MarketingCard({ icon, title, description, href, linkLabel, className, dataDelay }: MarketingCardProps) {
+export function MarketingCard({ icon, iconNode, title, description, href, linkLabel, className, dataDelay }: MarketingCardProps) {
   return (
     <div className={cn("card tool-card", className)} data-delay={dataDelay}>
       <div className="flex items-center gap-3 mb-3">
         <div className="icon-chip shrink-0">
-          <Icon name={icon} size={32} className="leading-none" />
+          {iconNode ?? (icon && <Icon name={icon} size={32} className="leading-none" />)}
         </div>
         <h3 className="m-0 font-bold">{title}</h3>
       </div>

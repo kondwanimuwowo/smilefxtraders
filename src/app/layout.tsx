@@ -47,6 +47,8 @@ export default function RootLayout({
     >
       <head>
         <link rel="icon" href="/favicon.png" type="image/png" />
+      </head>
+      <body className="antialiased">
         {/* Blocking theme script — runs before first paint so dark-mode users never see a light flash */}
         <Script
           id="theme-init"
@@ -55,8 +57,6 @@ export default function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'light')}catch(e){}})()`,
           }}
         />
-      </head>
-      <body className="antialiased">
         <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem={false}>
           {children}
           <CookieConsent />

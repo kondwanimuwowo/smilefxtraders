@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { Trade, AIReviewResult } from "@/lib/store";
-import { Icon } from "@/components/ui";
+import { Icon, GavoIcon } from "@/components/ui";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -104,7 +104,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3.5 bg-panel-2">
         <div className="size-9 rounded-xl flex items-center justify-center shrink-0 bg-[linear-gradient(135deg,var(--teal),var(--navy))]">
-          <Icon name="robot_2" size={18} className="text-white" />
+          <GavoIcon size={18} className="text-white" cutoutColor="var(--navy)" />
         </div>
 
         <div className="flex-1 min-w-0">

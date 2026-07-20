@@ -1,4 +1,5 @@
 export { Icon } from "./Icon";
+export { GavoIcon } from "./icons/GavoIcon";
 export { Avatar } from "./Avatar";
 export { Button } from "./Button";
 export { Panel, PanelHead } from "./Panel";
@@ -8,6 +9,7 @@ export { StatTile } from "./StatTile";
 export { Ring } from "./Ring";
 export { Sparkline } from "./Sparkline";
 export { Field, Input, MonoInput, Textarea, Select, SegRow, ImageDrop } from "./Form";
+export { PhoneField } from "./PhoneField";
 export { Modal } from "./Modal";
 export { Drawer } from "./Drawer";
 export { EmptyState } from "./EmptyState";

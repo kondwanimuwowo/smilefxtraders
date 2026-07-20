@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Icon } from "@/components/ui";
+import { Icon, GavoIcon } from "@/components/ui";
 
 // Mirrors AIReview.tsx's idle/loading/done/error/locked state machine, but
 // the API response here is a single narration string, not a structured
@@ -44,7 +44,7 @@ export function GavoExplanation({ subjectType, subjectKey }: Props) {
     <div className="rounded-xl overflow-hidden bg-panel shadow-md">
       <div className="flex items-center gap-3 px-4 py-3.5 bg-panel-2">
         <div className="size-9 rounded-xl flex items-center justify-center shrink-0 bg-[linear-gradient(135deg,var(--teal),var(--navy))]">
-          <Icon name="robot_2" size={18} className="text-white" />
+          <GavoIcon size={18} className="text-white" cutoutColor="var(--navy)" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-semibold text-[13px] text-ink-strong">Gavo Macro Read</div>

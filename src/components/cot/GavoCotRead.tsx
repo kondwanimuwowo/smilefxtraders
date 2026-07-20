@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Icon } from "@/components/ui";
+import { Icon, GavoIcon } from "@/components/ui";
 
 // Mirrors components/macro/GavoExplanation.tsx's idle/loading/done/error/locked
 // state machine and card treatment, scoped to a single pair's COT reading.
@@ -34,7 +34,7 @@ export function GavoCotRead({ pair }: { pair: string }) {
     <div className="mb-6 rounded-xl overflow-hidden bg-panel shadow-md">
       <div className="flex items-center gap-3 px-4 py-3.5 bg-panel-2">
         <div className="size-9 rounded-xl flex items-center justify-center shrink-0 bg-[linear-gradient(135deg,var(--teal),var(--navy))]">
-          <Icon name="robot_2" size={18} className="text-white" />
+          <GavoIcon size={18} className="text-white" cutoutColor="var(--navy)" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-semibold text-[13px] text-ink-strong">Gavo COT Read</div>

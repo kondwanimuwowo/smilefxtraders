@@ -38,7 +38,6 @@ import {
   ClockIcon,
   CloudArrowUpIcon,
   Cog6ToothIcon,
-  CpuChipIcon,
   CreditCardIcon,
   DevicePhoneMobileIcon,
   DocumentDuplicateIcon,
@@ -302,7 +301,6 @@ export const ICON_REGISTRY: Record<string, IconComponent> = {
   lightbulb: LightBulbIcon,
   auto_awesome: SparklesIcon,
   psychology: LightBulbIcon, // substitute — no brain/psychology icon in either library
-  robot_2: CpuChipIcon,
   architecture: DraftingCompassIcon,
   straighten: RulerIcon,
   construction: WrenchScrewdriverIcon,

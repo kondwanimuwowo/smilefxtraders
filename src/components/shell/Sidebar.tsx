@@ -66,10 +66,16 @@ export function Sidebar() {
   const isInstructor = user?.role === "instructor";
   const nav = isInstructor ? [...NAV, ADMIN_NAV] : NAV;
   const [pending, startTransition] = useTransition();
-  const [collapsed, setCollapsed] = useState(() =>
-    typeof window !== "undefined" && localStorage.getItem("smfx_sidebar") === "1"
-  );
+  // Starts false to match what SSR always renders (no access to localStorage
+  // server-side) — synced from localStorage post-mount below, so a returning
+  // user who'd collapsed it just sees the existing collapse animation play
+  // once on load instead of a server/client hydration mismatch.
+  const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("smfx_sidebar") === "1") setCollapsed(true);
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");

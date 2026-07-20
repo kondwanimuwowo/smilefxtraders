@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Button, Icon } from "@/components/ui";
-import { ChartViz } from "@/components/marketing/ChartViz";
+import { Button, Icon, GavoIcon } from "@/components/ui";
 import { CTACard } from "@/components/marketing/CTACard";
 import { MarketingCard } from "@/components/marketing/MarketingCard";
 import { FeatureBlock } from "@/components/marketing/FeatureBlock";
@@ -32,7 +31,7 @@ export default async function HomePage() {
                 data-delay="60"
               >
                 Trade Smart Money<br />
-                <span className="text-teal-bright">Together</span>
+                Together
               </h1>
               <p
                 className="reveal text-[15px] text-white/76 mt-[22px] max-w-[520px] leading-[1.6]"
@@ -79,24 +78,28 @@ export default async function HomePage() {
           </div>
           <div className="grid g3 auto-rows-fr mt-14">
             {[
-              { icon: "menu_book",            title: "Trade Journal",       desc: "Log every trade with full context: entry, SL, TP, model, session, R:R. Find your edge through session analytics and model win-rates.", href: "/features#journal" },
-              { icon: "rule",                 title: "Rules Validator",     desc: "Walk any idea through the SMC checklist before you click. Get a clear A+ / Wait / No-Trade verdict.", href: "/features#validator" },
-              { icon: "notifications_active", title: "Live Alerts",         desc: "Kondwani posts validated setups in real time, with the full reasoning. Copy any alert straight to your journal.", href: "/features#alerts" },
-              { icon: "bar_chart",            title: "COT Reports",         desc: "Weekly institutional positioning from the CFTC Commitments of Traders report: large specs, commercials, and net positioning.", href: "/features#cot" },
-              { icon: "analytics",            title: "MacroEdge",          desc: "A weighted fundamental score per currency, cross-checked against Trend Matrix and COT, so you know why a pair is biased before the chart shows it.", href: "/features#macroedge" },
-              { icon: "auto_awesome",         title: "Gavo AI Review",      desc: "Your AI trading coach grades every trade against the SMC rulebook with a structured verdict: what was good, what to improve.", href: "/features#gavo" },
-              { icon: "school",               title: "Academy",             desc: "A six-level SMC curriculum taught in order, from market structure foundations to prop-firm readiness.", href: "/learn" },
+              { icon: "menu_book",            title: "Trade Journal",       desc: "Log every trade with full context: entry, SL, TP, model, session, R:R. Find your edge through session analytics and model win-rates." },
+              { icon: "rule",                 title: "Rules Validator",     desc: "Walk any idea through the SMC checklist before you click. Get a clear A+ / Wait / No-Trade verdict." },
+              { icon: "notifications_active", title: "Live Alerts",         desc: "Kondwani posts validated setups in real time, with the full reasoning. Copy any alert straight to your journal." },
+              { icon: undefined, iconNode: <GavoIcon size={32} />, title: "Gavo AI Review", desc: "Your AI trading coach grades every trade against the SMC rulebook with a structured verdict: what was good, what to improve." },
+              { icon: "analytics",            title: "MacroEdge",           desc: "A weighted fundamental score per currency, cross-checked against Trend Matrix and COT, so you know why a pair is biased before the chart shows it." },
+              { icon: "school",               title: "Academy",             desc: "A six-level SMC curriculum taught in order, from market structure foundations to prop-firm readiness." },
             ].map((tool, i) => (
               <MarketingCard
                 key={tool.title}
                 icon={tool.icon}
+                iconNode={tool.iconNode}
                 title={tool.title}
                 description={tool.desc}
-                href={tool.href}
                 className="reveal h-full flex flex-col"
                 dataDelay={(i % 3) * 80}
               />
             ))}
+          </div>
+          <div className="flex justify-center mt-10 reveal">
+            <Button href="/features" size="lg" variant="ghost" iconRight="arrow_forward">
+              Explore all features
+            </Button>
           </div>
         </div>
       </section>
@@ -107,8 +110,7 @@ export default async function HomePage() {
           {/* Journal */}
           <div className="feature-row">
             <FeatureBlock
-              icon="menu_book"
-              title="Journal every trade. Find your edge."
+              title="Journal every trade"
               lead="Stop guessing what works. Tag each entry to its model, session, and confluences, then let the analytics show you which setups actually pay, and which mistakes keep costing you."
               bullets={[
                 "Win-rate and expectancy by SMC model",
@@ -123,14 +125,8 @@ export default async function HomePage() {
                   <Icon name="menu_book" size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">Trade Journal</span>
                 </div>
-                <div className="mock-body grid gap-2.5">
-                  <div className="grid grid-cols-3 gap-2.5">
-                    <div className="mock-tile"><div className="k">Win rate</div><div className="v">—</div></div>
-                    <div className="mock-tile"><div className="k">Net R</div><div className="v text-[var(--teal-dark)]">—</div></div>
-                    <div className="mock-tile"><div className="k">Discipline</div><div className="v text-[var(--gold-dark)]">—</div></div>
-                  </div>
-                  <ChartViz seed={11} n={34} drift={0.06} h={150} annot={false} />
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/journal.jpg" alt="Smile FX Traders trade journal" className="w-full h-auto block" />
               </div>
             </div>
           </div>
@@ -138,7 +134,6 @@ export default async function HomePage() {
           {/* Validator */}
           <div className="feature-row flip">
             <FeatureBlock
-              icon="rule"
               title="Validate before you risk."
               lead="Discipline beats prediction. Walk your idea through the SMC checklist (HTF bias, liquidity, structure shift, POI, risk) and get an honest verdict. No confluence, no trade."
               bullets={[
@@ -154,21 +149,55 @@ export default async function HomePage() {
                   <Icon name="rule" size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">Rules Validator</span>
                 </div>
-                <div className="mock-body grid gap-[9px]">
-                  <div className="flex items-center gap-[11px] p-[13px] bg-[rgba(8,174,170,0.1)] border border-[rgba(8,174,170,0.4)] rounded-xl">
-                    <Icon name="verified" size={32} className="text-teal" />
-                    <div>
-                      <div className="font-bold text-[17px]">A+ Setup: Take it</div>
-                      <div className="text-[12.5px] text-ink-mid">XAUUSD · Long · all rules met</div>
-                    </div>
-                  </div>
-                  {["HTF bias clear · trading the draw", "Liquidity swept into discount FVG", "M5 CHoCH confirmed · 1:3 R:R"].map((t) => (
-                    <div key={t} className="flex items-center gap-[9px] text-[13px]">
-                      <Icon name="check_circle" size={18} className="text-teal" />
-                      {t}
-                    </div>
-                  ))}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/rules-validator.jpg" alt="Smile FX Traders rules validator" className="w-full h-auto block" />
+              </div>
+            </div>
+          </div>
+
+          {/* MacroEdge */}
+          <div className="feature-row">
+            <FeatureBlock
+              title="Know why a pair is biased"
+              lead="A weighted fundamental score per currency, cross-checked against Trend Matrix and COT, so you know the reasoning behind a bias before the chart shows it."
+              bullets={[
+                "Weighted fundamental score per currency",
+                "Pair bias from Strong Buy to Strong Sell",
+                "Gavo narrates the reasoning behind every read",
+              ]}
+              cta={{ label: "Explore MacroEdge", href: "/macroedge", variant: "link" }}
+            />
+            <div className="feature-visual reveal" data-delay="120">
+              <div className="mock">
+                <div className="mock-bar">
+                  <Icon name="analytics" size={18} className="text-teal" />
+                  <span className="font-semibold text-[13px] ml-1">MacroEdge</span>
                 </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/eurusd-pair.jpg" alt="Smile FX Traders pair bias, cross-checked against Trend Matrix and COT" className="w-full h-auto block" />
+              </div>
+            </div>
+          </div>
+
+          {/* Gavo AI Review */}
+          <div className="feature-row flip">
+            <FeatureBlock
+              title="Your AI coach, on every trade"
+              lead="After logging a trade, ask Gavo for a review. He grades it against the full SMC rulebook and gives you a structured debrief, not just a pat on the back."
+              bullets={[
+                "Grades A+ to D against 8 SMC rules",
+                "What you did well vs what to improve",
+                "One actionable tip per review",
+              ]}
+            />
+            <div className="feature-visual reveal" data-delay="120">
+              <div className="mock">
+                <div className="mock-bar">
+                  <GavoIcon size={18} className="text-teal" />
+                  <span className="font-semibold text-[13px] ml-1">Gavo AI Review</span>
+                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/gavo-review.jpg" alt="Gavo AI trade review" className="w-full h-auto block" />
               </div>
             </div>
           </div>
