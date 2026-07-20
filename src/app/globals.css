@@ -493,7 +493,7 @@
   /* feature rows */
   .feature-row { @apply grid grid-cols-2 gap-16 items-center; }
   .feature-row.flip .feature-visual { @apply order-[-1]; }
-  .feature-row + .feature-row { @apply mt-10 pt-10 border-t border-line; }
+  .feature-row + .feature-row { @apply mt-[88px]; }
   .feature-text h3 { @apply mt-4 text-[clamp(26px,3vw,34px)]; }
   .feature-text .lead { @apply text-[17px] text-ink-mid mt-4 mb-[22px]; }
   .feature-list { @apply flex flex-col gap-3 mb-6 p-0 list-none; }
