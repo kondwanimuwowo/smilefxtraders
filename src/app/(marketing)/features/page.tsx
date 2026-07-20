@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Icon, GavoIcon } from "@/components/ui";
-import { ChartViz } from "@/components/marketing/ChartViz";
 import { CTACard } from "@/components/marketing/CTACard";
 import { FeatureBlock } from "@/components/marketing/FeatureBlock";
 
@@ -38,7 +37,7 @@ export default function FeaturesPage() {
               bullets={[
                 "Log entry, SL, TP, close price, model, session, and R:R",
                 "Win rate by session (London, New York, Asia)",
-                "Win rate by SMC model (OB+BOS, FVG sweep, SMT divergence…)",
+                "Win rate by SMC model (OB+BOS, Liquidity Sweep, SMT divergence…)",
                 "Discipline score that tracks how often you followed all 8 rules",
                 "AI review from Gavo: a structured debrief on any trade",
                 "Equity curve built automatically from your closed trades",
@@ -57,7 +56,7 @@ export default function FeaturesPage() {
           </div>
 
           {/* 2. Validator */}
-          <div className="feature-row flip scroll-mt-[90px] mt-24" id="validator">
+          <div className="feature-row flip scroll-mt-[90px]" id="validator">
             <FeatureBlock
               title="Rules Validator"
               lead="A 5-minute checklist that keeps impulsive trades off the books. Check all 8 SMC or Supply &amp; Demand rules before clicking execute."
@@ -82,7 +81,7 @@ export default function FeaturesPage() {
           </div>
 
           {/* 3. Live Alerts */}
-          <div className="feature-row scroll-mt-[90px] mt-24" id="alerts">
+          <div className="feature-row scroll-mt-[90px]" id="alerts">
             <FeatureBlock
               title="Live Setup Alerts"
               lead="Follow Kondwani's live calls in real time. Each alert includes pair, direction, entry, SL/TP, the SMC model used, and a setup note."
@@ -109,22 +108,21 @@ export default function FeaturesPage() {
                   <div className="flex items-center gap-2 mb-2.5">
                     <span className="mono text-[15px] font-bold">XAUUSD</span>
                     <span className="chip badge-long text-[11px]"><Icon name="trending_up" size={13} /> Long</span>
-                    <span className="chip text-[11px]">FVG sweep</span>
+                    <span className="chip text-[11px]">Liquidity Sweep</span>
                   </div>
-                  <ChartViz seed={42} n={32} drift={0.05} h={150} />
-                  <div className="grid grid-cols-4 gap-2 mt-3">
-                    <div className="mock-tile p-[9px_11px]"><div className="k">Entry</div><div className="v text-sm">2,331.50</div></div>
-                    <div className="mock-tile p-[9px_11px]"><div className="k">Stop</div><div className="v text-sm text-[var(--coral-dark)]">2,326.10</div></div>
-                    <div className="mock-tile p-[9px_11px]"><div className="k">TP1</div><div className="v text-sm text-[var(--teal-dark)]">2,344.00</div></div>
-                    <div className="mock-tile p-[9px_11px]"><div className="k">R:R</div><div className="v text-sm text-[var(--gold-dark)]">3.1R</div></div>
-                  </div>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/candles-smc.png"
+                    alt="Annotated candlestick chart showing break of market structure, change of character, fair value gap, and order block"
+                    className="w-full h-auto block rounded-xl"
+                  />
                 </div>
               </div>
             </div>
           </div>
 
           {/* 4. COT Reports */}
-          <div className="feature-row flip scroll-mt-[90px] mt-24" id="cot">
+          <div className="feature-row flip scroll-mt-[90px]" id="cot">
             <FeatureBlock
               title="COT Reports"
               lead="See what large speculators and commercials are doing in the futures market, straight from the CFTC's Commitment of Traders report."
@@ -149,7 +147,7 @@ export default function FeaturesPage() {
           </div>
 
           {/* 5. MacroEdge */}
-          <div className="feature-row scroll-mt-[90px] mt-24" id="macroedge">
+          <div className="feature-row scroll-mt-[90px]" id="macroedge">
             <FeatureBlock
               title="MacroEdge"
               lead="Know why a currency is strong or weak before the chart shows it. A weighted fundamental score per currency, built from interest rates, inflation, employment, and more, cross-checked against your Trend Matrix and COT positioning."
@@ -161,7 +159,6 @@ export default function FeaturesPage() {
                 "Bias-flip alerts the moment a pair's fundamental read changes",
                 "Curated economic news feed, tagged by currency",
               ]}
-              cta={{ label: "Explore MacroEdge", href: "/macroedge", variant: "link" }}
             />
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
@@ -176,7 +173,7 @@ export default function FeaturesPage() {
           </div>
 
           {/* 6. Gavo AI */}
-          <div className="feature-row flip scroll-mt-[90px] mt-24" id="gavo">
+          <div className="feature-row flip scroll-mt-[90px]" id="gavo">
             <FeatureBlock
               title="Gavo AI Trade Review"
               lead="Your always-on trading coach. Grade any trade from your journal. Gavo checks it against the full SMC rulebook and gives you a structured debrief."
@@ -201,7 +198,7 @@ export default function FeaturesPage() {
           </div>
 
           {/* 7. Academy */}
-          <div className="feature-row scroll-mt-[90px] mt-24" id="academy">
+          <div className="feature-row scroll-mt-[90px]" id="academy">
             <FeatureBlock
               title="Academy"
               lead="6 structured courses from market structure basics to prop firm readiness. Video lessons + quizzes, all inside the platform."
@@ -213,7 +210,6 @@ export default function FeaturesPage() {
                 "Course 5: Risk Management & Psychology",
                 "Course 6: Prop Firm Readiness",
               ]}
-              cta={{ label: "Explore the Academy", href: "/academy", variant: "link" }}
             />
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">

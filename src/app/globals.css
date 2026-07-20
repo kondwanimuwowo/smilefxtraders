@@ -493,11 +493,11 @@
   /* feature rows */
   .feature-row { @apply grid grid-cols-2 gap-16 items-center; }
   .feature-row.flip .feature-visual { @apply order-[-1]; }
-  .feature-row + .feature-row { @apply mt-[88px]; }
+  .feature-row + .feature-row { @apply mt-10 pt-10 border-t border-line; }
   .feature-text h3 { @apply mt-4 text-[clamp(26px,3vw,34px)]; }
   .feature-text .lead { @apply text-[17px] text-ink-mid mt-4 mb-[22px]; }
   .feature-list { @apply flex flex-col gap-3 mb-6 p-0 list-none; }
-  .feature-list li { @apply flex gap-[11px] items-start text-[15px] text-ink; }
+  .feature-list li { @apply flex gap-[11px] items-start text-[15px] text-ink-mid; }
 
   /* ---------- product mockups ---------- */
   .mock { @apply bg-white rounded-[18px] shadow-card-lg overflow-hidden border border-line; }

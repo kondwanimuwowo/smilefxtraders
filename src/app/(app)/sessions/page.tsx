@@ -66,7 +66,7 @@ const KILLZONES = [
     time:  "14:00 – 18:00",
     textCls: "text-teal",
     barCls: "bg-teal",
-    desc:  "Both institutional desks active simultaneously. Strongest 4-hour window of the day. Clean FVG sweeps and trend continuation moves.",
+    desc:  "Both institutional desks active simultaneously. Strongest 4-hour window of the day. Clean liquidity sweeps and trend continuation moves.",
   },
   {
     name:  "NY Open",

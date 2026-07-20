@@ -162,10 +162,10 @@ export function Sidebar() {
           >
             <BrandMark />
             <div className="whitespace-nowrap">
-              <div className="font-display font-700 text-sm leading-none text-ink-strong">
+              <div className="font-display font-bold text-sm leading-none text-ink-strong">
                 Smile FX
               </div>
-              <div className="text-[10px] font-semibold tracking-widest uppercase mt-0.5 text-teal">
+              <div className="font-display text-[10px] font-bold tracking-[0.2em] uppercase mt-0.5 text-teal">
                 TRADERS
               </div>
             </div>

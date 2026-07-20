@@ -9,6 +9,7 @@ import { cn } from "@/lib/cn";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 
 const NAV = [
+  { href: "/", label: "Home" },
   { href: "/features", label: "Features" },
   { href: "/learn", label: "Academy" },
   { href: "/our-community", label: "Community" },
@@ -114,12 +115,12 @@ export function MarketingNav() {
               <BrandLogo scrolled={scrolled || mobileOpen} />
               <div>
                 <div className={cn(
-                  "font-display font-bold text-[19px] leading-none tracking-[-0.02em] transition-colors duration-300",
+                  "font-display font-bold text-[16px] leading-none tracking-[-0.02em] transition-colors duration-300",
                   scrolled || mobileOpen ? "text-ink" : "text-white"
                 )}>
                   Smile FX
                 </div>
-                <div className="text-[9px] uppercase tracking-[0.2em] font-bold text-teal mt-0.5">
+                <div className="font-display text-[11px] uppercase tracking-[0.2em] font-bold text-teal mt-0.5">
                   Traders
                 </div>
               </div>
@@ -188,7 +189,7 @@ export function MarketingNav() {
       {/* Mobile full-screen nav — always mounted so open/close can animate;
           visibility toggled via opacity/transform + pointer-events. */}
       <div
-        className="fixed inset-0 lg:hidden flex flex-col px-6 overflow-y-auto bg-[radial-gradient(ellipse_at_15%_12%,rgba(8,174,170,0.32)_0%,transparent_50%),radial-gradient(ellipse_at_90%_85%,rgba(248,185,61,0.18)_0%,transparent_48%),var(--navy-deep,#082A3B)] z-[65] pt-[calc(4.5rem+var(--safe-top))] pb-[calc(1.5rem+var(--safe-bottom))]"
+        className="fixed inset-0 lg:hidden flex flex-col px-6 overflow-y-auto bg-navy-deep bg-[radial-gradient(ellipse_at_15%_12%,rgba(8,174,170,0.32)_0%,transparent_50%),radial-gradient(ellipse_at_90%_85%,rgba(248,185,61,0.18)_0%,transparent_48%)] z-[65] pt-[calc(4.5rem+var(--safe-top))] pb-[calc(1.5rem+var(--safe-bottom))]"
         aria-hidden={!mobileOpen}
         style={{
           opacity: mobileOpen ? 1 : 0,
@@ -208,7 +209,7 @@ export function MarketingNav() {
                 key={n.href}
                 href={n.href}
                 className={cn(
-                  "font-display text-[25px] font-semibold py-4 px-1 border-b border-[rgba(255,255,255,0.1)] no-underline flex items-center justify-between",
+                  "font-display text-[19px] font-medium py-3.5 px-1 border-b border-[rgba(255,255,255,0.1)] no-underline flex items-center justify-between",
                   active ? "text-teal-bright" : "text-[rgba(255,255,255,0.9)]"
                 )}
                 style={{

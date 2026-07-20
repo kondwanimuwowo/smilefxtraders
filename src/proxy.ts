@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { authCookieOptions } from "@/lib/supabase/cookie-options";
 
-const PUBLIC_PREFIXES = ["/login", "/signup", "/onboarding", "/forgot-password", "/reset-password", "/api", "/auth", "/features", "/pricing", "/about", "/learn", "/our-community", "/insights", "/contact", "/stories", "/resources"];
+const PUBLIC_PREFIXES = ["/login", "/signup", "/onboarding", "/forgot-password", "/reset-password", "/api", "/auth", "/features", "/pricing", "/about", "/learn", "/our-community", "/insights", "/contact", "/stories", "/resources", "/terms", "/privacy", "/risk-disclosure", "/blog", "/careers"];
 // Note: /api is already public, so /api/webhooks/lenco is covered — no extra entry needed.
 const PUBLIC_EXACT    = ["/"]; // exact match only
 
@@ -22,7 +22,7 @@ const SKIP_AUTH_PREFIXES = ["/api", "/auth"];
 const MARKETING_HOST = process.env.NEXT_PUBLIC_MARKETING_HOST ?? "smilefxtraders.com";
 const APP_HOST       = process.env.NEXT_PUBLIC_APP_HOST       ?? "app.smilefxtraders.com";
 
-const MARKETING_PREFIXES = ["/features", "/pricing", "/about", "/learn", "/our-community"];
+const MARKETING_PREFIXES = ["/features", "/pricing", "/about", "/learn", "/our-community", "/terms", "/privacy", "/risk-disclosure", "/blog", "/careers", "/contact"];
 
 function isMarketingPath(pathname: string) {
   return (
