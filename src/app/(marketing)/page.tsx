@@ -117,7 +117,6 @@ export default async function HomePage() {
                 "Discipline score that holds you accountable",
                 "AI trade review graded against your rules",
               ]}
-              cta={{ label: "Open the journal", href: "/signup", variant: "button" }}
             />
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
@@ -141,7 +140,6 @@ export default async function HomePage() {
                 "Confluence score and clear A+ / Wait / No-Trade call",
                 "Send validated setups straight to your journal",
               ]}
-              cta={{ label: "See how it works", href: "/features#validator", variant: "link" }}
             />
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
@@ -204,51 +202,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ===== FOCUS + FLOATING PAIRS ===== */}
-      <section className="section">
-        <style>{`
-          @keyframes fxfloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-          .fx-wrap { position: relative; }
-          .fx-float {
-            position: absolute;
-            font-weight: 600; color: var(--navy, #0B425D);
-            font-feature-settings: "tnum";
-            white-space: nowrap; animation: fxfloat 5s ease-in-out infinite;
-          }
-          .fx-float .up { color: var(--teal, #08AEAA); font-weight: 700; }
-          .fx-float .down { color: var(--coral, #EA523D); font-weight: 700; }
-        `}</style>
-        <div className="container">
-          <div className="feature-row">
-            <div className="feature-text reveal">
-              <h3>Tune out the noise. Trade your plan.</h3>
-              <p className="lead">The market throws a hundred pairs and a thousand opinions at you every day. Smile FX keeps you anchored to the setups that fit your edge, and nothing else.</p>
-              <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Start focused</Button>
-            </div>
-            <div className="feature-visual reveal" data-delay="120">
-              <div className="fx-wrap">
-                <img src="/focus-illustration.svg" alt="" aria-hidden="true" className="w-full h-auto block" />
-                <div className="fx-float hidden sm:block top-[4%] left-[4%] text-[15px] [animation-delay:0s]">
-                  EUR/USD <span className="up">▲ 0.4%</span>
-                </div>
-                <div className="fx-float hidden sm:block top-[12%] right-[2%] text-[13px] [animation-delay:1.2s]">
-                  GBP/USD <span className="down">▼ 0.2%</span>
-                </div>
-                <div className="fx-float hidden sm:block top-[40%] left-0 text-[14px] [animation-delay:0.6s]">
-                  XAU/USD <span className="up">▲ 1.1%</span>
-                </div>
-                <div className="fx-float hidden sm:block top-[48%] right-0 text-[15px] [animation-delay:1.8s]">
-                  NZD/USD <span className="up">▲ 0.3%</span>
-                </div>
-                <div className="fx-float hidden sm:block bottom-[14%] left-[8%] text-[13px] [animation-delay:2.4s]">
-                  NAS100 <span className="up">▲ 0.7%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ===== INSTRUCTOR ===== */}
       <section className="section">
         <div className="container">
@@ -282,7 +235,7 @@ export default async function HomePage() {
       <section className="section soft">
         <div className="container">
           <div className="sec-head center reveal mb-[52px]">
-            <h2>Simple, transparent plans</h2>
+            <h2>Pricing</h2>
             <p className="lead mt-3.5">Start free. Upgrade when you&apos;re ready.</p>
           </div>
           <div className="grid g3 items-start">
