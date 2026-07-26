@@ -76,6 +76,29 @@ export async function syncInstrument(code: string, pair: string, inverted: boole
   return rows.length;
 }
 
+/** Latest report_date CFTC has published for one contract — cheap 1-row lookup. */
+export async function getLatestCftcReportDate(code: string): Promise<Date | null> {
+  const url = new URL(CFTC_BASE);
+  url.searchParams.set("$where",  `cftc_contract_market_code='${code}'`);
+  url.searchParams.set("$order",  "report_date_as_yyyy_mm_dd DESC");
+  url.searchParams.set("$limit",  "1");
+  url.searchParams.set("$select", "report_date_as_yyyy_mm_dd");
+
+  const ac  = new AbortController();
+  const tid = setTimeout(() => ac.abort(), 10_000);
+  let res: Response;
+  try {
+    res = await fetch(url.toString(), { signal: ac.signal });
+  } finally {
+    clearTimeout(tid);
+  }
+  if (!res.ok) return null;
+
+  const rows = (await res.json()) as SocrataRow[];
+  if (rows.length === 0) return null;
+  return new Date(rows[0].report_date_as_yyyy_mm_dd.slice(0, 10) + "T00:00:00.000Z");
+}
+
 /** Sync every COT-enabled instrument; returns a per-symbol result map. */
 export async function syncAllInstruments(
   instruments: { symbol: string; cotCode: string | null; cotInverted: boolean }[],

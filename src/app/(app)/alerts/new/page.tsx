@@ -114,7 +114,7 @@ export default function PostAlertPage() {
                     type="text" value={(form as unknown as Record<string, string>)[key]}
                     onChange={(e) => set(key, e.target.value)}
                     placeholder={label}
-                    className="w-full px-3 py-2 rounded-xl text-[13px] bg-panel-2 shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] transition-shadow text-ink-strong outline-none"
+                    className="w-full px-3 py-2 rounded-xl text-[13px] bg-panel-2 focus:shadow-[0_0_0_2px_var(--teal)] transition-shadow text-ink-strong outline-none"
                   />
                 </Field>
               ))}
@@ -127,7 +127,7 @@ export default function PostAlertPage() {
                   type="text" value={form.tagInput} onChange={(e) => set("tagInput", e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
                   placeholder="Add tag, press Enter"
-                  className="flex-1 px-3 py-2 rounded-xl text-[13px] bg-panel-2 shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] transition-shadow text-ink-strong outline-none"
+                  className="flex-1 px-3 py-2 rounded-xl text-[13px] bg-panel-2 focus:shadow-[0_0_0_2px_var(--teal)] transition-shadow text-ink-strong outline-none"
                 />
                 <button type="button" onClick={addTag} className="px-3 rounded-xl bg-panel-2 shadow-sm text-ink-mid">
                   <Icon name="add" size={16} />
@@ -151,7 +151,7 @@ export default function PostAlertPage() {
               <textarea
                 value={form.note} onChange={(e) => set("note", e.target.value)}
                 rows={4} placeholder="HTF bias, entry rationale, key levels..."
-                className="w-full px-3 py-2 rounded-xl text-[13px] resize-none bg-panel-2 shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] transition-shadow text-ink-strong outline-none"
+                className="w-full px-3 py-2 rounded-xl text-[13px] resize-none bg-panel-2 focus:shadow-[0_0_0_2px_var(--teal)] transition-shadow text-ink-strong outline-none"
               />
             </Field>
 

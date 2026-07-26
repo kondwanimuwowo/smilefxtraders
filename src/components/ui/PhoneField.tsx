@@ -30,7 +30,7 @@ export function PhoneField({ countryIso2, onCountryChange, national, onNationalC
           options={COUNTRIES.map((c) => ({ v: c.iso2, l: `${c.name} (+${c.dialCode})` }))}
         />
       </div>
-      <div className="flex-1 flex items-center rounded-[9px] shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus-within:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] transition-shadow bg-panel-2">
+      <div className="flex-1 flex items-center rounded-[9px] focus-within:shadow-[0_0_0_2px_var(--teal)] transition-shadow bg-panel-2">
         <span className="pl-3 text-base sm:text-[13.5px] text-ink-dim select-none">
           +{country.dialCode}
         </span>

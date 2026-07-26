@@ -288,7 +288,7 @@ export function TradeForm({ edit, preset, onSaved, onCancel }: Props) {
               type="datetime-local"
               value={f.openedAt}
               onChange={(e) => set("openedAt", e.target.value)}
-              className="w-full rounded-lg px-3 py-2 text-[13px] bg-panel-2 shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] transition-shadow text-ink-strong outline-none"
+              className="w-full rounded-lg px-3 py-2 text-[13px] bg-panel-2 focus:shadow-[0_0_0_2px_var(--teal)] transition-shadow text-ink-strong outline-none"
             />
           </Field>
           <Field
@@ -360,7 +360,7 @@ export function TradeForm({ edit, preset, onSaved, onCancel }: Props) {
                   type="datetime-local"
                   value={f.closedAt}
                   onChange={(e) => set("closedAt", e.target.value)}
-                  className="w-full rounded-lg px-3 py-2 text-[13px] bg-panel-2 shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)] focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.12),0_0_0_2px_var(--teal)] transition-shadow text-ink-strong outline-none"
+                  className="w-full rounded-lg px-3 py-2 text-[13px] bg-panel-2 focus:shadow-[0_0_0_2px_var(--teal)] transition-shadow text-ink-strong outline-none"
                 />
               </Field>
             </>
