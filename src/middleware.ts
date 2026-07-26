@@ -42,10 +42,6 @@ function crossHostRedirect(request: NextRequest, host: string, pathname?: string
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  // TEMP BISECTION — remove after the Cloudflare redirect-loop bug is found.
-  if (pathname === "/dashboard" || pathname === "/login") {
-    return NextResponse.next({ request });
-  }
   const host = request.headers.get("host")?.split(":")[0] ?? "";
 
   // Canonicalise www → apex
