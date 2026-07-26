@@ -71,12 +71,7 @@ function dbToAppUser(db: NonNullable<Awaited<ReturnType<typeof prisma.user.findU
 async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }> {
   try {
     const supabase = await createClient();
-    const { data: { user }, error: getUserError } = await supabase.auth.getUser();
-    // TEMP DIAGNOSTIC — remove once the Cloudflare redirect-loop bug is found.
-    const { cookies } = await import("next/headers");
-    const cookieStore = await cookies();
-    console.error("[authdebug] cookies:", cookieStore.getAll().map((c) => `${c.name}(${c.value.length})`).join(", "));
-    console.error("[authdebug] getUser error:", getUserError?.message ?? "none", "user:", user ? user.id : "null");
+    const { data: { user } } = await supabase.auth.getUser();
     // proxy.ts's route guard only does a fast, unverified local session
     // decode (see its comment) — a stale/expired cookie can pass that check
     // and still reach this layout. getUser() is the verified check; when it

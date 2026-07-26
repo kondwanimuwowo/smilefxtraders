@@ -67,14 +67,13 @@ export async function middleware(request: NextRequest) {
 
   // Skip Supabase entirely for paths whose result is never used here. This
   // matters beyond avoiding wasted work: a dashboard page mounts a burst of
-  // ~15 parallel /api/* fetches, and getSession() isn't purely local — when
-  // the access token is near expiry it refreshes over the network via the
-  // setAll callback. Running that on every one of those parallel requests
-  // raced them all against the same refresh token; Supabase invalidates a
-  // refresh token the instant one request uses it, so every other
-  // concurrent request failed with "Invalid Refresh Token" — and if the
-  // actual page navigation lost that race, the guard below saw no session
-  // and bounced the whole page back to /login.
+  // ~15 parallel /api/* fetches, and getUser() refreshes the token over the
+  // network when it's near expiry via the setAll callback. Running that on
+  // every one of those parallel requests raced them all against the same
+  // refresh token; Supabase invalidates a refresh token the instant one
+  // request uses it, so every other concurrent request failed with "Invalid
+  // Refresh Token" — and if the actual page navigation lost that race, the
+  // guard below saw no user and bounced the whole page back to /login.
   if (SKIP_AUTH_PREFIXES.some((p) => pathname.startsWith(p))) {
     return NextResponse.next({ request });
   }
@@ -103,37 +102,36 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // getSession reads the JWT from the cookie locally when the token is still
-  // valid, but refreshes over the network when it's expired. We use it here
-  // only for route protection (fast path). The layout server component calls
-  // getUser() for proper server-side validation before DB work.
+  // getUser() is the server-verified check (network round-trip to Supabase)
+  // — getSession() only decodes the JWT locally and is not guaranteed to
+  // reflect a token Supabase has actually revalidated. The layout server
+  // component below also calls getUser() before DB work; using it here too
+  // keeps both auth checks consistent instead of trusting a local decode in
+  // one place and a verified check in the other.
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  // TEMP DIAGNOSTIC — remove once the Cloudflare redirect-loop bug is found.
-  console.error(
-    "[authdebug:mw]", pathname,
-    "cookies:", request.cookies.getAll().map((c) => `${c.name}(${c.value.length})`).join(", "),
-    "session:", session ? "yes" : "no"
-  );
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const isPublic =
     PUBLIC_EXACT.includes(pathname) ||
     PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
 
-  if (!session && !isPublic) {
+  if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    return NextResponse.redirect(url);
+    const redirectResponse = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach((c) => redirectResponse.cookies.set(c));
+    return redirectResponse;
   }
 
   // Only redirect authenticated users away from auth pages — not marketing pages
   const isAuthPage = ["/login", "/signup"].some((p) => pathname.startsWith(p));
-  if (session && isAuthPage) {
+  if (user && isAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+    const redirectResponse = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach((c) => redirectResponse.cookies.set(c));
+    return redirectResponse;
   }
 
   return supabaseResponse;
