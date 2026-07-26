@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "smile-fx-traders",
+  "name": "smilefxtraders",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-07-25",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
