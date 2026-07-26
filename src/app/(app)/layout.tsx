@@ -11,6 +11,10 @@ import { prisma } from "@/lib/prisma";
 import { Providers } from "@/lib/providers";
 import type { AppUser, Trade, AIReviewResult } from "@/lib/store";
 
+// Every route under this layout is per-user and auth-gated — never let the
+// Cloudflare/OpenNext incremental cache treat any of it as static.
+export const dynamic = "force-dynamic";
+
 // ── Data mappers ─────────────────────────────────────────────────────────────
 
 const SESSION_MAP: Record<string, string> = { LONDON: "London", NEW_YORK: "New York", ASIA: "Asia" };
