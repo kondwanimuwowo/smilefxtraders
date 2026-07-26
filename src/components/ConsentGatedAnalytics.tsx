@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Analytics } from "@vercel/analytics/next";
+import Script from "next/script";
 import { hasAnalyticsConsent, CONSENT_CHANGED_EVENT } from "@/lib/cookie-consent";
 
-// Vercel Analytics is cookieless by default, but we still gate it behind the
-// "analytics" consent category — the toggle should have a real effect, not
-// just describe one.
+// Cloudflare Web Analytics is cookieless by default, but we still gate it
+// behind the "analytics" consent category — the toggle should have a real
+// effect, not just describe one.
 export function ConsentGatedAnalytics() {
   const [enabled, setEnabled] = useState(false);
 
@@ -17,6 +17,15 @@ export function ConsentGatedAnalytics() {
     return () => window.removeEventListener(CONSENT_CHANGED_EVENT, check);
   }, []);
 
-  if (!enabled) return null;
-  return <Analytics />;
+  const token = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN;
+  if (!enabled || !token) return null;
+
+  return (
+    <Script
+      id="cf-analytics"
+      strategy="afterInteractive"
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon={JSON.stringify({ token })}
+    />
+  );
 }

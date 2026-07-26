@@ -36,6 +36,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# cloudflare / opennext
+.open-next/
+.wrangler/
+cloudflare-env.d.ts
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
@@ -50,6 +55,7 @@ CLAUDE.md
 FEATURES.md
 CRON.md
 spotware_api_plan.md
+cloudflare_migration_plan.md
 public/inspo/*
 plan.md
 

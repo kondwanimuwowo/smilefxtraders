@@ -40,7 +40,7 @@ function crossHostRedirect(request: NextRequest, host: string, pathname?: string
   return NextResponse.redirect(url, 308);
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host")?.split(":")[0] ?? "";
 
