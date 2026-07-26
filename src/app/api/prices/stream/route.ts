@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 import { getInstruments } from "@/lib/server/getInstruments";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 const TD_SUBSCRIBE_FALLBACK = "EUR/USD,GBP/USD,USD/JPY,USD/CHF,AUD/USD,NZD/USD,USD/CAD,XAU/USD,IXIC,DXY";
 const DISPLAY_FALLBACK: Record<string, string> = {
@@ -23,9 +24,47 @@ function fmt(price: number, tdSym: string): string {
   return price.toFixed(5);
 }
 
+// Minimal local shapes for the two Workers-runtime extensions used here
+// (a Durable Object binding, and the `webSocket` a 101 Response carries) —
+// deliberately not importing @cloudflare/workers-types' global ambient
+// types into the app's tsconfig, since those override the DOM lib's
+// fetch/Request/Response types project-wide.
+interface SpotwareBinding {
+  idFromName(name: string): unknown;
+  get(id: unknown): { fetch(url: string, init?: RequestInit): Promise<Response> };
+}
+interface WorkersResponse extends Response {
+  webSocket?: WebSocket & { accept(): void };
+}
+
+// Server-to-server relay from the SpotwareFeed Durable Object (persistent
+// cTrader Open API connection — src/durable-objects/SpotwareFeed.ts). Returns
+// null (falls through to Twelve Data below) whenever Spotware isn't
+// reachable or the binding isn't present, e.g. local dev without wrangler.
+async function trySpotware(push: (data: string) => void, onClose: () => void): Promise<(() => void) | null> {
+  try {
+    const ctx = getCloudflareContext() as unknown as { env: Record<string, unknown> };
+    const binding = ctx.env.SPOTWARE_FEED as SpotwareBinding | undefined;
+    if (!binding) return null;
+
+    const id = binding.idFromName("default");
+    const stub = binding.get(id);
+    const res = (await stub.fetch("https://spotware-feed/subscribe", { headers: { Upgrade: "websocket" } })) as WorkersResponse;
+    const ws = res.webSocket;
+    if (!ws) return null;
+
+    ws.accept();
+    ws.addEventListener("message", (e: MessageEvent) => push(typeof e.data === "string" ? e.data : ""));
+    ws.addEventListener("close", onClose);
+    ws.addEventListener("error", onClose);
+    return () => ws.close();
+  } catch {
+    return null;
+  }
+}
+
 export async function GET() {
   const apiKey = process.env.TWELVE_DATA_API_KEY;
-  if (!apiKey) return new Response("No API key", { status: 503 });
 
   const instruments = await getInstruments().catch(() => []);
   const tdInstruments = instruments.filter((i) => i.tdSymbol != null);
@@ -39,11 +78,24 @@ export async function GET() {
   const enc = new TextEncoder();
   let ws: WebSocket | null = null;
   let heartbeat: ReturnType<typeof setInterval> | null = null;
+  let closeSpotware: (() => void) | null = null;
 
   const body = new ReadableStream({
-    start(ctrl) {
+    async start(ctrl) {
       function push(data: string) {
         try { ctrl.enqueue(enc.encode(`data: ${data}\n\n`)); } catch { /* closed */ }
+      }
+
+      closeSpotware = await trySpotware(push, () => {
+        try { ctrl.close(); } catch { /* already closed */ }
+      });
+      if (closeSpotware) {
+        return; // Spotware connected — Twelve Data path below is skipped entirely
+      }
+
+      if (!apiKey) {
+        try { ctrl.close(); } catch { /* already closed */ }
+        return;
       }
 
       ws = new WebSocket(`wss://ws.twelvedata.com/v1/quotes/price?apikey=${apiKey}`);
@@ -79,6 +131,7 @@ export async function GET() {
     cancel() {
       if (heartbeat) clearInterval(heartbeat);
       ws?.close();
+      closeSpotware?.();
     },
   });
 

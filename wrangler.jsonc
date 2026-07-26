@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "smilefxtraders",
-  "main": ".open-next/worker.js",
+  "main": "./custom-worker.ts",
   "compatibility_date": "2026-07-25",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
@@ -13,5 +13,13 @@
       "binding": "NEXT_INC_CACHE_R2_BUCKET",
       "bucket_name": "smile-fx-traders-isr-cache"
     }
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "SPOTWARE_FEED", "class_name": "SpotwareFeed" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["SpotwareFeed"] }
   ]
 }
