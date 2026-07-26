@@ -111,6 +111,13 @@ export async function middleware(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
+  // TEMP DIAGNOSTIC — remove once the Cloudflare redirect-loop bug is found.
+  console.error(
+    "[authdebug:mw]", pathname,
+    "cookies:", request.cookies.getAll().map((c) => `${c.name}(${c.value.length})`).join(", "),
+    "session:", session ? "yes" : "no"
+  );
+
   const isPublic =
     PUBLIC_EXACT.includes(pathname) ||
     PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
