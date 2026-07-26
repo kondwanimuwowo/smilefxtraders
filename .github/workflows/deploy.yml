@@ -1,0 +1,88 @@
+name: Deploy to Cloudflare
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      sync_secrets:
+        description: "Also push Worker secrets from GitHub secrets (only if you've updated one)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-cloudflare
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (Next.js + OpenNext Cloudflare bundle)
+        env:
+          # NEXT_PUBLIC_* vars are inlined into the bundle at build time —
+          # they are NOT read from Cloudflare's runtime bindings, so they
+          # must be present here, not just in `wrangler secret`/dashboard.
+          NEXT_PUBLIC_APP_HOST: ${{ vars.NEXT_PUBLIC_APP_HOST }}
+          NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
+          NEXT_PUBLIC_MARKETING_HOST: ${{ vars.NEXT_PUBLIC_MARKETING_HOST }}
+          NEXT_PUBLIC_COOKIE_DOMAIN: ${{ vars.NEXT_PUBLIC_COOKIE_DOMAIN }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_CF_BEACON_TOKEN: ${{ vars.NEXT_PUBLIC_CF_BEACON_TOKEN }}
+        run: npx opennextjs-cloudflare build
+
+      - name: Deploy Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx opennextjs-cloudflare deploy
+
+  # Manual-only, opt-in: pushes Worker secrets from GitHub secrets. Never runs
+  # on a plain push, so a stale/unset GitHub secret can't silently blank out
+  # a good value already set directly on the Worker (see 2026-07-26 incident).
+  sync-secrets:
+    if: github.event_name == 'workflow_dispatch' && inputs.sync_secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Push Worker secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          printf '%s' '{
+            "DATABASE_URL": "${{ secrets.DATABASE_URL }}",
+            "DIRECT_URL": "${{ secrets.DIRECT_URL }}",
+            "SUPABASE_SERVICE_ROLE_KEY": "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}",
+            "RESEND_API_KEY": "${{ secrets.RESEND_API_KEY }}",
+            "ANTHROPIC_API_KEY": "${{ secrets.ANTHROPIC_API_KEY }}",
+            "TWELVE_DATA_API_KEY": "${{ secrets.TWELVE_DATA_API_KEY }}",
+            "FINNHUB_API_KEY": "${{ secrets.FINNHUB_API_KEY }}",
+            "FINNHUB_WEBHOOK_SECRET": "${{ secrets.FINNHUB_WEBHOOK_SECRET }}",
+            "FRED_API_KEY": "${{ secrets.FRED_API_KEY }}",
+            "LENCO_API_KEY": "${{ secrets.LENCO_API_KEY }}",
+            "LENCO_PUBLIC_KEY": "${{ secrets.LENCO_PUBLIC_KEY }}",
+            "LENCO_WEBHOOK_SECRET": "${{ secrets.LENCO_WEBHOOK_SECRET }}",
+            "CRON_SECRET": "${{ secrets.CRON_SECRET }}",
+            "UPSTASH_REDIS_REST_TOKEN": "${{ secrets.UPSTASH_REDIS_REST_TOKEN }}",
+            "UPSTASH_REDIS_REST_URL": "${{ secrets.UPSTASH_REDIS_REST_URL }}",
+            "SPOTWARE_CLIENT_ID": "${{ secrets.SPOTWARE_CLIENT_ID }}",
+            "SPOTWARE_CLIENT_SECRET": "${{ secrets.SPOTWARE_CLIENT_SECRET }}",
+            "SPOTWARE_CTID_ACCOUNT_ID": "${{ secrets.SPOTWARE_CTID_ACCOUNT_ID }}",
+            "SPOTWARE_REFRESH_TOKEN": "${{ secrets.SPOTWARE_REFRESH_TOKEN }}",
+            "DEMO_EMAIL": "${{ secrets.DEMO_EMAIL }}",
+            "DEMO_PASSWORD": "${{ secrets.DEMO_PASSWORD }}"
+          }' | npx wrangler secret bulk
