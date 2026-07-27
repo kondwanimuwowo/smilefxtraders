@@ -1,7 +1,7 @@
 // Server-side notification creation + fan-out. Creation is internal-only —
 // there is no public POST endpoint; event sites call these helpers directly.
 
-import { Prisma, type NotificationType, type PrismaClient } from "@prisma/client";
+import { Prisma, type NotificationType, type PrismaClient } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
 // Accepts any Prisma client because webhooks/lenco deliberately uses its own

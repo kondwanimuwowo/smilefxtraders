@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { fanOutInstructorAlert } from "@/lib/notify-events";
-import type { Alert } from "@prisma/client";
+import type { Alert } from "@/generated/prisma/client";
 
 // ── Mapping helpers ──────────────────────────────────────────────────────────
 

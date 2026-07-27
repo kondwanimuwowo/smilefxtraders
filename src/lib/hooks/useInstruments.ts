@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Instrument } from "@prisma/client";
+import type { Instrument } from "@/generated/prisma/client";
 
 export type { Instrument };
 

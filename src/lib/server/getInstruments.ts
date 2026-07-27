@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import type { Instrument } from "@prisma/client";
+import type { Instrument } from "@/generated/prisma/client";
 
 export type { Instrument };
 

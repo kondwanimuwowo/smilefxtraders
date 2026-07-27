@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DataSource, IndicatorType } from "@prisma/client";
+import { DataSource, IndicatorType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { fetchFredSeries, recentValidObservations, FredNotConfiguredError, FRED_SERIES } from "@/lib/fred";
 import { fetchWorldBankIndicator, recentNonNull, WORLD_BANK_COUNTRY_CODE, WORLD_BANK_INDICATORS } from "@/lib/worldbank";

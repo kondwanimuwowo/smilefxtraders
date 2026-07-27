@@ -1,7 +1,7 @@
 // Event-specific notification fan-outs. Called fire-and-forget from API
 // routes — must never throw into the request path.
 
-import type { Alert } from "@prisma/client";
+import type { Alert } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { prefEnabled } from "@/lib/notif-prefs";
 import { createNotifications } from "@/lib/notifications";

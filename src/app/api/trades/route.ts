@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { fmtDayMonth } from "@/lib/date";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import type { Trade, AIReviewResult } from "@/lib/store";
-import type { Trade as PrismaTrade } from "@prisma/client";
+import type { Trade as PrismaTrade } from "@/generated/prisma/client";
 
 // ── Mapping helpers ──────────────────────────────────────────────────────────
 

@@ -5,7 +5,7 @@
 // hub, etc.) should call deriveMeta()/deriveMetaMap() against Instrument rows
 // rather than re-hardcoding pair metadata.
 
-import type { Instrument } from "@prisma/client";
+import type { Instrument } from "@/generated/prisma/client";
 
 export interface PairMeta {
   label: string;

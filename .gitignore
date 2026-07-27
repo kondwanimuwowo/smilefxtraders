@@ -45,6 +45,9 @@ cloudflare-env.d.ts
 *.tsbuildinfo
 next-env.d.ts
 
+# prisma generated client
+/src/generated/prisma/
+
 # internal docs — not for the repo
 walkthrough.md
 walkthrough2.md

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { fetchEconomicCalendar, FinnhubError } from "@/lib/finnhub";
 import { mapCountryToCurrency, mapEventTitleToIndicator, TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "@/generated/prisma/client";
 
 // Cron: pulls Finnhub's economic calendar for a rolling window and upserts
 // into EconomicEvent. Follows the same x-cron-secret + sameOrigin auth

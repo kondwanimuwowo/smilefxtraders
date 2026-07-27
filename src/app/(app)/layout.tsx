@@ -86,11 +86,7 @@ async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }>
     // No public.users row means this user hasn't completed onboarding yet
     // (that's the only place a profile row gets created) — send them there
     // instead of lazily fabricating a placeholder profile.
-    let db = await prisma.user.findUnique({ where: { supabaseId: user.id } }).catch((err) => {
-      // TEMP DIAGNOSTIC — remove once the onboarding-redirect bug is found.
-      console.error("[authdebug] findUnique failed:", err instanceof Error ? err.message : err);
-      return null;
-    });
+    let db = await prisma.user.findUnique({ where: { supabaseId: user.id } }).catch(() => null);
     if (!db) redirect("/onboarding");
 
     // Lazy-expire cancelled subscriptions: if planExpiresAt has passed, downgrade to FREE

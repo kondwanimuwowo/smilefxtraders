@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
-import { SubjectType } from "@prisma/client";
+import { SubjectType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { fetchConfluence } from "@/lib/macro/confluence";

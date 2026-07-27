@@ -1,4 +1,4 @@
-import { IndicatorType, type Prisma } from "@prisma/client";
+import { IndicatorType, type Prisma } from "@/generated/prisma/client";
 import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { applyRule, type RuleInput } from "./rules";

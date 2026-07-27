@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
-import { BiasLabel } from "@prisma/client";
+import { BiasLabel } from "@/generated/prisma/client";
 import { deriveMetaMap } from "@/lib/pairs";
 import { getInstruments } from "@/lib/server/getInstruments";
 import { TRACKED_CURRENCIES } from "./indicatorMap";

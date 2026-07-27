@@ -1,4 +1,4 @@
-import { IndicatorType } from "@prisma/client";
+import { IndicatorType } from "@/generated/prisma/client";
 
 // Layer 2 — deterministic, pure rule engine. Turns one data point into a
 // signal in the range -2..2 (strong bearish .. strong bullish for the

@@ -1,4 +1,4 @@
-import type { IndicatorType, BiasLabel } from "@prisma/client";
+import type { IndicatorType, BiasLabel } from "@/generated/prisma/client";
 
 export interface MacroBreakdownEntry {
   indicatorType: IndicatorType;

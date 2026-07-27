@@ -1,4 +1,4 @@
-import { IndicatorType } from "@prisma/client";
+import { IndicatorType } from "@/generated/prisma/client";
 
 // Finnhub's economic-calendar events don't carry a clean machine-readable
 // category field — just a free-text `event` title (e.g. "CPI YoY",
