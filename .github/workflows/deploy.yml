@@ -29,6 +29,11 @@ jobs:
 
       - name: Build (Next.js + OpenNext Cloudflare bundle)
         env:
+          # A handful of routes use `export const revalidate` (ISR) — Next
+          # actually executes those handlers at build time to seed the
+          # initial cached response, so DATABASE_URL must be present here
+          # too, not just as a runtime Worker secret.
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           # NEXT_PUBLIC_* vars are inlined into the bundle at build time —
           # they are NOT read from Cloudflare's runtime bindings, so they
           # must be present here, not just in `wrangler secret`/dashboard.
