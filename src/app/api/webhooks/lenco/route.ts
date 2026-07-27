@@ -7,19 +7,28 @@ import { createNotification } from "@/lib/notifications";
 import { sendEmail } from "@/lib/email/send";
 import { paymentConfirmedEmail, paymentFailedEmail } from "@/lib/email/templates/billing";
 
-// Create a module-level Prisma instance that is guaranteed to be initialised
-// after Next.js has loaded all environment variables. Using the shared
-// @/lib/prisma singleton caused "Cannot read properties of undefined" errors
-// in this route because the singleton was evaluated before env vars were ready.
-function getDb() {
+// Lazy singleton, evaluated on first property access rather than at module
+// load. Using the shared @/lib/prisma singleton directly caused "Cannot read
+// properties of undefined" errors in this route because it was evaluated
+// before env vars were ready; eagerly constructing a client here instead
+// broke Next's build-time page-data collection (and any environment that
+// doesn't have DATABASE_URL set until runtime, e.g. CI), since DATABASE_URL
+// isn't read until something actually queries the database.
+function createDb() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not set");
   return new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
 }
 
 const globalForDb = globalThis as unknown as { webhookDb?: PrismaClient };
-const db = globalForDb.webhookDb ?? getDb();
-if (process.env.NODE_ENV !== "production") globalForDb.webhookDb = db;
+function getDb() {
+  if (!globalForDb.webhookDb) globalForDb.webhookDb = createDb();
+  return globalForDb.webhookDb;
+}
+
+const db = new Proxy({} as PrismaClient, {
+  get: (_, prop) => (getDb() as any)[prop],
+});
 
 // ── Webhook body shape from Lenco ────────────────────────────────────────────
 
