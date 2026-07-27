@@ -24,7 +24,7 @@ import { config } from "dotenv";
 config({ path: path.join(process.cwd(), ".env") });
 config({ path: path.join(process.cwd(), ".env.local"), override: true });
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 // Use DIRECT_URL (session-mode, port 5432) for long-running bulk scripts.
