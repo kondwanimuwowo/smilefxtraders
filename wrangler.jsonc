@@ -14,6 +14,12 @@
       "bucket_name": "smile-fx-traders-isr-cache"
     }
   ],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "ade5538004ac488c961f6a4bf2533c2a"
+    }
+  ],
   "durable_objects": {
     "bindings": [
       { "name": "SPOTWARE_FEED", "class_name": "SpotwareFeed" }

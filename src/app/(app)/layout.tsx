@@ -85,8 +85,16 @@ async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }>
 
     // No public.users row means this user hasn't completed onboarding yet
     // (that's the only place a profile row gets created) — send them there
-    // instead of lazily fabricating a placeholder profile.
-    let db = await prisma.user.findUnique({ where: { supabaseId: user.id } }).catch(() => null);
+    // instead of lazily fabricating a placeholder profile. Deliberately NOT
+    // swallowing errors into a bare null here: a thrown error (e.g. a DB/
+    // connection timeout) is not the same thing as a genuine "row doesn't
+    // exist" null, and treating it as one falsely sends fully-onboarded
+    // users back to /onboarding (see 2026-08-09 incident). One retry absorbs
+    // a transient Workers↔Supabase blip; anything past that bubbles to the
+    // outer catch below instead of being misread as "never onboarded".
+    let db = await prisma.user.findUnique({ where: { supabaseId: user.id } }).catch(async () => {
+      return prisma.user.findUnique({ where: { supabaseId: user.id } });
+    });
     if (!db) redirect("/onboarding");
 
     // Lazy-expire cancelled subscriptions: if planExpiresAt has passed, downgrade to FREE

@@ -1,18 +1,37 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-function createPrismaClient() {
+interface HyperdriveBinding { connectionString: string }
+
+// On Workers, route through the Hyperdrive binding instead of Supabase's
+// pgbouncer directly — Workers' `connect()` TCP implementation talking to
+// pgbouncer was intermittently timing out mid-query (see 2026-08-09
+// incident: "Query read timeout" on plain single-query routes, not just
+// heavy ones), which is exactly what Hyperdrive's pooling/acceleration
+// layer exists to fix. Falls back to DATABASE_URL when the binding isn't
+// present (local dev, `next build`'s page-data collection in CI).
+function resolveConnectionString(): string {
+  try {
+    const ctx = getCloudflareContext() as unknown as { env: Record<string, unknown> };
+    const hyperdrive = ctx.env.HYPERDRIVE as HyperdriveBinding | undefined;
+    if (hyperdrive?.connectionString) return hyperdrive.connectionString;
+  } catch {
+    // Not running inside a Workers request context — fall through.
+  }
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL environment variable is not set.");
+  return url;
+}
+
+function createPrismaClient() {
+  const connectionString = resolveConnectionString();
   // Workers reuses isolates (and this module-level singleton) across
-  // requests, but Supabase's pgbouncer can silently drop an idle pooled
-  // connection between requests. Without a client-side timeout, the next
-  // query on that dead connection hangs until Cloudflare's own ~30s watchdog
-  // kills the whole request with an opaque error. These timeouts turn that
-  // into a normal thrown error within a few seconds, which every caller
-  // already handles via try/catch or `.catch(() => null)`.
+  // requests. These client-side timeouts turn a stale/hung connection into a
+  // normal thrown error within a few seconds, which every caller already
+  // handles via try/catch or `.catch(() => null)`.
   const adapter = new PrismaPg({
-    connectionString: url,
+    connectionString,
     connectionTimeoutMillis: 8_000,
     idleTimeoutMillis: 10_000,
     query_timeout: 10_000,

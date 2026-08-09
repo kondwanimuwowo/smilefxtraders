@@ -1,7 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import crypto from "crypto";
+
+interface HyperdriveBinding { connectionString: string }
+
+// See src/lib/prisma.ts for why this routes through Hyperdrive on Workers.
+function resolveConnectionString(): string {
+  try {
+    const ctx = getCloudflareContext() as unknown as { env: Record<string, unknown> };
+    const hyperdrive = ctx.env.HYPERDRIVE as HyperdriveBinding | undefined;
+    if (hyperdrive?.connectionString) return hyperdrive.connectionString;
+  } catch {
+    // Not running inside a Workers request context — fall through.
+  }
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new Error("DATABASE_URL is not set");
+  return url;
+}
 import { addMonths } from "@/lib/date";
 import { createNotification } from "@/lib/notifications";
 import { sendEmail } from "@/lib/email/send";
@@ -15,9 +32,7 @@ import { paymentConfirmedEmail, paymentFailedEmail } from "@/lib/email/templates
 // doesn't have DATABASE_URL set until runtime, e.g. CI), since DATABASE_URL
 // isn't read until something actually queries the database.
 function createDb() {
-  const url = process.env.DATABASE_URL;
-  if (!url) throw new Error("DATABASE_URL is not set");
-  return new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
+  return new PrismaClient({ adapter: new PrismaPg({ connectionString: resolveConnectionString() }) });
 }
 
 const globalForDb = globalThis as unknown as { webhookDb?: PrismaClient };
