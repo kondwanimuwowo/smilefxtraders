@@ -4,6 +4,13 @@
   "main": "./custom-worker.ts",
   "compatibility_date": "2026-07-25",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // esbuild's keep-names default injects a `__name` helper at module scope;
+  // next-themes' flash-prevention script gets extracted and evaluated in a
+  // separate runtime context (via Function.prototype.toString()) that never
+  // sees that helper, throwing "__name is not defined" on every page load.
+  // See https://opennext.js.org/cloudflare/howtos/keep_names — requires
+  // Wrangler >= 4.13.0 (we're on 4.114.0).
+  "keep_names": false,
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
