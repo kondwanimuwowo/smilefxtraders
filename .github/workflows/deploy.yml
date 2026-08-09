@@ -34,6 +34,14 @@ jobs:
           # initial cached response, so DATABASE_URL must be present here
           # too, not just as a runtime Worker secret.
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # OpenNext's Cloudflare adapter sees the `hyperdrive` binding in
+          # wrangler.jsonc and requires a local/build-time stand-in
+          # connection string to emulate it while `next build` executes
+          # those same ISR routes above — it does not fall back to
+          # DATABASE_URL for this on its own. The deployed Worker still
+          # uses the real Hyperdrive binding at runtime; this value is only
+          # ever used during the build step.
+          CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE: ${{ secrets.DATABASE_URL }}
           # NEXT_PUBLIC_* vars are inlined into the bundle at build time —
           # they are NOT read from Cloudflare's runtime bindings, so they
           # must be present here, not just in `wrangler secret`/dashboard.
