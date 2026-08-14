@@ -35,7 +35,14 @@ function createPrismaClient() {
     connectionTimeoutMillis: 8_000,
     idleTimeoutMillis: 10_000,
     query_timeout: 10_000,
-    max: 3,
+    // Page loads fire several API routes in parallel (dashboard, academy,
+    // notifications, etc.) that can land on the same reused isolate. A
+    // pool of 3 queues the overflow and those queued acquires were hitting
+    // connectionTimeoutMillis before the first 3 queries freed up -- see
+    // 2026-08-14 incident: "prisma:error timeout exceeded when trying to
+    // connect" on every DB-backed route. Hyperdrive's origin_connection_limit
+    // is 60, so there's plenty of headroom to raise this.
+    max: 10,
   });
   return new PrismaClient({
     adapter,
