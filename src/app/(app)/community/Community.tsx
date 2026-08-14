@@ -468,19 +468,29 @@ function ComposeBox() {
 
 // ── Leaderboard sidebar ────────────────────────────────────────────────────────
 
-function useLeaderboard() {
+// Combined into one /api/community/overview call (leaders + stats) -- was
+// two separate requests fired alongside posts + instruments on every
+// /community load, four concurrent round trips on one isolate. React Query
+// dedupes same-key concurrent calls, so useLeaderboard and useCommunityStats
+// below share this single fetch instead of doubling it. See 2026-08-14
+// query-volume audit.
+function useCommunityOverview() {
   return useQuery({
-    queryKey: ["community-leaderboard"],
-    // Matches the /api/community/leaderboard route's own revalidate=900 --
-    // no point refetching client-side more often than the server-side data
-    // actually changes.
+    queryKey: ["community-overview"],
+    // Matches /api/community/overview's own revalidate=900 -- no point
+    // refetching client-side more often than the server-side data changes.
     staleTime: 15 * 60 * 1000,
     queryFn: async () => {
-      const res = await fetch("/api/community/leaderboard");
-      if (!res.ok) return [] as LeaderEntry[];
-      return res.json() as Promise<LeaderEntry[]>;
+      const res = await fetch("/api/community/overview");
+      if (!res.ok) return { leaders: [] as LeaderEntry[], stats: null as CommunityStatsData | null };
+      return res.json() as Promise<{ leaders: LeaderEntry[]; stats: CommunityStatsData }>;
     },
   });
+}
+
+function useLeaderboard() {
+  const { data, isLoading } = useCommunityOverview();
+  return { data: data?.leaders ?? [], isLoading };
 }
 
 interface LeaderEntry {
@@ -548,11 +558,8 @@ function Leaderboard() {
 interface CommunityStatsData { members: number; tradesLogged: number; countries: number; avgWinRate: number }
 
 function useCommunityStats() {
-  return useQuery<CommunityStatsData>({
-    queryKey: ["community-stats"],
-    queryFn: () => fetch("/api/community/stats").then((r) => r.json()),
-    staleTime: 15 * 60 * 1000,
-  });
+  const { data } = useCommunityOverview();
+  return { data: data?.stats ?? undefined };
 }
 
 function CommunityStats() {
