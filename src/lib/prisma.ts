@@ -26,6 +26,11 @@ function resolveConnectionString(): string {
   return url;
 }
 
+// Matches driver-adapter errors caused by a stalled/hung connection attempt
+// -- not a genuinely slow or broken query. See createPrismaClient below for
+// the incident context this responds to.
+const TRANSIENT_CONNECTION_ERROR = /Query read timeout|timeout exceeded when trying to connect|ECONNRESET|ECONNREFUSED|ETIMEDOUT/i;
+
 function createPrismaClient() {
   const connectionString = resolveConnectionString();
   // Workers reuses isolates (and this module-level singleton) across
@@ -34,13 +39,18 @@ function createPrismaClient() {
   // handles via try/catch or `.catch(() => null)`.
   const adapter = new PrismaPg({
     connectionString,
-    // See resolveConnectionString: intermittent stalls happen regardless of
-    // Hyperdrive vs. direct, on a database confirmed to answer instantly.
-    // The old 10s budget was killing slow-but-fine round trips, not slow
-    // queries -- see 2026-08-14 "Query read timeout" incident.
-    connectionTimeoutMillis: 15_000,
+    // 2026-08-14 incident: an intermittent minority of connection attempts
+    // stall in Workers' connect() layer reaching Supabase, on a database
+    // confirmed to answer instantly every time it's checked directly
+    // (pg_stat_activity empty during the failures) -- happens identically
+    // via Hyperdrive or a direct connection, so it isn't either proxy.
+    // Manually reloading the page reliably "fixes" it because a fresh
+    // connection attempt almost always succeeds immediately. Rather than
+    // make users wait out a long timeout, fail fast and let the $extends
+    // retry below make that same fresh attempt automatically.
+    connectionTimeoutMillis: 5_000,
     idleTimeoutMillis: 10_000,
-    query_timeout: 20_000,
+    query_timeout: 6_000,
     // Page loads fire several API routes in parallel (dashboard, academy,
     // notifications, etc.) that can land on the same reused isolate. A
     // pool of 3 queues the overflow and those queued acquires were hitting
@@ -50,9 +60,30 @@ function createPrismaClient() {
     // is 60, so there's plenty of headroom to raise this.
     max: 10,
   });
-  return new PrismaClient({
+  const client = new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+  });
+
+  // One transparent retry on a transient connection stall, applied to every
+  // query through every model automatically. Deliberately not a loop/backoff
+  // -- if a second fresh attempt also stalls, that's worth surfacing as a
+  // real error (via handleApiError) rather than making the user wait
+  // through a third attempt.
+  return client.$extends({
+    name: "retry-transient-connection-errors",
+    query: {
+      async $allOperations({ operation, model, args, query }) {
+        try {
+          return await query(args);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (!TRANSIENT_CONNECTION_ERROR.test(message)) throw err;
+          console.warn(`[prisma] retrying ${model ?? ""}.${operation} after transient connection error`);
+          return await query(args);
+        }
+      },
+    },
   });
 }
 
@@ -70,3 +101,9 @@ function getPrisma() {
 export const prisma = new Proxy({} as ReturnType<typeof createPrismaClient>, {
   get: (_, prop) => (getPrisma() as any)[prop],
 });
+
+// The $extends retry wrapper's type no longer structurally matches the base
+// PrismaClient (it's missing $on/$use/etc, which nothing here calls). Callers
+// that accept "any Prisma client" (e.g. lib/notifications.ts's Db union) use
+// this instead of PrismaClient directly.
+export type PrismaClientLike = ReturnType<typeof createPrismaClient>;
