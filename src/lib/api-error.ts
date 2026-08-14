@@ -17,8 +17,15 @@ export function handleApiError(context: string, err: unknown): NextResponse {
   const message = err instanceof Error ? err.message : String(err);
 
   // node-postgres / Prisma driver adapter: pool exhausted or origin
-  // unreachable within connectionTimeoutMillis.
-  if (/timeout exceeded when trying to connect/i.test(message)) {
+  // unreachable within connectionTimeoutMillis ("timeout exceeded..."), or a
+  // connection was acquired but the query itself didn't get a response
+  // within query_timeout ("Query read timeout") -- both are the same class
+  // of transient stall from the client's perspective (see lib/prisma.ts's
+  // retry wrapper, which already retries these once before this is ever
+  // reached). Missing the second phrasing here previously misclassified the
+  // *majority* of these as generic "unknown" errors, undermining the whole
+  // point of this classifier -- see 2026-08-14 incident.
+  if (/timeout exceeded when trying to connect|Query read timeout/i.test(message)) {
     return NextResponse.json(
       { error: "Database connection timed out. Please try again.", kind: "timeout" },
       { status: 503 }
