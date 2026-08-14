@@ -108,9 +108,21 @@ export async function middleware(request: NextRequest) {
   // component below also calls getUser() before DB work; using it here too
   // keeps both auth checks consistent instead of trusting a local decode in
   // one place and a verified check in the other.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  //
+  // This is a network call middleware previously left unguarded -- a
+  // transient failure reaching Supabase Auth threw an unhandled exception
+  // here, taking down every request through middleware (every page nav)
+  // with a generic 500 instead of the page-level handling (app)/layout.tsx
+  // already has for the exact same call. Treat a throw the same way: no
+  // verified user, so the redirect-to-login-if-not-public path below still
+  // applies instead of the whole request blowing up.
+  let user = null;
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch (err) {
+    console.error("[middleware]", err);
+  }
 
   const isPublic =
     PUBLIC_EXACT.includes(pathname) ||

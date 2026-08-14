@@ -11,12 +11,12 @@ export default async function AdminPage() {
   const monthStart = startOfMonth(now);
   const weekStart  = subDays(now, 7);
 
-  const [
-    totalUsers, freeUsers, edgeUsers, proUsers,
-    newUsersMonth, totalTrades, tradesMonth,
-    totalPosts, postsMonth,
-    recentUsers,
-  ] = await Promise.all([
+  // Promise.all makes the whole page fail if even one of these ten queries
+  // has a bad connection attempt (both the original try and the Prisma-level
+  // retry in lib/prisma.ts stall) -- allSettled + per-slot fallbacks means a
+  // single blip degrades one stat tile instead of crashing the page. See
+  // 2026-08-14 query-volume/resilience audit.
+  const results = await Promise.allSettled([
     prisma.user.count(),
     prisma.user.count({ where: { plan: "FREE" } }),
     prisma.user.count({ where: { plan: "EDGE" } }),
@@ -32,7 +32,17 @@ export default async function AdminPage() {
       take:    10,
       select:  { id: true, name: true, username: true, plan: true, createdAt: true },
     }),
-  ]);
+  ] as const);
+
+  const [
+    totalUsers, freeUsers, edgeUsers, proUsers,
+    newUsersMonth, totalTrades, tradesMonth,
+    totalPosts, postsMonth,
+  ] = results.slice(0, 9).map((r) => (r.status === "fulfilled" ? r.value as number : 0));
+  const recentUsersResult = results[9];
+  const recentUsers = recentUsersResult.status === "fulfilled"
+    ? recentUsersResult.value as { id: string; name: string; username: string; plan: string; createdAt: Date }[]
+    : [];
 
   const stats = [
     { label: "Total members",       value: totalUsers.toLocaleString(),   icon: "group",          colorCls: "text-teal"  },
