@@ -1,28 +1,15 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-interface HyperdriveBinding { connectionString: string }
-
-// On Workers, route through the Hyperdrive binding instead of Supabase's
-// pgbouncer directly — Workers' `connect()` TCP implementation talking to
-// pgbouncer was intermittently timing out mid-query (see 2026-08-09
-// incident: "Query read timeout" on plain single-query routes, not just
-// heavy ones), which is exactly what Hyperdrive's pooling/acceleration
-// layer exists to fix. Falls back to DATABASE_URL when the binding isn't
-// present (local dev, `next build`'s page-data collection in CI).
 function resolveConnectionString(): string {
-  try {
-    const ctx = getCloudflareContext() as unknown as { env: Record<string, unknown> };
-    const hyperdrive = ctx.env.HYPERDRIVE as HyperdriveBinding | undefined;
-    if (hyperdrive?.connectionString) return hyperdrive.connectionString;
-    console.info("[prisma] Hyperdrive binding present but connectionString empty — falling back to DATABASE_URL");
-  } catch (err) {
-    console.info("[prisma] getCloudflareContext() threw — falling back to DATABASE_URL", err);
-  }
+  // TEMP (2026-08-14): bypassing Hyperdrive to isolate whether it's the
+  // source of the "Query read timeout" errors clustering right up against
+  // query_timeout on requests routed through Cloudflare's NBO colo -- DB
+  // itself answers instantly (confirmed via pg_stat_activity), a Hyperdrive
+  // restart didn't help, so testing the raw pgbouncer path directly.
+  // Revert to the Hyperdrive-first version once this is resolved either way.
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL environment variable is not set.");
-  console.info("[prisma] routing via raw DATABASE_URL (not Hyperdrive)");
   return url;
 }
 
