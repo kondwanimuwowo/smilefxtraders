@@ -6,8 +6,17 @@ import { computeCotStats, EMPTY_COT_STATS, INDEX_WEEKS, percentile } from "@/lib
 import { deriveMetaMap } from "@/lib/pairs";
 import { computeCrossPairSignal } from "@/lib/cot/crossPairSignal";
 import type { CotEntry, CotWeek } from "@/lib/cot/types";
+import { handleApiError } from "@/lib/api-error";
 
 export async function GET() {
+  try {
+    return await handleGet();
+  } catch (err) {
+    return handleApiError("cot", err);
+  }
+}
+
+async function handleGet() {
   // Plan gate — COT data requires PRO or FUNDED
   const denied = await requirePaidPlan("COT Reports");
   if (denied) return denied;

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 
 async function getInstructor() {
   const supabase = await createClient();
@@ -13,28 +14,32 @@ async function getInstructor() {
 
 // POST /api/academy/admin/courses/[id]/lessons — create a new lesson
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!await getInstructor()) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  const { id: courseId } = await params;
+  try {
+    if (!await getInstructor()) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const { id: courseId } = await params;
 
-  const body = await req.json() as {
-    slug: string; title: string; duration?: string;
-    body?: string; summary?: string; order?: number;
-  };
+    const body = await req.json() as {
+      slug: string; title: string; duration?: string;
+      body?: string; summary?: string; order?: number;
+    };
 
-  const lesson = await prisma.lesson.create({
-    data: {
-      courseId,
-      slug:      body.slug,
-      title:     body.title,
-      duration:  body.duration  ?? "0 min",
-      body:      body.body      ?? null,
-      summary:   body.summary   ?? "",
-      points:    [],
-      level:     1,
-      order:     body.order     ?? 99,
-      published: false,
-    },
-  });
+    const lesson = await prisma.lesson.create({
+      data: {
+        courseId,
+        slug:      body.slug,
+        title:     body.title,
+        duration:  body.duration  ?? "0 min",
+        body:      body.body      ?? null,
+        summary:   body.summary   ?? "",
+        points:    [],
+        level:     1,
+        order:     body.order     ?? 99,
+        published: false,
+      },
+    });
 
-  return NextResponse.json(lesson, { status: 201 });
+    return NextResponse.json(lesson, { status: 201 });
+  } catch (err) {
+    return handleApiError("academy/admin/courses/[id]/lessons:POST", err);
+  }
 }

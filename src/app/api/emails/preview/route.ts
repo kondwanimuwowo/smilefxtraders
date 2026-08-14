@@ -27,6 +27,7 @@ import {
 import { weeklyReportEmail } from "@/lib/email/templates/weekly-report";
 import { instructorAlertEmail } from "@/lib/email/templates/instructor-alert";
 import { communityCommentEmail } from "@/lib/email/templates/community-comment";
+import { handleApiError } from "@/lib/api-error";
 
 export async function POST(req: NextRequest) {
   const auth   = req.headers.get("authorization") ?? "";
@@ -35,6 +36,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  try {
+    return await handlePost(req);
+  } catch (err) {
+    return handleApiError("emails/preview", err);
+  }
+}
+
+async function handlePost(req: NextRequest) {
   const to   = req.nextUrl.searchParams.get("to");
   const only = req.nextUrl.searchParams.get("only");
   if (!to) return NextResponse.json({ error: "Missing ?to=email" }, { status: 400 });

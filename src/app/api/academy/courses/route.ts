@@ -1,10 +1,19 @@
 import { NextResponse } from "next/server";
 import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 
 // GET /api/academy/courses — published courses + lessons + user's completedIds
 
 export async function GET() {
+  try {
+    return await handleGet();
+  } catch (err) {
+    return handleApiError("academy/courses", err);
+  }
+}
+
+async function handleGet() {
   const supabase = await createClient();
   const user = await getAuthedUser(supabase);
 

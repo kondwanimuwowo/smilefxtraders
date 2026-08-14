@@ -6,6 +6,7 @@ import { computeCotStats, EMPTY_COT_STATS, INDEX_WEEKS, percentile } from "@/lib
 import { deriveMetaMap } from "@/lib/pairs";
 import { buildSyntheticHistory } from "@/lib/cot/crossPairSignal";
 import type { CotDetailResponse, CotDetailRow } from "@/lib/cot/types";
+import { handleApiError } from "@/lib/api-error";
 
 // Rows served per page; the first page fetches INDEX_WEEKS for the signal math.
 const TAKE = 104;
@@ -13,6 +14,17 @@ const TAKE = 104;
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ pair: string }> },
+) {
+  try {
+    return await handleGet(req, params);
+  } catch (err) {
+    return handleApiError("cot/[pair]", err);
+  }
+}
+
+async function handleGet(
+  req: Request,
+  params: Promise<{ pair: string }>,
 ) {
   // Plan gate — COT data requires PRO or FUNDED. Internal consumers
   // (MacroEdge confluence) read via lib/cot/query instead of this route.

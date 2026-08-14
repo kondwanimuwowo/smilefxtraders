@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -30,6 +31,14 @@ const STATUS_TO_APP: Record<string, string> = {
 // ── PATCH /api/alerts/[id] ───────────────────────────────────────────────────
 
 export async function PATCH(req: NextRequest, { params }: Params) {
+  try {
+    return await handlePatch(req, params);
+  } catch (err) {
+    return handleApiError("alerts/[id]:PATCH", err);
+  }
+}
+
+async function handlePatch(req: NextRequest, params: Params["params"]) {
   const supabase = await createClient();
   const user = await getAuthedUser(supabase);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -77,17 +86,21 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 // ── DELETE /api/alerts/[id] ──────────────────────────────────────────────────
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
-  const supabase = await createClient();
-  const user = await getAuthedUser(supabase);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const supabase = await createClient();
+    const user = await getAuthedUser(supabase);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } });
-  if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
-  if (dbUser.role !== "INSTRUCTOR") {
-    return NextResponse.json({ error: "Forbidden: instructor only" }, { status: 403 });
+    const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } });
+    if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (dbUser.role !== "INSTRUCTOR") {
+      return NextResponse.json({ error: "Forbidden: instructor only" }, { status: 403 });
+    }
+
+    const { id } = await params;
+    await prisma.alert.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    return handleApiError("alerts/[id]:DELETE", err);
   }
-
-  const { id } = await params;
-  await prisma.alert.delete({ where: { id } });
-  return NextResponse.json({ ok: true });
 }

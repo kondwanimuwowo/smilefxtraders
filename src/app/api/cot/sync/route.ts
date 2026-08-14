@@ -14,6 +14,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getInstruments } from "@/lib/server/getInstruments";
 import { syncAllInstruments } from "@/lib/cot/sync";
 import { snapshotCotSignals, notifyCotSignalChanges } from "@/lib/cot/notify";
+import { handleApiError } from "@/lib/api-error";
 
 export async function POST(req: NextRequest) {
   // Verify cron secret
@@ -23,12 +24,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const instruments = await getInstruments();
-  const cotPairs    = instruments.filter((i) => i.cotCode != null).map((i) => i.symbol);
+  try {
+    const instruments = await getInstruments();
+    const cotPairs    = instruments.filter((i) => i.cotCode != null).map((i) => i.symbol);
 
-  const before  = await snapshotCotSignals(cotPairs);
-  const results = await syncAllInstruments(instruments, 8);
-  await notifyCotSignalChanges(before); // no-op unless a new report landed
+    const before  = await snapshotCotSignals(cotPairs);
+    const results = await syncAllInstruments(instruments, 8);
+    await notifyCotSignalChanges(before); // no-op unless a new report landed
 
-  return NextResponse.json({ ok: true, synced: new Date().toISOString(), results });
+    return NextResponse.json({ ok: true, synced: new Date().toISOString(), results });
+  } catch (err) {
+    return handleApiError("cot/sync", err);
+  }
 }

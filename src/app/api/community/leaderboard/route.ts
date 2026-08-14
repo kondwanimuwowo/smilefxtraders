@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 
 export const revalidate = 900;
 
@@ -19,6 +20,14 @@ interface LeaderEntry {
 }
 
 export async function GET() {
+  try {
+    return await handleGet();
+  } catch (err) {
+    return handleApiError("community/leaderboard", err);
+  }
+}
+
+async function handleGet() {
   const now        = new Date();
   const monthStart = new Date(now.getUTCFullYear(), now.getUTCMonth(), 1);
   const monthEnd   = new Date(now.getUTCFullYear(), now.getUTCMonth() + 1, 1);

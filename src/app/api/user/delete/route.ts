@@ -20,34 +20,39 @@ import { NextResponse } from "next/server";
 import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 
 export async function POST() {
-  const supabase = await createClient();
-  const user = await getAuthedUser(supabase);
-  if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  try {
+    const supabase = await createClient();
+    const user = await getAuthedUser(supabase);
+    if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  const dbUser = await prisma.user.findUnique({
-    where:  { supabaseId: user.id },
-    select: { id: true, role: true },
-  });
-  if (!dbUser) return NextResponse.json({ error: "Account not found" }, { status: 404 });
+    const dbUser = await prisma.user.findUnique({
+      where:  { supabaseId: user.id },
+      select: { id: true, role: true },
+    });
+    if (!dbUser) return NextResponse.json({ error: "Account not found" }, { status: 404 });
 
-  if (dbUser.role === "INSTRUCTOR") {
-    return NextResponse.json(
-      { error: "Instructor accounts can't be self-deleted. Contact support@smilefxtraders.com." },
-      { status: 403 },
-    );
+    if (dbUser.role === "INSTRUCTOR") {
+      return NextResponse.json(
+        { error: "Instructor accounts can't be self-deleted. Contact support@smilefxtraders.com." },
+        { status: 403 },
+      );
+    }
+
+    const admin = createAdminClient();
+    const { error: banError } = await admin.auth.admin.updateUserById(user.id, {
+      ban_duration: "876000h",
+    });
+    if (banError) {
+      return NextResponse.json({ error: banError.message }, { status: 500 });
+    }
+
+    await prisma.user.delete({ where: { id: dbUser.id } });
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    return handleApiError("user/delete", err);
   }
-
-  const admin = createAdminClient();
-  const { error: banError } = await admin.auth.admin.updateUserById(user.id, {
-    ban_duration: "876000h",
-  });
-  if (banError) {
-    return NextResponse.json({ error: banError.message }, { status: 500 });
-  }
-
-  await prisma.user.delete({ where: { id: dbUser.id } });
-
-  return NextResponse.json({ success: true });
 }
