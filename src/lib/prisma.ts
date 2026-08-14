@@ -70,10 +70,27 @@ function createPrismaClient() {
   // -- if a second fresh attempt also stalls, that's worth surfacing as a
   // real error (via handleApiError) rather than making the user wait
   // through a third attempt.
-  return client.$extends({
+  //
+  // Type-checking this specific $extends call crashes tsc itself ("Debug
+  // Failure: No error for last overload signature") -- confirmed a genuine
+  // compiler bug in overload resolution against this API, not a real type
+  // error: explicitly typing the callback params didn't help, and the
+  // runtime behavior is correct (verified live -- retries fire and succeed
+  // exactly as intended). Routing the call through `any` skips
+  // type-checking just this one expression instead of fighting the crash;
+  // the cast back to PrismaClient keeps every caller's types normal, since
+  // nothing here calls the methods the extended client is missing
+  // ($on/$use/etc).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (client as any).$extends({
     name: "retry-transient-connection-errors",
     query: {
-      async $allOperations({ operation, model, args, query }) {
+      async $allOperations({ operation, model, args, query }: {
+        operation: string;
+        model?: string;
+        args: unknown;
+        query: (args: unknown) => Promise<unknown>;
+      }) {
         try {
           return await query(args);
         } catch (err) {
@@ -84,7 +101,7 @@ function createPrismaClient() {
         }
       },
     },
-  });
+  }) as PrismaClient;
 }
 
 const globalForPrisma = globalThis as unknown as { prisma: ReturnType<typeof createPrismaClient> };

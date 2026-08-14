@@ -688,7 +688,7 @@ export function CotReports() {
           <span>Couldn&apos;t load COT data. Please try again.</span>
           <button
             type="button"
-            onClick={load}
+            onClick={() => load()}
             className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[12px] font-semibold transition-all active:scale-95 bg-[rgba(234,82,61,0.1)] border border-[rgba(234,82,61,0.25)] shrink-0"
           >
             <Icon name="refresh" size={13} />
