@@ -64,7 +64,9 @@ export function BottomTabBar() {
             {content}
           </button>
         ) : (
-          <Link key={tab.href} href={tab.href!} className={className}>
+          // See Sidebar.tsx's NavLink for why this is off — same
+          // all-visible-at-once prefetch burst applies to the tab bar.
+          <Link key={tab.href} href={tab.href!} className={className} prefetch={false}>
             {content}
           </Link>
         );

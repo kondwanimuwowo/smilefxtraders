@@ -445,6 +445,13 @@ function NavLink({
     <li className="nav-tip" data-tip={collapsed ? item.label : undefined}>
       <Link
         href={item.href}
+        // Every nav item is visible on mount, so Next's default viewport
+        // prefetch was firing every route's full page-data load (layout +
+        // page Prisma queries) concurrently on first paint -- ~13 routes at
+        // once landing on one Worker isolate's connection pool. See the
+        // 2026-08-14 "Query read timeout" incident: that burst is what was
+        // actually exhausting the DB connection path, not raw flakiness.
+        prefetch={false}
         onClick={onNavigate}
         className={cn(
           "flex items-center rounded-xl text-sm font-medium transition-colors",
