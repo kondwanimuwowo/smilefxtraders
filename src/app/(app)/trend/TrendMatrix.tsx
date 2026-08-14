@@ -5,6 +5,7 @@ import { Panel, Icon, Button } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { fmtDateTime } from "@/lib/date";
 import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
+import { useStore } from "@/lib/store";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -212,7 +213,8 @@ function SummaryRow({ matrix, pairs }: { matrix: Matrix; pairs: string[] }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function TrendMatrix({ isInstructor }: { isInstructor: boolean }) {
+export function TrendMatrix() {
+  const isInstructor = useStore((s) => s.user?.role === "instructor");
   const instrumentSymbols = useInstrumentSymbols();
   const PAIRS = instrumentSymbols.length ? instrumentSymbols : PAIRS_FALLBACK;
   const [matrix, setMatrix]         = useState<Matrix>(DEFAULT);

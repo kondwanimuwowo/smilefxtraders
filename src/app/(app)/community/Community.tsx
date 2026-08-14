@@ -68,6 +68,7 @@ function filterPosts(posts: ApiPost[], filter: FeedFilter): ApiPost[] {
 function usePosts() {
   return useInfiniteQuery<PostsPage>({
     queryKey: ["community-posts"],
+    staleTime: 30_000,
     queryFn: async ({ pageParam }) => {
       const url = pageParam
         ? `/api/community/posts?cursor=${encodeURIComponent(pageParam as string)}`
@@ -470,6 +471,10 @@ function ComposeBox() {
 function useLeaderboard() {
   return useQuery({
     queryKey: ["community-leaderboard"],
+    // Matches the /api/community/leaderboard route's own revalidate=900 --
+    // no point refetching client-side more often than the server-side data
+    // actually changes.
+    staleTime: 15 * 60 * 1000,
     queryFn: async () => {
       const res = await fetch("/api/community/leaderboard");
       if (!res.ok) return [] as LeaderEntry[];

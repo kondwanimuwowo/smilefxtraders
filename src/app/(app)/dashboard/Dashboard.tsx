@@ -313,19 +313,23 @@ const TREND_DEFAULT: TrendMatrixData = {
 };
 
 function useTrendSnapshot() {
-  const [matrix, setMatrix]       = useState<TrendMatrixData>(TREND_DEFAULT);
-  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const trendPairs = useInstrumentSymbols();
 
-  useEffect(() => {
-    fetch("/api/trend-matrix")
-      .then((r) => r.json())
-      .then((data: { matrix: TrendMatrixData; updatedAt: string } | null) => {
-        if (data?.matrix) setMatrix(data.matrix);
-        if (data?.updatedAt) setUpdatedAt(data.updatedAt);
-      })
-      .catch(() => {/* keep defaults */});
-  }, []);
+  // Was a bare useEffect+fetch with no caching, refetching on every
+  // Dashboard mount -- /trend independently fetches this same endpoint too.
+  // The matrix is instructor-updated (weekly, per project docs), so a long
+  // staleTime avoids two uncoordinated call sites hammering the same rarely-
+  // changing resource. See 2026-08-14 query-volume audit.
+  const { data } = useQuery({
+    queryKey: ["trend-matrix"],
+    staleTime: 30 * 60 * 1000,
+    queryFn: async () => {
+      const res = await fetch("/api/trend-matrix");
+      return res.json() as Promise<{ matrix: TrendMatrixData; updatedAt: string } | null>;
+    },
+  });
+  const matrix    = data?.matrix ?? TREND_DEFAULT;
+  const updatedAt = data?.updatedAt ?? null;
 
   const activePairs = trendPairs.length ? trendPairs : TREND_PAIRS_FALLBACK;
   const rows = activePairs.map((pair) => {

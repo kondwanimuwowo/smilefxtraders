@@ -58,6 +58,14 @@ export function computeStats(trades: Trade[]): TradeStats {
 export function useTrades() {
   const query = useQuery({
     queryKey: ["trades"],
+    // (app)/layout.tsx already fetches this same user's full trade list via
+    // Prisma on every navigation and hydrates it into the Zustand store --
+    // with no staleTime here, this hook fired an independent, uncached
+    // fetch (and its own Prisma round trip) on every single mount on top of
+    // that. Mutations (add/update/delete below) already invalidate this
+    // query key directly, so genuinely new data still shows up immediately
+    // after a write; this staleTime only stops the redundant read-after-read.
+    staleTime: 60_000,
     queryFn: async () => {
       let res: Response;
       try {

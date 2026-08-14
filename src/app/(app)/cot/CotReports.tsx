@@ -565,9 +565,12 @@ export function CotReports() {
   const [loadError, setLoadError] = useState(false);
   const { data: instruments = [] } = useInstruments();
 
-  function load() {
+  function load(bust = false) {
     setLoadError(false);
-    fetch(`/api/cot?t=${Date.now()}`)
+    // Cache-busting only matters right after a refresh actually wrote new
+    // data (see retry() below) -- on normal mount it just defeated any
+    // caching on every single /cot load for no benefit.
+    fetch(bust ? `/api/cot?t=${Date.now()}` : "/api/cot")
       .then(async (r) => {
         if (r.status === 403) { setLocked(true); setLoading(false); return; }
         if (!r.ok) throw new Error("Failed to load COT data");
@@ -591,7 +594,7 @@ export function CotReports() {
     // POST to /api/cot/refresh to pull latest data from CFTC into the DB,
     // then re-read the DB so the cards show the new report.
     fetch("/api/cot/refresh", { method: "POST" })
-      .then(() => load())
+      .then(() => load(true))
       .catch(() => { setRetrying(false); });
   }
 

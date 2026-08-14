@@ -37,22 +37,28 @@ async function handleGet() {
       },
     }));
 
-  // Fetch the index window for each instrument + all totals in one groupBy
-  const [dbResults, totals] = await Promise.all([
-    Promise.allSettled(
-      cotInstruments.map((inst) =>
-        prisma.cotReport.findMany({
-          where:   { pair: inst.pair },
-          orderBy: { reportDate: "desc" },
-          take:    INDEX_WEEKS,
-          select:  {
-            reportDate:    true,
-            largeSpecNet:  true, largeSpecLong: true, largeSpecShort: true,
-            commercialNet: true, smallSpecNet:  true, openInterest:   true,
-          },
-        })
-      )
-    ),
+  const cotPairs = cotInstruments.map((inst) => inst.pair);
+
+  // Was one findMany PER instrument (10+ separate round trips fired
+  // concurrently on every /cot load — see 2026-08-14 incident). CFTC
+  // publishes all contracts for the same weekly reportDate together, so a
+  // single query filtered to the last ~INDEX_WEEKS+buffer of calendar time
+  // covers every pair's window at once; group + slice to INDEX_WEEKS per
+  // pair in JS below instead of a per-pair `take` at the DB level.
+  const indexWindowCutoff = new Date();
+  indexWindowCutoff.setDate(indexWindowCutoff.getDate() - (INDEX_WEEKS + 4) * 7);
+
+  const [allRows, totals] = await Promise.all([
+    prisma.cotReport.findMany({
+      where:   { pair: { in: cotPairs }, reportDate: { gte: indexWindowCutoff } },
+      orderBy: { reportDate: "desc" },
+      select:  {
+        pair:          true,
+        reportDate:    true,
+        largeSpecNet:  true, largeSpecLong: true, largeSpecShort: true,
+        commercialNet: true, smallSpecNet:  true, openInterest:   true,
+      },
+    }),
     // One groupBy for totals + full-history net range (all-time index)
     prisma.cotReport.groupBy({
       by:     ["pair"],
@@ -62,12 +68,20 @@ async function handleGet() {
     }),
   ]);
 
+  // allRows is globally sorted newest-first, so grouping by pair while
+  // iterating preserves each pair's own newest-first order for free.
+  const rowsByPair = new Map<string, typeof allRows>();
+  for (const row of allRows) {
+    const bucket = rowsByPair.get(row.pair);
+    if (bucket) bucket.push(row);
+    else rowsByPair.set(row.pair, [row]);
+  }
+
   const totalByPair = new Map(totals.map((t) => [t.pair, t._count.pair]));
   const rangeByPair = new Map(totals.map((t) => [t.pair, { min: t._min.largeSpecNet, max: t._max.largeSpecNet }]));
 
-  const entries: CotEntry[] = cotInstruments.map((inst, i) => {
-    const result = dbResults[i];
-    const rows   = result.status === "fulfilled" ? result.value : [];
+  const entries: CotEntry[] = cotInstruments.map((inst) => {
+    const rows = (rowsByPair.get(inst.pair) ?? []).slice(0, INDEX_WEEKS);
     const totalWeeks = totalByPair.get(inst.pair) ?? rows.length;
 
     if (rows.length >= 2) {
