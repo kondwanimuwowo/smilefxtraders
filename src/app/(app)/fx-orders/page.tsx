@@ -274,6 +274,7 @@ export default function FxOrdersPage() {
 
   const [summaries,  setSummaries]  = useState<FxDateSummary[]>([]);
   const [loading,    setLoading]    = useState(true);
+  const [loadError,  setLoadError]  = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [syncing,    setSyncing]    = useState(false);
   const [syncMsg,    setSyncMsg]    = useState("");
@@ -282,10 +283,18 @@ export default function FxOrdersPage() {
   const today = new Date().toISOString().slice(0, 10);
 
   async function load() {
-    const res  = await fetch("/api/fx-orders");
-    const data = await res.json();
-    setSummaries(Array.isArray(data) ? data : []);
-    setLoading(false);
+    setLoadError(null);
+    try {
+      const res  = await fetch("/api/fx-orders");
+      const data = await res.json();
+      if (!res.ok) throw new Error((data as { error?: string })?.error ?? "Failed to load dates");
+      setSummaries(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setSummaries([]);
+      setLoadError(err instanceof Error ? err.message : "Failed to load dates");
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { load(); }, []);
@@ -406,6 +415,28 @@ export default function FxOrdersPage() {
       {loading ? (
         <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
           {Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
+        </div>
+      ) : loadError ? (
+        <div className="rounded-2xl p-12 flex flex-col items-center gap-4 text-center bg-panel shadow-md">
+          <div className="flex items-center justify-center w-16 h-16 rounded-2xl shadow-[0_0_0_1px_rgba(234,82,61,0.15)] bg-[rgba(234,82,61,0.06)]">
+            <Icon name="error" size={32} fill className="text-coral" />
+          </div>
+          <div>
+            <div className="font-display font-bold text-[17px] mb-1.5 text-ink-strong">
+              Couldn&apos;t load option expiries
+            </div>
+            <p className="text-[13px] leading-relaxed max-w-xs text-ink-dim">
+              {loadError}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={load}
+            className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] bg-teal text-white"
+          >
+            <Icon name="refresh" size={15} />
+            Retry
+          </button>
         </div>
       ) : summaries.length === 0 ? (
         <div className="rounded-2xl p-12 flex flex-col items-center gap-4 text-center bg-panel shadow-md">

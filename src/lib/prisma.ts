@@ -15,12 +15,7 @@ function resolveConnectionString(): string {
   try {
     const ctx = getCloudflareContext() as unknown as { env: Record<string, unknown> };
     const hyperdrive = ctx.env.HYPERDRIVE as HyperdriveBinding | undefined;
-    if (hyperdrive?.connectionString) {
-      // TEMP diagnostic (2026-08-14): confirming Hyperdrive is actually the
-      // path in use, not silently falling through to raw DATABASE_URL.
-      console.info("[prisma] routing via Hyperdrive binding");
-      return hyperdrive.connectionString;
-    }
+    if (hyperdrive?.connectionString) return hyperdrive.connectionString;
     console.info("[prisma] Hyperdrive binding present but connectionString empty — falling back to DATABASE_URL");
   } catch (err) {
     console.info("[prisma] getCloudflareContext() threw — falling back to DATABASE_URL", err);
