@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
+import { handleApiError } from "@/lib/api-error";
 import type { Trade, AIReviewResult } from "@/lib/store";
 
 const SESSION_TO_STORE: Record<string, string> = {
@@ -91,9 +92,13 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
     return NextResponse.json(dbToStore(updated));
   } catch (err) {
-    console.error("[PATCH /api/trades/[id]]", err);
-    const msg = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json({ error: msg }, { status: 500 });
+    // Previously echoed err.message straight to the client, which leaks
+    // driver/schema internals on a DB fault. handleApiError logs the full
+    // error server-side and returns a classified, non-revealing body.
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
+      return NextResponse.json({ error: "Trade not found" }, { status: 404 });
+    }
+    return handleApiError("trades/[id]:PATCH", err);
   }
 }
 

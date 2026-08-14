@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 import { PAIRS_ORDER } from "@/types/fx-orders";
 import type { FxDateSummary, FxLevel } from "@/types/fx-orders";
 
@@ -59,7 +60,10 @@ export async function GET() {
 
     return NextResponse.json(summaries);
   } catch (err) {
-    console.error("[fx-orders]", err);
-    return NextResponse.json({ error: "Failed to load dates" }, { status: 500 });
+    // Was a hardcoded 500, which told the client "this is our bug, retrying
+    // won't help" for what is nearly always a transient connection stall.
+    // handleApiError classifies it: 503 + kind:"timeout" for a stall, 500
+    // only for something genuinely broken.
+    return handleApiError("fx-orders", err);
   }
 }

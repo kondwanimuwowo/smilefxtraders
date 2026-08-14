@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 import type { FxOrderRecord } from "@/types/fx-orders";
 import type { FxLevel } from "@/types/fx-orders";
 
@@ -40,8 +41,7 @@ export async function GET(
 
     return NextResponse.json(response);
   } catch (err) {
-    console.error("[fx-orders/date]", err);
-    return NextResponse.json({ error: "Failed to load data" }, { status: 500 });
+    return handleApiError("fx-orders/[date]", err);
   }
 }
 

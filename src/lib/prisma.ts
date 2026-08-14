@@ -48,9 +48,19 @@ function createPrismaClient() {
     // connection attempt almost always succeeds immediately. Rather than
     // make users wait out a long timeout, fail fast and let the $extends
     // retry below make that same fresh attempt automatically.
-    connectionTimeoutMillis: 5_000,
+    // 2026-08-14 audit: these were 5s/6s, and because the $extends retry
+    // below makes a second full attempt, a stalled connection cost the user
+    // 12 seconds of spinner before any error appeared. A healthy query here
+    // answers in well under 100ms (verified against pg_stat_activity), so
+    // 3s is still ~30x headroom while halving the worst case to ~6s.
+    //
+    // Caveat for whoever raises this later: query_timeout is global, so it
+    // also caps the notification fan-out's createMany in lib/notifications.ts.
+    // That is trivial at current user counts but is the first query likely to
+    // outgrow a 3s cap -- batch it before assuming this number is the problem.
+    connectionTimeoutMillis: 3_000,
     idleTimeoutMillis: 10_000,
-    query_timeout: 6_000,
+    query_timeout: 3_000,
     // Page loads fire several API routes in parallel (dashboard, academy,
     // notifications, etc.) that can land on the same reused isolate. A
     // pool of 3 queues the overflow and those queued acquires were hitting
@@ -116,6 +126,9 @@ function getPrisma() {
 }
 
 export const prisma = new Proxy({} as ReturnType<typeof createPrismaClient>, {
+  // Indexing the client by an arbitrary symbol/string key can't be expressed
+  // without `any` here; callers still see the fully-typed PrismaClient.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get: (_, prop) => (getPrisma() as any)[prop],
 });
 

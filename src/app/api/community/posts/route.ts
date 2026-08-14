@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 
 function seedFromId(id: string): number {
   let h = 0;
@@ -67,8 +68,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ posts: formatted, nextCursor });
   } catch (err) {
-    console.error("[GET /api/community/posts]", err);
-    return NextResponse.json({ error: "Failed to load posts" }, { status: 500 });
+    return handleApiError("community/posts:GET", err);
   }
 }
 
@@ -130,7 +130,6 @@ export async function POST(req: NextRequest) {
       commentList:  [],
     }, { status: 201 });
   } catch (err) {
-    console.error("[POST /api/community/posts]", err);
-    return NextResponse.json({ error: "Failed to create post" }, { status: 500 });
+    return handleApiError("community/posts:POST", err);
   }
 }
