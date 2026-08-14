@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { detectZmOperator } from "@/lib/mobile-money";
+import { handleApiError, readJsonBody, requireString } from "@/lib/api-error";
+import { fetchWithTimeout } from "@/lib/http";
 
 const LENCO_BASE = "https://api.lenco.co/access/v2";
 const LENCO_KEY  = process.env.LENCO_API_KEY ?? "";
@@ -27,108 +29,124 @@ const DB_PLAN: Record<string, "EDGE" | "PRO"> = { edge: "EDGE", pro: "PRO" };
 // ── POST /api/checkout/mobile-money ─────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
-  const user = await getAuthedUser(supabase);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Held outside the try so the catch can roll back a PENDING row that was
+  // written before Lenco threw. Without this, a timeout on the call below
+  // left an orphaned PENDING subscription and a bare 500 — see the
+  // 2026-08-14 audit.
+  let subscriptionId: string | null = null;
 
-  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } });
-  if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
+  try {
+    const supabase = await createClient();
+    const user = await getAuthedUser(supabase);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await req.json() as {
-    plan:     "edge" | "pro";
-    cycle:    "monthly" | "annual";
-    phone:    string;
-    operator: string;
-  };
+    const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } });
+    if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  const prices = PLAN_PRICES[body.plan]?.[body.cycle];
-  if (!prices) return NextResponse.json({ error: "Invalid plan or cycle" }, { status: 400 });
+    const body = await readJsonBody<{
+      plan:     "edge" | "pro";
+      cycle:    "monthly" | "annual";
+      phone:    string;
+      operator: string;
+    }>(req);
 
-  // Mobile money in Zambia is ZMW-only.
-  const amount   = prices.zmw;
-  const currency = "ZMW" as const;
-  const reference = `smfx_${body.plan}_${dbUser.id}_${Date.now()}`;
+    const prices = PLAN_PRICES[body.plan]?.[body.cycle];
+    if (!prices) return NextResponse.json({ error: "Invalid plan or cycle" }, { status: 400 });
 
-  // Keep the number as the user typed it (Airtel already works this way) but
-  // strip spaces so "+260 97 ..." and "097 ..." normalise cleanly.
-  const phone = body.phone.replace(/\s+/g, "");
+    // Mobile money in Zambia is ZMW-only.
+    const amount   = prices.zmw;
+    const currency = "ZMW" as const;
+    const reference = `smfx_${body.plan}_${dbUser.id}_${Date.now()}`;
 
-  // The mobile-money wallet network is determined by the phone number itself,
-  // so trust the number over the submitted operator — this prevents a mismatch
-  // (e.g. an MTN number sent as "airtel") from ever reaching Lenco. Fall back to
-  // the client's selection only if the prefix is unrecognised.
-  const operator = detectZmOperator(phone) ?? (body.operator ?? "").trim().toLowerCase();
+    // Keep the number as the user typed it (Airtel already works this way) but
+    // strip spaces so "+260 97 ..." and "097 ..." normalise cleanly.
+    const phone = requireString(body.phone, "phone").replace(/\s+/g, "");
 
-  // Create pending subscription record
-  const subscription = await prisma.subscription.create({
-    data: {
-      userId:       dbUser.id,
-      plan:         DB_PLAN[body.plan],
-      status:       "PENDING",
-      lencoReference: reference,
-      currency,
-      amountCents:  amount,
-      billingCycle: body.cycle,
-    },
-  });
+    // The mobile-money wallet network is determined by the phone number itself,
+    // so trust the number over the submitted operator — this prevents a mismatch
+    // (e.g. an MTN number sent as "airtel") from ever reaching Lenco. Fall back to
+    // the client's selection only if the prefix is unrecognised.
+    const operator = detectZmOperator(phone) ?? (body.operator ?? "").trim().toLowerCase();
 
-  // Call Lenco API server-side. `country` is recommended so Lenco routes the
-  // charge to the correct mobile-money network (Airtel/MTN/Zamtel) in Zambia.
-  const lencoRes = await fetch(`${LENCO_BASE}/collections/mobile-money`, {
-    method:  "POST",
-    headers: {
-      "Content-Type":  "application/json",
-      "Authorization": `Bearer ${LENCO_KEY}`,
-    },
-    body: JSON.stringify({
-      amount:   (amount / 100).toFixed(2),
-      currency,
-      country:  "zm",
-      reference,
-      phone,
-      operator,
-    }),
-  });
+    // Create pending subscription record
+    const subscription = await prisma.subscription.create({
+      data: {
+        userId:       dbUser.id,
+        plan:         DB_PLAN[body.plan],
+        status:       "PENDING",
+        lencoReference: reference,
+        currency,
+        amountCents:  amount,
+        billingCycle: body.cycle,
+      },
+    });
+    subscriptionId = subscription.id;
 
-  const lencoData = await lencoRes.json().catch(() => ({}));
+    // Call Lenco API server-side. `country` is recommended so Lenco routes the
+    // charge to the correct mobile-money network (Airtel/MTN/Zamtel) in Zambia.
+    const lencoRes = await fetchWithTimeout(`${LENCO_BASE}/collections/mobile-money`, {
+      method:  "POST",
+      headers: {
+        "Content-Type":  "application/json",
+        "Authorization": `Bearer ${LENCO_KEY}`,
+      },
+      body: JSON.stringify({
+        amount:   (amount / 100).toFixed(2),
+        currency,
+        country:  "zm",
+        reference,
+        phone,
+        operator,
+      }),
+    }, 20_000);
 
-  const collectionState: string = lencoData?.data?.status ?? "";
-  // Lenco may report the failure reason under a few different keys.
-  const failureReason: string =
-    lencoData?.data?.reasonForFailure ||
-    lencoData?.data?.failureReason ||
-    lencoData?.data?.reason ||
-    lencoData?.message ||
-    "";
+    const lencoData = await lencoRes.json().catch(() => ({}));
 
-  // Server-side diagnostic — never logs the API key, only Lenco's response.
-  console.log("[checkout/mobile-money]", operator, "→", {
-    httpOk:  lencoRes.ok,
-    status:  lencoData?.status,
-    state:   collectionState,
-    reason:  failureReason,
-  });
+    const collectionState: string = lencoData?.data?.status ?? "";
+    // Lenco may report the failure reason under a few different keys.
+    const failureReason: string =
+      lencoData?.data?.reasonForFailure ||
+      lencoData?.data?.failureReason ||
+      lencoData?.data?.reason ||
+      lencoData?.message ||
+      "";
 
-  // 1) Lenco rejected the request outright.
-  if (!lencoRes.ok || !lencoData.status) {
-    await prisma.subscription.delete({ where: { id: subscription.id } }).catch(() => null);
-    return NextResponse.json({ error: failureReason || "Payment initiation failed" }, { status: 400 });
+    // Server-side diagnostic — never logs the API key, only Lenco's response.
+    console.log("[checkout/mobile-money]", operator, "→", {
+      httpOk:  lencoRes.ok,
+      status:  lencoData?.status,
+      state:   collectionState,
+      reason:  failureReason,
+    });
+
+    // 1) Lenco rejected the request outright.
+    if (!lencoRes.ok || !lencoData.status) {
+      await prisma.subscription.delete({ where: { id: subscription.id } }).catch(() => null);
+      return NextResponse.json({ error: failureReason || "Payment initiation failed" }, { status: 400 });
+    }
+
+    // 2) Request accepted, but the collection already terminated as failed/declined.
+    //    Fail fast instead of returning a reference the client would poll for 60s.
+    if (collectionState === "failed" || collectionState === "declined") {
+      await prisma.subscription.delete({ where: { id: subscription.id } }).catch(() => null);
+      const friendly =
+        failureReason ||
+        `${operator.toUpperCase()} could not process this payment. Confirm the number is a registered ${operator} mobile-money wallet, or try a different network.`;
+      return NextResponse.json({ error: friendly, state: collectionState }, { status: 400 });
+    }
+
+    return NextResponse.json({
+      reference:      lencoData.data?.reference ?? reference,
+      lencoReference: lencoData.data?.lencoReference ?? reference,
+      status:         lencoData.data?.status ?? "pay-offline",
+      subscriptionId: subscription.id,
+    });
+  } catch (err) {
+    // Roll back the PENDING row so a retry doesn't accumulate dead
+    // subscriptions and /api/checkout/verify has nothing stale to find.
+    if (subscriptionId) {
+      await prisma.subscription.delete({ where: { id: subscriptionId } }).catch(() => null);
+    }
+    return handleApiError("checkout/mobile-money", err);
   }
-
-  // 2) Request accepted, but the collection already terminated as failed/declined.
-  //    Fail fast instead of returning a reference the client would poll for 60s.
-  if (collectionState === "failed" || collectionState === "declined") {
-    await prisma.subscription.delete({ where: { id: subscription.id } }).catch(() => null);
-    const friendly =
-      failureReason ||
-      `${operator.toUpperCase()} could not process this payment. Confirm the number is a registered ${operator} mobile-money wallet, or try a different network.`;
-    return NextResponse.json({ error: friendly, state: collectionState }, { status: 400 });
-  }
-
-  return NextResponse.json({
-    reference:      lencoData.data?.reference ?? reference,
-    lencoReference: lencoData.data?.lencoReference ?? reference,
-    status:         lencoData.data?.status ?? "pay-offline",
-    subscriptionId: subscription.id,
-  });
 }

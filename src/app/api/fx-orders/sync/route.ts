@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { fetchWithTimeout } from "@/lib/http";
 import type { FxImageExtraction } from "@/types/fx-orders";
 
 const client = new Anthropic();
@@ -51,7 +52,7 @@ async function findPostUrl(date: Date): Promise<string> {
   const slugFragment = `fx-option-expiries-for-${day}-${month}-10am-new-york-cut`;
 
   try {
-    const res = await fetch("https://investinglive.com/orders", { headers: FETCH_HEADERS });
+    const res = await fetchWithTimeout("https://investinglive.com/orders", { headers: FETCH_HEADERS }, 15_000);
     if (res.ok) {
       const html = await res.text();
       const match = html.match(new RegExp(`href="(/orders/${slugFragment}[^"]*)"`, "i"));
@@ -304,7 +305,7 @@ export async function POST(req: NextRequest) {
 
     console.log("[fx-orders/sync] Fetching page:", pageUrl);
 
-    const pageRes = await fetch(pageUrl, { headers: FETCH_HEADERS });
+    const pageRes = await fetchWithTimeout(pageUrl, { headers: FETCH_HEADERS }, 15_000);
 
     if (!pageRes.ok) {
       // A 404 here is routine, not a failure: InvestingLive typically doesn't

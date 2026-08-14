@@ -3,6 +3,7 @@ import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { NOTIF_PREF_DEFAULTS, resolvePrefs, type NotifPrefs } from "@/lib/notif-prefs";
+import { handleApiError, readJsonBody } from "@/lib/api-error";
 
 type InputJsonValue = Prisma.InputJsonValue;
 
@@ -24,28 +25,32 @@ export async function GET() {
 // ── PUT /api/user/notif-prefs ─────────────────────────────────────────────────
 
 export async function PUT(req: NextRequest) {
-  const supabase = await createClient();
-  const user = await getAuthedUser(supabase);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const supabase = await createClient();
+    const user = await getAuthedUser(supabase);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id }, select: { id: true } });
-  if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id }, select: { id: true } });
+    if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  const body = await req.json() as Partial<NotifPrefs>;
-  const prefs: NotifPrefs = {
-    alertNotif:     body.alertNotif     ?? NOTIF_PREF_DEFAULTS.alertNotif,
-    communityNotif: body.communityNotif ?? NOTIF_PREF_DEFAULTS.communityNotif,
-    weeklyReport:   body.weeklyReport   ?? NOTIF_PREF_DEFAULTS.weeklyReport,
-    emailAlerts:    body.emailAlerts    ?? NOTIF_PREF_DEFAULTS.emailAlerts,
-    academyNotif:   body.academyNotif   ?? NOTIF_PREF_DEFAULTS.academyNotif,
-    macroNotif:     body.macroNotif     ?? NOTIF_PREF_DEFAULTS.macroNotif,
-    cotNotif:       body.cotNotif       ?? NOTIF_PREF_DEFAULTS.cotNotif,
-  };
+    const body = await readJsonBody<Partial<NotifPrefs>>(req);
+    const prefs: NotifPrefs = {
+      alertNotif:     body.alertNotif     ?? NOTIF_PREF_DEFAULTS.alertNotif,
+      communityNotif: body.communityNotif ?? NOTIF_PREF_DEFAULTS.communityNotif,
+      weeklyReport:   body.weeklyReport   ?? NOTIF_PREF_DEFAULTS.weeklyReport,
+      emailAlerts:    body.emailAlerts    ?? NOTIF_PREF_DEFAULTS.emailAlerts,
+      academyNotif:   body.academyNotif   ?? NOTIF_PREF_DEFAULTS.academyNotif,
+      macroNotif:     body.macroNotif     ?? NOTIF_PREF_DEFAULTS.macroNotif,
+      cotNotif:       body.cotNotif       ?? NOTIF_PREF_DEFAULTS.cotNotif,
+    };
 
-  await prisma.user.update({
-    where: { id: dbUser.id },
-    data:  { notifPrefs: prefs as unknown as InputJsonValue },
-  });
+    await prisma.user.update({
+      where: { id: dbUser.id },
+      data:  { notifPrefs: prefs as unknown as InputJsonValue },
+    });
 
-  return NextResponse.json(prefs);
+    return NextResponse.json(prefs);
+  } catch (err) {
+    return handleApiError("user/notif-prefs:PUT", err);
+  }
 }

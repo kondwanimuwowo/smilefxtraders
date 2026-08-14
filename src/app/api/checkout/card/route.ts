@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { handleApiError, readJsonBody } from "@/lib/api-error";
+import { fetchWithTimeout } from "@/lib/http";
 
 const LENCO_BASE = "https://api.lenco.co/access/v2";
 const LENCO_KEY  = process.env.LENCO_API_KEY ?? "";
@@ -31,62 +33,74 @@ const DB_PLAN: Record<string, "EDGE" | "PRO"> = { edge: "EDGE", pro: "PRO" };
 // haven't been confirmed against Lenco's card-collection docs/dashboard —
 // verify before relying on this in production.
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
-  const user = await getAuthedUser(supabase);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // See the matching comment in /api/checkout/mobile-money — the PENDING row
+  // is written before Lenco is called, so the catch has to roll it back.
+  let subscriptionId: string | null = null;
 
-  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } });
-  if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
+  try {
+    const supabase = await createClient();
+    const user = await getAuthedUser(supabase);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await req.json() as { plan: "edge" | "pro"; cycle: "monthly" | "annual" };
-  const prices = PLAN_PRICES[body.plan]?.[body.cycle];
-  if (!prices) return NextResponse.json({ error: "Invalid plan or cycle" }, { status: 400 });
+    const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } });
+    if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  const amount    = prices.zmw;
-  const reference = `smfx_${body.plan}_${dbUser.id}_${Date.now()}`;
+    const body = await readJsonBody<{ plan: "edge" | "pro"; cycle: "monthly" | "annual" }>(req);
+    const prices = PLAN_PRICES[body.plan]?.[body.cycle];
+    if (!prices) return NextResponse.json({ error: "Invalid plan or cycle" }, { status: 400 });
 
-  const subscription = await prisma.subscription.create({
-    data: {
-      userId:         dbUser.id,
-      plan:           DB_PLAN[body.plan],
-      status:         "PENDING",
-      lencoReference: reference,
-      currency:       "ZMW",
-      amountCents:    amount,
-      billingCycle:   body.cycle,
-    },
-  });
+    const amount    = prices.zmw;
+    const reference = `smfx_${body.plan}_${dbUser.id}_${Date.now()}`;
 
-  const lencoRes = await fetch(`${LENCO_BASE}/collections/card`, {
-    method:  "POST",
-    headers: {
-      "Content-Type":  "application/json",
-      "Authorization": `Bearer ${LENCO_KEY}`,
-    },
-    body: JSON.stringify({
-      amount:      (amount / 100).toFixed(2),
-      currency:    "ZMW",
-      country:     "zm",
-      reference,
-      email:       dbUser.email,
-      redirectUrl: `${APP_URL}/checkout/${body.plan}?ref=${reference}`,
-    }),
-  });
+    const subscription = await prisma.subscription.create({
+      data: {
+        userId:         dbUser.id,
+        plan:           DB_PLAN[body.plan],
+        status:         "PENDING",
+        lencoReference: reference,
+        currency:       "ZMW",
+        amountCents:    amount,
+        billingCycle:   body.cycle,
+      },
+    });
+    subscriptionId = subscription.id;
 
-  const lencoData = await lencoRes.json().catch(() => ({}));
+    const lencoRes = await fetchWithTimeout(`${LENCO_BASE}/collections/card`, {
+      method:  "POST",
+      headers: {
+        "Content-Type":  "application/json",
+        "Authorization": `Bearer ${LENCO_KEY}`,
+      },
+      body: JSON.stringify({
+        amount:      (amount / 100).toFixed(2),
+        currency:    "ZMW",
+        country:     "zm",
+        reference,
+        email:       dbUser.email,
+        redirectUrl: `${APP_URL}/checkout/${body.plan}?ref=${reference}`,
+      }),
+    }, 20_000);
 
-  const checkoutUrl: string | undefined =
-    lencoData?.data?.authorizationUrl ||
-    lencoData?.data?.checkoutUrl ||
-    lencoData?.data?.link;
+    const lencoData = await lencoRes.json().catch(() => ({}));
 
-  if (!lencoRes.ok || !checkoutUrl) {
-    await prisma.subscription.delete({ where: { id: subscription.id } }).catch(() => null);
-    return NextResponse.json(
-      { error: lencoData?.message || "Could not start card payment" },
-      { status: 400 },
-    );
+    const checkoutUrl: string | undefined =
+      lencoData?.data?.authorizationUrl ||
+      lencoData?.data?.checkoutUrl ||
+      lencoData?.data?.link;
+
+    if (!lencoRes.ok || !checkoutUrl) {
+      await prisma.subscription.delete({ where: { id: subscription.id } }).catch(() => null);
+      return NextResponse.json(
+        { error: lencoData?.message || "Could not start card payment" },
+        { status: 400 },
+      );
+    }
+
+    return NextResponse.json({ reference, checkoutUrl });
+  } catch (err) {
+    if (subscriptionId) {
+      await prisma.subscription.delete({ where: { id: subscriptionId } }).catch(() => null);
+    }
+    return handleApiError("checkout/card", err);
   }
-
-  return NextResponse.json({ reference, checkoutUrl });
 }

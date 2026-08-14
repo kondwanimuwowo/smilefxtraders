@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { fmtDayMonth } from "@/lib/date";
+import { handleApiError, readJsonBody, parseDate } from "@/lib/api-error";
 import { Prisma } from "@/generated/prisma/client";
 import type { Trade, AIReviewResult } from "@/lib/store";
 import type { Trade as PrismaTrade } from "@/generated/prisma/client";
@@ -48,72 +49,80 @@ function dbToStore(db: PrismaTrade): Trade {
 // ── GET /api/trades ──────────────────────────────────────────────────────────
 
 export async function GET() {
-  const supabase = await createClient();
-  const user = await getAuthedUser(supabase);
-  if (!user) return NextResponse.json([], { status: 200 });
+  try {
+    const supabase = await createClient();
+    const user = await getAuthedUser(supabase);
+    if (!user) return NextResponse.json([], { status: 200 });
 
-  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } }).catch(() => null);
-  if (!dbUser) return NextResponse.json([], { status: 200 });
+    const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } }).catch(() => null);
+    if (!dbUser) return NextResponse.json([], { status: 200 });
 
-  const trades = await prisma.trade.findMany({
-    where: { userId: dbUser.id },
-    orderBy: { date: "desc" },
-  });
+    const trades = await prisma.trade.findMany({
+      where: { userId: dbUser.id },
+      orderBy: { date: "desc" },
+    });
 
-  return NextResponse.json(trades.map(dbToStore));
+    return NextResponse.json(trades.map(dbToStore));
+  } catch (err) {
+    return handleApiError("trades:GET", err);
+  }
 }
 
 // ── POST /api/trades ─────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
-  const user = await getAuthedUser(supabase);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const supabase = await createClient();
+    const user = await getAuthedUser(supabase);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } }).catch(() => null);
-  if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } }).catch(() => null);
+    if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  // FREE plan: cap at 20 trades
-  if (dbUser.plan === "FREE") {
-    const count = await prisma.trade.count({ where: { userId: dbUser.id } });
-    if (count >= 20) {
-      return NextResponse.json(
-        { error: "Free plan is limited to 20 trades. Upgrade to Pro for unlimited journaling.", upgrade: true },
-        { status: 403 }
-      );
+    // FREE plan: cap at 20 trades
+    if (dbUser.plan === "FREE") {
+      const count = await prisma.trade.count({ where: { userId: dbUser.id } });
+      if (count >= 20) {
+        return NextResponse.json(
+          { error: "Free plan is limited to 20 trades. Upgrade to Pro for unlimited journaling.", upgrade: true },
+          { status: 403 }
+        );
+      }
     }
+
+    const body = await readJsonBody<Partial<Trade>>(req);
+
+    const trade = await prisma.trade.create({
+      data: {
+        userId:     dbUser.id,
+        date:       parseDate(body.openedAt, "openedAt") ?? new Date(),
+        pair:       body.pair ?? "EURUSD",
+        direction:  body.dir === "short" ? "SHORT" : "LONG",
+        model:      body.model ?? "",
+        framework:  body.framework ?? "SMC",
+        session:    body.session ? (SESSION_TO_DB[body.session] ?? null) : null,
+        entryPrice: body.entryPrice ?? null,
+        stopLoss:   body.stopLoss ?? null,
+        takeProfit: body.takeProfit ?? null,
+        closePrice: body.closePrice ?? null,
+        rr:         body.rr ?? null,
+        pnlR:       body.pnlR ?? 0,
+        riskPct:    body.riskPct ?? 0.5,
+        closedAt:   parseDate(body.closedAt, "closedAt"),
+        result:     body.result === "win" ? "WIN" : body.result === "loss" ? "LOSS" : "OPEN",
+        rating:     body.rating ?? 3,
+        discipline: body.discipline ?? true,
+        tags:       body.tags ?? [],
+        mistake:    body.mistake ?? null,
+        note:       body.note ?? null,
+        chartUrl:   body.chartUrl ?? null,
+        fromAlert:  body.fromAlert ?? null,
+        aiReview:   body.aiReview ? (body.aiReview as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
+      },
+    });
+
+    return NextResponse.json(dbToStore(trade), { status: 201 });
+  } catch (err) {
+    return handleApiError("trades:POST", err);
   }
-
-  const body = await req.json() as Partial<Trade>;
-
-  const trade = await prisma.trade.create({
-    data: {
-      userId:     dbUser.id,
-      date:       body.openedAt ? new Date(body.openedAt) : new Date(),
-      pair:       body.pair ?? "EURUSD",
-      direction:  body.dir === "short" ? "SHORT" : "LONG",
-      model:      body.model ?? "",
-      framework:  body.framework ?? "SMC",
-      session:    body.session ? (SESSION_TO_DB[body.session] ?? null) : null,
-      entryPrice: body.entryPrice ?? null,
-      stopLoss:   body.stopLoss ?? null,
-      takeProfit: body.takeProfit ?? null,
-      closePrice: body.closePrice ?? null,
-      rr:         body.rr ?? null,
-      pnlR:       body.pnlR ?? 0,
-      riskPct:    body.riskPct ?? 0.5,
-      closedAt:   body.closedAt ? new Date(body.closedAt) : null,
-      result:     body.result === "win" ? "WIN" : body.result === "loss" ? "LOSS" : "OPEN",
-      rating:     body.rating ?? 3,
-      discipline: body.discipline ?? true,
-      tags:       body.tags ?? [],
-      mistake:    body.mistake ?? null,
-      note:       body.note ?? null,
-      chartUrl:   body.chartUrl ?? null,
-      fromAlert:  body.fromAlert ?? null,
-      aiReview:   body.aiReview ? (body.aiReview as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
-    },
-  });
-
-  return NextResponse.json(dbToStore(trade), { status: 201 });
 }
