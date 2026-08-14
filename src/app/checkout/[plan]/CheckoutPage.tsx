@@ -18,7 +18,9 @@ const PLANS = {
   edge: {
     name:    "Edge",
     icon:    "trending_up",
-    color:   "#08AEAA",
+    // Token reference, not a literal — the alpha variants below go through
+    // color-mix() since "var(--teal)40" is not valid CSS the way "#08AEAA40" was.
+    color:   "var(--teal)",
     tagline: "Full toolkit for serious SMC traders.",
     features: [
       "Unlimited journal trades",
@@ -37,7 +39,7 @@ const PLANS = {
   pro: {
     name:    "Pro",
     icon:    "workspace_premium",
-    color:   "#F8B93D",
+    color:   "var(--gold)",
     tagline: "Everything in Edge + 1-on-1 mentorship.",
     features: [
       "Everything in Edge",
@@ -279,10 +281,10 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
 
           {/* ── Left: plan summary + order total + trust strip ── */}
           <div className="flex flex-col gap-4">
-            <div className="rounded-2xl p-6 bg-panel" style={{ border: `1px solid ${plan.color}40` }}>
+            <div className="rounded-2xl p-6 bg-panel" style={{ border: `1px solid color-mix(in srgb, ${plan.color} 25%, transparent)` }}>
               <div className="flex items-start gap-3 mb-4">
                 <div className="size-11 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: `${plan.color}20`, border: `1px solid ${plan.color}40` }}
+                  style={{ background: `color-mix(in srgb, ${plan.color} 12%, transparent)`, border: `1px solid color-mix(in srgb, ${plan.color} 25%, transparent)` }}
                 >
                   <Icon name={plan.icon} size={22} style={{ color: plan.color }} />
                 </div>

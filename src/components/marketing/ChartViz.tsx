@@ -51,8 +51,24 @@ export function ChartViz({ seed = 7, n = 40, drift = 0.04, h = 300, annot = true
     const x = (i: number) => i * step + step / 2;
     const y = (v: number) => padT + (1 - (v - lo) / (hi - lo)) * (h - padT - padB);
 
-    const upBody = "#08AEAA", upLine = "#30E8DF", dnBody = "#EA523D", dnLine = "#FF5942";
+    // Read the live token values rather than hardcoding them — CLAUDE.md
+    // requires the candle scheme stay tweakable, and this is injected into
+    // the real DOM so the variables resolve. Hex fallbacks match the
+    // defensive pattern in ui/CandleChart.tsx.
+    const css = getComputedStyle(el);
+    const token = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
+    const upBody = token("--teal", "#08AEAA");
+    const upLine = token("--teal-bright", "#30E8DF");
+    const dnBody = token("--coral", "#EA523D");
+    const dnLine = token("--coral-bright", "#FF5942");
+    const gold   = token("--gold", "#F8B93D");
     const gridC = "rgba(14,17,22,0.06)";
+
+    // Ubuntu, via the display token. These labels previously asked for
+    // "Space Grotesk", which this app has never loaded (the fonts are Open
+    // Sans + Ubuntu), so they silently rendered in generic sans-serif —
+    // off-brand against every other heading on the marketing site.
+    const labelFont = `style="font-family:var(--font-display),sans-serif"`;
 
     let svg = `<svg viewBox="0 0 ${W} ${h}" width="100%" height="${h}" style="display:block">`;
     svg += `<rect x="0" y="0" width="${plotW}" height="${h}" rx="8" fill="#F6F8F5"/>`;
@@ -65,13 +81,13 @@ export function ChartViz({ seed = 7, n = 40, drift = 0.04, h = 300, annot = true
       const z0 = Math.floor(n * 0.5), z1 = Math.floor(n * 0.66);
       const zhi = candles[z0].h, zlo = candles[z1].l;
       svg += `<rect x="${x(z0) - bw}" y="${y(zhi)}" width="${plotW - x(z0) + bw}" height="${Math.max(3, y(zlo) - y(zhi))}" fill="rgba(8,174,170,0.10)" stroke="rgba(8,174,170,0.55)" stroke-width="1" stroke-dasharray="3 3"/>`;
-      svg += `<text x="${x(z0) - bw + 5}" y="${y(zhi) + 13}" fill="#0B807C" font-size="10" font-weight="700" font-family="Space Grotesk,sans-serif">FVG</text>`;
+      svg += `<text x="${x(z0) - bw + 5}" y="${y(zhi) + 13}" fill="${upBody}" font-size="10" font-weight="700" ${labelFont}>FVG</text>`;
       const liq = lo + (hi - lo) * 0.12;
-      svg += `<line x1="0" y1="${y(liq)}" x2="${plotW}" y2="${y(liq)}" stroke="#FF5942" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.85"/>`;
-      svg += `<text x="6" y="${y(liq) - 5}" fill="#EA523D" font-size="9.5" font-weight="700" font-family="Space Grotesk,sans-serif">LIQUIDITY SWEEP</text>`;
+      svg += `<line x1="0" y1="${y(liq)}" x2="${plotW}" y2="${y(liq)}" stroke="${dnLine}" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.85"/>`;
+      svg += `<text x="6" y="${y(liq) - 5}" fill="${dnBody}" font-size="9.5" font-weight="700" ${labelFont}>LIQUIDITY SWEEP</text>`;
       const ci = Math.floor(n * 0.62);
-      svg += `<circle cx="${x(ci)}" cy="${y(candles[ci].c)}" r="3.5" fill="#F8B93D" stroke="#fff" stroke-width="1.5"/>`;
-      svg += `<text x="${x(ci) + 6}" y="${y(candles[ci].c) + 3}" fill="#D99A1E" font-size="10" font-weight="800" font-family="Space Grotesk,sans-serif">CHoCH</text>`;
+      svg += `<circle cx="${x(ci)}" cy="${y(candles[ci].c)}" r="3.5" fill="${gold}" stroke="#fff" stroke-width="1.5"/>`;
+      svg += `<text x="${x(ci) + 6}" y="${y(candles[ci].c) + 3}" fill="${gold}" font-size="10" font-weight="800" ${labelFont}>CHoCH</text>`;
     }
 
     candles.forEach((c, i) => {

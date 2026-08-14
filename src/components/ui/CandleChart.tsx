@@ -58,8 +58,16 @@ export function CandleChart({ candles, height = 400, annotations = {} }: CandleC
     });
 
     const style    = getComputedStyle(document.documentElement);
-    const upColor  = style.getPropertyValue("--teal").trim()  || "#08AEAA";
-    const dnColor  = style.getPropertyValue("--coral").trim() || "#EA523D";
+    const token    = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback;
+    const upColor  = token("--teal", "#08AEAA");
+    const dnColor  = token("--coral", "#EA523D");
+    // The annotation layers below used to hardcode these three. The body/wick
+    // colors above already read from tokens, so a theme or direction-colour
+    // tweak moved the candles but left the FVG/OB zones, price lines and
+    // BOS/CHoCH markers on the old palette — see CLAUDE.md, which requires the
+    // whole candle scheme stay tweakable.
+    const goldColor   = token("--gold", "#F8B93D");
+    const brightColor = token("--teal-bright", "#30E8DF");
 
     const series = chart.addSeries(CandlestickSeries, {
       upColor,
@@ -84,7 +92,7 @@ export function CandleChart({ candles, height = 400, annotations = {} }: CandleC
     annotations.lines?.forEach((line) => {
       series.createPriceLine({
         price:            line.price,
-        color:            line.color ?? "#F8B93D",
+        color:            line.color ?? goldColor,
         lineWidth:        1,
         lineStyle:        LineStyle.Dashed,
         axisLabelVisible: true,
@@ -94,7 +102,7 @@ export function CandleChart({ candles, height = 400, annotations = {} }: CandleC
 
     // FVG / OB zones — rendered as top + bottom channel lines with a label on the top line
     annotations.zones?.forEach((zone) => {
-      const color = zone.dir === "short" ? "#EA523D" : "#08AEAA";
+      const color = zone.dir === "short" ? dnColor : upColor;
       series.createPriceLine({
         price:            zone.hi,
         color,
@@ -118,7 +126,7 @@ export function CandleChart({ candles, height = 400, annotations = {} }: CandleC
       const markers: SeriesMarker<Time>[] = annotations.marks.map((mark) => ({
         time:     data[Math.min(mark.i, data.length - 1)]?.time ?? data[0].time,
         position: "aboveBar" as const,
-        color:    mark.type === "choch" ? "#F8B93D" : "#30E8DF",
+        color:    mark.type === "choch" ? goldColor : brightColor,
         shape:    "circle" as const,
         text:     mark.label,
       }));

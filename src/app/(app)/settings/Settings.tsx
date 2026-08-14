@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 import { createClient } from "@/lib/supabase/client";
 import { Panel, PanelHead, Button, Field, SegRow, MonoInput } from "@/components/ui";
 import { updateProfileAction, updateTradingAction, changeEmailAction } from "@/app/(auth)/actions";
+import { NOTIF_PREF_DEFAULTS } from "@/lib/notif-prefs";
 import type { NotifPrefs } from "@/lib/notif-prefs";
 import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 
@@ -167,15 +168,33 @@ export function Settings() {
   // Notifications — loaded from and saved to DB
   const { data: savedPrefs } = useQuery<NotifPrefs>({
     queryKey: ["notif-prefs"],
-    queryFn:  () => fetch("/api/user/notif-prefs").then((r) => r.json()),
+    // A 5xx parses fine as {error, kind}, which would land in savedPrefs and
+    // render every toggle as off — silently showing the user settings they
+    // never chose. Fall back to the documented defaults instead.
+    queryFn: async () => {
+      const r = await fetch("/api/user/notif-prefs");
+      const data = r.ok ? await r.json().catch(() => null) : null;
+      return (data && typeof data === "object" && !("error" in data))
+        ? data as NotifPrefs
+        : NOTIF_PREF_DEFAULTS;
+    },
   });
   const { mutate: savePrefs, isPending: notifPending } = useMutation({
-    mutationFn: (prefs: NotifPrefs) =>
-      fetch("/api/user/notif-prefs", {
+    // Without the r.ok check this resolved even on a 503, so onSuccess fired
+    // and told the user "Notification settings saved" when nothing had been
+    // written and onError could never run.
+    mutationFn: async (prefs: NotifPrefs) => {
+      const r = await fetch("/api/user/notif-prefs", {
         method:  "PUT",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify(prefs),
-      }).then((r) => r.json()),
+      });
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({})) as { error?: string };
+        throw new Error(body.error ?? `Server error (${r.status})`);
+      }
+      return r.json();
+    },
     onSuccess: () => toast("Notification settings saved", "teal", "check_circle"),
     onError:   () => toast("Failed to save notifications", "coral", "error"),
   });

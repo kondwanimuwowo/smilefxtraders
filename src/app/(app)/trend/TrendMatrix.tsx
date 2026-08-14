@@ -181,7 +181,7 @@ function NoteRow({ pair, value, onChange, readonly }: { pair: string; value: str
 function SummaryRow({ matrix, pairs }: { matrix: Matrix; pairs: string[] }) {
   const tfBias = TFS.map((tf) => {
     const counts = { bullish: 0, bearish: 0, ranging: 0 };
-    pairs.forEach((p) => { if (matrix[p]?.[tf]) counts[matrix[p][tf] as Bias]++; });
+    pairs.forEach((p) => { if (matrix?.[p]?.[tf]) counts[matrix[p][tf] as Bias]++; });
     const dom: Bias = counts.bullish > counts.bearish ? "bullish" : counts.bearish > counts.bullish ? "bearish" : "ranging";
     return { tf, dom, counts };
   });
@@ -229,12 +229,23 @@ export function TrendMatrix() {
   // Fetch from API on mount
   useEffect(() => {
     fetch("/api/trend-matrix")
-      .then((r) => r.json())
+      .then((r) => {
+        // A 5xx still resolves the promise and still parses as JSON — the
+        // body is just {error, kind} from handleApiError. Without this check
+        // the truthy error object passed the `if (data)` guard below and
+        // setMatrix(undefined) ran, so the next render crashed on
+        // matrix[p] with "Cannot read properties of undefined (reading
+        // 'EURUSD')" and took the whole page to the error boundary.
+        if (!r.ok) throw new Error(`trend-matrix responded ${r.status}`);
+        return r.json();
+      })
       .then((data) => {
-        if (data) {
+        // Adopt the payload only if it actually carries a matrix — never
+        // overwrite the seeded defaults with undefined.
+        if (data?.matrix) {
           setMatrix(data.matrix as Matrix);
-          setNotes(data.notes as Notes);
-          setUpdatedAt(data.updatedAt as string);
+          setNotes((data.notes as Notes) ?? DEFAULT_NOTES);
+          setUpdatedAt((data.updatedAt as string) ?? null);
         }
       })
       .catch(() => {/* keep defaults */})
@@ -251,16 +262,22 @@ export function TrendMatrix() {
     setSaveError(null);
   }, [matrix, notes]);
 
+  // PAIRS is a fresh array each render, so it can't be a dep directly. Hoist
+  // the joined key into its own value: react-hooks/use-memo rejects a call
+  // expression inside a dependency list (the existing eslint-disable only
+  // covered exhaustive-deps, so this was an unreported lint error).
+  const pairsKey = PAIRS.join(",");
+
   const confluenceMap = useMemo(
-    () => Object.fromEntries(PAIRS.map((p) => [p, getConfluence(matrix[p] ?? DEFAULT_ROW)])),
+    () => Object.fromEntries(PAIRS.map((p) => [p, getConfluence(matrix?.[p] ?? DEFAULT_ROW)])),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [matrix, PAIRS.join(",")]
+    [matrix, pairsKey]
   );
 
   const tradeablePairs = useMemo(
     () => PAIRS.filter((p) => confluenceMap[p]?.bias !== "mixed"),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [confluenceMap, PAIRS.join(",")]
+    [confluenceMap, pairsKey]
   );
 
   function toggleCell(pair: string, tf: string) {
@@ -426,7 +443,7 @@ export function TrendMatrix() {
                         {TFS.map((tf) => (
                           <td key={tf} className="px-2 py-3 text-center">
                             <div className="flex justify-center">
-                              <BiasCell bias={(matrix[pair] ?? DEFAULT_ROW)[tf]} onClick={() => toggleCell(pair, tf)} readonly={!isInstructor} />
+                              <BiasCell bias={(matrix?.[pair] ?? DEFAULT_ROW)[tf]} onClick={() => toggleCell(pair, tf)} readonly={!isInstructor} />
                             </div>
                           </td>
                         ))}

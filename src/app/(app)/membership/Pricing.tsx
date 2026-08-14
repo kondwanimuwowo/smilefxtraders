@@ -13,7 +13,18 @@ import type { PlanPrices } from "@/lib/plans";
 function usePlanPrices() {
   return useQuery<PlanPrices[]>({
     queryKey: ["plan-prices"],
-    queryFn: () => fetch("/api/admin/pricing").then((r) => r.json()),
+    // A 5xx resolves and parses fine — the body is just {error, kind} from
+    // handleApiError. Returning that object straight through meant the render
+    // path called .map() on a non-array and took the membership page down.
+    // Fall back to the seeded prices instead: this page has a sensible default
+    // and a transient DB blip shouldn't hide the plans entirely.
+    queryFn: async () => {
+      const r = await fetch("/api/admin/pricing");
+      const data = r.ok ? await r.json().catch(() => null) : null;
+      if (Array.isArray(data)) return data as PlanPrices[];
+      console.warn("[plan-prices] falling back to seeded defaults");
+      return DEFAULT_PRICES;
+    },
     staleTime: 5 * 60 * 1000,
     placeholderData: DEFAULT_PRICES,
   });
