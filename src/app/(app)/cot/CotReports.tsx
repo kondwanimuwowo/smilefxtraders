@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Sparkline, Skeleton, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import { fetchWithRetry } from "@/lib/http";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import { CotLockScreen } from "@/components/cot/CotLockScreen";
 import { SignalBars } from "@/components/cot/SignalBars";
@@ -558,50 +558,51 @@ function LoadingSkeleton() {
 
 export function CotReports() {
   const router = useRouter();
-  const [entries, setEntries]     = useState<CotEntry[]>([]);
-  const [loading, setLoading]     = useState(true);
   const [retrying, setRetrying]   = useState(false);
   const [filter, setFilter]       = useState<CotFilter>({ kind: "all" });
-  const [locked, setLocked]       = useState(false);
-  const [loadError, setLoadError] = useState(false);
   const { data: instruments = [] } = useInstruments();
 
-  function load(bust = false) {
-    setLoadError(false);
-    // Cache-busting only matters right after a refresh actually wrote new
-    // data (see retry() below) -- on normal mount it just defeated any
-    // caching on every single /cot load for no benefit.
-    // Retries a 5xx a few times before surfacing the error card — a stalled
-    // connection clears on a fresh attempt, and showing a paying trader
-    // "Couldn't load COT data" for a blip they'd never have noticed is the
-    // kind of thing that loses subscriptions. 403 (plan-gated) is returned
-    // untouched below.
-    fetchWithRetry(bust ? `/api/cot?t=${Date.now()}` : "/api/cot")
-      .then(async (r) => {
-        if (r.status === 403) { setLocked(true); setLoading(false); return; }
-        if (!r.ok) throw new Error("Failed to load COT data");
-        const data = await r.json();
-        if (!Array.isArray(data)) throw new Error("Unexpected response shape");
-        setEntries(data);
-        setLoading(false);
-        setRetrying(false);
-      })
-      .catch(() => {
-        setLoadError(true);
-        setLoading(false);
-        setRetrying(false);
-      });
-  }
+  // Converted from a hand-rolled fetch + five useStates on 2026-08-15. This
+  // page predated React Query's adoption and was never migrated, so it had no
+  // retry, no caching and no request dedup while every neighbouring page did
+  // — the client-side twin of the two-generation split in the API routes.
+  //
+  // A 403 is returned as data rather than thrown: it means "FREE plan", which
+  // is a settled answer, and throwing would make React Query retry a decision
+  // that will never change. Genuine failures still throw and get the retry
+  // configured in lib/providers.tsx.
+  const { data, isPending, isError, refetch } = useQuery({
+    queryKey:  ["cot"],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const res = await fetch("/api/cot");
+      if (res.status === 403) return { locked: true, entries: [] as CotEntry[] };
+      if (!res.ok) throw new Error("Failed to load COT data");
+      const json = await res.json();
+      if (!Array.isArray(json)) throw new Error("Unexpected response shape");
+      return { locked: false, entries: json as CotEntry[] };
+    },
+  });
 
-  useEffect(() => { load(); }, []);
+  // Names kept identical to the previous useState variables so the view below
+  // is untouched by this change.
+  // Memoised because `?? []` would otherwise hand a fresh array reference to
+  // the `visible` useMemo below on every render, defeating it entirely.
+  const entries   = useMemo(() => data?.entries ?? [], [data]);
+  const locked    = data?.locked ?? false;
+  const loading   = isPending;
+  const loadError = isError;
 
-  function retry() {
+  async function retry() {
     setRetrying(true);
-    // POST to /api/cot/refresh to pull latest data from CFTC into the DB,
-    // then re-read the DB so the cards show the new report.
-    fetch("/api/cot/refresh", { method: "POST" })
-      .then(() => load(true))
-      .catch(() => { setRetrying(false); });
+    try {
+      // Pull the latest CFTC data into the DB, then re-read it so the cards
+      // show the new report.
+      await fetch("/api/cot/refresh", { method: "POST" });
+      await refetch();
+    } finally {
+      setRetrying(false);
+    }
   }
 
   const metaMap = useMemo(() => deriveMetaMap(instruments), [instruments]);
@@ -694,7 +695,7 @@ export function CotReports() {
           <span>Couldn&apos;t load COT data. Please try again.</span>
           <button
             type="button"
-            onClick={() => load()}
+            onClick={() => refetch()}
             className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[12px] font-semibold transition-all active:scale-95 bg-[rgba(234,82,61,0.1)] border border-[rgba(234,82,61,0.25)] shrink-0"
           >
             <Icon name="refresh" size={13} />
