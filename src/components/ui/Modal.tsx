@@ -49,6 +49,7 @@ export function Modal({ open, onClose, title, sub, width = 560, footer, children
             type="button"
             onClick={onClose}
             className="shrink-0 p-1.5 rounded-lg hover:bg-[var(--hover)] transition-colors mt-0.5 text-ink-mid"
+            aria-label="Close dialog"
           >
             <Icon name="close" size={20} />
           </button>

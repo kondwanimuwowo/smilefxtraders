@@ -53,6 +53,7 @@ export function Drawer({ open, onClose, title, width = 460, footer, children }: 
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-[var(--hover)] transition-colors text-ink-mid"
+            aria-label="Close panel"
           >
             <Icon name="close" size={20} />
           </button>

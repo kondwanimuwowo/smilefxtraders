@@ -429,6 +429,7 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
             className="p-1 rounded-lg hover:bg-hover transition-colors text-ink-dim"
             onClick={onEdit}
             title="Edit"
+            aria-label="Edit this trade"
           >
             <Icon name="edit" size={15} />
           </button>

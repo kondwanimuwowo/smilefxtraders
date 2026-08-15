@@ -79,6 +79,7 @@ export function GavoCotRead({ pair }: { pair: string }) {
             onClick={runExplain}
             className="p-1.5 rounded-lg transition-colors shrink-0 text-ink-dim"
             title="Regenerate"
+            aria-label="Regenerate Gavo's COT read"
           >
             <Icon name="refresh" size={16} />
           </button>

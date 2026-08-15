@@ -155,6 +155,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
             onClick={runReview}
             className="p-1.5 rounded-lg transition-colors shrink-0 text-ink-dim"
             title="Re-run review"
+            aria-label="Re-run Gavo's trade review"
           >
             <Icon name="refresh" size={16} />
           </button>

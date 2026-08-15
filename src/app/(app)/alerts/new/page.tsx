@@ -129,7 +129,7 @@ export default function PostAlertPage() {
                   placeholder="Add tag, press Enter"
                   className="flex-1 px-3 py-2 rounded-xl text-[13px] bg-panel-2 focus:shadow-[0_0_0_2px_var(--teal)] transition-shadow text-ink-strong outline-none"
                 />
-                <button type="button" onClick={addTag} className="px-3 rounded-xl bg-panel-2 shadow-sm text-ink-mid">
+                <button type="button" onClick={addTag} aria-label="Add tag" className="px-3 rounded-xl bg-panel-2 shadow-sm text-ink-mid">
                   <Icon name="add" size={16} />
                 </button>
               </div>

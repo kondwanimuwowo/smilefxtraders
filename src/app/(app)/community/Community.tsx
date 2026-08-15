@@ -295,6 +295,7 @@ function PostCard({ post }: { post: ApiPost }) {
                   onClick={submitComment}
                   disabled={!draft.trim()}
                   className={draft.trim() ? "text-teal" : "text-ink-dim"}
+                  aria-label="Post comment"
                 >
                   <Icon name="send" size={17} />
                 </button>

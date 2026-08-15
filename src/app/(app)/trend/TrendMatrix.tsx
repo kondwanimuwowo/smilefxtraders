@@ -89,13 +89,17 @@ function getConfluence(row: Record<string, Bias>): Confluence {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function BiasCell({ bias, onClick, readonly }: { bias: Bias; onClick: () => void; readonly: boolean }) {
+function BiasCell({ bias, onClick, readonly, pair, tf }: { bias: Bias; onClick: () => void; readonly: boolean; pair: string; tf: string }) {
   const cfg = BIAS_CONFIG[bias];
   return (
     <button
       type="button"
       onClick={readonly ? undefined : onClick}
       title={readonly ? bias : `${bias} (click to change)`}
+      // The icon alone conveys the bias, so a screen reader otherwise reads
+      // this whole grid as a wall of unlabelled buttons. Naming the pair and
+      // timeframe makes each cell meaningful out of visual context.
+      aria-label={`${pair} ${tf}: ${bias}${readonly ? "" : " — click to change"}`}
       disabled={readonly}
       className={cn("flex items-center justify-center rounded-xl transition-all w-14 h-11 shrink-0", cfg.bgCls, readonly ? "cursor-default" : "cursor-pointer")}
     >
@@ -443,7 +447,7 @@ export function TrendMatrix() {
                         {TFS.map((tf) => (
                           <td key={tf} className="px-2 py-3 text-center">
                             <div className="flex justify-center">
-                              <BiasCell bias={(matrix?.[pair] ?? DEFAULT_ROW)[tf]} onClick={() => toggleCell(pair, tf)} readonly={!isInstructor} />
+                              <BiasCell bias={(matrix?.[pair] ?? DEFAULT_ROW)[tf]} onClick={() => toggleCell(pair, tf)} readonly={!isInstructor} pair={pair} tf={tf} />
                             </div>
                           </td>
                         ))}

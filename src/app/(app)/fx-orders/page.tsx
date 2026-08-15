@@ -57,6 +57,7 @@ function UploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
             type="button"
             onClick={onClose}
             className="flex items-center justify-center rounded-xl w-8 h-8 transition-colors hover:bg-hover text-ink-dim"
+            aria-label="Close"
           >
             <Icon name="close" size={18} />
           </button>
