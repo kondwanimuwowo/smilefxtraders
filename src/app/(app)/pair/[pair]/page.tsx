@@ -10,7 +10,7 @@ import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
 import { cn } from "@/lib/cn";
 import type { CotSignal, CotDetailResponse, CotDetailRow } from "@/lib/cot/types";
 import { SIGNAL_CFG } from "@/components/cot/signalCfg";
-import type { CalEvent } from "@/app/api/calendar/route";
+import type { CalEvent } from "@/lib/calendar";
 import type { PriceTick } from "@/app/api/prices/route";
 import { deriveMetaMap } from "@/lib/pairs";
 import { useInstruments } from "@/lib/hooks/useInstruments";

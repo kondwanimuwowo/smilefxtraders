@@ -15,7 +15,8 @@ import {
 import { cn } from "@/lib/cn";
 import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
 import type { InstructorAlert } from "@/app/(app)/alerts/Alerts";
-import type { CalEvent } from "@/app/api/calendar/route";
+import type { CalEvent } from "@/lib/calendar";
+import { selectTodayEvents } from "@/lib/calendar-select";
 import { CotBiasPanel } from "@/components/cot/CotBiasPanel";
 
 // ── Candle generator (seeded RNG — matches design reference) ──────────────────
@@ -286,10 +287,8 @@ function useTodayEvents() {
       const res = await fetch("/api/calendar");
       if (!res.ok) throw new Error(`calendar responded ${res.status}`);
       const all: CalEvent[] = await res.json();
-      const today = fmtISODate(new Date());
-      return all
-        .filter((e) => e.date === today && e.impact >= 2)
-        .sort((a, b) => a.time.localeCompare(b.time));
+      // Shared with the server prefetch in page.tsx — see lib/calendar-select.
+      return selectTodayEvents(all, fmtISODate(new Date()));
     },
     staleTime: 30 * 60_000,
   });

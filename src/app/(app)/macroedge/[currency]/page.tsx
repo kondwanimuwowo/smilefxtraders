@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Icon, Panel, PanelHead, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import type { CalEvent } from "@/app/api/calendar/route";
+import type { CalEvent } from "@/lib/calendar";
 import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
 import type { MacroScoresResponse } from "@/types/macro";
 import { GavoExplanation } from "@/components/macro/GavoExplanation";

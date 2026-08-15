@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon, Panel, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import type { CalEvent } from "@/app/api/calendar/route";
+import type { CalEvent } from "@/lib/calendar";
 
 const CURRENCY_FILTERS = ["ALL", "USD", "EUR", "GBP", "NZD"] as const;
 type CurrencyFilter = (typeof CURRENCY_FILTERS)[number];
