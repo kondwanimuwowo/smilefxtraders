@@ -115,7 +115,7 @@ export async function signupAction(formData: FormData) {
   const hdrs = await headers();
   const ip = hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || "unknown";
 
-  const security = await validateSignupSecurity(email, ip);
+  const security = await validateSignupSecurity(email, ip, { name, username });
   if (!security.ok) return { error: security.error };
 
   const plan = await pendingPlan(formData);
