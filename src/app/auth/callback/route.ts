@@ -100,7 +100,11 @@ export async function GET(request: Request) {
     existing = await lookupExisting().catch(() => lookupExisting());
   } catch (err) {
     console.error("[auth/callback] profile lookup failed twice:", err instanceof Error ? err.message : err);
-    return NextResponse.redirect(`${origin}/login?error=db_unavailable`);
+    // NOT /login: the session we just established is valid, so middleware
+    // would bounce it straight back here. /dashboard lets the app shell's
+    // error boundary show a retry instead — see the redirect-loop note in
+    // (app)/layout.tsx.
+    return NextResponse.redirect(`${origin}/dashboard`);
   }
 
   if (!existing) {
@@ -134,7 +138,8 @@ export async function GET(request: Request) {
     });
 
     if (!created) {
-      return NextResponse.redirect(`${origin}/login?error=profile_create_failed`);
+      // Same reasoning as above — the session is valid, so /login loops.
+      return NextResponse.redirect(`${origin}/dashboard`);
     }
 
     if (plan) cookieStore.delete(PENDING_PLAN_COOKIE);

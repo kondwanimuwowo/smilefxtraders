@@ -73,9 +73,30 @@ function dbToAppUser(db: NonNullable<Awaited<ReturnType<typeof prisma.user.findU
 }
 
 async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }> {
+  // ── Auth check ─────────────────────────────────────────────────────────────
+  // Kept in its own try so that ONLY an auth failure can send the user to
+  // /login. Previously one catch wrapped both this and the queries below, so
+  // a database stall was treated as a broken session: this redirected to
+  // /login, middleware saw a perfectly valid cookie and bounced the user
+  // straight back to /dashboard, which failed again — ERR_TOO_MANY_REDIRECTS
+  // for every signed-in user for as long as the database was unreachable.
+  let user;
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    ({ data: { user } } = await supabase.auth.getUser());
+  } catch (err) {
+    // getUser() *throwing* is ambiguous — a broken refresh token and a
+    // transient failure reaching Supabase Auth look identical here. Don't
+    // redirect to /login on it: middleware runs the same verified getUser(),
+    // so if that call succeeds there it would bounce the user straight back
+    // and loop. Render the error boundary's retry instead. A genuinely
+    // absent user (below) is unambiguous, and middleware agrees, so /login
+    // is safe in that case only.
+    console.error("[app-layout] auth check failed", err);
+    throw err;
+  }
+
+  try {
     // middleware.ts's route guard only does a fast, unverified local session
     // decode (see its comment) — a stale/expired cookie can pass that check
     // and still reach this layout. getUser() is the verified check; when it
@@ -126,11 +147,12 @@ async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }>
     return { user: dbToAppUser(db), trades: dbTrades.map(dbTradeToStore) };
   } catch (err) {
     unstable_rethrow(err);
-    // getUser() throws (rather than returning a null user) when the session
-    // cookie itself is broken — e.g. an invalid/expired refresh token. Don't
-    // render the shell with a null user in that case; send them to login for
-    // real, same as the "no user at all" path above.
-    redirect("/login");
+    // Anything reaching here is a database/connection failure, not an auth
+    // one — the session was already verified above. Rethrow so (app)/error.tsx
+    // renders its "Try again" UI. Redirecting to /login instead is what
+    // created the redirect loop described at the top of this function.
+    console.error("[app-layout] data load failed", err);
+    throw err;
   }
 }
 
