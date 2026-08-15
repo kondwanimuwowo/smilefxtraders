@@ -13,16 +13,51 @@ interface HyperdriveBinding { connectionString: string }
 // it. Reverted to Hyperdrive since it's still the architecturally-correct
 // choice (pooling, edge caching); query_timeout raised below as the actual
 // mitigation while this is investigated further.
+/**
+ * Logs which connection path was actually taken, once per isolate.
+ *
+ * 2026-08-15: two Hyperdrive config changes (origin_connection_limit 60->40,
+ * and session mode 5432 -> transaction mode 6543) produced *identical*
+ * failure signatures, which is what you'd expect if the app never reaches
+ * Hyperdrive at all and silently falls through to DATABASE_URL below. This
+ * settles that before any more time goes into tuning a component that might
+ * not be in the path.
+ *
+ * Logs host:port only -- never the connection string, which carries the
+ * password.
+ */
+let loggedConnectionSource = false;
+
+function logConnectionSource(source: string, connectionString: string): void {
+  if (loggedConnectionSource) return;
+  loggedConnectionSource = true;
+  let origin = "unparseable";
+  try {
+    const u = new URL(connectionString);
+    origin = `${u.hostname}:${u.port || "5432"}`;
+  } catch {
+    // Leave as "unparseable" — never fall back to logging the raw string.
+  }
+  console.info(`[prisma] connection source=${source} origin=${origin}`);
+}
+
 function resolveConnectionString(): string {
+  let contextError: string | null = null;
   try {
     const ctx = getCloudflareContext() as unknown as { env: Record<string, unknown> };
     const hyperdrive = ctx.env.HYPERDRIVE as HyperdriveBinding | undefined;
-    if (hyperdrive?.connectionString) return hyperdrive.connectionString;
-  } catch {
+    if (hyperdrive?.connectionString) {
+      logConnectionSource("hyperdrive-binding", hyperdrive.connectionString);
+      return hyperdrive.connectionString;
+    }
+    contextError = "context resolved but HYPERDRIVE binding was empty";
+  } catch (err) {
     // Not running inside a Workers request context — fall through.
+    contextError = err instanceof Error ? err.message : String(err);
   }
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL environment variable is not set.");
+  logConnectionSource(`env-DATABASE_URL (${contextError})`, url);
   return url;
 }
 
@@ -101,13 +136,31 @@ function createPrismaClient() {
         args: unknown;
         query: (args: unknown) => Promise<unknown>;
       }) {
+        // Timings added 2026-08-15. The old log said only that a retry was
+        // being attempted -- it never recorded how long the first attempt
+        // stalled, nor whether the retry actually succeeded. Both matter:
+        // "first attempt stalls for the full timeout, retry succeeds
+        // instantly" and "both attempts stall identically" point at
+        // completely different causes, and we currently cannot tell them
+        // apart from the logs.
+        const label = `${model ?? "raw"}.${operation}`;
+        const startedAt = Date.now();
         try {
           return await query(args);
         } catch (err) {
+          const stalledFor = Date.now() - startedAt;
           const message = err instanceof Error ? err.message : String(err);
           if (!TRANSIENT_CONNECTION_ERROR.test(message)) throw err;
-          console.warn(`[prisma] retrying ${model ?? ""}.${operation} after transient connection error`);
-          return await query(args);
+          console.warn(`[prisma] ${label} stalled ${stalledFor}ms — retrying once`);
+          const retryStartedAt = Date.now();
+          try {
+            const result = await query(args);
+            console.info(`[prisma] ${label} retry SUCCEEDED after ${Date.now() - retryStartedAt}ms`);
+            return result;
+          } catch (retryErr) {
+            console.error(`[prisma] ${label} retry FAILED after ${Date.now() - retryStartedAt}ms (first attempt stalled ${stalledFor}ms)`);
+            throw retryErr;
+          }
         }
       },
     },
