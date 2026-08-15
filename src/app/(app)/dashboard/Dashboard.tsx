@@ -70,7 +70,10 @@ function useFeaturedAlert() {
     queryKey: ["alerts"],
     queryFn: async () => {
       const res = await fetch("/api/alerts");
-      if (!res.ok) return [] as InstructorAlert[];
+      // Returning [] on a 5xx showed the trader "no setups today" when
+      // Kondwani may well have posted several — the single most misleading
+      // way this app can fail. Throw so React Query retries instead.
+      if (!res.ok) throw new Error(`alerts responded ${res.status}`);
       return res.json() as Promise<InstructorAlert[]>;
     },
     select: (alerts: InstructorAlert[]) =>
@@ -281,7 +284,7 @@ function useTodayEvents() {
     queryKey: ["calendar", "today"],
     queryFn: async () => {
       const res = await fetch("/api/calendar");
-      if (!res.ok) return [] as CalEvent[];
+      if (!res.ok) throw new Error(`calendar responded ${res.status}`);
       const all: CalEvent[] = await res.json();
       const today = fmtISODate(new Date());
       return all
@@ -325,6 +328,9 @@ function useTrendSnapshot() {
     staleTime: 30 * 60 * 1000,
     queryFn: async () => {
       const res = await fetch("/api/trend-matrix");
+      // No status check at all previously, so a 5xx's {error, kind} body was
+      // handed to the dashboard as if it were the matrix.
+      if (!res.ok) throw new Error(`trend-matrix responded ${res.status}`);
       return res.json() as Promise<{ matrix: TrendMatrixData; updatedAt: string } | null>;
     },
   });

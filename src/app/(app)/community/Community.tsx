@@ -482,7 +482,10 @@ function useCommunityOverview() {
     staleTime: 15 * 60 * 1000,
     queryFn: async () => {
       const res = await fetch("/api/community/overview");
-      if (!res.ok) return { leaders: [] as LeaderEntry[], stats: null as CommunityStatsData | null };
+      // See Academy.tsx — returning empty here rendered an empty leaderboard
+      // as though nobody had traded, and suppressed the retry that would have
+      // fixed it.
+      if (!res.ok) throw new Error(`community/overview responded ${res.status}`);
       return res.json() as Promise<{ leaders: LeaderEntry[]; stats: CommunityStatsData }>;
     },
   });

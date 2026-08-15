@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Sparkline, Skeleton, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { fetchWithRetry } from "@/lib/http";
 import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import { CotLockScreen } from "@/components/cot/CotLockScreen";
 import { SignalBars } from "@/components/cot/SignalBars";
@@ -570,7 +571,12 @@ export function CotReports() {
     // Cache-busting only matters right after a refresh actually wrote new
     // data (see retry() below) -- on normal mount it just defeated any
     // caching on every single /cot load for no benefit.
-    fetch(bust ? `/api/cot?t=${Date.now()}` : "/api/cot")
+    // Retries a 5xx a few times before surfacing the error card — a stalled
+    // connection clears on a fresh attempt, and showing a paying trader
+    // "Couldn't load COT data" for a blip they'd never have noticed is the
+    // kind of thing that loses subscriptions. 403 (plan-gated) is returned
+    // untouched below.
+    fetchWithRetry(bust ? `/api/cot?t=${Date.now()}` : "/api/cot")
       .then(async (r) => {
         if (r.status === 403) { setLocked(true); setLoading(false); return; }
         if (!r.ok) throw new Error("Failed to load COT data");

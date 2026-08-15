@@ -10,6 +10,7 @@ import { GavoCotRead } from "@/components/cot/GavoCotRead";
 import { SignalBars } from "@/components/cot/SignalBars";
 import { buildCotCommentary } from "@/lib/cot/commentary";
 import { cn } from "@/lib/cn";
+import { fetchWithRetry } from "@/lib/http";
 import type { CotDetailRow, CotDetailResponse } from "@/lib/cot/types";
 
 // ── Heat map ──────────────────────────────────────────────────────────────────
@@ -97,7 +98,7 @@ export default function CotPairPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/cot/${pair}?offset=0`)
+    fetchWithRetry(`/api/cot/${pair}?offset=0`)
       .then((r) => {
         if (r.status === 403) throw new Error("locked");
         if (!r.ok) throw new Error("not found");
@@ -119,8 +120,13 @@ export default function CotPairPage() {
 
   function loadMore() {
     setLoadingMore(true);
-    fetch(`/api/cot/${pair}?offset=${offset}`)
-      .then((r) => r.json() as Promise<CotDetailResponse>)
+    fetchWithRetry(`/api/cot/${pair}?offset=${offset}`)
+      .then((r) => {
+        // Previously parsed the body with no status check, so a 5xx's
+        // {error, kind} was appended to the table as if it were rows.
+        if (!r.ok) throw new Error(`cot/${pair} responded ${r.status}`);
+        return r.json() as Promise<CotDetailResponse>;
+      })
       .then((d) => {
         setRows((prev) => [...prev, ...d.rows]);
         setOffset((o) => o + d.rows.length);

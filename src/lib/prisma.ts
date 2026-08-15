@@ -4,15 +4,28 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 interface HyperdriveBinding { connectionString: string }
 
-// Route through the Hyperdrive binding when available. 2026-08-14 incident
-// notes: briefly bypassed this to test whether Hyperdrive itself was the
-// source of "Query read timeout" errors -- it wasn't. Direct DATABASE_URL
-// showed the exact same intermittent ~10s stalls on a database confirmed
-// healthy via pg_stat_activity, so the stall is in Workers' `connect()`
-// layer reaching a non-Cloudflare host, not in which proxy sits in front of
-// it. Reverted to Hyperdrive since it's still the architecturally-correct
-// choice (pooling, edge caching); query_timeout raised below as the actual
-// mitigation while this is investigated further.
+// Route through the Hyperdrive binding when available.
+//
+// ⚠️ The Hyperdrive origin MUST point at Supabase's *session* pooler
+// (aws-<region>.pooler.supabase.com:5432), NOT the transaction pooler on
+// 6543. Switching to 6543 on 2026-08-15 took the whole app down: every query
+// stalled to the client timeout and no retry ever succeeded, while Supavisor
+// logged successful authentication and a fresh Postgres backend each time.
+// Prisma's driver uses named prepared statements, and transaction mode can
+// land the Parse and the Bind/Execute on different backends -- behind
+// Hyperdrive that desync hangs rather than erroring. Hyperdrive also already
+// pools in transaction mode, so 6543 stacks two transaction poolers. Supabase's
+// "use 6543 for serverless" guidance is written for clients connecting
+// directly, not for ones behind Hyperdrive. Reverting to 5432 restored service
+// immediately.
+//
+// 2026-08-14 notes: briefly bypassed this to test whether Hyperdrive itself
+// was the source of "Query read timeout" errors -- it wasn't. Direct
+// DATABASE_URL showed the same intermittent stalls on a database confirmed
+// healthy via pg_stat_activity, so the residual intermittent stall lives in
+// the Workers connect() layer reaching a non-Cloudflare host, not in which
+// proxy sits in front of it. That intermittent stall is still unsolved; the
+// retry below is what keeps it off users' screens.
 /**
  * Logs which connection path was actually taken, once per isolate.
  *
@@ -44,18 +57,19 @@ function logConnectionSource(source: string, connectionString: string): void {
 function resolveConnectionString(): string {
   let contextError: string | null = null;
 
-  // Escape hatch, set DB_BYPASS_HYPERDRIVE=1 to skip the binding and connect
+  // Escape hatch: set DB_BYPASS_HYPERDRIVE=1 to skip the binding and connect
   // straight to DATABASE_URL.
   //
-  // 2026-08-15: Supavisor's logs show Hyperdrive authenticating successfully
-  // and Supavisor authenticating a fresh Postgres backend every 3s, in exact
-  // lockstep with our query timeout -- and then no query ever executing
-  // (pg_stat_activity stays empty, no error is returned, the client just
-  // times out). Every layer connects and nothing runs, which puts the fault
-  // between Hyperdrive and the query rather than in the database, Supavisor,
-  // or this app. This flag makes that testable in one env var instead of
-  // deleting the binding, and is the fastest way back online if it is
-  // Hyperdrive.
+  // Added during the 2026-08-15 outage to test whether Hyperdrive was at
+  // fault. It never got used -- the cause turned out to be the 6543 pooler
+  // port (see the warning above) and reverting to 5432 fixed it. Kept as a
+  // deliberate breaker switch: that outage locked every user out for hours
+  // with no quick lever, and this is one env var.
+  //
+  // NOT a default. Leaving it set permanently gives up Hyperdrive's pooling
+  // and query caching, and points an unbounded number of per-isolate pools
+  // (max: 10 each) straight at a database with max_connections = 60. Fine for
+  // a short diagnostic window, a real hazard as the user base grows.
   if (process.env.DB_BYPASS_HYPERDRIVE === "1") {
     const direct = process.env.DATABASE_URL;
     if (!direct) throw new Error("DB_BYPASS_HYPERDRIVE=1 but DATABASE_URL is not set.");
@@ -85,6 +99,13 @@ function resolveConnectionString(): string {
 // -- not a genuinely slow or broken query. See createPrismaClient below for
 // the incident context this responds to.
 const TRANSIENT_CONNECTION_ERROR = /Query read timeout|timeout exceeded when trying to connect|ECONNRESET|ECONNREFUSED|ETIMEDOUT/i;
+
+// Total attempts (first try + retries). Three at a 3s query_timeout bounds the
+// worst case at ~9s, but a stall almost always clears on the second attempt,
+// so the realistic cost of the extra attempt is ~3s on the rare occasion the
+// second one also stalls — paid only by requests that were going to fail
+// outright before.
+const RETRY_ATTEMPTS = 3;
 
 function createPrismaClient() {
   const connectionString = resolveConnectionString();
@@ -130,11 +151,15 @@ function createPrismaClient() {
     log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
   });
 
-  // One transparent retry on a transient connection stall, applied to every
-  // query through every model automatically. Deliberately not a loop/backoff
-  // -- if a second fresh attempt also stalls, that's worth surfacing as a
-  // real error (via handleApiError) rather than making the user wait
-  // through a third attempt.
+  // Transparent retries on a transient connection stall, applied to every
+  // query through every model automatically.
+  //
+  // Was a single retry. The 2026-08-15 instrumentation showed why that wasn't
+  // enough: a stalled attempt burns the full query_timeout and a fresh one
+  // then succeeds in ~190ms, so the difference between one retry and two is
+  // the difference between a paying trader seeing an error card and seeing
+  // nothing at all. Worst case is bounded by RETRY_ATTEMPTS * query_timeout,
+  // which is why query_timeout is kept tight below.
   //
   // Type-checking this specific $extends call crashes tsc itself ("Debug
   // Failure: No error for last overload signature") -- confirmed a genuine
@@ -164,24 +189,27 @@ function createPrismaClient() {
         // completely different causes, and we currently cannot tell them
         // apart from the logs.
         const label = `${model ?? "raw"}.${operation}`;
-        const startedAt = Date.now();
-        try {
-          return await query(args);
-        } catch (err) {
-          const stalledFor = Date.now() - startedAt;
-          const message = err instanceof Error ? err.message : String(err);
-          if (!TRANSIENT_CONNECTION_ERROR.test(message)) throw err;
-          console.warn(`[prisma] ${label} stalled ${stalledFor}ms — retrying once`);
-          const retryStartedAt = Date.now();
+        let lastErr: unknown;
+        for (let attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
+          const startedAt = Date.now();
           try {
             const result = await query(args);
-            console.info(`[prisma] ${label} retry SUCCEEDED after ${Date.now() - retryStartedAt}ms`);
+            if (attempt > 1) {
+              console.info(`[prisma] ${label} SUCCEEDED on attempt ${attempt} after ${Date.now() - startedAt}ms`);
+            }
             return result;
-          } catch (retryErr) {
-            console.error(`[prisma] ${label} retry FAILED after ${Date.now() - retryStartedAt}ms (first attempt stalled ${stalledFor}ms)`);
-            throw retryErr;
+          } catch (err) {
+            lastErr = err;
+            const message = err instanceof Error ? err.message : String(err);
+            // Only connection stalls are worth repeating. A genuine query
+            // error (bad input, constraint violation) fails identically every
+            // time, so retrying it just multiplies the user's wait.
+            if (!TRANSIENT_CONNECTION_ERROR.test(message)) throw err;
+            console.warn(`[prisma] ${label} stalled ${Date.now() - startedAt}ms on attempt ${attempt}/${RETRY_ATTEMPTS}`);
           }
         }
+        console.error(`[prisma] ${label} exhausted ${RETRY_ATTEMPTS} attempts`);
+        throw lastErr;
       },
     },
   }) as PrismaClient;

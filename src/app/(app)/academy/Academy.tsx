@@ -44,7 +44,12 @@ function useCourses() {
     staleTime: 5 * 60 * 1000,
     queryFn: async (): Promise<{ courses: DBCourse[]; completedIds: string[] }> => {
       const res = await fetch("/api/academy/courses");
-      if (!res.ok) return { courses: [], completedIds: [] };
+      // Throw, don't return empty. Returning [] reads as success to React
+      // Query, so it never retried and the student was shown an Academy with
+      // no courses in it — indistinguishable from Kondwani not having
+      // published any. Throwing lets the retry (which almost always succeeds
+      // on a fresh connection) actually run.
+      if (!res.ok) throw new Error(`academy/courses responded ${res.status}`);
       return res.json();
     },
   });
