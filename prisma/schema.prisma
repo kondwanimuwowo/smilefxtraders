@@ -101,6 +101,9 @@ model Trade {
   createdAt  DateTime    @default(now()) @map("created_at")
   updatedAt  DateTime    @updatedAt @map("updated_at")
 
+  // Every read of a user's trades filters by userId and sorts by date desc
+  // (app layout hydration, /api/trades, journal). Composite serves both.
+  @@index([userId, date(sort: Desc)])
   @@map("trades")
 }
 
@@ -146,6 +149,7 @@ model Alert {
   postedAt   DateTime    @default(now()) @map("posted_at")
   updatedAt  DateTime    @updatedAt @map("updated_at")
 
+  @@index([authorId])
   @@map("alerts")
 }
 
@@ -210,6 +214,7 @@ model PriceAlert {
   triggered Boolean  @default(false)
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@index([userId])
   @@map("price_alerts")
 }
 
@@ -230,6 +235,7 @@ model Subscription {
   createdAt       DateTime           @default(now()) @map("created_at")
   updatedAt       DateTime           @updatedAt @map("updated_at")
 
+  @@index([userId])
   @@map("subscriptions")
 }
 
@@ -256,6 +262,7 @@ model Post {
   likes    PostLike[]
   comments PostComment[]
 
+  @@index([authorId])
   @@map("posts")
 }
 
@@ -267,6 +274,7 @@ model PostLike {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
+  @@index([userId])
   @@map("post_likes")
 }
 
@@ -279,6 +287,8 @@ model PostComment {
   text      String
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@index([postId])
+  @@index([authorId])
   @@map("post_comments")
 }
 
@@ -334,6 +344,7 @@ model LessonProgress {
   completedAt DateTime? @map("completed_at")
 
   @@unique([userId, lessonId])
+  @@index([lessonId])
   @@map("lesson_progress")
 }
 
@@ -440,6 +451,7 @@ model UserBadge {
   tone     String // "teal" | "gold" | "coral"
   earnedAt DateTime @default(now()) @map("earned_at")
 
+  @@index([userId])
   @@map("user_badges")
 }
 
