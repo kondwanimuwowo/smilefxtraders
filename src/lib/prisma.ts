@@ -100,11 +100,14 @@ function resolveConnectionString(): string {
 // the incident context this responds to.
 const TRANSIENT_CONNECTION_ERROR = /Query read timeout|timeout exceeded when trying to connect|ECONNRESET|ECONNREFUSED|ETIMEDOUT/i;
 
-// Total attempts (first try + retries). Three at a 3s query_timeout bounds the
-// worst case at ~9s, but a stall almost always clears on the second attempt,
-// so the realistic cost of the extra attempt is ~3s on the rare occasion the
-// second one also stalls — paid only by requests that were going to fail
-// outright before.
+// Total attempts (first try + retries).
+//
+// This is the actual mitigation for the frozen-isolate dead socket described
+// in createPrismaClient below: the first attempt is spent discovering the
+// socket is dead, and the retry gets a fresh one. Since that is the *normal*
+// path after an isolate wakes rather than a rare fault, a single retry left a
+// visible failure any time the second attempt also drew a stale connection.
+// Three attempts at a 1.5s timeout bounds the worst case at ~4.5s.
 const RETRY_ATTEMPTS = 3;
 
 function createPrismaClient() {
@@ -124,19 +127,37 @@ function createPrismaClient() {
     // connection attempt almost always succeeds immediately. Rather than
     // make users wait out a long timeout, fail fast and let the $extends
     // retry below make that same fresh attempt automatically.
-    // 2026-08-14 audit: these were 5s/6s, and because the $extends retry
-    // below makes a second full attempt, a stalled connection cost the user
-    // 12 seconds of spinner before any error appeared. A healthy query here
-    // answers in well under 100ms (verified against pg_stat_activity), so
-    // 3s is still ~30x headroom while halving the worst case to ~6s.
+    // ── Why these are so low: the frozen-isolate dead-socket problem ────────
+    //
+    // Workers freeze the V8 isolate between requests, and this module-level
+    // pool survives the freeze. While frozen, Supavisor drops the idle
+    // connection at its end (its logs show "DbHandler: Connection closed
+    // unexpectedly while idle in the pool"). When the isolate wakes, pg hands
+    // out that socket believing it is healthy, writes the query into it, and
+    // waits for a reply that can never arrive. That is the stall: it always
+    // burns the FULL timeout, and a fresh attempt then succeeds in ~190ms.
+    //
+    // idleTimeoutMillis cannot rescue this. Timers are frozen along with
+    // everything else, so the pool never gets to evict a connection that died
+    // mid-freeze -- it wakes up believing the socket is still good. Nothing we
+    // set client-side runs while frozen.
+    //
+    // So the only lever is detecting the dead socket quickly. A healthy query
+    // answers in ~190ms (measured), which makes 1.5s roughly 8x headroom while
+    // cutting the invisible-to-the-user recovery from ~3.2s to ~1.7s, and the
+    // absolute worst case (all RETRY_ATTEMPTS stalling) from 9s to 4.5s.
     //
     // Caveat for whoever raises this later: query_timeout is global, so it
     // also caps the notification fan-out's createMany in lib/notifications.ts.
-    // That is trivial at current user counts but is the first query likely to
-    // outgrow a 3s cap -- batch it before assuming this number is the problem.
-    connectionTimeoutMillis: 3_000,
+    // Trivial at current user counts, but that is the first query likely to
+    // outgrow the cap -- batch it before assuming this number is the problem.
+    connectionTimeoutMillis: 1_500,
     idleTimeoutMillis: 10_000,
-    query_timeout: 3_000,
+    query_timeout: 1_500,
+    // Lets the OS notice a dead peer on its own while the isolate is actually
+    // running. No help across a freeze, but it costs nothing and shortens the
+    // window in which a connection can go stale unnoticed during a request.
+    keepAlive: true,
     // Page loads fire several API routes in parallel (dashboard, academy,
     // notifications, etc.) that can land on the same reused isolate. A
     // pool of 3 queues the overflow and those queued acquires were hitting
