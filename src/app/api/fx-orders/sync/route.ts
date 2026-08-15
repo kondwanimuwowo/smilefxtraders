@@ -160,22 +160,49 @@ Rules:
 
 // ── Image extraction from InvestingLive page ──────────────────────────────────
 
+// The daily table screenshot is uploaded with a date/time-stamped filename,
+// e.g. "8-6-2026-1-53-02-pm.jpg". Article furniture (banners, logos) lives in
+// the same directory with descriptive names instead.
+const DATE_STAMPED_IMAGE = /\/\d{1,2}-\d{1,2}-\d{4}-[\d-]+(?:am|pm)\.(?:jpg|jpeg|png)$/i;
+
 async function extractImageUrl(pageHtml: string): Promise<string | null> {
-  const patterns = [
-    // Current (2026-07) format: the table screenshot is embedded in the
-    // article body under cms/media/images/, filename is a date/time stamp
-    // (e.g. "7-10-2026-1-48-15-pm.jpg"), sometimes with a "?width=" query
-    // suffix for a resized variant — stripped so we always fetch the
-    // full-size original.
-    /<img[^>]+src="(https:\/\/investinglive\.com\/cms\/media\/images\/[^"?]+\.(?:jpg|jpeg|png))(?:\?[^"]*)?"/i,
-    // Legacy formats, kept as fallbacks in case InvestingLive reverts.
+  // Every article-body image, in document order.
+  const bodyImages = [...pageHtml.matchAll(
+    /<img[^>]+src="(https:\/\/investinglive\.com\/cms\/media\/images\/[^"?]+\.(?:jpg|jpeg|png))(?:\?[^"]*)?"/gi
+  )].map((m) => m[1]);
+
+  // Pick the date-stamped upload, not merely the first image on the page.
+  //
+  // This previously took the first match and assumed it was the table. On
+  // 2026-08-10 InvestingLive began serving a generic banner
+  // ("FXO FX OPTION EXPIRIES.jpg") ahead of the chart, so for five straight
+  // days the vision model was handed a decorative header and asked to read
+  // option levels off it. It duly produced plausible-looking numbers —
+  // GBPUSD 1.5500 alongside 1.2700, duplicate strikes, spot prices vanishing
+  // — and nothing flagged it, because fabricated data looks exactly like real
+  // data once it is in the table.
+  const dated = bodyImages.find((url) => DATE_STAMPED_IMAGE.test(url));
+  if (dated) return dated;
+
+  // Legacy formats, kept as fallbacks in case InvestingLive reverts.
+  const legacy = [
     /data-src="(https:\/\/images\.investinglive\.com\/images\/FXO[^"]+_size900\.jpg)"/,
     /data-src="(https:\/\/images\.investinglive\.com\/images\/FXO[^"]+\.jpg)"/,
     /og:image[^>]*content="(https:\/\/images\.investinglive\.com\/images\/FXO[^"]+\.jpg)"/,
   ];
-  for (const pattern of patterns) {
+  for (const pattern of legacy) {
     const m = pageHtml.match(pattern);
     if (m?.[1]) return m[1];
+  }
+
+  // Deliberately refuse rather than fall back to an unrecognised image.
+  // Traders size positions off these levels: publishing nothing is a visible
+  // gap they can work around, while publishing invented strikes is not.
+  if (bodyImages.length) {
+    console.error(
+      `[fx-orders/sync] no date-stamped image found; refusing to extract from ${bodyImages[0]} ` +
+      `(${bodyImages.length} candidate image(s) on page)`
+    );
   }
   return null;
 }
