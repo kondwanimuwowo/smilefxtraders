@@ -1,14 +1,21 @@
+import { loadTrendMatrix } from "@/lib/trend-matrix";
 import { TrendMatrix } from "./TrendMatrix";
 
 export const metadata = { title: "Trend Matrix | Smile FX Traders" };
 
-// isInstructor used to be resolved here via an independent
-// supabase.auth.getUser() + prisma.user.findUnique -- duplicating work
-// (app)/layout.tsx already does on every navigation to hydrate the same
-// user into the Zustand store. It's a UI-only convenience flag (the actual
-// write path, POST /api/trend-matrix, independently re-verifies the role
-// server-side), so TrendMatrix now reads it straight from the store instead
-// -- see 2026-08-14 query-volume audit.
-export default function TrendMatrixPage() {
-  return <TrendMatrix />;
+// Deliberately NOT the React Query prefetch pattern used by academy, alerts,
+// dashboard, community and cot.
+//
+// The matrix is editable state: the instructor toggles cells and then
+// publishes. Treating it as cached server state would put React Query and the
+// edit buffer in a tug of war over the same values — a background refetch
+// mid-edit would silently discard unsaved work. So the server loads it once
+// and hands it over as the initial value of ordinary useState, which is what
+// a form seeded from the database actually is.
+//
+// A failed load is not fatal: TrendMatrix falls back to its built-in defaults
+// when `initial` is null, exactly as it did when the fetch failed client-side.
+export default async function TrendPage() {
+  const initial = await loadTrendMatrix().catch(() => null);
+  return <TrendMatrix initial={initial} />;
 }

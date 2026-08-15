@@ -217,47 +217,32 @@ function SummaryRow({ matrix, pairs }: { matrix: Matrix; pairs: string[] }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function TrendMatrix() {
+export interface TrendMatrixInitial {
+  matrix:    unknown;
+  notes:     unknown;
+  updatedAt: string;
+}
+
+export function TrendMatrix({ initial }: { initial: TrendMatrixInitial | null }) {
   const isInstructor = useStore((s) => s.user?.role === "instructor");
   const instrumentSymbols = useInstrumentSymbols();
   const PAIRS = instrumentSymbols.length ? instrumentSymbols : PAIRS_FALLBACK;
-  const [matrix, setMatrix]         = useState<Matrix>(DEFAULT);
-  const [notes, setNotes]           = useState<Notes>(DEFAULT_NOTES);
-  const [updatedAt, setUpdatedAt]   = useState<string | null>(null);
+  // Seeded from the server render — see (app)/trend/page.tsx. Unlike the
+  // other converted pages this is NOT React Query: the matrix is editable
+  // state that the instructor toggles and then publishes, and treating it as
+  // cached server state would fight the editing flow.
+  const [matrix, setMatrix]         = useState<Matrix>((initial?.matrix as Matrix) ?? DEFAULT);
+  const [notes, setNotes]           = useState<Notes>((initial?.notes as Notes) ?? DEFAULT_NOTES);
+  const [updatedAt, setUpdatedAt]   = useState<string | null>(initial?.updatedAt ?? null);
   const [isDirty, setIsDirty]       = useState(false);
   const [saving, setSaving]         = useState(false);
   const [saveError, setSaveError]   = useState<string | null>(null);
-  const [loading, setLoading]       = useState(true);
-  const initialLoad                 = useRef(true);
-
-  // Fetch from API on mount
-  useEffect(() => {
-    fetch("/api/trend-matrix")
-      .then((r) => {
-        // A 5xx still resolves the promise and still parses as JSON — the
-        // body is just {error, kind} from handleApiError. Without this check
-        // the truthy error object passed the `if (data)` guard below and
-        // setMatrix(undefined) ran, so the next render crashed on
-        // matrix[p] with "Cannot read properties of undefined (reading
-        // 'EURUSD')" and took the whole page to the error boundary.
-        if (!r.ok) throw new Error(`trend-matrix responded ${r.status}`);
-        return r.json();
-      })
-      .then((data) => {
-        // Adopt the payload only if it actually carries a matrix — never
-        // overwrite the seeded defaults with undefined.
-        if (data?.matrix) {
-          setMatrix(data.matrix as Matrix);
-          setNotes((data.notes as Notes) ?? DEFAULT_NOTES);
-          setUpdatedAt((data.updatedAt as string) ?? null);
-        }
-      })
-      .catch(() => {/* keep defaults */})
-      .finally(() => {
-        setLoading(false);
-        initialLoad.current = false;
-      });
-  }, []);
+  // Data arrives with the server render, so there is never a loading pass.
+  // The skeleton branches below are consequently unreachable and could be
+  // removed in a follow-up; left in place here to keep this diff to the data
+  // flow rather than the view.
+  const loading = false;
+  const initialLoad = useRef(true);
 
   // Track dirty state after initial load
   useEffect(() => {
@@ -265,6 +250,13 @@ export function TrendMatrix() {
     setIsDirty(true);
     setSaveError(null);
   }, [matrix, notes]);
+
+  // Was cleared in the removed fetch's .finally(). Without it the ref stays
+  // true forever, the effect above always bails, and Publish never enables.
+  // Declared after that effect so it runs second on mount: the dirty check
+  // sees `true` and skips the seeded values, then this releases the latch for
+  // real edits.
+  useEffect(() => { initialLoad.current = false; }, []);
 
   // PAIRS is a fresh array each render, so it can't be a dep directly. Hoist
   // the joined key into its own value: react-hooks/use-memo rejects a call
