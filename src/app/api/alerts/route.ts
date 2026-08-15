@@ -3,93 +3,26 @@ import { createClient, getAuthedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { fanOutInstructorAlert } from "@/lib/notify-events";
 import { handleApiError, readJsonBody, requireString } from "@/lib/api-error";
-import type { Alert } from "@/generated/prisma/client";
+import { dbToApi, loadInstructorAlerts } from "@/lib/alerts";
 
 // ── Mapping helpers ──────────────────────────────────────────────────────────
+// The DB→app direction (dbToApi and friends) moved to lib/alerts.ts so the
+// page's server prefetch and this route share one implementation. Only the
+// app→DB direction, used by POST below, remains here.
 
-const SESSION_TO_STORE: Record<string, string> = {
-  LONDON: "London", NEW_YORK: "New York", ASIA: "Asia",
-};
 const SESSION_TO_DB: Record<string, "LONDON" | "NEW_YORK" | "ASIA"> = {
   London: "LONDON", "New York": "NEW_YORK", Asia: "ASIA",
 };
 
-type AlertStatusApp = "active" | "tp1" | "tp2" | "sl" | "cancelled" | "closed";
-
-const STATUS_TO_APP: Record<string, AlertStatusApp> = {
-  ACTIVE:    "active",
-  TP1:       "tp1",
-  TP2:       "tp2",
-  SL:        "sl",
-  CANCELLED: "cancelled",
-  CLOSED:    "closed",
-};
-const STATUS_TO_DB: Record<string, "ACTIVE" | "TP1" | "TP2" | "SL" | "CANCELLED" | "CLOSED"> = {
-  active:    "ACTIVE",
-  tp1:       "TP1",
-  tp2:       "TP2",
-  sl:        "SL",
-  cancelled: "CANCELLED",
-  closed:    "CLOSED",
-};
-
-function formatPrice(n: number): string {
-  if (n >= 1000) return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  if (n >= 10)   return n.toFixed(2);
-  return n.toFixed(4);
-}
-
-function dbToApi(a: Alert) {
-  return {
-    id:         a.id,
-    pair:       a.pair,
-    dir:        a.direction.toLowerCase() as "long" | "short",
-    model:      a.model,
-    session:    a.session ? SESSION_TO_STORE[a.session] : "London",
-    rr:         a.rr,
-    entry:      formatPrice(a.entryPrice),
-    sl:         formatPrice(a.stopLoss),
-    tp1:        formatPrice(a.tp1),
-    tp2:        a.tp2 != null ? formatPrice(a.tp2) : undefined,
-    tags:       a.tags,
-    note:       a.note ?? "",
-    status:     STATUS_TO_APP[a.status],
-    timePosted: a.postedAt.toISOString(),
-    authorId:   a.authorId,
-    reactions:  a.reactions,
-    taken:      a.taken,
-  };
-}
-
 // ── GET /api/alerts ──────────────────────────────────────────────────────────
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    const supabase = await createClient();
-    const user = await getAuthedUser(supabase);
-
-    // Determine plan — FREE users see alerts with a 4-hour delay
-    let isFreePlan = true;
-    if (user) {
-      const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id }, select: { plan: true, role: true } }).catch(() => null);
-      if (dbUser && (dbUser.plan !== "FREE" || dbUser.role === "INSTRUCTOR")) {
-        isFreePlan = false;
-      }
-    }
-
-    const where = isFreePlan
-      ? { postedAt: { lte: new Date(Date.now() - 4 * 60 * 60 * 1000) } }
-      : undefined;
-
-    const alerts = await prisma.alert.findMany({
-      where,
-      orderBy: { postedAt: "desc" },
-    });
-    return NextResponse.json(alerts.map(dbToApi));
+    return NextResponse.json(await loadInstructorAlerts());
   } catch (err) {
-    // This exact findMany produced the only production exception in the
-    // 24h before the 2026-08-14 audit (Prisma performIO failure on
-    // GET /api/alerts) — it went out as a bare 500 because nothing caught it.
+    // This exact query produced the only production exception in the 24h
+    // before the 2026-08-14 audit (Prisma performIO failure on GET
+    // /api/alerts) — it went out as a bare 500 because nothing caught it.
     return handleApiError("alerts:GET", err);
   }
 }
