@@ -158,6 +158,23 @@ function createPrismaClient() {
     // running. No help across a freeze, but it costs nothing and shortens the
     // window in which a connection can go stale unnoticed during a request.
     keepAlive: true,
+    // Retire every connection after a single checkout, so no socket can
+    // survive long enough to be killed during an isolate freeze. This attacks
+    // the cause rather than the symptom -- with connections that never
+    // outlive one query, there is no stale socket to hand out on wake.
+    //
+    // Measured before enabling this: the pool was routinely handing out two
+    // dead sockets in a row ("SUCCEEDED on attempt 3"), which is what a pool
+    // of up to `max` stale connections looks like after a freeze -- each
+    // attempt burns one. Three requests in 40 minutes exhausted all attempts
+    // and surfaced a real error to a user.
+    //
+    // The cost is a fresh connection per query, which the same logs show is
+    // ~4ms: these connections terminate at hyperdrive.local inside the Worker
+    // runtime, and Hyperdrive keeps the real pool to Supabase warm. If this
+    // ever needs reverting, delete this one line -- the timeouts and retries
+    // above stand on their own.
+    maxUses: 1,
     // Page loads fire several API routes in parallel (dashboard, academy,
     // notifications, etc.) that can land on the same reused isolate. A
     // pool of 3 queues the overflow and those queued acquires were hitting
