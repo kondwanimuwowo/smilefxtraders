@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useRef, useTransition } from "react";
+import Script from "next/script";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -8,6 +9,20 @@ import { Input, Field, Button, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { signupAction } from "../actions";
 import { CHECKOUT_PLANS, setPendingPlan } from "@/lib/pending-plan";
+
+// Turnstile site keys are public by design — this string is served in the
+// page HTML to every visitor either way, so it lives here rather than in an
+// env var. (A NEXT_PUBLIC_* var would also have to be inlined at build time,
+// which a Worker runtime secret is not.) The *secret* key never leaves
+// Supabase. Widget: Cloudflare dashboard → Turnstile.
+const TURNSTILE_SITE_KEY = "0x4AAAAAAEQrIxtBvC5iBBYz";
+
+// Minimal surface of the Turnstile script we actually call.
+declare global {
+  interface Window {
+    turnstile?: { reset: (container?: string | HTMLElement) => void };
+  }
+}
 
 function suggestUsername(fullName: string): string {
   const parts = fullName.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -64,14 +79,30 @@ export function SignupForm() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendLoading, setResendLoading] = useState(false);
 
+  const turnstileRef = useRef<HTMLDivElement>(null);
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     const data = new FormData(e.currentTarget);
+
+    // Turnstile hasn't produced a token yet (script still loading, or the
+    // challenge is mid-flight). Say so rather than letting Supabase reject
+    // the signup with a generic captcha error.
+    if (!data.get("cf-turnstile-response")) {
+      setError("Please wait a moment for the security check to finish, then try again.");
+      return;
+    }
+
     startTransition(async () => {
       const result = await signupAction(data);
-      if (result?.error) setError(result.error);
-      else if (result && "pendingVerification" in result && result.pendingVerification) {
+      if (result?.error) {
+        setError(result.error);
+        // Tokens are single-use: the one just spent is dead, so without a
+        // reset every retry fails on an already-redeemed token rather than
+        // on the real problem.
+        window.turnstile?.reset(turnstileRef.current ?? undefined);
+      } else if (result && "pendingVerification" in result && result.pendingVerification) {
         setPendingEmail(result.email);
       }
     });
@@ -208,6 +239,18 @@ export function SignupForm() {
           <Input type="password" name="password" placeholder="••••••••" required minLength={8} autoComplete="new-password" />
         </Field>
       </div>
+
+      {/* Turnstile injects a hidden `cf-turnstile-response` input here, which
+          the form's own FormData picks up — no wiring needed. `auto` follows
+          the visitor's colour scheme so it doesn't glare in dark mode. */}
+      <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
+      <div
+        ref={turnstileRef}
+        className="cf-turnstile mb-4 flex justify-center"
+        data-sitekey={TURNSTILE_SITE_KEY}
+        data-action="signup"
+        data-theme="auto"
+      />
 
       {error && (
         <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-bright border border-[rgba(234,82,61,0.2)]">

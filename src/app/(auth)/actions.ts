@@ -118,6 +118,15 @@ export async function signupAction(formData: FormData) {
   const security = await validateSignupSecurity(email, ip, { name, username });
   if (!security.ok) return { error: security.error };
 
+  // Cloudflare Turnstile. Deliberately handed to Supabase rather than
+  // verified here: this server action is not the only route to creating a
+  // user. The anon key is public, so anything can POST straight to
+  // /auth/v1/signup and skip every check in this file -- which is the most
+  // likely way the 2026-07 flood put 125 accounts in auth.users. With CAPTCHA
+  // protection enabled in Supabase Auth, the token is enforced at that
+  // endpoint too, closing the bypass rather than guarding one door.
+  const captchaToken = formData.get("cf-turnstile-response");
+
   const plan = await pendingPlan(formData);
 
   const supabase = await createClient();
@@ -127,9 +136,19 @@ export async function signupAction(formData: FormData) {
     options: {
       emailRedirectTo: `${APP_URL}/auth/callback${plan ? `?plan=${plan}` : ""}`,
       data: { full_name: name, username },
+      ...(typeof captchaToken === "string" && captchaToken
+        ? { captchaToken }
+        : {}),
     },
   });
-  if (error) return { error: error.message };
+  if (error) {
+    // Supabase reports a rejected/absent token as a captcha error. Surface
+    // something a real person can act on instead of the raw provider text.
+    if (/captcha/i.test(error.message)) {
+      return { error: "The security check didn't pass. Please try again." };
+    }
+    return { error: error.message };
+  }
   if (!data.user) return { error: "Signup failed. Please try again." };
 
   // Already-registered email: Supabase returns an obfuscated user with no
