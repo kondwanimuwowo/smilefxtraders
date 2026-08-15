@@ -1,22 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { Icon, Panel, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type { MacroScoresResponse } from "@/types/macro";
 
 export default function MacroEdgeOverviewPage() {
-  const [data, setData] = useState<MacroScoresResponse | null>(null);
+  // Was a hand-rolled fetch that parsed the body with no status check, so a
+  // 5xx put handleApiError's {error, kind} into state and the page rendered
+  // as though the macro model had simply produced nothing — the same silent
+  // "looks empty, is actually broken" failure that was hiding instructor
+  // alerts and Academy courses. Throwing instead lets React Query retry,
+  // which usually clears it (see lib/providers.tsx).
+  const { data, isPending } = useQuery({
+    queryKey:  ["macro-scores"],
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<MacroScoresResponse> => {
+      const res = await fetch("/api/macro/scores");
+      if (!res.ok) throw new Error(`macro/scores responded ${res.status}`);
+      return res.json();
+    },
+  });
 
-  useEffect(() => {
-    fetch("/api/macro/scores")
-      .then((r) => r.json() as Promise<MacroScoresResponse>)
-      .then(setData)
-      .catch(() => setData({ scores: [], pairBiases: [] }));
-  }, []);
-
-  const loading = data === null;
+  // isPending rather than `data === undefined`: after retries are exhausted
+  // data stays undefined, and keying the skeleton off it would spin forever
+  // instead of settling into the empty state.
+  const loading = isPending;
   const scores = [...(data?.scores ?? [])].sort((a, b) => b.totalScore - a.totalScore);
   const pairBiases = data?.pairBiases ?? [];
 
