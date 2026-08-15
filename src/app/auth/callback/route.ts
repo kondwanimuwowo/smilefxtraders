@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/generated/prisma/client";
 import { authCookieOptions } from "@/lib/supabase/cookie-options";
 import { PENDING_PLAN_COOKIE, resolvePendingPlan } from "@/lib/pending-plan";
 
@@ -79,10 +80,28 @@ export async function GET(request: Request) {
   // auth.users gets a new row — including for brand-new OAuth signups — so
   // `existing` will usually already be truthy here, with an email-prefix
   // name/username rather than the real OAuth identity.
-  const existing = await prisma.user.findUnique({
+  //
+  // Deliberately NOT `.catch(() => null)` here: a thrown error (a DB or
+  // connection timeout) is not the same thing as "this user has no row", and
+  // collapsing the two sends a fully-onboarded user down the new-user path
+  // below — where the create fails on the unique supabaseId, that failure is
+  // swallowed too, and they land on /onboarding with their real account
+  // untouched but apparently gone. That is the same bug (app)/layout.tsx was
+  // fixed for on 2026-08-09; this path still had it, and it fires reliably
+  // whenever the database is stalling. One retry absorbs a transient blip;
+  // past that, bounce to login rather than guessing at the user's state.
+  const lookupExisting = () => prisma.user.findUnique({
     where: { supabaseId: sbUser.id },
     select: { id: true, instruments: true, email: true },
-  }).catch(() => null);
+  });
+
+  let existing: Awaited<ReturnType<typeof lookupExisting>>;
+  try {
+    existing = await lookupExisting().catch(() => lookupExisting());
+  } catch (err) {
+    console.error("[auth/callback] profile lookup failed twice:", err instanceof Error ? err.message : err);
+    return NextResponse.redirect(`${origin}/login?error=db_unavailable`);
+  }
 
   if (!existing) {
     // Trigger didn't fire for some reason (disabled, migration not applied
@@ -95,7 +114,12 @@ export async function GET(request: Request) {
       username = `${emailPrefix}${++suffix}`;
     }
 
-    await prisma.user.create({
+    // A swallowed failure here sent the user to /onboarding with no row at
+    // all, so onboarding's own save then had nothing to update and the
+    // account silently never existed. P2002 is the benign case — the row was
+    // created concurrently (trigger, or a double-clicked callback) — and
+    // means we can carry on. Anything else is a real failure worth surfacing.
+    const created = await prisma.user.create({
       data: {
         supabaseId: sbUser.id,
         email:      sbUser.email!,
@@ -103,7 +127,15 @@ export async function GET(request: Request) {
         username,
         avatarUrl:  (sbUser.user_metadata?.avatar_url as string | undefined) ?? null,
       },
-    }).catch(() => null);
+    }).catch((err) => {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") return "raced" as const;
+      console.error("[auth/callback] profile create failed:", err instanceof Error ? err.message : err);
+      return null;
+    });
+
+    if (!created) {
+      return NextResponse.redirect(`${origin}/login?error=profile_create_failed`);
+    }
 
     if (plan) cookieStore.delete(PENDING_PLAN_COOKIE);
     return NextResponse.redirect(`${origin}${plan ? `/checkout/${plan}` : "/onboarding"}`);
