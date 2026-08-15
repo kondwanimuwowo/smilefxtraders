@@ -13,23 +13,46 @@ import { prisma } from "@/lib/prisma";
  * than letting an edge-case request through.
  */
 export async function requirePaidPlan(feature: string): Promise<NextResponse | null> {
-  const supabase = await createClient();
-  const user = await getAuthedUser(supabase);
-  if (!user) {
+  const access = await checkPaidPlan();
+  if (access.allowed) return null;
+
+  if (access.reason === "unauthenticated") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  return NextResponse.json(
+    { error: `${feature} requires an Edge or Pro plan.`, upgrade: true },
+    { status: 403 },
+  );
+}
+
+export type PaidPlanAccess =
+  | { allowed: true }
+  | { allowed: false; reason: "unauthenticated" | "free" };
+
+/**
+ * The same check as requirePaidPlan, expressed as a plain result instead of
+ * an HTTP response.
+ *
+ * requirePaidPlan can only speak in NextResponse, which is right for a route
+ * and useless anywhere else: a server component that wanted to know whether
+ * to render the lock screen had to make an HTTP request to its own API to
+ * find out. This is the shared decision; requirePaidPlan is now a thin
+ * translation of it into status codes.
+ *
+ * Fails *open* on a missing row or a DB error, deliberately and unchanged
+ * from the original: blocking every paying user during a transient database
+ * hiccup is worse than letting an edge-case request through.
+ */
+export async function checkPaidPlan(): Promise<PaidPlanAccess> {
+  const supabase = await createClient();
+  const user = await getAuthedUser(supabase);
+  if (!user) return { allowed: false, reason: "unauthenticated" };
 
   const dbUser = await prisma.user.findUnique({
     where:  { supabaseId: user.id },
     select: { plan: true },
   }).catch(() => null);
 
-  if (dbUser?.plan === "FREE") {
-    return NextResponse.json(
-      { error: `${feature} requires an Edge or Pro plan.`, upgrade: true },
-      { status: 403 },
-    );
-  }
-
-  return null;
+  if (dbUser?.plan === "FREE") return { allowed: false, reason: "free" };
+  return { allowed: true };
 }
