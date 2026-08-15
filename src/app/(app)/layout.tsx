@@ -5,6 +5,7 @@ import { BottomTabBar } from "@/components/shell/BottomTabBar";
 import { StoreHydrator } from "@/components/shell/StoreHydrator";
 import { NotificationsPoller } from "@/components/shell/NotificationsPoller";
 import { PageWidthWrapper } from "@/components/shell/PageWidthWrapper";
+import { AppUnavailable } from "@/components/shell/AppUnavailable";
 import { ToastHost } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
@@ -72,7 +73,15 @@ function dbToAppUser(db: NonNullable<Awaited<ReturnType<typeof prisma.user.findU
   };
 }
 
-async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }> {
+// `unavailable` is returned rather than thrown. (app)/error.tsx cannot catch
+// a throw from this layout — an error.tsx only covers its segment's children,
+// never the layout beside it — so throwing escaped to global-error.tsx and
+// replaced the entire document. See AppUnavailable for the rendered state.
+type LoadResult =
+  | { status: "ok"; user: AppUser; trades: Trade[] }
+  | { status: "unavailable" };
+
+async function loadAppData(): Promise<LoadResult> {
   // ── Auth check ─────────────────────────────────────────────────────────────
   // Kept in its own try so that ONLY an auth failure can send the user to
   // /login. Previously one catch wrapped both this and the queries below, so
@@ -93,7 +102,7 @@ async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }>
     // absent user (below) is unambiguous, and middleware agrees, so /login
     // is safe in that case only.
     console.error("[app-layout] auth check failed", err);
-    throw err;
+    return { status: "unavailable" };
   }
 
   try {
@@ -144,7 +153,7 @@ async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }>
       where: { userId: db.id },
       orderBy: { date: "desc" },
     }).catch(() => []);
-    return { user: dbToAppUser(db), trades: dbTrades.map(dbTradeToStore) };
+    return { status: "ok", user: dbToAppUser(db), trades: dbTrades.map(dbTradeToStore) };
   } catch (err) {
     unstable_rethrow(err);
     // Anything reaching here is a database/connection failure, not an auth
@@ -152,12 +161,14 @@ async function loadAppData(): Promise<{ user: AppUser | null; trades: Trade[] }>
     // renders its "Try again" UI. Redirecting to /login instead is what
     // created the redirect loop described at the top of this function.
     console.error("[app-layout] data load failed", err);
-    throw err;
+    return { status: "unavailable" };
   }
 }
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const { user: appUser, trades } = await loadAppData();
+  const result = await loadAppData();
+  if (result.status === "unavailable") return <AppUnavailable />;
+  const { user: appUser, trades } = result;
 
   return (
     <Providers>
