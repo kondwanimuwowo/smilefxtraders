@@ -43,6 +43,26 @@ function logConnectionSource(source: string, connectionString: string): void {
 
 function resolveConnectionString(): string {
   let contextError: string | null = null;
+
+  // Escape hatch, set DB_BYPASS_HYPERDRIVE=1 to skip the binding and connect
+  // straight to DATABASE_URL.
+  //
+  // 2026-08-15: Supavisor's logs show Hyperdrive authenticating successfully
+  // and Supavisor authenticating a fresh Postgres backend every 3s, in exact
+  // lockstep with our query timeout -- and then no query ever executing
+  // (pg_stat_activity stays empty, no error is returned, the client just
+  // times out). Every layer connects and nothing runs, which puts the fault
+  // between Hyperdrive and the query rather than in the database, Supavisor,
+  // or this app. This flag makes that testable in one env var instead of
+  // deleting the binding, and is the fastest way back online if it is
+  // Hyperdrive.
+  if (process.env.DB_BYPASS_HYPERDRIVE === "1") {
+    const direct = process.env.DATABASE_URL;
+    if (!direct) throw new Error("DB_BYPASS_HYPERDRIVE=1 but DATABASE_URL is not set.");
+    logConnectionSource("env-DATABASE_URL (hyperdrive bypass flag set)", direct);
+    return direct;
+  }
+
   try {
     const ctx = getCloudflareContext() as unknown as { env: Record<string, unknown> };
     const hyperdrive = ctx.env.HYPERDRIVE as HyperdriveBinding | undefined;
