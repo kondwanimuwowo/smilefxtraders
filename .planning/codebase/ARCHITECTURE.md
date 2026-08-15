@@ -394,7 +394,7 @@ External Services:
 ### Validation
 - **Input:** Manual validation in API routes (pair in PAIRS list, model in MODELS list)
 - **Database:** Prisma schema constraints (unique, not null, enum)
-- **Library:** `validation.ts` exports helpers (isValidPair, isValidModel)
+- **Library:** `validation.ts` exports only `isValidPhone`/`PHONE_REGEX`. `isValidPair`/`isValidModel` do not exist and never did; instruments are DB-driven (admin-editable `Instrument` rows), so a static pair validator was never implementable as written. API routes validate via `lib/api-error.ts` (`readJsonBody`, `requireString`, `parseDate`).
 - **Patterns:** Validate early in API routes; return 400 for bad input
 
 ### Rate Limiting
@@ -412,7 +412,7 @@ External Services:
 - **Status:** Not implemented
 - **Recommendation:**
   - Error tracking (Sentry)
-  - Performance monitoring (Vercel Analytics)
+  - Performance monitoring (Cloudflare Workers Analytics / GraphQL Analytics API)
   - Structured logging (Supabase logs + external service like Datadog)
   - Database query monitoring (Prisma Studio in dev, insights in Supabase console)
 

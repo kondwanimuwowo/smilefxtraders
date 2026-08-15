@@ -137,14 +137,14 @@
 
 ## Monitoring & Observability (error tracking, logs)
 
-- **Vercel** — runtime logs (inferred)
+- **Cloudflare Workers Logs / Observability** — runtime logs, queried via the Workers observability telemetry API
 - **Prisma logging** — development mode: "query", "error", "warn"; production: "error" only (`src/lib/prisma.ts`)
 - **Console logging** — scattered debug logs in sync routes (COT, FX options, Finnhub webhooks)
 - Not detected: Sentry, DataDog, New Relic, or other APM tools
 
 ## CI/CD & Deployment (hosting, CI pipeline)
 
-- **Vercel** — hosting and deployment (inferred from Next.js 16, env var suggestions, `NEXT_PUBLIC_*` pattern)
+- **Cloudflare Workers** — hosting and deployment via OpenNext, fronted by Hyperdrive for Postgres pooling
 - **GitHub** — code repository (inferred from git workflow)
 - **Cron Jobs** — external cron service (cron-jobs.org or similar) calling protected API endpoints with `CRON_SECRET` bearer token
   - Daily 21:30 UTC: `POST /api/cot/sync` (COT reports)
@@ -154,7 +154,7 @@
   - Weekly: `POST /api/emails/weekly-report` (email digest)
   - On-demand: `POST /api/fx-orders/sync` (FX option expiries)
 
-No detected: GitHub Actions CI/CD pipeline; deploy triggers are likely Vercel Git integration (auto-deploy on push).
+Deploys are triggered automatically on push to `main` (confirmed 2026-08-15: pushes produced new Worker versions within ~1 minute).
 
 ## Environment Configuration (required env var NAMES, secrets location)
 
@@ -182,7 +182,7 @@ No detected: GitHub Actions CI/CD pipeline; deploy triggers are likely Vercel Gi
 ### Secrets Locations
 - `.env` — committed defaults (non-sensitive configuration)
 - `.env.local` — local overrides, NOT committed (API keys, secrets)
-- Vercel Environment Secrets — production/staging secrets configured via Vercel dashboard
+- Cloudflare Worker secrets — set via `wrangler secret put` or the Workers dashboard; Supabase Auth settings hold the Turnstile secret
 
 ## Webhooks & Callbacks (incoming endpoints, outgoing)
 

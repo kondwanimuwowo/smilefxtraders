@@ -112,9 +112,9 @@ Not detected
 - **Windows 10 Pro Education** (developer's platform, PowerShell/Git Bash available)
 
 ### Production Deployment
-- **Vercel** (inferred; Next.js 16 on Vercel, host-based routing via `NEXT_PUBLIC_*_HOST` env vars, `VERCEL` env available at runtime)
+- **Cloudflare Workers** via OpenNext (`@opennextjs/cloudflare`). Confirmed, not inferred: `src/lib/prisma.ts` imports `getCloudflareContext` and reads a `HYPERDRIVE` binding, and the deployed Worker is `smilefxtraders`. Host-based routing via `NEXT_PUBLIC_*_HOST` env vars.
 - **PostgreSQL 14+** (Supabase-managed or self-hosted)
-- **Node.js 18+ runtime** (Vercel's default)
+- **workerd runtime** (not Node.js). `prisma/schema.prisma` sets `runtime = "workerd"`; Node APIs are available only through the `nodejs_compat` flag.
 
 ---
 *Stack analysis: 2026-07-11*

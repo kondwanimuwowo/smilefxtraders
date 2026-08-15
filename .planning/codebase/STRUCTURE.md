@@ -416,7 +416,7 @@ smile-fx-traders/
    const { data: { user } } = await supabase.auth.getUser();
    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
    ```
-4. Validate input: `if (!isValidPair(pair)) return NextResponse.json({ error: "Invalid pair" }, { status: 400 })`
+4. Validate input with `lib/api-error.ts` helpers: `const body = await readJsonBody<T>(req)` then `requireString(body.pair, "pair")`. (`isValidPair` does not exist — see ARCHITECTURE.md.)
 5. Execute Prisma query: `const trade = await prisma.trade.create({ data: {...} })`
 6. Return JSON response: `return NextResponse.json(trade, { status: 201 })`
 7. Test with curl or Postman

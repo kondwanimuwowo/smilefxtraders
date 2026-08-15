@@ -287,7 +287,7 @@
 ## Scaling Limits (current capacity, limit, scaling path)
 
 ### 1. Database Connection Pool
-**Current capacity:** Supabase pooler (default ~3 connections per API route process on Vercel).
+**Current capacity:** Hyperdrive pools to Supabase's session pooler with `origin_connection_limit = 40` against a database `max_connections` of 60. Each Worker isolate runs a `pg` pool capped at `max: 10` with `maxUses: 1` — see `src/lib/prisma.ts` and the 2026-08-15 frozen-isolate notes there before changing any of it.
 
 **Limit:** At high concurrency (1000+ simultaneous active users), connection waits could timeout. Symptom: `ECONNREFUSED` on DB queries.
 
@@ -302,11 +302,11 @@
 ### 2. Real-Time Subscriptions (None Yet)
 **Current capacity:** Polling-based notifications (see NotificationsPoller).
 
-**Limit:** Polling creates N*M requests (N users × M poll intervals per hour). At 10k users polling every 30s, that's ~1.2M requests/day, which is fine for Vercel edge but inefficient.
+**Limit:** Polling creates N*M requests (N users × M poll intervals per hour). At 10k users polling every 60s, that's ~600k requests/day — affordable on Workers, but each one is a database round trip, which is the part that actually costs.
 
 **Scaling path:**
 1. Switch to Supabase Realtime (publish-subscribe) for notifications when user base exceeds 1000 concurrent.
-2. Use a message queue (e.g., Vercel's new Queues or a self-hosted Redis Pub/Sub) to decouple notification creation from delivery.
+2. Use a message queue (Cloudflare Queues, or the already-provisioned Upstash Redis) to decouple notification creation from delivery.
 
 ---
 
@@ -318,7 +318,7 @@
 **Scaling path:**
 1. Add client-side image validation (max 5MB per upload) in form components.
 2. Add server-side size check in API routes.
-3. Implement image optimization (compress, resize) before storing (Vercel Image Optimization or a serverless function).
+3. Implement image optimization (compress, resize) before storing (Cloudflare Images, or a Worker on the upload path).
 
 ---
 
