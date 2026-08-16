@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useStore } from "@/lib/store";
 import { Panel, DirPill, Chip, Icon, Button, Avatar } from "@/components/ui";
+import { LevelChart } from "@/components/charts/LevelChart";
 import { cn } from "@/lib/cn";
 import { useAddTrade } from "@/lib/hooks/useTrades";
 import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
@@ -151,6 +152,13 @@ const STATUS_CONFIG: Record<AlertStatusApp, { label: string; textCls: string; bg
 
 const STATUS_TRANSITIONS: AlertStatusApp[] = ["active", "tp1", "tp2", "sl", "cancelled"];
 
+/** Levels arrive as display strings ("1,845.20"); the chart needs numbers. */
+function parseLevel(value: string | undefined): number | null {
+  if (!value) return null;
+  const n = parseFloat(value.replace(/,/g, ""));
+  return Number.isFinite(n) ? n : null;
+}
+
 // ── Alert card ────────────────────────────────────────────────────────────────
 
 function AlertCard({
@@ -238,10 +246,26 @@ function AlertCard({
         ))}
       </div>
 
-      {/* Chart removed — see charts_plan.md. What sat here was a seeded random
-          walk with an "Entry" line drawn at a random candle's open, directly
-          beneath this alert's real entry/SL/TP. Returns with Spotware
-          trendbars; until then the levels above are the actual content. */}
+      {/* Real broker candles around when this was posted, annotated with this
+          alert's own entry/SL/TP. 220px rather than the old 100: at that size
+          a candle chart is illegible, which is why the reference thumbnails
+          are ~440x240. Not interactive — panning inside a feed card fights
+          the page scroll. */}
+      <div className="mx-5 mb-3 rounded-xl overflow-hidden">
+        <LevelChart
+          pair={alert.pair}
+          direction={alert.dir}
+          at={new Date(alert.timePosted)}
+          entry={parseLevel(alert.entry)}
+          stop={parseLevel(alert.sl)}
+          targets={[
+            ...(parseLevel(alert.tp1) != null ? [{ price: parseLevel(alert.tp1)!, label: "TP1" }] : []),
+            ...(parseLevel(alert.tp2) != null ? [{ price: parseLevel(alert.tp2)!, label: "TP2" }] : []),
+          ]}
+          height={220}
+          interactive={false}
+        />
+      </div>
 
       {/* Tags + note */}
       <div className="px-5 pb-2">

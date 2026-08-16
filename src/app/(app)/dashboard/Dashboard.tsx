@@ -13,12 +13,20 @@ import {
   Button, Ring, Sparkline, Icon, EmptyState,
 } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { LevelChart } from "@/components/charts/LevelChart";
 import type { InstructorAlert } from "@/app/(app)/alerts/Alerts";
 import type { CalEvent } from "@/lib/calendar";
 import { selectTodayEvents } from "@/lib/calendar-select";
 import { CotBiasPanel } from "@/components/cot/CotBiasPanel";
 
 // ── Featured alert ────────────────────────────────────────────────────────────
+
+/** Levels arrive as display strings ("1,845.20"); the chart needs numbers. */
+function parseAlertLevel(value: string | undefined): number | null {
+  if (!value) return null;
+  const n = parseFloat(value.replace(/,/g, ""));
+  return Number.isFinite(n) ? n : null;
+}
 
 function useFeaturedAlert() {
   return useQuery({
@@ -136,10 +144,19 @@ function FeaturedAlertCard() {
           </p>
         )}
 
-        {/* Chart removed — see charts_plan.md. The entry/SL/TP lines here were
-            real, but drawn over a seeded random walk starting at the entry
-            price, so the price action around them was fiction. Returns with
-            Spotware trendbars. */}
+        {/* Real candles around the alert, with its actual levels drawn on. */}
+        <div className="rounded-xl overflow-hidden">
+          <LevelChart
+            pair={alert.pair}
+            direction={alert.dir}
+            at={new Date(alert.timePosted)}
+            entry={parseAlertLevel(alert.entry)}
+            stop={parseAlertLevel(alert.sl)}
+            targets={parseAlertLevel(alert.tp1) != null ? [{ price: parseAlertLevel(alert.tp1)!, label: "TP1" }] : []}
+            height={240}
+            interactive={false}
+          />
+        </div>
 
         {/* Entry stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">

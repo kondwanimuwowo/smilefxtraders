@@ -5,6 +5,7 @@ import { useStore } from "@/lib/store";
 import type { Trade, AIReviewResult } from "@/lib/store";
 import { useTrades, useDeleteTrade, useUpdateTrade } from "@/lib/hooks/useTrades";
 import { Button, DirPill, Chip, Stars, Icon } from "@/components/ui";
+import { LevelChart } from "@/components/charts/LevelChart";
 import { AIReview } from "@/components/AIReview";
 import { MODEL_BRIEF, FIB_TAG_OPTIONS } from "@/lib/frameworks";
 import { cn } from "@/lib/cn";
@@ -254,12 +255,27 @@ export default function TradeDetailPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={t.chartUrl} alt="Trade chart" className="w-full h-full object-cover" />
         </div>
+      ) : t.openedAt ? (
+        <div className="rounded-2xl overflow-hidden mb-6 p-3 bg-panel shadow-sm">
+          {/* `date` is a display string ("Jun 12"); openedAt is the real
+              timestamp, and without it there is no window to fetch. */}
+          <LevelChart
+            pair={t.pair}
+            direction={t.dir}
+            at={new Date(t.openedAt)}
+            until={t.closedAt ? new Date(t.closedAt) : null}
+            entry={t.entryPrice ?? null}
+            stop={t.stopLoss ?? null}
+            targets={t.takeProfit != null ? [{ price: t.takeProfit, label: "TP" }] : []}
+            height={340}
+          />
+        </div>
       ) : (
         <div className="rounded-2xl mb-6 py-10 flex flex-col items-center gap-2 text-center bg-panel-2">
           <Icon name="show_chart" size={26} className="text-ink-dim" />
-          <div className="text-[13px] font-semibold text-ink-mid">No chart attached</div>
+          <div className="text-[13px] font-semibold text-ink-mid">No chart for this trade</div>
           <p className="text-[12px] max-w-xs text-ink-dim">
-            Add a screenshot when you journal a trade to keep your mark-up with it.
+            This entry has no recorded entry time, so there is no window of price action to draw.
           </p>
         </div>
       )}

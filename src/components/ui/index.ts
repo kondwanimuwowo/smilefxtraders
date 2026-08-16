@@ -17,6 +17,6 @@ export { Skeleton } from "./Skeleton";
 export { Stars } from "./Stars";
 export { ToastHost } from "./ToastHost";
 export { CandleChart } from "./CandleChart";
-export type { Candle, Zone, PriceLine, Mark } from "./CandleChart";
+export type { Candle, Zone, PriceLine } from "./CandleChart";
 export { SessionTimeline } from "./SessionTimeline";
 export { ResponsiveRow } from "./ResponsiveRow";
