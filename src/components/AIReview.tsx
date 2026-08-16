@@ -64,6 +64,10 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({
+          // The server re-reads this trade from the database and measures the
+          // broker candles around it, so the review is checked against what
+          // price did rather than only what was typed below.
+          tradeId:   trade.id,
           pair:      trade.pair,
           dir:       trade.dir,
           model:     trade.model,
