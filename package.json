@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
+    "check:spotware": "node --experimental-strip-types --no-warnings --import ./scripts/ts-register.mjs src/lib/spotware/messages.check.ts",
     "postinstall": "prisma generate",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",

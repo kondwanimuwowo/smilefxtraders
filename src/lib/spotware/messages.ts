@@ -19,19 +19,38 @@ export const PAYLOAD = {
   OA_SUBSCRIBE_SPOTS_REQ: 2127,
   OA_SUBSCRIBE_SPOTS_RES: 2128,
   OA_SPOT_EVENT: 2131,
+  OA_GET_TRENDBARS_REQ: 2137,
+  OA_GET_TRENDBARS_RES: 2138,
   OA_ERROR_RES: 2142,
 } as const;
 
 // Open API spot prices are integers scaled by this factor for every symbol.
 const PRICE_SCALE = 100_000;
 
+/** ProtoOATrendbarPeriod. Values are the enum's own, not indexes — do not renumber. */
+export const TRENDBAR_PERIOD = {
+  M1: 1, M2: 2, M3: 3, M4: 4, M5: 5, M10: 6, M15: 7, M30: 8,
+  H1: 9, H4: 10, H12: 11, D1: 12, W1: 13, MN1: 14,
+} as const;
+
+export type TrendbarPeriod = keyof typeof TRENDBAR_PERIOD;
+
+/** Bar length in seconds, for windowing requests and spotting gaps. */
+export const PERIOD_SECONDS: Record<TrendbarPeriod, number> = {
+  M1: 60, M2: 120, M3: 180, M4: 240, M5: 300, M10: 600, M15: 900, M30: 1_800,
+  H1: 3_600, H4: 14_400, H12: 43_200, D1: 86_400, W1: 604_800, MN1: 2_592_000,
+};
+
 // ── Envelope + wire framing ─────────────────────────────────────────────
 // ProtoMessage { payloadType: uint32 = 1; payload: bytes = 2; clientMsgId: string = 3 }
 // TCP framing: 4-byte big-endian length prefix, then the serialized ProtoMessage.
 
-function envelope(payloadType: number, payload?: Uint8Array): Uint8Array {
+function envelope(payloadType: number, payload?: Uint8Array, clientMsgId?: string): Uint8Array {
   const w = new ProtoWriter().uint32(1, payloadType);
   if (payload && payload.length) w.bytes_(2, payload);
+  // Echoed back on the matching response, which is the only way to tell one
+  // in-flight request's reply from another's on a single shared socket.
+  if (clientMsgId) w.string(3, clientMsgId);
   const body = w.finish();
   const framed = new Uint8Array(4 + body.length);
   new DataView(framed.buffer).setUint32(0, body.length, false);
@@ -41,6 +60,8 @@ function envelope(payloadType: number, payload?: Uint8Array): Uint8Array {
 
 export interface DecodedMessage {
   payloadType: number;
+  /** Present only when we set one on the request this is answering. */
+  clientMsgId?: string;
   fields: ProtoField[];
 }
 
@@ -61,7 +82,8 @@ export function decodeFrame(frame: Uint8Array): DecodedMessage {
   const fields = readFields(frame);
   const payloadType = asNumber(field(fields, 1)) ?? 0;
   const payload = asBytes(field(fields, 2));
-  return { payloadType, fields: payload ? readFields(payload) : [] };
+  const clientMsgId = asString(field(fields, 3));
+  return { payloadType, clientMsgId, fields: payload ? readFields(payload) : [] };
 }
 
 // ── Outgoing messages ────────────────────────────────────────────────────
@@ -89,6 +111,36 @@ export function subscribeSpotsReq(ctidTraderAccountId: number, symbolIds: number
 
 export function heartbeat(): Uint8Array {
   return envelope(PAYLOAD.HEARTBEAT_EVENT);
+}
+
+export interface TrendbarsRequest {
+  ctidTraderAccountId: number;
+  symbolId:            number;
+  period:              TrendbarPeriod;
+  /** Epoch **milliseconds** — the Open API takes ms here, unlike the bar timestamps it returns. */
+  fromTimestamp:       number;
+  toTimestamp:         number;
+  count?:              number;
+  clientMsgId:         string;
+}
+
+/**
+ * ProtoOAGetTrendbarsReq. `clientMsgId` is required rather than optional
+ * because a trendbar reply is useless without knowing which request it
+ * answers — unlike the fire-and-forget messages above.
+ *
+ * Server-side caps worth respecting at the call site: 14,000 bars per
+ * response, and 5 historical requests/second per connection.
+ */
+export function getTrendbarsReq(req: TrendbarsRequest): Uint8Array {
+  const w = new ProtoWriter()
+    .int64(2, req.ctidTraderAccountId)
+    .int64(3, req.fromTimestamp)
+    .int64(4, req.toTimestamp)
+    .uint32(5, TRENDBAR_PERIOD[req.period])
+    .int64(6, req.symbolId);
+  if (req.count != null) w.uint32(7, req.count);
+  return envelope(PAYLOAD.OA_GET_TRENDBARS_REQ, w.finish(), req.clientMsgId);
 }
 
 // ── Incoming message parsers ─────────────────────────────────────────────
@@ -123,6 +175,69 @@ export function parseSpotEvent(msg: DecodedMessage): SpotTick {
     symbolId,
     bid: bidRaw != null ? bidRaw / PRICE_SCALE : undefined,
     ask: askRaw != null ? askRaw / PRICE_SCALE : undefined,
+  };
+}
+
+export interface Trendbar {
+  /** Bar open time, epoch **seconds** — what lightweight-charts wants for `Time`. */
+  time:   number;
+  o:      number;
+  h:      number;
+  l:      number;
+  c:      number;
+  volume: number;
+}
+
+export interface TrendbarsResult {
+  symbolId?: number;
+  bars:      Trendbar[];
+  /** More bars exist beyond this response's range — paginate rather than assume completeness. */
+  hasMore:   boolean;
+}
+
+/**
+ * ProtoOAGetTrendbarsRes.
+ *
+ * Bars arrive as an absolute `low` plus three unsigned deltas, which is how
+ * the wire format keeps them small. Per the proto's own comments:
+ *
+ *     open = low + deltaOpen, close = low + deltaClose, high = low + deltaHigh
+ *
+ * A bar missing `low` is dropped rather than reconstructed from zero — that
+ * would render as a candle at price 0 and drag the whole chart's scale down
+ * to it, which is far more visible than one absent bar.
+ */
+export function parseTrendbars(msg: DecodedMessage): TrendbarsResult {
+  const bars = fieldAll(msg.fields, 5).flatMap((f): Trendbar[] => {
+    if (!(f.value instanceof Uint8Array)) return [];
+    const bar = readFields(f.value);
+
+    const low     = asNumber(field(bar, 5));
+    const minutes = asNumber(field(bar, 9));
+    if (low == null || minutes == null) return [];
+
+    const open  = low + (asNumber(field(bar, 6)) ?? 0);
+    const close = low + (asNumber(field(bar, 7)) ?? 0);
+    const high  = low + (asNumber(field(bar, 8)) ?? 0);
+
+    return [{
+      time:   minutes * 60,
+      o:      open  / PRICE_SCALE,
+      h:      high  / PRICE_SCALE,
+      l:      low   / PRICE_SCALE,
+      c:      close / PRICE_SCALE,
+      volume: asNumber(field(bar, 3)) ?? 0,
+    }];
+  });
+
+  // lightweight-charts throws on out-of-order data rather than sorting for
+  // us, and nothing in the protocol promises ordering.
+  bars.sort((a, b) => a.time - b.time);
+
+  return {
+    symbolId: asNumber(field(msg.fields, 6)),
+    bars,
+    hasMore:  asNumber(field(msg.fields, 7)) === 1,
   };
 }
 
