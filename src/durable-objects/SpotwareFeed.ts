@@ -24,6 +24,7 @@ import {
   parseErrorRes,
   PAYLOAD,
   TRENDBAR_PERIOD,
+  PERIOD_SECONDS,
   type LightSymbol,
   type TrendbarPeriod,
   type TrendbarsResult,
@@ -54,6 +55,23 @@ const REQUEST_TIMEOUT_MS = 10_000;
 const READY_TIMEOUT_MS = 12_000;
 // Server-side cap; asking for more is rejected rather than silently truncated.
 const MAX_BARS = 14_000;
+
+// A closed candle never changes, so a window that ended in the past can be
+// held for a long time. A window running up to now still contains the forming
+// bar, which changes every tick — hold that only until the bar closes.
+const CACHE_KEY_PREFIX = "tb:";
+const CLOSED_WINDOW_TTL_MS = 7 * 24 * 60 * 60_000;
+// A Durable Object storage value is capped at 128 KiB; ~1500 bars of JSON sits
+// comfortably under it, and nothing the charts ask for comes close.
+const MAX_CACHED_BARS = 1_500;
+const MAX_CACHE_ENTRIES = 300;
+
+interface CachedBars {
+  bars:     TrendbarsResult["bars"];
+  hasMore:  boolean;
+  storedAt: number;
+  expires:  number;
+}
 
 // cTrader symbol names generally match the platform's display symbols
 // directly (no slash) — unmatched names are just skipped, the price route
@@ -106,6 +124,9 @@ export class SpotwareFeed {
   private historyGate: Promise<void> = Promise.resolve();
   private nextHistorySlot = 0;
   private requestSeq = 0;
+  // Two people opening the same trade at once should cost one broker request,
+  // not two — this matters more than usual against a 5/sec budget.
+  private inflight = new Map<string, Promise<TrendbarsResult>>();
 
   constructor(state: DurableObjectState, env: Env) {
     this.state = state;
@@ -203,14 +224,70 @@ export class SpotwareFeed {
       return Response.json({ error: `Unknown symbol "${symbol}"` }, { status: 404 });
     }
 
+    // Snap the window to bar boundaries before it becomes a cache key.
+    // Un-aligned windows differ by milliseconds between callers and would miss
+    // every time, turning the cache into pure overhead.
+    const periodMs   = PERIOD_SECONDS[period] * 1_000;
+    const alignedTo  = Math.ceil(to / periodMs) * periodMs;
+    const alignedFrom = Math.floor(from / periodMs) * periodMs;
+    const key = `${CACHE_KEY_PREFIX}${symbol}:${period}:${alignedFrom}:${alignedTo}${count != null ? `:${count}` : ""}`;
+
+    const cached = await this.state.storage.get<CachedBars>(key).catch(() => undefined);
+    if (cached && cached.expires > Date.now()) {
+      return Response.json({ symbol, period, bars: cached.bars, hasMore: cached.hasMore, cached: true });
+    }
+
     try {
-      const result = await this.requestTrendbars({ symbolId, period, from, to, count });
-      return Response.json({ symbol, period, bars: result.bars, hasMore: result.hasMore });
+      let run = this.inflight.get(key);
+      if (!run) {
+        run = this.requestTrendbars({ symbolId, period, from: alignedFrom, to: alignedTo, count });
+        this.inflight.set(key, run);
+        run.finally(() => this.inflight.delete(key)).catch(() => {});
+      }
+      const result = await run;
+
+      void this.cacheBars(key, result, alignedTo, periodMs);
+      return Response.json({ symbol, period, bars: result.bars, hasMore: result.hasMore, cached: false });
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       console.error("[spotware] trendbars failed:", message);
       return Response.json({ error: message }, { status: 502 });
     }
+  }
+
+  private async cacheBars(key: string, result: TrendbarsResult, alignedTo: number, periodMs: number) {
+    if (result.bars.length === 0 || result.bars.length > MAX_CACHED_BARS) return;
+
+    // A window ending in the past holds only closed bars and is immutable.
+    // One running up to now still contains the forming bar, so it is only good
+    // until that bar closes.
+    const now = Date.now();
+    const expires = alignedTo <= now ? now + CLOSED_WINDOW_TTL_MS : now + periodMs;
+
+    try {
+      await this.state.storage.put(key, {
+        bars: result.bars, hasMore: result.hasMore, storedAt: now, expires,
+      } satisfies CachedBars);
+      await this.pruneCache();
+    } catch (e) {
+      // A cache write failing costs a broker request next time, nothing more.
+      console.error("[spotware] cache write failed:", e instanceof Error ? e.message : e);
+    }
+  }
+
+  /** Keeps cached windows bounded — storage is durable, so nothing expires on its own. */
+  private async pruneCache() {
+    const entries = await this.state.storage.list<CachedBars>({ prefix: CACHE_KEY_PREFIX });
+    if (entries.size <= MAX_CACHE_ENTRIES) return;
+
+    const now = Date.now();
+    const ranked = [...entries.entries()].sort((a, b) => {
+      const aDead = a[1].expires <= now ? 0 : 1;
+      const bDead = b[1].expires <= now ? 0 : 1;
+      return aDead - bDead || a[1].storedAt - b[1].storedAt; // expired first, then oldest
+    });
+    const doomed = ranked.slice(0, entries.size - MAX_CACHE_ENTRIES).map(([k]) => k);
+    if (doomed.length) await this.state.storage.delete(doomed);
   }
 
   private async requestTrendbars(opts: {
