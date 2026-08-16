@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { PAIRS_ORDER } from "@/types/fx-orders";
 import { getSpotwarePrices } from "@/lib/spotware/snapshot";
-import { createClient, getAuthedUser } from "@/lib/supabase/server";
 
 // Twelve Data symbol format for each FX pair
 const TD_SYMBOL: Record<string, string> = {
@@ -56,28 +55,15 @@ function respond(spots: Record<string, string>, fromSpotware: Set<string>) {
   if (spotware.length) parts.push(`spotware=${spotware.join(",")}`);
   if (twelvedata.length) parts.push(`twelvedata=${twelvedata.join(",")}`);
 
-  // `private`, not `public`: the payload is identical for every user, but the
-  // route is now behind auth, and a shared cache holding a 200 would happily
-  // replay it to a caller who never authenticated — defeating the gate. The
-  // browser-level 30s still absorbs a page's repeat polls, which is where most
-  // of the Twelve Data savings were anyway.
   return NextResponse.json(spots, {
     headers: {
-      "Cache-Control":  "private, max-age=30",
+      "Cache-Control":  "public, s-maxage=30, stale-while-revalidate=15",
       "X-Spot-Source":  parts.join("; ") || "none",
     },
   });
 }
 
 export async function GET() {
-  // The proxy leaves /api public, so this route enforces its own access (same
-  // reasoning as lib/plan-guard.ts). No plan check — FX expiries are not a
-  // paid feature — but anonymous callers were spending Twelve Data credits
-  // and reading the broker feed's health off X-Spot-Source.
-  const supabase = await createClient();
-  const user = await getAuthedUser(supabase);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
   const spots: Record<string, string> = {};
   const fromSpotware = new Set<string>();
 
