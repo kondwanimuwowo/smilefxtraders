@@ -14,14 +14,19 @@ import {
   accountAuthReq,
   symbolsListReq,
   subscribeSpotsReq,
+  getTrendbarsReq,
   heartbeat,
   splitFrames,
   decodeFrame,
   parseSymbolsList,
   parseSpotEvent,
+  parseTrendbars,
   parseErrorRes,
   PAYLOAD,
+  TRENDBAR_PERIOD,
   type LightSymbol,
+  type TrendbarPeriod,
+  type TrendbarsResult,
 } from "@/lib/spotware/messages";
 
 const SPOTWARE_HOST = "live.ctraderapi.com";
@@ -37,6 +42,18 @@ const TOKEN_URL = "https://openapi.ctrader.com/apps/token";
 // cold TCP+TLS+auth handshake it can't wait for.
 const SNAPSHOT_DEMAND_MS = 5 * 60_000;
 const PRICES_KEY = "lastPrices";
+
+// Spotware allows 5 historical requests/second per connection. Serialising to
+// one every 200ms keeps us under it without tracking a sliding window, and
+// charts are not latency-critical enough to want the extra complexity.
+const HISTORY_SLOT_MS = 200;
+// A trendbar reply that never arrives must not leak the promise waiting on it.
+const REQUEST_TIMEOUT_MS = 10_000;
+// Time allowed for a cold object to finish TCP + TLS + app auth + account auth
+// + symbols list before a caller gives up.
+const READY_TIMEOUT_MS = 12_000;
+// Server-side cap; asking for more is rejected rather than silently truncated.
+const MAX_BARS = 14_000;
 
 // cTrader symbol names generally match the platform's display symbols
 // directly (no slash) — unmatched names are just skipped, the price route
@@ -74,8 +91,21 @@ export class SpotwareFeed {
   private reconnectDelay = RECONNECT_BASE_MS;
   private accessToken: string | null = null;
   private lastPrices = new Map<string, { price: number; at: number }>();
-  private lastSnapshotAt = 0;
+  private lastDemandAt = 0;
   private pricesDirty = false;
+
+  // Every symbol the broker offers, not just the subscribed ones: charts need
+  // to look up ids for pairs the ticker never streams.
+  private symbolIdByName = new Map<string, number>();
+
+  // The object was a broadcaster — write a request, re-emit whatever arrives.
+  // Trendbars need the opposite: a caller awaiting *its own* reply on a socket
+  // shared with everyone else's. clientMsgId is what tells them apart.
+  private pending = new Map<string, { resolve: (r: TrendbarsResult) => void; reject: (e: Error) => void; timer: ReturnType<typeof setTimeout> }>();
+  private readyWaiters: Array<{ resolve: () => void; reject: (e: Error) => void; timer: ReturnType<typeof setTimeout> }> = [];
+  private historyGate: Promise<void> = Promise.resolve();
+  private nextHistorySlot = 0;
+  private requestSeq = 0;
 
   constructor(state: DurableObjectState, env: Env) {
     this.state = state;
@@ -93,8 +123,13 @@ export class SpotwareFeed {
   }
 
   async fetch(request: Request): Promise<Response> {
-    if (new URL(request.url).pathname.endsWith("/snapshot")) {
+    const url = new URL(request.url);
+
+    if (url.pathname.endsWith("/snapshot")) {
       return this.handleSnapshot();
+    }
+    if (url.pathname.endsWith("/trendbars")) {
+      return this.handleTrendbars(url);
     }
 
     if (request.headers.get("Upgrade") !== "websocket") {
@@ -122,8 +157,156 @@ export class SpotwareFeed {
    * connection it kicks off here warms the cache for the next poll. Blocking
    * on a TCP+TLS+auth handshake would just move the delay onto the request.
    */
+  /**
+   * Historical candles: /trendbars?symbol=EURUSD&period=H1&from=<ms>&to=<ms>[&count=]
+   *
+   * Unlike /snapshot this genuinely waits — there is no cached answer to fall
+   * back to, and a chart with no data is the only alternative. Every failure
+   * is an explicit status rather than an empty bar array, because "no candles"
+   * rendered as an empty chart is indistinguishable from a quiet market.
+   */
+  private async handleTrendbars(url: URL): Promise<Response> {
+    this.lastDemandAt = Date.now();
+
+    const symbol = url.searchParams.get("symbol") ?? "";
+    const period = url.searchParams.get("period") as TrendbarPeriod | null;
+    // Read as strings first: Number(null) is 0, which is finite and would sail
+    // through the range check below as "1 Jan 1970".
+    const fromP  = url.searchParams.get("from");
+    const toP    = url.searchParams.get("to");
+    const countP = url.searchParams.get("count");
+    const from   = Number(fromP);
+    const to     = Number(toP);
+    const count  = countP == null ? undefined : Number(countP);
+
+    if (!symbol || !period || !(period in TRENDBAR_PERIOD)) {
+      return Response.json({ error: "symbol and a valid period are required" }, { status: 400 });
+    }
+    if (fromP == null || toP == null || !Number.isFinite(from) || !Number.isFinite(to) || to <= from || from <= 0) {
+      return Response.json({ error: "from/to must be epoch ms with to > from" }, { status: 400 });
+    }
+    if (count != null && (!Number.isInteger(count) || count < 1 || count > MAX_BARS)) {
+      return Response.json({ error: `count must be 1..${MAX_BARS}` }, { status: 400 });
+    }
+
+    try {
+      await this.waitUntilAuthed();
+    } catch {
+      return Response.json({ error: "Broker feed unavailable" }, { status: 503 });
+    }
+
+    const symbolId = this.symbolIdByName.get(symbol);
+    if (symbolId == null) {
+      // A symbol the broker does not offer under that name. 404, never an
+      // empty chart — see charts_plan.md: a missing chart is fine, an invented
+      // or silently-empty one is not.
+      return Response.json({ error: `Unknown symbol "${symbol}"` }, { status: 404 });
+    }
+
+    try {
+      const result = await this.requestTrendbars({ symbolId, period, from, to, count });
+      return Response.json({ symbol, period, bars: result.bars, hasMore: result.hasMore });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error("[spotware] trendbars failed:", message);
+      return Response.json({ error: message }, { status: 502 });
+    }
+  }
+
+  private async requestTrendbars(opts: {
+    symbolId: number;
+    period:   TrendbarPeriod;
+    from:     number;
+    to:       number;
+    count?:   number;
+  }): Promise<TrendbarsResult> {
+    await this.takeHistorySlot();
+
+    const writer = this.writer;
+    if (!writer || this.conn !== "authed") throw new Error("Broker connection dropped");
+
+    const clientMsgId = `tb-${++this.requestSeq}-${Date.now().toString(36)}`;
+
+    const settled = new Promise<TrendbarsResult>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.pending.delete(clientMsgId);
+        reject(new Error("Timed out waiting for trendbars"));
+      }, REQUEST_TIMEOUT_MS);
+      this.pending.set(clientMsgId, { resolve, reject, timer });
+    });
+
+    try {
+      await writer.write(getTrendbarsReq({
+        ctidTraderAccountId: Number(this.env.SPOTWARE_CTID_ACCOUNT_ID),
+        symbolId:            opts.symbolId,
+        period:              opts.period,
+        fromTimestamp:       opts.from,
+        toTimestamp:         opts.to,
+        count:               opts.count,
+        clientMsgId,
+      }));
+    } catch (e) {
+      const entry = this.pending.get(clientMsgId);
+      if (entry) {
+        clearTimeout(entry.timer);
+        this.pending.delete(clientMsgId);
+      }
+      throw e;
+    }
+
+    return settled;
+  }
+
+  /** Serialises historical requests to one per HISTORY_SLOT_MS, staying inside Spotware's 5/sec. */
+  private takeHistorySlot(): Promise<void> {
+    const run = this.historyGate.then(async () => {
+      const now  = Date.now();
+      const wait = Math.max(0, this.nextHistorySlot - now);
+      if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+      this.nextHistorySlot = Math.max(now, this.nextHistorySlot) + HISTORY_SLOT_MS;
+    });
+    this.historyGate = run.catch(() => {});
+    return run;
+  }
+
+  /** Resolves once the socket is authed and the symbols list has landed. */
+  private waitUntilAuthed(): Promise<void> {
+    if (this.conn === "authed") return Promise.resolve();
+    void this.ensureConnected();
+    return new Promise<void>((resolve, reject) => {
+      const waiter = {
+        resolve,
+        reject,
+        timer: setTimeout(() => {
+          this.readyWaiters = this.readyWaiters.filter((w) => w !== waiter);
+          reject(new Error("Timed out connecting to broker"));
+        }, READY_TIMEOUT_MS),
+      };
+      this.readyWaiters.push(waiter);
+    });
+  }
+
+  private releaseReadyWaiters(err?: Error) {
+    const waiters = this.readyWaiters;
+    this.readyWaiters = [];
+    for (const w of waiters) {
+      clearTimeout(w.timer);
+      if (err) w.reject(err);
+      else w.resolve();
+    }
+  }
+
+  private failPending(err: Error) {
+    const entries = [...this.pending.values()];
+    this.pending.clear();
+    for (const p of entries) {
+      clearTimeout(p.timer);
+      p.reject(err);
+    }
+  }
+
   private handleSnapshot(): Response {
-    this.lastSnapshotAt = Date.now();
+    this.lastDemandAt = Date.now();
     void this.ensureConnected();
 
     const snapshot: PriceSnapshot = { prices: {}, at: {}, connected: this.conn === "authed" };
@@ -136,7 +319,11 @@ export class SpotwareFeed {
 
   /** Whether anything is still reading this feed — a live socket, or a recent snapshot poll. */
   private hasDemand(): boolean {
-    return this.sockets.size > 0 || Date.now() - this.lastSnapshotAt < SNAPSHOT_DEMAND_MS;
+    return (
+      this.sockets.size > 0 ||
+      this.pending.size > 0 ||
+      Date.now() - this.lastDemandAt < SNAPSHOT_DEMAND_MS
+    );
   }
 
   async alarm(): Promise<void> {
@@ -229,9 +416,21 @@ export class SpotwareFeed {
     switch (msg.payloadType) {
       case PAYLOAD.OA_SYMBOLS_LIST_RES: {
         const symbols: LightSymbol[] = parseSymbolsList(msg);
+        // Keep the full name→id map, not just the subscribed subset: charts
+        // request bars for pairs the ticker never streams.
+        this.symbolIdByName = new Map(symbols.map((s) => [s.symbolName, s.symbolId]));
+
         const wanted = new Set(TARGET_SYMBOLS);
         const matched = symbols.filter((s) => wanted.has(s.symbolName));
         this.symbolById = new Map(matched.map((s) => [s.symbolId, s.symbolName]));
+
+        const missing = TARGET_SYMBOLS.filter((t) => !this.symbolIdByName.has(t));
+        if (missing.length) {
+          // Named explicitly: an unmatched symbol silently falls back to Twelve
+          // Data and is otherwise invisible. EURGBP is the one to watch.
+          console.info(`[spotware] symbols not offered by broker: ${missing.join(", ")}`);
+        }
+
         if (matched.length && this.writer) {
           await this.writer.write(subscribeSpotsReq(accountId, matched.map((s) => s.symbolId)));
         }
@@ -240,8 +439,18 @@ export class SpotwareFeed {
       case PAYLOAD.OA_SUBSCRIBE_SPOTS_RES:
         this.conn = "authed";
         this.reconnectDelay = RECONNECT_BASE_MS;
+        this.releaseReadyWaiters();
         await this.state.storage.setAlarm(Date.now() + HEARTBEAT_MS);
         break;
+      case PAYLOAD.OA_GET_TRENDBARS_RES: {
+        const id = msg.clientMsgId;
+        const waiting = id ? this.pending.get(id) : undefined;
+        if (!waiting || !id) break; // late reply to a request we already gave up on
+        clearTimeout(waiting.timer);
+        this.pending.delete(id);
+        waiting.resolve(parseTrendbars(msg));
+        break;
+      }
       case PAYLOAD.OA_SPOT_EVENT: {
         const tick = parseSpotEvent(msg);
         const sym = this.symbolById.get(tick.symbolId);
@@ -256,6 +465,16 @@ export class SpotwareFeed {
       case PAYLOAD.OA_ERROR_RES: {
         const err = parseErrorRes(msg);
         console.error(`[spotware] error: ${err.errorCode} ${err.description ?? ""}`);
+        // An error carrying a clientMsgId is *that* request's answer. Before,
+        // it was only logged — the caller would have sat there until its
+        // timeout for a reply that was never coming.
+        const id = msg.clientMsgId;
+        const waiting = id ? this.pending.get(id) : undefined;
+        if (waiting && id) {
+          clearTimeout(waiting.timer);
+          this.pending.delete(id);
+          waiting.reject(new Error(err.description ?? err.errorCode ?? "Broker rejected the request"));
+        }
         break;
       }
       default:
@@ -279,6 +498,13 @@ export class SpotwareFeed {
     this.conn = "closed";
     this.socket = null;
     this.writer = null;
+
+    // Anything mid-flight is now unanswerable. Rejecting immediately turns a
+    // 10s hang into a fast 502 the client can retry.
+    const dropped = new Error("Broker connection dropped");
+    this.failPending(dropped);
+    this.releaseReadyWaiters(dropped);
+
     if (!this.hasDemand()) return; // nothing to serve — stay idle until a client connects or polls
     const delay = Math.min(this.reconnectDelay, RECONNECT_MAX_MS);
     this.reconnectDelay = delay * 2;
