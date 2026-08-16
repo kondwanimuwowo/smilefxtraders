@@ -40,11 +40,16 @@ export function LevelChart({
   height = 320, period = "H1", interactive = true,
 }: LevelChartProps) {
   const span = PERIOD_MS[period] * CONTEXT_BARS;
-  const from = useMemo(() => new Date(at.getTime() - span), [at, span]);
+
+  // Anchored to the end, not centred on the event. An alert posted minutes ago
+  // was asking for 60 bars of future, so the chart came back with a dozen very
+  // fat candles. Clamping the end to now and taking a fixed span backwards
+  // gives every chart a consistent density, while still containing the event.
   const to = useMemo(
-    () => new Date((until ?? at).getTime() + span),
+    () => new Date(Math.min((until ?? at).getTime() + span, Date.now())),
     [at, until, span],
   );
+  const from = useMemo(() => new Date(to.getTime() - span * 2), [to, span]);
 
   const { data: candles, isPending, error } = useCandles({ pair, period, from, to });
 

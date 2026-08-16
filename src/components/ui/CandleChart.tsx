@@ -33,7 +33,22 @@ interface CandleChartProps {
   precision?: number;
   /** Off on small cards, where a crosshair is more clutter than information. */
   crosshair?: boolean;
+  /** Intraday periods need clock labels; daily and above read better as dates. */
+  timeVisible?: boolean;
 }
+
+/**
+ * How far outside the candles a level may sit and still be drawn, as a
+ * multiple of the visible price range.
+ *
+ * Levels must pull the scale to include them — a chart that hides the entry
+ * and stop is answering the wrong question. But an alert with mistyped levels
+ * (XAUUSD at 4,266 carrying a stop of 1.16) would otherwise squash every
+ * candle into a single line and stack four unreadable badges in a corner.
+ * Beyond this distance the level is bad data or irrelevant to the window, and
+ * showing nothing beats showing that.
+ */
+const LEVEL_RANGE_MULTIPLE = 3;
 
 // Deliberately quiet. The reference this was rebuilt against (TradingView's
 // published ideas) puts the price action first and removes nearly everything
@@ -54,7 +69,8 @@ const NO_LINES: PriceLine[] = [];
 const NO_ZONES: Zone[] = [];
 
 export function CandleChart({
-  candles, height = 320, lines = NO_LINES, zones = NO_ZONES, precision = 5, crosshair = true,
+  candles, height = 320, lines = NO_LINES, zones = NO_ZONES, precision = 5,
+  crosshair = true, timeVisible = true,
 }: CandleChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -85,8 +101,10 @@ export function CandleChart({
         horzLines: { color: c.grid },
       },
       crosshair: { mode: crosshair ? CrosshairMode.Normal : CrosshairMode.Hidden },
-      rightPriceScale: { borderVisible: false, scaleMargins: { top: 0.12, bottom: 0.12 } },
-      timeScale: { borderVisible: false, timeVisible: false, secondsVisible: false },
+      rightPriceScale: { borderVisible: false, scaleMargins: { top: 0.18, bottom: 0.14 } },
+      // timeVisible on: without it, H1 bars spanning three days label every
+      // tick with just the day number, giving axes that read "14 14 14 14".
+      timeScale: { borderVisible: false, timeVisible, secondsVisible: false },
       handleScale: crosshair,
       handleScroll: crosshair,
     });
@@ -133,7 +151,37 @@ export function CandleChart({
     const style = getComputedStyle(document.documentElement);
     const token = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback;
 
-    const created = lines.map((line) =>
+    // Drop levels far outside the price action before anything else — see
+    // LEVEL_RANGE_MULTIPLE. Everything below (drawing, autoscale) then works
+    // from the same trustworthy set.
+    let visible = lines;
+    if (candles.length) {
+      let lo = Infinity;
+      let hi = -Infinity;
+      for (const k of candles) { if (k.l < lo) lo = k.l; if (k.h > hi) hi = k.h; }
+      const reach = Math.max(hi - lo, Number.EPSILON) * LEVEL_RANGE_MULTIPLE;
+      visible = lines.filter((l) => l.price >= lo - reach && l.price <= hi + reach);
+    }
+
+    // Without this the scale fits the candles alone and every level sits
+    // off-screen — which is how an entry, a stop and two targets all went
+    // missing on the alert cards.
+    const levels = visible.map((l) => l.price);
+    series.applyOptions({
+      autoscaleInfoProvider: (original: () => { priceRange: { minValue: number; maxValue: number } | null } | null) => {
+        const res = original();
+        if (!res?.priceRange || levels.length === 0) return res;
+        return {
+          ...res,
+          priceRange: {
+            minValue: Math.min(res.priceRange.minValue, ...levels),
+            maxValue: Math.max(res.priceRange.maxValue, ...levels),
+          },
+        };
+      },
+    });
+
+    const created = visible.map((line) =>
       series.createPriceLine({
         price: line.price,
         color: token(line.color, "#F8B93D"),
