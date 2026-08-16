@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { Icon, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/cn";
@@ -273,9 +274,6 @@ export default function FxOrdersPage() {
   const user = useStore((s) => s.user);
   const isInstructor = user?.role === "instructor";
 
-  const [summaries,  setSummaries]  = useState<FxDateSummary[]>([]);
-  const [loading,    setLoading]    = useState(true);
-  const [loadError,  setLoadError]  = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [syncing,    setSyncing]    = useState(false);
   const [syncMsg,    setSyncMsg]    = useState("");
@@ -283,22 +281,24 @@ export default function FxOrdersPage() {
 
   const today = new Date().toISOString().slice(0, 10);
 
-  async function load() {
-    setLoadError(null);
-    try {
+  // The hand-rolled loader had no retry, so a transient 503 from the DB left
+  // the page on its error state until the user pressed Retry. React Query's
+  // defaults (3 attempts, exponential backoff — see lib/providers.tsx) clear
+  // that class of failure without anyone noticing it happened.
+  const { data, isPending, error, refetch } = useQuery({
+    queryKey: ["fx-orders"],
+    queryFn: async (): Promise<FxDateSummary[]> => {
       const res  = await fetch("/api/fx-orders");
-      const data = await res.json();
-      if (!res.ok) throw new Error((data as { error?: string })?.error ?? "Failed to load dates");
-      setSummaries(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setSummaries([]);
-      setLoadError(err instanceof Error ? err.message : "Failed to load dates");
-    } finally {
-      setLoading(false);
-    }
-  }
+      const body = await res.json().catch(() => null);
+      if (!res.ok) throw new Error((body as { error?: string })?.error ?? "Failed to load dates");
+      return Array.isArray(body) ? body : [];
+    },
+  });
 
-  useEffect(() => { load(); }, []);
+  const summaries = data ?? [];
+  const loading   = isPending;
+  const loadError = error ? error.message : null;
+  const reload    = () => { void refetch(); };
 
   async function syncToday() {
     setSyncing(true);
@@ -309,7 +309,7 @@ export default function FxOrdersPage() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Sync failed");
       setSyncMsg(json.skipped ? (json.reason ?? "Nothing to sync") : `Synced ${json.saved} records`);
-      await load();
+      await refetch();
     } catch (err) {
       setSyncMsg(err instanceof Error ? err.message : "Sync failed");
       setSyncErr(true);
@@ -325,7 +325,7 @@ export default function FxOrdersPage() {
   return (
     <div className="view">
       {showUpload && (
-        <UploadModal onClose={() => setShowUpload(false)} onDone={load} />
+        <UploadModal onClose={() => setShowUpload(false)} onDone={reload} />
       )}
 
       {/* ── Page header ── */}
@@ -432,7 +432,7 @@ export default function FxOrdersPage() {
           </div>
           <button
             type="button"
-            onClick={load}
+            onClick={reload}
             className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] bg-teal text-white"
           >
             <Icon name="refresh" size={15} />

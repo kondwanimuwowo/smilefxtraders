@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { Icon, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/cn";
@@ -144,30 +145,51 @@ function PairCard({ record, liveSpot }: { record: FxOrderRecord; liveSpot: strin
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
+/** Carries the status through to the retry predicate, so a 404 isn't retried. */
+class HttpError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+  }
+}
+
 export default function FxOrdersDatePage() {
   const { date }  = useParams<{ date: string }>();
   const router    = useRouter();
-  const [records,    setRecords]    = useState<FxOrderRecord[]>([]);
-  const [liveSpots,  setLiveSpots]  = useState<Record<string, string>>({});
-  const [loading,    setLoading]    = useState(true);
-  const [error,      setError]      = useState<string | null>(null);
 
-  useEffect(() => {
-    // Fetch records and live spot prices in parallel
-    Promise.all([
-      fetch(`/api/fx-orders/${date}`).then((r) => {
-        if (!r.ok) throw new Error("No data for this date");
-        return r.json() as Promise<FxOrderRecord[]>;
-      }),
-      fetch("/api/fx-orders/spot").then((r) => r.ok ? r.json() as Promise<Record<string, string>> : {}),
-    ])
-      .then(([data, spots]) => {
-        setRecords(data);
-        setLiveSpots(spots);
-        setLoading(false);
-      })
-      .catch((e) => { setError(e.message); setLoading(false); });
-  }, [date]);
+  // Two independent queries rather than one Promise.all. The spot fetch used
+  // to swallow failures into `{}`, which the cards render as a perfectly
+  // plausible "snapshot" price — so a few seconds of downtime (a deploy, say)
+  // silently cost live prices for the rest of the session with nothing on
+  // screen to say so. Throwing lets React Query retry with backoff, and
+  // splitting them means a spot failure no longer holds up the levels.
+  const recordsQuery = useQuery({
+    queryKey: ["fx-orders", "date", date],
+    // "no data for this date" is a real answer, not a blip — retrying it three
+    // times only delays the empty state the user is meant to see.
+    retry: (count, err) => (err instanceof HttpError && err.status < 500 ? false : count < 3),
+    queryFn: async (): Promise<FxOrderRecord[]> => {
+      const res = await fetch(`/api/fx-orders/${date}`);
+      if (!res.ok) throw new HttpError(res.status, "No data for this date");
+      return res.json();
+    },
+  });
+
+  const spotsQuery = useQuery({
+    queryKey: ["fx-orders", "spot"],
+    staleTime: 30_000,
+    queryFn: async (): Promise<Record<string, string>> => {
+      const res = await fetch("/api/fx-orders/spot");
+      if (!res.ok) throw new Error(`spot responded ${res.status}`);
+      return res.json();
+    },
+  });
+
+  const records   = useMemo(() => recordsQuery.data ?? [], [recordsQuery.data]);
+  const liveSpots = spotsQuery.data ?? {};
+  // isPending, not `data === undefined`: once retries are exhausted data stays
+  // undefined, and keying the skeleton off it would spin forever.
+  const loading   = recordsQuery.isPending;
+  const error     = recordsQuery.error ? recordsQuery.error.message : null;
 
   // Sort: pairs with data in canonical order, extras appended
   const sortedRecords = useMemo(() => {
