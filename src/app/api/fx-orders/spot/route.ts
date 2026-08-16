@@ -38,23 +38,48 @@ function formatSpot(pair: string, price: number): string {
 // Twelve Data is not merely a fallback for total failure — it fills per-pair
 // gaps too. EURGBP in particular only reaches Spotware if the symbol resolved
 // on the broker side, and a cold Durable Object returns nothing at all.
+/**
+ * Per-pair provenance on `X-Spot-Source`, e.g.
+ * `spotware=EURUSD,USDJPY; twelvedata=EURGBP`.
+ *
+ * The two sources agree to within a pip or so, which makes the response body
+ * alone useless for telling them apart — both when verifying the feed by hand
+ * and, more importantly, when the broker connection quietly degrades to Twelve
+ * Data in production. A header keeps that visible without changing the JSON
+ * the page consumes.
+ */
+function respond(spots: Record<string, string>, fromSpotware: Set<string>) {
+  const spotware = Object.keys(spots).filter((p) => fromSpotware.has(p));
+  const twelvedata = Object.keys(spots).filter((p) => !fromSpotware.has(p));
+  const parts: string[] = [];
+  if (spotware.length) parts.push(`spotware=${spotware.join(",")}`);
+  if (twelvedata.length) parts.push(`twelvedata=${twelvedata.join(",")}`);
+
+  return NextResponse.json(spots, {
+    headers: {
+      "Cache-Control":  "public, s-maxage=30, stale-while-revalidate=15",
+      "X-Spot-Source":  parts.join("; ") || "none",
+    },
+  });
+}
+
 export async function GET() {
   const spots: Record<string, string> = {};
+  const fromSpotware = new Set<string>();
 
   const spotware = await getSpotwarePrices();
   for (const pair of PAIRS) {
     const price = spotware[pair];
-    if (price != null) spots[pair] = formatSpot(pair, price);
+    if (price != null) {
+      spots[pair] = formatSpot(pair, price);
+      fromSpotware.add(pair);
+    }
   }
 
   const missing = PAIRS.filter((p) => !(p in spots) && TD_SYMBOL[p]);
   const apiKey = process.env.TWELVE_DATA_API_KEY;
 
-  if (!missing.length || !apiKey) {
-    return NextResponse.json(spots, {
-      headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=15" },
-    });
-  }
+  if (!missing.length || !apiKey) return respond(spots, fromSpotware);
 
   try {
     const symbols = missing.map((p) => TD_SYMBOL[p]).join(",");
@@ -65,7 +90,7 @@ export async function GET() {
     const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
     clearTimeout(timer);
 
-    if (!res.ok) return NextResponse.json(spots);
+    if (!res.ok) return respond(spots, fromSpotware);
 
     // Twelve Data returns { "EUR/USD": { price: "1.1234" }, ... } for a
     // multi-symbol request, but unwraps to a bare { price } for a single one.
@@ -81,10 +106,8 @@ export async function GET() {
       spots[pair] = entry.price;
     }
 
-    return NextResponse.json(spots, {
-      headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=15" },
-    });
+    return respond(spots, fromSpotware);
   } catch {
-    return NextResponse.json(spots);
+    return respond(spots, fromSpotware);
   }
 }
