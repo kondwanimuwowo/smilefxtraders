@@ -30,8 +30,18 @@ import {
   type TrendbarsResult,
 } from "@/lib/spotware/messages";
 
-const SPOTWARE_HOST = "live.ctraderapi.com";
+// Protobuf is port 5035 and only 5035 (5036 is the JSON variant). Demo and
+// live are fully separated environments: a demo account authorised against
+// live.ctraderapi.com fails account auth, so SPOTWARE_HOST exists to switch
+// without a deploy.
+const DEFAULT_SPOTWARE_HOST = "live.ctraderapi.com";
 const SPOTWARE_PORT = 5035;
+
+// Nothing in the handshake throws when the far side simply goes quiet — no
+// socket close, no error frame. Without this the object sits in "connecting"
+// for ever, every later attempt early-returns, and it never says why.
+const CONNECT_TIMEOUT_MS = 20_000;
+const TOKEN_TIMEOUT_MS = 8_000;
 const HEARTBEAT_MS = 25_000;
 const RECONNECT_BASE_MS = 2_000;
 const RECONNECT_MAX_MS = 60_000;
@@ -94,6 +104,8 @@ export interface Env {
   SPOTWARE_CLIENT_SECRET: string;
   SPOTWARE_REFRESH_TOKEN: string;
   SPOTWARE_CTID_ACCOUNT_ID: string;
+  /** Optional. Set to demo.ctraderapi.com when the authorised account is a demo account. */
+  SPOTWARE_HOST?: string;
 }
 
 type ConnState = "idle" | "connecting" | "authed" | "closed";
@@ -108,6 +120,7 @@ export class SpotwareFeed {
   private symbolById = new Map<number, string>();
   private reconnectDelay = RECONNECT_BASE_MS;
   private accessToken: string | null = null;
+  private connectWatchdog: ReturnType<typeof setTimeout> | null = null;
   private lastPrices = new Map<string, { price: number; at: number }>();
   private lastDemandAt = 0;
   private pricesDirty = false;
@@ -437,12 +450,30 @@ export class SpotwareFeed {
     if (this.conn === "connecting" || this.conn === "authed") return;
     this.conn = "connecting";
 
+    // The handshake has four steps and used to log none of them, so a failure
+    // anywhere between "idle" and "authed" was indistinguishable from silence.
+    // That is precisely the state this object was found in.
+    const host = this.env.SPOTWARE_HOST || DEFAULT_SPOTWARE_HOST;
+    this.connectWatchdog = setTimeout(() => {
+      if (this.conn === "authed") return;
+      console.error(
+        `[spotware] handshake stalled against ${host}:${SPOTWARE_PORT} — no SUBSCRIBE_SPOTS_RES within ${CONNECT_TIMEOUT_MS}ms. ` +
+          "Demo and live are separate environments; a demo account authorised against live fails here silently.",
+      );
+      this.handleDisconnect();
+    }, CONNECT_TIMEOUT_MS);
+
     try {
       const accountId = Number(this.env.SPOTWARE_CTID_ACCOUNT_ID);
+      if (!Number.isFinite(accountId) || accountId <= 0) {
+        throw new Error(`SPOTWARE_CTID_ACCOUNT_ID is not a positive number ("${this.env.SPOTWARE_CTID_ACCOUNT_ID}")`);
+      }
+
       this.accessToken = await this.refreshAccessToken();
+      console.info(`[spotware] access token obtained; dialling ${host}:${SPOTWARE_PORT} for account ${accountId}`);
 
       const socket = connect(
-        { hostname: SPOTWARE_HOST, port: SPOTWARE_PORT },
+        { hostname: host, port: SPOTWARE_PORT },
         { secureTransport: "on", allowHalfOpen: false }
       );
       this.socket = socket;
@@ -452,6 +483,7 @@ export class SpotwareFeed {
       await writer.write(applicationAuthReq(this.env.SPOTWARE_CLIENT_ID, this.env.SPOTWARE_CLIENT_SECRET));
       await writer.write(accountAuthReq(accountId, this.accessToken));
       await writer.write(symbolsListReq(accountId));
+      console.info("[spotware] auth + symbols requests written, awaiting responses");
 
       void this.readLoop(socket, accountId);
 
@@ -513,10 +545,18 @@ export class SpotwareFeed {
         }
         break;
       }
+      case PAYLOAD.OA_APPLICATION_AUTH_RES:
+        console.info("[spotware] application auth accepted");
+        break;
+      case PAYLOAD.OA_ACCOUNT_AUTH_RES:
+        console.info("[spotware] account auth accepted");
+        break;
       case PAYLOAD.OA_SUBSCRIBE_SPOTS_RES:
         this.conn = "authed";
         this.reconnectDelay = RECONNECT_BASE_MS;
+        this.clearConnectWatchdog();
         this.releaseReadyWaiters();
+        console.info("[spotware] connected — spot subscription live");
         await this.state.storage.setAlarm(Date.now() + HEARTBEAT_MS);
         break;
       case PAYLOAD.OA_GET_TRENDBARS_RES: {
@@ -571,10 +611,16 @@ export class SpotwareFeed {
     }
   }
 
+  private clearConnectWatchdog() {
+    if (this.connectWatchdog) clearTimeout(this.connectWatchdog);
+    this.connectWatchdog = null;
+  }
+
   private handleDisconnect() {
     this.conn = "closed";
     this.socket = null;
     this.writer = null;
+    this.clearConnectWatchdog();
 
     // Anything mid-flight is now unanswerable. Rejecting immediately turns a
     // 10s hang into a fast 502 the client can retry.
@@ -599,9 +645,27 @@ export class SpotwareFeed {
     url.searchParams.set("client_id", this.env.SPOTWARE_CLIENT_ID);
     url.searchParams.set("client_secret", this.env.SPOTWARE_CLIENT_SECRET);
 
-    const res = await fetch(url.toString(), { method: "POST" });
-    if (!res.ok) throw new Error(`Spotware token refresh failed: ${res.status}`);
-    const data = (await res.json()) as { access_token: string; refresh_token?: string };
+    // Timed: an un-aborted fetch here hangs the whole handshake with the
+    // object stuck in "connecting" and nothing logged.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TOKEN_TIMEOUT_MS);
+    let res: Response;
+    try {
+      res = await fetch(url.toString(), { method: "POST", signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+
+    if (!res.ok) {
+      // The body carries cTrader's own reason (invalid_grant when the refresh
+      // token has been spent or revoked) — worth far more than the status.
+      const detail = await res.text().catch(() => "");
+      throw new Error(`Spotware token refresh failed: ${res.status} ${detail.slice(0, 200)}`);
+    }
+    const data = (await res.json()) as { access_token: string; refresh_token?: string; errorCode?: string };
+    if (!data.access_token) {
+      throw new Error(`Spotware token refresh returned no access_token${data.errorCode ? ` (${data.errorCode})` : ""}`);
+    }
 
     if (data.refresh_token) await this.state.storage.put("refreshToken", data.refresh_token);
     return data.access_token;
