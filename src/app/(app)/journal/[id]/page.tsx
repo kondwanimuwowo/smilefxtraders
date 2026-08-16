@@ -1,47 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import type { Trade, AIReviewResult } from "@/lib/store";
 import { useTrades, useDeleteTrade, useUpdateTrade } from "@/lib/hooks/useTrades";
-import { Button, DirPill, Chip, Stars, Icon, CandleChart } from "@/components/ui";
-import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
+import { Button, DirPill, Chip, Stars, Icon } from "@/components/ui";
 import { AIReview } from "@/components/AIReview";
 import { MODEL_BRIEF, FIB_TAG_OPTIONS } from "@/lib/frameworks";
 import { cn } from "@/lib/cn";
-
-// ── Seeded chart generation ───────────────────────────────────────────────────
-
-function mulberry32(seed: number) {
-  return () => {
-    seed |= 0; seed = seed + 0x6d2b79f5 | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = t + Math.imul(t ^ (t >>> 7), 61 | t) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-function strHash(s: string) {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-  return h >>> 0;
-}
-function genCandles(seed: number, n: number, start: number, vol: number, drift: number): Candle[] {
-  const rng = mulberry32(seed);
-  const out: Candle[] = [];
-  let price = start;
-  for (let i = 0; i < n; i++) {
-    const d = (rng() - 0.5 + drift * 0.1) * vol;
-    const o = price, c = price + d;
-    const h = Math.max(o, c) + rng() * vol * 0.4;
-    const l = Math.min(o, c) - rng() * vol * 0.4;
-    out.push({ o, h, l, c });
-    price = c;
-  }
-  return out;
-}
-const PAIR_START: Record<string, number> = { EURUSD: 1.085, GBPUSD: 1.27, NZDUSD: 0.608, XAUUSD: 2328, NAS100: 19800 };
-const PAIR_VOL:   Record<string, number> = { EURUSD: 0.0008, GBPUSD: 0.001, NZDUSD: 0.0007, XAUUSD: 4, NAS100: 60 };
 
 // ── Price formatting helpers ──────────────────────────────────────────────────
 
@@ -137,22 +103,6 @@ export default function TradeDetailPage() {
   const { mutate: updateTrade } = useUpdateTrade();
 
   const trade = trades.find((t) => t.id === id) ?? null;
-
-  const { candles, zones, lines, marks } = useMemo(() => {
-    if (!trade) return { candles: [], zones: [], lines: [], marks: [] };
-    const seed  = strHash(trade.id);
-    const start = PAIR_START[trade.pair] ?? 1.1;
-    const vol   = PAIR_VOL[trade.pair]   ?? 0.001;
-    const drift = trade.dir === "long" ? 1 : -1;
-    const cs    = genCandles(seed, 60, start, vol, drift);
-    const fvgLo = Math.min(cs[22].l, cs[23].l, cs[24].l);
-    const fvgHi = Math.max(cs[22].h, cs[23].h, cs[24].h);
-    const zones_: Zone[]      = [{ i0: 22, i1: 26, lo: fvgLo, hi: fvgHi, type: "fvg", dir: trade.dir }];
-    const lines_: PriceLine[] = [{ price: cs[27].o, color: trade.dir === "long" ? "var(--teal)" : "var(--coral)", label: "Entry" }];
-    const mt = trade.model.includes("CHoCH") ? "choch" : "bos";
-    const marks_: Mark[]      = [{ i: 42, price: cs[42].h, label: mt.toUpperCase(), type: mt }];
-    return { candles: cs, zones: zones_, lines: lines_, marks: marks_ };
-  }, [trade]);
 
   function handleDelete() {
     if (!trade) return;
@@ -294,14 +244,25 @@ export default function TradeDetailPage() {
       </div>
 
       {/* ── Chart ── */}
-      <div className="rounded-2xl overflow-hidden mb-6 h-[380px] shadow-md">
-        {t.chartUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
+      {/* The no-screenshot branch used to render a seeded random walk with the
+          FVG zone fixed at candles 22–26 and the entry at candle 27, regardless
+          of this trade. Real candles arrive with Spotware trendbars — see
+          charts_plan.md. Until then a trade either shows the trader's own
+          screenshot or says plainly that it has none. */}
+      {t.chartUrl ? (
+        <div className="rounded-2xl overflow-hidden mb-6 h-[380px] shadow-md">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={t.chartUrl} alt="Trade chart" className="w-full h-full object-cover" />
-        ) : (
-          <CandleChart candles={candles} annotations={{ zones, lines, marks }} height={300} />
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="rounded-2xl mb-6 py-10 flex flex-col items-center gap-2 text-center bg-panel-2">
+          <Icon name="show_chart" size={26} className="text-ink-dim" />
+          <div className="text-[13px] font-semibold text-ink-mid">No chart attached</div>
+          <p className="text-[12px] max-w-xs text-ink-dim">
+            Add a screenshot when you journal a trade to keep your mark-up with it.
+          </p>
+        </div>
+      )}
 
       {/* ── Two-column body ── */}
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-5">

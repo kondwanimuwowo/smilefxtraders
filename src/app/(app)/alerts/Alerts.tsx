@@ -4,10 +4,9 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useStore } from "@/lib/store";
-import { Panel, DirPill, Chip, Icon, Button, CandleChart, Avatar } from "@/components/ui";
+import { Panel, DirPill, Chip, Icon, Button, Avatar } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { useAddTrade } from "@/lib/hooks/useTrades";
-import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
 import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -152,62 +151,6 @@ const STATUS_CONFIG: Record<AlertStatusApp, { label: string; textCls: string; bg
 
 const STATUS_TRANSITIONS: AlertStatusApp[] = ["active", "tp1", "tp2", "sl", "cancelled"];
 
-// ── Seeded chart helpers ──────────────────────────────────────────────────────
-
-function mulberry32(seed: number) {
-  return () => {
-    seed |= 0; seed = seed + 0x6d2b79f5 | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = t + Math.imul(t ^ (t >>> 7), 61 | t) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-function strHash(s: string) {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-  return h >>> 0;
-}
-
-const PAIR_START: Record<string, number> = { EURUSD: 1.085, GBPUSD: 1.27, USDJPY: 155.4, USDCHF: 0.905, AUDUSD: 0.648, NZDUSD: 0.608, USDCAD: 1.376, XAUUSD: 2328, NAS100: 19800 };
-const PAIR_VOL:   Record<string, number> = { EURUSD: 0.0008, GBPUSD: 0.001, USDJPY: 0.15, USDCHF: 0.0008, AUDUSD: 0.0008, NZDUSD: 0.0007, USDCAD: 0.0008, XAUUSD: 4, NAS100: 60 };
-
-function buildChart(alert: InstructorAlert): { candles: Candle[]; annotations: { zones: Zone[]; lines: PriceLine[]; marks: Mark[] } } {
-  const rng   = mulberry32(strHash(alert.id));
-  const start = PAIR_START[alert.pair] ?? 1.1;
-  const vol   = PAIR_VOL[alert.pair]   ?? 0.001;
-  const drift = alert.dir === "long" ? 0.8 : -0.8;
-
-  const candles: Candle[] = [];
-  let price = start;
-  for (let i = 0; i < 55; i++) {
-    const d = (rng() - 0.5 + drift * 0.08) * vol;
-    const o = price;
-    const c = price + d;
-    const h = Math.max(o, c) + rng() * vol * 0.35;
-    const l = Math.min(o, c) - rng() * vol * 0.35;
-    candles.push({ o, h, l, c });
-    price = c;
-  }
-
-  const zones: Zone[] = [{
-    i0: 24, i1: 29,
-    lo: Math.min(candles[24].l, candles[25].l, candles[26].l),
-    hi: Math.max(candles[24].h, candles[25].h, candles[26].h),
-    type: "fvg", dir: alert.dir,
-  }];
-  const lines: PriceLine[] = [{
-    price: candles[29].o,
-    label: "Entry",
-    color: alert.dir === "long" ? "var(--teal)" : "var(--coral)",
-  }];
-  const marks: Mark[] = [{
-    i: 42, price: alert.dir === "long" ? candles[42].h : candles[42].l,
-    label: "BOS", type: "bos",
-  }];
-
-  return { candles, annotations: { zones, lines, marks } };
-}
-
 // ── Alert card ────────────────────────────────────────────────────────────────
 
 function AlertCard({
@@ -218,11 +161,9 @@ function AlertCard({
   copied: boolean;
   isInstructor: boolean;
 }) {
-  const [expanded, setExpanded] = useState(false);
   const { mutate: updateStatus } = useUpdateAlertStatus();
   const { mutate: deleteAlert }  = useDeleteAlert();
   const statusCfg = STATUS_CONFIG[alert.status];
-  const chart     = useMemo(() => buildChart(alert), [alert]);
 
   return (
     <div
@@ -297,15 +238,10 @@ function AlertCard({
         ))}
       </div>
 
-      {/* Chart */}
-      <div
-        className="mx-5 mb-3 rounded-xl overflow-hidden cursor-pointer shadow-sm transition-[height] duration-300 ease-app"
-        style={{ height: expanded ? 180 : 100 }}
-        onClick={() => setExpanded((e) => !e)}
-        title={expanded ? "Collapse chart" : "Expand chart"}
-      >
-        <CandleChart candles={chart.candles} annotations={chart.annotations} height={expanded ? 180 : 100} />
-      </div>
+      {/* Chart removed — see charts_plan.md. What sat here was a seeded random
+          walk with an "Entry" line drawn at a random candle's open, directly
+          beneath this alert's real entry/SL/TP. Returns with Spotware
+          trendbars; until then the levels above are the actual content. */}
 
       {/* Tags + note */}
       <div className="px-5 pb-2">

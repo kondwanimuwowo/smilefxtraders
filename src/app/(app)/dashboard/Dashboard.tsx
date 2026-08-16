@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { format, parseISO, getHours, getUTCHours, getUTCMinutes, fmtRelative, fmtMonthDay, fmtISODate, fmtWeekdayLong, fmtTime, isForexClosed, hoursUntilForexReopen } from "@/lib/date";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,61 +10,15 @@ import { useTrades, useAddTrade } from "@/lib/hooks/useTrades";
 import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 import {
   Panel, PanelHead, StatTile, DirPill, Chip, Avatar,
-  Button, Ring, Sparkline, Icon, CandleChart, EmptyState,
+  Button, Ring, Sparkline, Icon, EmptyState,
 } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import type { Candle, Zone, PriceLine, Mark } from "@/components/ui";
 import type { InstructorAlert } from "@/app/(app)/alerts/Alerts";
 import type { CalEvent } from "@/lib/calendar";
 import { selectTodayEvents } from "@/lib/calendar-select";
 import { CotBiasPanel } from "@/components/cot/CotBiasPanel";
 
-// ── Candle generator (seeded RNG — matches design reference) ──────────────────
-function mulberry32(a: number) {
-  return () => {
-    a |= 0; a = (a + 0x6D2B79F5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function genCandles(seed: number, n: number, start: number, vol: number, drift: number): Candle[] {
-  const rnd = mulberry32(seed);
-  const out: Candle[] = [];
-  let price = start;
-  for (let i = 0; i < n; i++) {
-    const o = price;
-    const d = (rnd() - 0.5 + drift) * 2;
-    const body = d * vol * (0.4 + rnd());
-    const c = o + body;
-    const h = Math.max(o, c) + rnd() * vol * 0.9;
-    const l = Math.min(o, c) - rnd() * vol * 0.9;
-    out.push({ o, h, l, c });
-    price = c;
-  }
-  return out;
-}
-
 // ── Featured alert ────────────────────────────────────────────────────────────
-
-const PAIR_META: Record<string, { vol: number }> = {
-  EURUSD: { vol: 0.0006 },
-  GBPUSD: { vol: 0.0008 },
-  USDJPY: { vol: 0.15   },
-  USDCHF: { vol: 0.0006 },
-  AUDUSD: { vol: 0.0006 },
-  NZDUSD: { vol: 0.0005 },
-  USDCAD: { vol: 0.0007 },
-  XAUUSD: { vol: 2.5    },
-  NAS100: { vol: 50     },
-};
-
-function strSeed(s: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-  return h >>> 0;
-}
 
 function useFeaturedAlert() {
   return useQuery({
@@ -83,51 +37,10 @@ function useFeaturedAlert() {
   });
 }
 
-function buildFeaturedChart(alert: InstructorAlert): {
-  candles: Candle[];
-  annotations: { zones: Zone[]; lines: PriceLine[]; marks: Mark[] };
-} {
-  const seed   = strSeed(alert.id);
-  const entry  = parseFloat(alert.entry.replace(/,/g, ""));
-  const sl     = parseFloat(alert.sl.replace(/,/g, ""));
-  const tp1    = parseFloat(alert.tp1.replace(/,/g, ""));
-  const vol    = PAIR_META[alert.pair]?.vol ?? 0.001;
-  const drift  = alert.dir === "long" ? 0.04 : -0.04;
-  const candles = genCandles(seed, 56, entry, vol, drift);
-
-  const fvgIdx = 28;
-  const zones: Zone[] = [{
-    i0: fvgIdx, i1: fvgIdx + 6,
-    lo: Math.min(candles[fvgIdx].l, candles[fvgIdx + 1].l),
-    hi: Math.max(candles[fvgIdx].h, candles[fvgIdx + 1].h),
-    type: "fvg", dir: alert.dir,
-  }];
-
-  const lines: PriceLine[] = [
-    { price: entry, label: "Entry", color: alert.dir === "long" ? "var(--teal)"         : "var(--coral)"       },
-    { price: sl,    label: "SL",    color: "var(--coral-bright)" },
-    { price: tp1,   label: "TP1",   color: "var(--teal-bright)"  },
-  ];
-
-  const bosIdx = 44;
-  const marks: Mark[] = [{
-    i: bosIdx,
-    price: alert.dir === "long" ? candles[bosIdx].h : candles[bosIdx].l,
-    label: "BOS", type: "bos",
-  }];
-
-  return { candles, annotations: { zones, lines, marks } };
-}
-
 function FeaturedAlertCard() {
   const { journaledAlerts, addJournaledAlert, toast } = useStore();
   const { mutate: addTrade } = useAddTrade();
   const { data: alert, isLoading } = useFeaturedAlert();
-
-  const chart = useMemo(
-    () => (alert ? buildFeaturedChart(alert) : null),
-    [alert]
-  );
 
   if (isLoading) {
     return (
@@ -144,7 +57,7 @@ function FeaturedAlertCard() {
     );
   }
 
-  if (!alert || !chart) {
+  if (!alert) {
     return (
       <Panel pad={0} className="overflow-hidden">
         <EmptyState
@@ -223,7 +136,10 @@ function FeaturedAlertCard() {
           </p>
         )}
 
-        <CandleChart candles={chart.candles} height={228} annotations={chart.annotations} />
+        {/* Chart removed — see charts_plan.md. The entry/SL/TP lines here were
+            real, but drawn over a seeded random walk starting at the entry
+            price, so the price action around them was fiction. Returns with
+            Spotware trendbars. */}
 
         {/* Entry stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
