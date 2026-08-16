@@ -512,15 +512,13 @@ export class SpotwareFeed {
       const writer = socket.writable.getWriter();
       this.writer = writer;
 
+      // Application auth ONLY. The handshake is a sequence, not a batch: every
+      // later message depends on the connection already being entitled to make
+      // it, and firing all four at once got the account-scoped ones rejected
+      // with UNSUPPORTED_MESSAGE before application auth had been accepted.
+      // The rest is driven from handleFrame as each response lands.
       await writer.write(applicationAuthReq(this.env.SPOTWARE_CLIENT_ID, this.env.SPOTWARE_CLIENT_SECRET));
-      // App-level, so it needs no account authorisation — which is exactly why
-      // it is sent before account auth. When account auth is rejected, this is
-      // what says which accounts the token *does* cover, and whether they are
-      // live or demo.
-      await writer.write(accountListReq(this.accessToken));
-      await writer.write(accountAuthReq(accountId, this.accessToken));
-      await writer.write(symbolsListReq(accountId));
-      console.info("[spotware] auth + symbols requests written, awaiting responses");
+      console.info("[spotware] application auth request written");
 
       void this.readLoop(socket, accountId);
 
@@ -584,6 +582,17 @@ export class SpotwareFeed {
       }
       case PAYLOAD.OA_APPLICATION_AUTH_RES:
         console.info("[spotware] application auth accepted");
+        if (this.writer && this.accessToken) {
+          // Account list first: it is app-scoped, so it succeeds even when the
+          // account auth that follows is refused — which is exactly the case
+          // we need it to explain.
+          await this.writer.write(accountListReq(this.accessToken));
+          await this.writer.write(accountAuthReq(accountId, this.accessToken));
+        }
+        break;
+      case PAYLOAD.OA_ACCOUNT_AUTH_RES:
+        console.info("[spotware] account auth accepted");
+        if (this.writer) await this.writer.write(symbolsListReq(accountId));
         break;
       case PAYLOAD.OA_GET_ACCOUNTS_BY_TOKEN_RES: {
         const accounts = parseAccountList(msg);
@@ -610,9 +619,6 @@ export class SpotwareFeed {
         }
         break;
       }
-      case PAYLOAD.OA_ACCOUNT_AUTH_RES:
-        console.info("[spotware] account auth accepted");
-        break;
       case PAYLOAD.OA_SUBSCRIBE_SPOTS_RES:
         this.conn = "authed";
         this.reconnectDelay = RECONNECT_BASE_MS;
