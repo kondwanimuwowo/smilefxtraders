@@ -78,6 +78,9 @@ const CLOSED_WINDOW_TTL_MS = 7 * 24 * 60 * 60_000;
 const MAX_CACHED_BARS = 1_500;
 const MAX_CACHE_ENTRIES = 300;
 
+/** The refresh token itself was refused — as opposed to a network or timeout failure reaching cTrader. */
+class TokenRejectedError extends Error {}
+
 interface CachedBars {
   bars:     TrendbarsResult["bars"];
   hasMore:  boolean;
@@ -685,8 +688,13 @@ export class SpotwareFeed {
       try {
         return await this.exchangeRefreshToken(stored);
       } catch (e) {
+        // Discard ONLY on an explicit credential rejection. A timeout or a
+        // network blip must not throw away a working stored token in favour of
+        // SPOTWARE_REFRESH_TOKEN, which is very likely already spent — that
+        // would turn a transient failure into a permanently dead feed.
+        if (!(e instanceof TokenRejectedError)) throw e;
         console.error(
-          `[spotware] stored refresh token rejected (${e instanceof Error ? e.message : e}) — discarding it and falling back to SPOTWARE_REFRESH_TOKEN`,
+          `[spotware] stored refresh token rejected (${e.message}) — discarding it and falling back to SPOTWARE_REFRESH_TOKEN`,
         );
         await this.state.storage.delete("refreshToken").catch(() => {});
       }
@@ -725,7 +733,10 @@ export class SpotwareFeed {
       access_token?: string; refresh_token?: string; errorCode?: string; description?: string;
     };
     if (!data.access_token) {
-      throw new Error(`${data.errorCode ?? "no access_token"}: ${data.description ?? ""}`.trim());
+      // Distinct type: this is the token itself being refused, as opposed to
+      // the network failures above. Only this justifies discarding a stored
+      // token — see refreshAccessToken.
+      throw new TokenRejectedError(`${data.errorCode ?? "no access_token"}: ${data.description ?? ""}`.trim());
     }
 
     if (data.refresh_token) await this.state.storage.put("refreshToken", data.refresh_token);
