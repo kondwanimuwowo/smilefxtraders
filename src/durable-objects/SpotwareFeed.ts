@@ -666,11 +666,36 @@ export class SpotwareFeed {
     void this.state.storage.setAlarm(Date.now() + delay);
   }
 
-  /** Exchanges the stored refresh token for a fresh access token, persisting the rotated refresh token cTrader returns. */
+  /**
+   * Exchanges the refresh token for an access token, persisting the rotated
+   * refresh token cTrader returns.
+   *
+   * The stored token takes precedence over the secret — it has to, since the
+   * secret is spent the first time it is used. But that created a trap: once
+   * anything was stored, updating SPOTWARE_REFRESH_TOKEN had no effect
+   * whatsoever, and a stored token that stopped working left the feed
+   * permanently dead with no way in from outside. So a rejected *stored* token
+   * is now discarded and the secret retried in the same pass, which makes
+   * re-authorising actually take.
+   */
   private async refreshAccessToken(): Promise<string> {
     const stored = await this.state.storage.get<string>("refreshToken");
-    const refreshToken = stored ?? this.env.SPOTWARE_REFRESH_TOKEN;
 
+    if (stored) {
+      try {
+        return await this.exchangeRefreshToken(stored);
+      } catch (e) {
+        console.error(
+          `[spotware] stored refresh token rejected (${e instanceof Error ? e.message : e}) — discarding it and falling back to SPOTWARE_REFRESH_TOKEN`,
+        );
+        await this.state.storage.delete("refreshToken").catch(() => {});
+      }
+    }
+
+    return this.exchangeRefreshToken(this.env.SPOTWARE_REFRESH_TOKEN);
+  }
+
+  private async exchangeRefreshToken(refreshToken: string): Promise<string> {
     const url = new URL(TOKEN_URL);
     url.searchParams.set("grant_type", "refresh_token");
     url.searchParams.set("refresh_token", refreshToken);
@@ -694,9 +719,13 @@ export class SpotwareFeed {
       const detail = await res.text().catch(() => "");
       throw new Error(`Spotware token refresh failed: ${res.status} ${detail.slice(0, 200)}`);
     }
-    const data = (await res.json()) as { access_token: string; refresh_token?: string; errorCode?: string };
+    // cTrader answers failures with HTTP 200 and an errorCode in the body
+    // (ACCESS_DENIED for a spent or revoked token), so res.ok proves nothing.
+    const data = (await res.json()) as {
+      access_token?: string; refresh_token?: string; errorCode?: string; description?: string;
+    };
     if (!data.access_token) {
-      throw new Error(`Spotware token refresh returned no access_token${data.errorCode ? ` (${data.errorCode})` : ""}`);
+      throw new Error(`${data.errorCode ?? "no access_token"}: ${data.description ?? ""}`.trim());
     }
 
     if (data.refresh_token) await this.state.storage.put("refreshToken", data.refresh_token);
