@@ -16,6 +16,23 @@ export class BadRequestError extends Error {
 }
 
 /**
+ * Thrown when the session could not be verified — not when the caller is
+ * signed out, which is a settled 401. See getAuthState in lib/supabase/server:
+ * concurrent /api requests race the same refresh token and the losers cannot
+ * establish who they are, momentarily, for a user who is perfectly signed in.
+ *
+ * Distinct from a 500 so the client retries it and the message says something
+ * true. Left out of the "unknown server error" bucket deliberately: this one
+ * almost always succeeds on the next attempt.
+ */
+export class AuthUnavailableError extends Error {
+  constructor(message = "Could not verify your session. Please try again.") {
+    super(message);
+    this.name = "AuthUnavailableError";
+  }
+}
+
+/**
  * `req.json()` throws on an empty or malformed body. Every route that called
  * it bare turned a typo'd client request into a 500 — see the 2026-08-14
  * audit. Always call this instead.
@@ -63,6 +80,12 @@ export function handleApiError(context: string, err: unknown): NextResponse {
   // console.error noise that would otherwise bury real incidents.
   if (err instanceof BadRequestError) {
     return NextResponse.json({ error: err.message, kind: "bad_request" }, { status: 400 });
+  }
+
+  // Transient by nature and already logged at the source by getAuthState —
+  // logging it again here would double-count it against real incidents.
+  if (err instanceof AuthUnavailableError) {
+    return NextResponse.json({ error: err.message, kind: "auth_unavailable", retry: true }, { status: 503 });
   }
 
   console.error(`[${context}]`, err);

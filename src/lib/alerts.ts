@@ -1,4 +1,5 @@
-import { createClient, getAuthedUser } from "@/lib/supabase/server";
+import { createClient, getAuthState } from "@/lib/supabase/server";
+import { AuthUnavailableError } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
 import type { Alert } from "@/generated/prisma/client";
 
@@ -61,12 +62,19 @@ const FREE_ALERT_DELAY_MS = 4 * 60 * 60 * 1000;
  */
 export async function loadInstructorAlerts() {
   const supabase = await createClient();
-  const user = await getAuthedUser(supabase);
+  const auth = await getAuthState(supabase);
+
+  // Throw rather than fall through to the FREE gate. This used to answer a
+  // paying member with 4-hour-delayed alerts whenever the refresh-token race
+  // hit (see getAuthState) — silently, and on the one page where being shown
+  // stale setups actually costs them money. Throwing gets the retry that
+  // clears it; serving the wrong tier looks like success and never recovers.
+  if (auth.state === "unknown") throw new AuthUnavailableError();
 
   let isFreePlan = true;
-  if (user) {
+  if (auth.user) {
     const dbUser = await prisma.user
-      .findUnique({ where: { supabaseId: user.id }, select: { plan: true, role: true } })
+      .findUnique({ where: { supabaseId: auth.user.id }, select: { plan: true, role: true } })
       .catch(() => null);
     if (dbUser && (dbUser.plan !== "FREE" || dbUser.role === "INSTRUCTOR")) {
       isFreePlan = false;

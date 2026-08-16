@@ -18,7 +18,12 @@ export const metadata = { title: "COT Reports | Smile FX Traders" };
 export default async function CotPage() {
   const queryClient = getServerQueryClient();
   const result = await loadCotOverview();
-  queryClient.setQueryData(["cot"], result);
+
+  // Seed only a settled answer. When the plan check couldn't run, seeding
+  // would hand the client a lock screen it has no reason to re-question —
+  // leaving the cache empty makes it fetch and retry instead, which is what
+  // a transient auth failure needs.
+  if (!result.unavailable) queryClient.setQueryData(["cot"], result);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

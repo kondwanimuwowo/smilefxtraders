@@ -9,6 +9,15 @@ import { loadCotOverview } from "@/lib/cot/overview";
 export async function GET() {
   try {
     const result = await loadCotOverview();
+    // Before the locked check: "couldn't verify you" must not be answered with
+    // the upgrade wall a paying member would then be staring at. 503 is
+    // retryable and the client retries it; 403 is treated as settled.
+    if (result.unavailable) {
+      return NextResponse.json(
+        { error: "Could not verify your session. Please try again.", retry: true },
+        { status: 503 },
+      );
+    }
     if (result.locked) {
       return NextResponse.json(
         { error: "COT Reports requires an Edge or Pro plan.", upgrade: true },

@@ -18,6 +18,13 @@ import type { CotEntry, CotWeek } from "@/lib/cot/types";
 export interface CotOverviewResult {
   locked:  boolean;
   entries: CotEntry[];
+  /**
+   * The plan check could not run — distinct from `locked`, which is a settled
+   * "you are on FREE". Callers must not render the upgrade wall for this:
+   * /api/cot answers 503 so the client retries, and the page's prefetch
+   * declines to seed the cache so the client asks for itself.
+   */
+  unavailable?: boolean;
 }
 
 export async function loadCotOverview(): Promise<CotOverviewResult> {
@@ -25,7 +32,10 @@ export async function loadCotOverview(): Promise<CotOverviewResult> {
   // than an HTTP response so the page's server prefetch can render the lock
   // screen without asking its own API over the network.
   const access = await checkPaidPlan();
-  if (!access.allowed) return { locked: true, entries: [] };
+  if (!access.allowed) {
+    if (access.reason === "unavailable") return { locked: false, entries: [], unavailable: true };
+    return { locked: true, entries: [] };
+  }
 
   // Load instrument metadata from DB
   const instruments = await getInstruments();

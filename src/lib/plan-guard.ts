@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient, getAuthedUser } from "@/lib/supabase/server";
+import { createClient, getAuthState } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -11,11 +11,23 @@ import { prisma } from "@/lib/prisma";
  * shape CotReports' lock screen expects). A missing DB record or a DB error
  * fails open — blocking every paid user on a transient DB hiccup is worse
  * than letting an edge-case request through.
+ *
+ * Auth *unavailable* → 503, which is neither of those. It used to answer 401,
+ * so a paying member briefly hitting the refresh-token race (see getAuthState)
+ * was shown the upgrade wall for a feature they pay for. 503 is the honest
+ * status and the client already retries it, where 403 is treated as a settled
+ * answer and deliberately is not retried.
  */
 export async function requirePaidPlan(feature: string): Promise<NextResponse | null> {
   const access = await checkPaidPlan();
   if (access.allowed) return null;
 
+  if (access.reason === "unavailable") {
+    return NextResponse.json(
+      { error: "Could not verify your session. Please try again.", retry: true },
+      { status: 503 },
+    );
+  }
   if (access.reason === "unauthenticated") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -27,7 +39,7 @@ export async function requirePaidPlan(feature: string): Promise<NextResponse | n
 
 export type PaidPlanAccess =
   | { allowed: true }
-  | { allowed: false; reason: "unauthenticated" | "free" };
+  | { allowed: false; reason: "unauthenticated" | "free" | "unavailable" };
 
 /**
  * The same check as requirePaidPlan, expressed as a plain result instead of
@@ -45,11 +57,17 @@ export type PaidPlanAccess =
  */
 export async function checkPaidPlan(): Promise<PaidPlanAccess> {
   const supabase = await createClient();
-  const user = await getAuthedUser(supabase);
-  if (!user) return { allowed: false, reason: "unauthenticated" };
+  const auth = await getAuthState(supabase);
+
+  // Deliberately NOT failing open here, unlike the DB error below. A caller
+  // controls their own cookies, so a malformed session can be planted to force
+  // "unknown" on purpose — failing open would make that a way past the paid
+  // gate. "Ask again" is the only safe answer.
+  if (auth.state === "unknown")   return { allowed: false, reason: "unavailable" };
+  if (auth.state === "anonymous") return { allowed: false, reason: "unauthenticated" };
 
   const dbUser = await prisma.user.findUnique({
-    where:  { supabaseId: user.id },
+    where:  { supabaseId: auth.user.id },
     select: { plan: true },
   }).catch(() => null);
 
