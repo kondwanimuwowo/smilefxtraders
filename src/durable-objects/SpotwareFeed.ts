@@ -31,10 +31,28 @@ const RECONNECT_BASE_MS = 2_000;
 const RECONNECT_MAX_MS = 60_000;
 const TOKEN_URL = "https://openapi.ctrader.com/apps/token";
 
+// How long a /snapshot request keeps the broker connection worth holding open
+// after the last WebSocket client leaves. Without this the feed would drop the
+// moment nobody has the ticker on screen, and every snapshot poll would pay a
+// cold TCP+TLS+auth handshake it can't wait for.
+const SNAPSHOT_DEMAND_MS = 5 * 60_000;
+const PRICES_KEY = "lastPrices";
+
 // cTrader symbol names generally match the platform's display symbols
 // directly (no slash) — unmatched names are just skipped, the price route
 // falls back to Twelve Data for those.
-const TARGET_SYMBOLS = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
+//
+// EURGBP is here for the FX option expiry cards rather than the ticker: it is
+// one of the eight pairs in PAIRS_ORDER (src/types/fx-orders.ts) but is not a
+// ticker instrument.
+const TARGET_SYMBOLS = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "EURGBP", "XAUUSD", "NAS100"];
+
+/** Last seen price per symbol. `at` is epoch ms, so consumers can reject stale quotes. */
+export interface PriceSnapshot {
+  prices:    Record<string, number>;
+  at:        Record<string, number>;
+  connected: boolean;
+}
 
 export interface Env {
   SPOTWARE_CLIENT_ID: string;
@@ -55,13 +73,30 @@ export class SpotwareFeed {
   private symbolById = new Map<number, string>();
   private reconnectDelay = RECONNECT_BASE_MS;
   private accessToken: string | null = null;
+  private lastPrices = new Map<string, { price: number; at: number }>();
+  private lastSnapshotAt = 0;
+  private pricesDirty = false;
 
   constructor(state: DurableObjectState, env: Env) {
     this.state = state;
     this.env = env;
+
+    // Survive eviction: a Durable Object is torn down whenever it goes idle,
+    // and rebuilding the price map from scratch means the first snapshot after
+    // every quiet spell falls back to Twelve Data. Restoring the last
+    // persisted map makes that gap a stale-price decision (which the consumer
+    // makes on `at`) instead of a no-data one.
+    state.blockConcurrencyWhile(async () => {
+      const stored = await state.storage.get<Record<string, { price: number; at: number }>>(PRICES_KEY);
+      if (stored) this.lastPrices = new Map(Object.entries(stored));
+    });
   }
 
   async fetch(request: Request): Promise<Response> {
+    if (new URL(request.url).pathname.endsWith("/snapshot")) {
+      return this.handleSnapshot();
+    }
+
     if (request.headers.get("Upgrade") !== "websocket") {
       return new Response("Expected WebSocket upgrade", { status: 426 });
     }
@@ -78,7 +113,35 @@ export class SpotwareFeed {
     return new Response(null, { status: 101, webSocket: client });
   }
 
+  /**
+   * Point-in-time prices for callers that want a value now rather than a
+   * stream — the FX option expiry cards, via /api/fx-orders/spot.
+   *
+   * Answers from cache and never waits on the broker: a cold object returns an
+   * empty map immediately and the caller falls back to Twelve Data, while the
+   * connection it kicks off here warms the cache for the next poll. Blocking
+   * on a TCP+TLS+auth handshake would just move the delay onto the request.
+   */
+  private handleSnapshot(): Response {
+    this.lastSnapshotAt = Date.now();
+    void this.ensureConnected();
+
+    const snapshot: PriceSnapshot = { prices: {}, at: {}, connected: this.conn === "authed" };
+    for (const [sym, { price, at }] of this.lastPrices) {
+      snapshot.prices[sym] = price;
+      snapshot.at[sym] = at;
+    }
+    return Response.json(snapshot);
+  }
+
+  /** Whether anything is still reading this feed — a live socket, or a recent snapshot poll. */
+  private hasDemand(): boolean {
+    return this.sockets.size > 0 || Date.now() - this.lastSnapshotAt < SNAPSHOT_DEMAND_MS;
+  }
+
   async alarm(): Promise<void> {
+    await this.persistPrices();
+
     if (this.conn === "authed" && this.writer) {
       try {
         await this.writer.write(heartbeat());
@@ -88,7 +151,22 @@ export class SpotwareFeed {
         // fall through to reconnect
       }
     }
-    if (this.sockets.size > 0) void this.ensureConnected();
+    if (this.hasDemand()) void this.ensureConnected();
+  }
+
+  /**
+   * Flushed on the heartbeat alarm rather than per tick — ticks arrive several
+   * times a second per symbol, and a storage write on each one would be orders
+   * of magnitude more expensive than the data is worth.
+   */
+  private async persistPrices(): Promise<void> {
+    if (!this.pricesDirty) return;
+    this.pricesDirty = false;
+    try {
+      await this.state.storage.put(PRICES_KEY, Object.fromEntries(this.lastPrices));
+    } catch (e) {
+      console.error("[spotware] price persist failed:", e instanceof Error ? e.message : e);
+    }
   }
 
   private async ensureConnected(): Promise<void> {
@@ -168,7 +246,11 @@ export class SpotwareFeed {
         const tick = parseSpotEvent(msg);
         const sym = this.symbolById.get(tick.symbolId);
         const price = tick.bid ?? tick.ask;
-        if (sym && price != null) this.broadcast(sym, price);
+        if (sym && price != null) {
+          this.lastPrices.set(sym, { price, at: Date.now() });
+          this.pricesDirty = true;
+          this.broadcast(sym, price);
+        }
         break;
       }
       case PAYLOAD.OA_ERROR_RES: {
@@ -197,7 +279,7 @@ export class SpotwareFeed {
     this.conn = "closed";
     this.socket = null;
     this.writer = null;
-    if (this.sockets.size === 0) return; // nothing to serve — stay idle until a client connects
+    if (!this.hasDemand()) return; // nothing to serve — stay idle until a client connects or polls
     const delay = Math.min(this.reconnectDelay, RECONNECT_MAX_MS);
     this.reconnectDelay = delay * 2;
     void this.state.storage.setAlarm(Date.now() + delay);

@@ -114,7 +114,7 @@ function PairCard({ record, liveSpot }: { record: FxOrderRecord; liveSpot: strin
           </span>
         </div>
 
-        {/* Spot price — live from Twelve Data if available, else image snapshot */}
+        {/* Spot price — live broker tick if available, else the image's own snapshot */}
         {spot !== null && (
           <div className="flex flex-col items-end">
             <span className="tabular-nums text-[12px] font-semibold text-ink-mid">
