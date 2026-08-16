@@ -16,6 +16,8 @@ export const PAYLOAD = {
   OA_ACCOUNT_AUTH_RES: 2103,
   OA_SYMBOLS_LIST_REQ: 2114,
   OA_SYMBOLS_LIST_RES: 2115,
+  OA_GET_ACCOUNTS_BY_TOKEN_REQ: 2149,
+  OA_GET_ACCOUNTS_BY_TOKEN_RES: 2150,
   OA_SUBSCRIBE_SPOTS_REQ: 2127,
   OA_SUBSCRIBE_SPOTS_RES: 2128,
   OA_SPOT_EVENT: 2131,
@@ -98,6 +100,17 @@ export function accountAuthReq(ctidTraderAccountId: number, accessToken: string)
   return envelope(PAYLOAD.OA_ACCOUNT_AUTH_REQ, payload);
 }
 
+/**
+ * ProtoOAGetAccountListByAccessTokenReq — which trading accounts this access
+ * token actually covers. App-level, so it works after application auth alone,
+ * which is what makes it the right diagnostic for an account auth rejection:
+ * it answers "not authorized" with the list of what *is*.
+ */
+export function accountListReq(accessToken: string): Uint8Array {
+  const payload = new ProtoWriter().string(2, accessToken).finish();
+  return envelope(PAYLOAD.OA_GET_ACCOUNTS_BY_TOKEN_REQ, payload);
+}
+
 export function symbolsListReq(ctidTraderAccountId: number): Uint8Array {
   const payload = new ProtoWriter().int64(2, ctidTraderAccountId).finish();
   return envelope(PAYLOAD.OA_SYMBOLS_LIST_REQ, payload);
@@ -158,6 +171,29 @@ export function parseSymbolsList(msg: DecodedMessage): LightSymbol[] {
     const symbolName = asString(field(symFields, 2));
     if (symbolId == null || !symbolName) return [];
     return [{ symbolId, symbolName }];
+  });
+}
+
+export interface CtidAccount {
+  ctidTraderAccountId: number;
+  isLive:              boolean;
+  traderLogin?:        number;
+  broker?:             string;
+}
+
+/** ProtoOAGetAccountListByAccessTokenRes → the accounts field (4), repeated ProtoOACtidTraderAccount. */
+export function parseAccountList(msg: DecodedMessage): CtidAccount[] {
+  return fieldAll(msg.fields, 4).flatMap((f): CtidAccount[] => {
+    if (!(f.value instanceof Uint8Array)) return [];
+    const acc = readFields(f.value);
+    const id = asNumber(field(acc, 1));
+    if (id == null) return [];
+    return [{
+      ctidTraderAccountId: id,
+      isLive:              asNumber(field(acc, 2)) === 1,
+      traderLogin:         asNumber(field(acc, 3)),
+      broker:              asString(field(acc, 6)),
+    }];
   });
 }
 

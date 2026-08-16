@@ -10,7 +10,7 @@
 
 import { ProtoWriter, field, asNumber } from "./protobuf";
 import {
-  getTrendbarsReq, parseTrendbars, decodeFrame, splitFrames, PAYLOAD, TRENDBAR_PERIOD,
+  getTrendbarsReq, parseTrendbars, parseAccountList, decodeFrame, splitFrames, PAYLOAD, TRENDBAR_PERIOD,
 } from "./messages";
 
 let failures = 0;
@@ -112,6 +112,30 @@ check("toTimestamp survives 64-bit varint", asNumber(field(reqMsg.fields, 4)), T
 check("period encodes as H1 = 9", asNumber(field(reqMsg.fields, 5)), 9);
 check("symbolId", asNumber(field(reqMsg.fields, 6)), 1);
 check("count", asNumber(field(reqMsg.fields, 7)), 200);
+
+// ── Account list ─────────────────────────────────────────────────────────────
+// The diagnostic behind "Trading account is not authorized": isLive decides
+// which host the account belongs to, and getting that bool wrong would send
+// someone to the wrong environment.
+
+const account = (id: number, isLive: boolean, login: number, broker: string) =>
+  new ProtoWriter().int64(1, id).bool(2, isLive).int64(3, login).string(6, broker).finish();
+
+const accountsMsg = decodeFrame(
+  new ProtoWriter()
+    .uint32(1, PAYLOAD.OA_GET_ACCOUNTS_BY_TOKEN_RES)
+    .bytes_(2, new ProtoWriter()
+      .string(2, "token")
+      .bytes_(4, account(41_234_567, true, 9_001, "IC Markets"))
+      .bytes_(4, account(41_234_568, false, 9_002, "IC Markets"))
+      .finish())
+    .finish(),
+);
+
+const accounts = parseAccountList(accountsMsg);
+check("both accounts parsed", accounts.length, 2);
+check("live account", accounts[0], { ctidTraderAccountId: 41_234_567, isLive: true, traderLogin: 9_001, broker: "IC Markets" });
+check("demo flagged as demo", accounts[1].isLive, false);
 
 // The envelope change must not have disturbed the existing spot messages.
 const noId = decodeFrame(new ProtoWriter().uint32(1, PAYLOAD.OA_SPOT_EVENT).finish());

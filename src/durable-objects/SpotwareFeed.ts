@@ -12,6 +12,7 @@ import { connect } from "cloudflare:sockets";
 import {
   applicationAuthReq,
   accountAuthReq,
+  accountListReq,
   symbolsListReq,
   subscribeSpotsReq,
   getTrendbarsReq,
@@ -19,6 +20,7 @@ import {
   splitFrames,
   decodeFrame,
   parseSymbolsList,
+  parseAccountList,
   parseSpotEvent,
   parseTrendbars,
   parseErrorRes,
@@ -481,6 +483,11 @@ export class SpotwareFeed {
       this.writer = writer;
 
       await writer.write(applicationAuthReq(this.env.SPOTWARE_CLIENT_ID, this.env.SPOTWARE_CLIENT_SECRET));
+      // App-level, so it needs no account authorisation — which is exactly why
+      // it is sent before account auth. When account auth is rejected, this is
+      // what says which accounts the token *does* cover, and whether they are
+      // live or demo.
+      await writer.write(accountListReq(this.accessToken));
       await writer.write(accountAuthReq(accountId, this.accessToken));
       await writer.write(symbolsListReq(accountId));
       console.info("[spotware] auth + symbols requests written, awaiting responses");
@@ -548,6 +555,31 @@ export class SpotwareFeed {
       case PAYLOAD.OA_APPLICATION_AUTH_RES:
         console.info("[spotware] application auth accepted");
         break;
+      case PAYLOAD.OA_GET_ACCOUNTS_BY_TOKEN_RES: {
+        const accounts = parseAccountList(msg);
+        const configured = Number(this.env.SPOTWARE_CTID_ACCOUNT_ID);
+        const listed = accounts
+          .map((a) => `${a.ctidTraderAccountId} (${a.isLive ? "LIVE" : "DEMO"}${a.broker ? `, ${a.broker}` : ""}${a.traderLogin ? `, login ${a.traderLogin}` : ""})`)
+          .join(" | ");
+        console.info(`[spotware] token authorises ${accounts.length} account(s): ${listed || "none"}`);
+
+        const match = accounts.find((a) => a.ctidTraderAccountId === configured);
+        if (!match) {
+          console.error(
+            `[spotware] SPOTWARE_CTID_ACCOUNT_ID=${configured} is NOT among them — set it to one of the ids above.`,
+          );
+        } else {
+          const host = this.env.SPOTWARE_HOST || DEFAULT_SPOTWARE_HOST;
+          const wantHost = match.isLive ? "live.ctraderapi.com" : "demo.ctraderapi.com";
+          if (host !== wantHost) {
+            console.error(
+              `[spotware] account ${configured} is ${match.isLive ? "LIVE" : "DEMO"} but connecting to ${host}. ` +
+                `Set SPOTWARE_HOST=${wantHost} — the environments are fully separated.`,
+            );
+          }
+        }
+        break;
+      }
       case PAYLOAD.OA_ACCOUNT_AUTH_RES:
         console.info("[spotware] account auth accepted");
         break;
