@@ -402,7 +402,19 @@ export class SpotwareFeed {
 
   private handleSnapshot(): Response {
     this.lastDemandAt = Date.now();
-    void this.ensureConnected();
+    // Still non-blocking — the caller has a 1.5s budget and a Twelve Data
+    // fallback — but waitUntil (where the runtime offers it) stops the object
+    // being torn down mid-handshake. An alarm is also scheduled so the connect
+    // gets an invocation that genuinely waits for it.
+    this.keepAlive(this.ensureConnected());
+    if (this.conn !== "authed") {
+      // Only when nothing is already scheduled — handleDisconnect sets alarms
+      // on an exponential backoff, and overwriting those on every poll would
+      // turn a failing handshake into a retry storm against the broker.
+      void this.state.storage.getAlarm()
+        .then((at) => (at == null ? this.state.storage.setAlarm(Date.now() + 1_000) : undefined))
+        .catch(() => {});
+    }
 
     const snapshot: PriceSnapshot = { prices: {}, at: {}, connected: this.conn === "authed" };
     for (const [sym, { price, at }] of this.lastPrices) {
@@ -433,7 +445,22 @@ export class SpotwareFeed {
         // fall through to reconnect
       }
     }
-    if (this.hasDemand()) void this.ensureConnected();
+    // Awaited, not fired and forgotten. A request handler returns as soon as it
+    // has a response, and the object can be suspended immediately after —
+    // freezing the handshake mid-flight and, worse, stopping the read loop that
+    // would have received its replies. That is why only the watchdog was ever
+    // reaching the logs: the connect never got to run to completion.
+    //
+    // The alarm is the right place to pay that wait. Nothing is blocked on it,
+    // and waitUntilAuthed keeps the invocation alive through the whole
+    // handshake, so responses (and their log lines) actually arrive.
+    if (this.hasDemand()) {
+      try {
+        await this.waitUntilAuthed();
+      } catch (e) {
+        console.error("[spotware] reconnect attempt failed:", e instanceof Error ? e.message : e);
+      }
+    }
   }
 
   /**
@@ -644,6 +671,19 @@ export class SpotwareFeed {
         this.sockets.delete(ws);
       }
     }
+  }
+
+  /**
+   * Extends the current invocation to cover background work, so the runtime
+   * does not suspend the object the instant it has a response. Optional-called
+   * because waitUntil is not guaranteed on DurableObjectState across runtime
+   * versions; where it is missing this degrades to the old behaviour rather
+   * than throwing.
+   */
+  private keepAlive(promise: Promise<unknown>) {
+    const state = this.state as unknown as { waitUntil?: (p: Promise<unknown>) => void };
+    if (typeof state.waitUntil === "function") state.waitUntil(promise.catch(() => {}));
+    else void promise.catch(() => {});
   }
 
   private clearConnectWatchdog() {
