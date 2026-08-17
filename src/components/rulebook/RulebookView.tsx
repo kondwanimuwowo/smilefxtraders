@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { RULEBOOK, GRADE_SCALE, WEIGHT_LABEL, WEIGHT_BLURB, type RuleWeight, type RuleEvidence } from "@/lib/rulebook";
 import type { Framework } from "@/lib/frameworks";
 import { cn } from "@/lib/cn";
+// Type-only on purpose: rule-stats.ts imports Prisma, and a value import from
+// a "use client" module drags pg (and dns/fs) into the browser bundle.
+import type { RuleStats } from "@/lib/gavo/rule-stats";
 
 const WEIGHT_CHIP: Record<RuleWeight, string> = {
   invalidating: "bg-[rgba(234,82,61,0.12)] text-coral",
@@ -17,6 +20,34 @@ const EVIDENCE_NOTE: Record<RuleEvidence, string> = {
 };
 
 /**
+ * This rule's record against the member's own recent reviews.
+ *
+ * The number is the argument. A trader who has read rule 10 twenty times still
+ * breaks it; being told Gavo has pulled them up on it in six of their last
+ * twenty reviews is what makes it land.
+ */
+function RuleRecord({ stat, id }: { stat?: RuleStats; id: string }) {
+  if (!stat || stat.reviewed === 0) return null;
+  const record = stat.byRule[id];
+  if (!record || (record.flagged === 0 && record.praised === 0)) return null;
+
+  return (
+    <div className="flex items-center gap-3 mt-2 text-[11px]">
+      {record.flagged > 0 && (
+        <span className="font-semibold text-coral">
+          Flagged in {record.flagged} of your last {stat.reviewed} reviews
+        </span>
+      )}
+      {record.flagged === 0 && record.praised > 0 && (
+        <span className="font-semibold text-teal">
+          Credited in {record.praised} of your last {stat.reviewed} reviews
+        </span>
+      )}
+    </div>
+  );
+}
+
+/**
  * The rulebook for members, inside the app shell.
  *
  * The marketing site has its own presentation (MarketingRulebook) because this
@@ -24,9 +55,10 @@ const EVIDENCE_NOTE: Record<RuleEvidence, string> = {
  * Both render the same RULEBOOK object, so they cannot describe different
  * standards.
  */
-export function RulebookView() {
+export function RulebookView({ stats }: { stats?: Record<Framework, RuleStats> }) {
   const [framework, setFramework] = useState<Framework>("SMC");
-  const book = RULEBOOK[framework];
+  const book  = RULEBOOK[framework];
+  const stat  = stats?.[framework];
 
   // Deep links carry the framework (`/rules?fw=SnD#zone-fresh`). Three S&D
   // rule ids have no SMC counterpart, so without this an S&D link from the
@@ -135,6 +167,7 @@ export function RulebookView() {
                         <span className="text-[10px] text-ink-dim">{EVIDENCE_NOTE[rule.evidence]}</span>
                       </div>
                       <p className="text-[13px] leading-relaxed text-ink-mid">{rule.body}</p>
+                      <RuleRecord stat={stat} id={rule.id} />
                     </div>
                   </div>
                 </li>
