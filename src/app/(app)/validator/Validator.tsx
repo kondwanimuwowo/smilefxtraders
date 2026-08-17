@@ -89,7 +89,7 @@ function RuleRow({ rule, framework }: { rule: RuleResult; framework: Framework }
         <div className="text-[12px] mt-0.5 leading-relaxed text-ink-dim">{rule.why}</div>
         {linked && (
           <Link
-            href={`/rulebook?fw=${framework}#${linked.id}`}
+            href={`/rules?fw=${framework}#${linked.id}`}
             className="inline-flex items-center gap-1 mt-1.5 text-[11.5px] font-semibold text-teal hover:opacity-75"
           >
             Rule {linked.n}: {linked.title}

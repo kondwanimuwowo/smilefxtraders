@@ -22,11 +22,12 @@ const SKIP_AUTH_PREFIXES = ["/api", "/auth"];
 const MARKETING_HOST = process.env.NEXT_PUBLIC_MARKETING_HOST ?? "smilefxtraders.com";
 const APP_HOST       = process.env.NEXT_PUBLIC_APP_HOST       ?? "app.smilefxtraders.com";
 
-// /rulebook is NOT here on purpose: it exists on both hosts. The marketing
-// copy lives on the apex for prospects, and the app has its own at the same
-// path for members. Listing it would bounce signed-in members off to the
-// marketing version mid-session.
-const MARKETING_PREFIXES = ["/features", "/pricing", "/about", "/learn", "/our-community", "/terms", "/privacy", "/risk-disclosure", "/blog", "/careers", "/contact"];
+// /rulebook is the apex-only marketing copy of the rulebook. Members read the
+// same rules at /rules inside the shell, which is a separate path on purpose:
+// route groups are organisational and do not create URL segments, so two pages
+// both resolving to /rulebook is a build error regardless of host. Same split
+// as /pricing vs /membership and /learn vs /academy.
+const MARKETING_PREFIXES = ["/features", "/pricing", "/about", "/learn", "/our-community", "/terms", "/privacy", "/risk-disclosure", "/blog", "/careers", "/contact", "/rulebook"];
 
 function isMarketingPath(pathname: string) {
   return (

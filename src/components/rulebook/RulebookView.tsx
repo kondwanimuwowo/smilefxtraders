@@ -16,7 +16,7 @@ export function RulebookView({ marketing = false }: { marketing?: boolean }) {
   const [framework, setFramework] = useState<Framework>("SMC");
   const book = RULEBOOK[framework];
 
-  // Deep links carry the framework (`/rulebook?fw=SnD#zone-fresh`). Three S&D
+  // Deep links carry the framework (`/rules?fw=SnD#zone-fresh`). Three S&D
   // rule ids have no SMC counterpart, so without this an S&D link from the
   // validator or a Gavo review would land on a page where the anchor does not
   // exist. Read after mount rather than during render so the server HTML and
