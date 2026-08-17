@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import type { Trade, AIReviewResult } from "@/lib/store";
+import type { Trade, AIReviewResult, ReviewPoint } from "@/lib/store";
+import { ruleById } from "@/lib/rulebook";
+import type { Framework } from "@/lib/frameworks";
 import { Icon, GavoIcon } from "@/components/ui";
+import { cn } from "@/lib/cn";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -17,6 +20,48 @@ const GRADE_COLOR: Record<string, string> = {
   B:    "var(--gold)", C: "var(--gold)",
   D:    "var(--coral)",
 };
+
+/**
+ * A feedback bullet, with a chip per rule it cites.
+ *
+ * The chips are the point of this component. Gavo used to write "according to
+ * rule 7" into the prose, which meant nothing to a reader who had never seen
+ * the rulebook; each chip now lands on the rule itself.
+ */
+function PointRow({ point, framework, tone }: { point: ReviewPoint; framework: Framework; tone: "good" | "improve" }) {
+  return (
+    <li className="flex items-start gap-2 text-[12.5px] text-ink-mid">
+      <Icon
+        name={tone === "good" ? "check_circle" : "trending_flat"}
+        size={15}
+        fill={tone === "good"}
+        className={cn("shrink-0 mt-0.5", tone === "good" ? "text-teal" : "text-coral")}
+      />
+      <span className="min-w-0">
+        {point.text}
+        {point.rules.length > 0 && (
+          <span className="flex flex-wrap gap-1.5 mt-1.5">
+            {point.rules.map((id) => {
+              const rule = ruleById(framework, id);
+              if (!rule) return null;
+              return (
+                <Link
+                  key={id}
+                  href={`/rules?fw=${framework}#${id}`}
+                  className="inline-flex items-center gap-1 text-[10.5px] font-semibold px-1.5 py-0.5 rounded bg-panel-2 text-ink-dim hover:text-teal transition-colors"
+                  title={rule.title}
+                >
+                  Rule {rule.n}
+                  <span className="hidden sm:inline font-normal">· {rule.title}</span>
+                </Link>
+              );
+            })}
+          </span>
+        )}
+      </span>
+    </li>
+  );
+}
 
 function GradeChip({ grade }: { grade: string }) {
   const color = GRADE_COLOR[grade] ?? "var(--ink-dim)";
@@ -101,7 +146,8 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const tipLabel = trade.framework === "SnD" ? "S&D tip: " : "ICT tip: ";
+  const framework: Framework = trade.framework === "SnD" ? "SnD" : "SMC";
+  const tipLabel = framework === "SnD" ? "S&D tip: " : "ICT tip: ";
 
   return (
     <div className="rounded-xl overflow-hidden bg-panel shadow-md">
@@ -192,12 +238,9 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
               <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2 text-teal">
                 What you did well
               </div>
-              <ul className="flex flex-col gap-1.5">
-                {result.good.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-[12.5px] text-ink-mid">
-                    <Icon name="check_circle" size={15} fill className="text-teal shrink-0 mt-0.5" />
-                    {item}
-                  </li>
+              <ul className="flex flex-col gap-2">
+                {result.good.map((point, i) => (
+                  <PointRow key={i} point={point} framework={framework} tone="good" />
                 ))}
               </ul>
             </div>
@@ -209,12 +252,9 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
               <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2 text-coral">
                 Areas to improve
               </div>
-              <ul className="flex flex-col gap-1.5">
-                {result.improve.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-[12.5px] text-ink-mid">
-                    <Icon name="trending_flat" size={15} className="text-coral shrink-0 mt-0.5" />
-                    {item}
-                  </li>
+              <ul className="flex flex-col gap-2">
+                {result.improve.map((point, i) => (
+                  <PointRow key={i} point={point} framework={framework} tone="improve" />
                 ))}
               </ul>
             </div>
@@ -233,11 +273,11 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
 
           {/* Gavo cites rule numbers, so the rules have to be one tap away. */}
           <Link
-            href={`/rules?fw=${trade.framework ?? "SMC"}`}
+            href={`/rules?fw=${framework}`}
             className="inline-flex items-center gap-1 self-start text-[11.5px] font-semibold text-ink-dim hover:text-teal transition-colors"
           >
             <Icon name="menu_book" size={14} />
-            Read the {trade.framework === "SnD" ? "S&D" : "SMC"} rulebook
+            Read the {framework === "SnD" ? "S&D" : "SMC"} rulebook
             <Icon name="chevron_right" size={13} />
           </Link>
         </div>

@@ -7,7 +7,8 @@ import { buildPriceContext, formatPriceContext, entryPeriodFor } from "@/lib/gav
 import { AuthUnavailableError } from "@/lib/api-error";
 // The rulebook these prompts carry is the same object /rulebook renders, so
 // the standard members read is provably the standard Gavo grades against.
-import { buildRulebookPrompt, buildGradePrompt } from "@/lib/rulebook";
+import { buildRulebookPrompt, buildGradePrompt, buildRuleIndexPrompt } from "@/lib/rulebook";
+import { normaliseReview } from "@/lib/gavo/review-shape";
 
 const client = new Anthropic();
 
@@ -32,9 +33,14 @@ const SMC_SYSTEM_PROMPT = `You are Gavo, an AI trading coach built for the Smile
 
 ${buildRulebookPrompt("SMC")}
 
+## Rule ids, for citation
+Every point you make must name the rules it is about, using these ids in the "rules" array. Never invent an id, and never write "rule 7" in your prose: cite the id and let the interface show the trader the rule.
+
+${buildRuleIndexPrompt("SMC")}
+
 ## Response format
-Respond ONLY with minified JSON, no markdown fences, no extra text. Shape:
-{"grade":"A+|A|B|C|D","verdict":"one punchy sentence (max 20 words)","good":["2–3 specific things the trader did well, referencing SMC concepts"],"improve":["2–3 specific things to improve, referencing exact rules broken"],"tip":"one actionable ICT-specific tip the trader should apply on their next setup"}
+Give 2 to 3 items in "good" and 2 to 3 in "improve". Respond ONLY with minified JSON, no markdown fences, no extra text. Shape:
+{"grade":"A+|A|B|C|D","verdict":"one punchy sentence (max 20 words)","good":[{"text":"a specific thing the trader did well, referencing SMC concepts","rules":["rule-id"]}],"improve":[{"text":"a specific thing to improve","rules":["rule-id"]}],"tip":"one actionable ICT-specific tip the trader should apply on their next setup"}
 
 ${buildGradePrompt("SMC")}`;
 
@@ -54,9 +60,14 @@ const SND_SYSTEM_PROMPT = `You are Gavo, an AI trading coach built for the Smile
 
 ${buildRulebookPrompt("SnD")}
 
+## Rule ids, for citation
+Every point you make must name the rules it is about, using these ids in the "rules" array. Never invent an id, and never write "rule 7" in your prose: cite the id and let the interface show the trader the rule.
+
+${buildRuleIndexPrompt("SnD")}
+
 ## Response format
-Respond ONLY with minified JSON, no markdown fences, no extra text. Shape:
-{"grade":"A+|A|B|C|D","verdict":"one punchy sentence (max 20 words)","good":["2–3 specific things the trader did well, referencing S&D concepts"],"improve":["2–3 specific things to improve, referencing exact rules broken"],"tip":"one actionable S&D-specific tip the trader should apply on their next setup"}
+Give 2 to 3 items in "good" and 2 to 3 in "improve". Respond ONLY with minified JSON, no markdown fences, no extra text. Shape:
+{"grade":"A+|A|B|C|D","verdict":"one punchy sentence (max 20 words)","good":[{"text":"a specific thing the trader did well, referencing S&D concepts","rules":["rule-id"]}],"improve":[{"text":"a specific thing to improve","rules":["rule-id"]}],"tip":"one actionable S&D-specific tip the trader should apply on their next setup"}
 
 ${buildGradePrompt("SnD")}`;
 
@@ -187,9 +198,13 @@ export async function POST(req: NextRequest) {
 
     const text = message.content[0].type === "text" ? message.content[0].text : "";
     const match = text.match(/\{[\s\S]*\}/);
-    const json = match ? JSON.parse(match[0]) : { grade: "—", verdict: text, good: [], improve: [], tip: "" };
-
-    return NextResponse.json(json);
+    // Normalised rather than passed through: this response is written to
+    // Trade.aiReview, so an unexpected shape from the model becomes persisted
+    // state, and an invented rule id becomes a link to an anchor that is not
+    // there.
+    const framework = body.framework === "SnD" ? "SnD" : "SMC";
+    const raw = match ? JSON.parse(match[0]) : { verdict: text };
+    return NextResponse.json(normaliseReview(raw, framework));
   } catch (err) {
     console.error("[review]", err);
     return NextResponse.json({ error: "Review failed" }, { status: 500 });

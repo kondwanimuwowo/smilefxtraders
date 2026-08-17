@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { Providers } from "@/lib/providers";
 import type { AppUser, Trade, AIReviewResult } from "@/lib/store";
+import { normaliseReview } from "@/lib/gavo/review-shape";
 
 // Every route under this layout is per-user and auth-gated — never let the
 // Cloudflare/OpenNext incremental cache treat any of it as static.
@@ -46,7 +47,11 @@ function dbTradeToStore(db: NonNullable<Awaited<ReturnType<typeof prisma.trade.f
     note:        db.note ?? undefined,
     chartUrl:    db.chartUrl ?? undefined,
     fromAlert:   db.fromAlert ?? undefined,
-    aiReview:    db.aiReview ? (db.aiReview as unknown as AIReviewResult) : null,
+    // Normalised on read, not cast. Reviews written before feedback points
+    // carried rule ids are stored as plain strings, and rendering one as if it
+    // had a `.rules` array would throw on a trade the member has had for
+    // months. normaliseReview accepts both shapes.
+    aiReview:    db.aiReview ? normaliseReview(db.aiReview, db.framework === "SnD" ? "SnD" : "SMC") : null,
   };
 }
 

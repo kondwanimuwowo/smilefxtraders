@@ -7,6 +7,7 @@
 
 import { BLANK_SETUP, validate, type Setup } from "./frameworks";
 import { allRules } from "./rulebook";
+import { normaliseReview } from "./gavo/review-shape";
 
 let failures = 0;
 
@@ -139,6 +140,41 @@ check("sub-checks do not change the total", SMT_MODEL.total === 13, `${SMT_MODEL
 const FIB_OVER_BREAK = validate({ ...perfectSMC(), riskPct: "5", fibConfluence: true });
 check("Fibonacci confluence does not clear an invalidating break",
   FIB_OVER_BREAK.readiness === "do-not-take", FIB_OVER_BREAK.readiness);
+
+// ── Review shape: raw model output and legacy stored reviews ─────────────────
+
+const LEGACY = normaliseReview(
+  { grade: "B", verdict: "Decent read, sloppy risk.", good: ["Clean sweep entry"], improve: ["Risked too much"], tip: "Halve it." },
+  "SMC",
+);
+check("legacy string feedback still renders", LEGACY.good[0]?.text === "Clean sweep entry", JSON.stringify(LEGACY.good));
+check("legacy string feedback cites no rules", LEGACY.good[0]?.rules.length === 0);
+check("legacy grade survives", LEGACY.grade === "B", LEGACY.grade);
+
+const CITED = normaliseReview(
+  { grade: "C", verdict: "v", good: [{ text: "good", rules: ["htf"] }], improve: [{ text: "bad", rules: ["risk-size", "rr"] }], tip: "t" },
+  "SMC",
+);
+check("cited rule ids are kept", CITED.improve[0]?.rules.join(",") === "risk-size,rr", CITED.improve[0]?.rules.join(","));
+
+// A model asked for slugs will occasionally invent one, and an invented id
+// renders as a link to an anchor that does not exist.
+const INVENTED = normaliseReview({ good: [{ text: "x", rules: ["htf", "not-a-rule", "moon-phase"] }] }, "SMC");
+check("invented rule ids are dropped", INVENTED.good[0]?.rules.join(",") === "htf", INVENTED.good[0]?.rules.join(","));
+
+const CROSS_FRAMEWORK = normaliseReview({ good: [{ text: "x", rules: ["zone-fresh"] }] }, "SMC");
+check("ids from the other framework are dropped", CROSS_FRAMEWORK.good[0]?.rules.length === 0,
+  CROSS_FRAMEWORK.good[0]?.rules.join(","));
+
+check("duplicate ids are collapsed",
+  normaliseReview({ good: [{ text: "x", rules: ["rr", "rr"] }] }, "SMC").good[0]?.rules.length === 1);
+
+// An unrecognised grade falls through the UI's colour lookup to teal, so a D
+// would read as a pass.
+check("an unknown grade becomes a dash", normaliseReview({ grade: "A++" }, "SMC").grade === "—",
+  normaliseReview({ grade: "A++" }, "SMC").grade);
+check("junk input does not throw", normaliseReview(null, "SMC").good.length === 0);
+check("empty feedback text is dropped", normaliseReview({ good: ["", "  ", "real"] }, "SMC").good.length === 1);
 
 console.log(failures === 0 ? "\nAll checks passed." : `\n${failures} check(s) failed.`);
 if (failures > 0) process.exitCode = 1;

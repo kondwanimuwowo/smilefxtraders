@@ -333,6 +333,19 @@ export function buildGradePrompt(framework: Framework): string {
   ].join("\n");
 }
 
+/**
+ * The id index Gavo cites by.
+ *
+ * Given to the model so each feedback point can name the rules it refers to,
+ * which is what turns "according to rule 7" into a link the reader can follow.
+ * Ids are the page anchors, so a cited id resolves to a real place on /rules.
+ */
+export function buildRuleIndexPrompt(framework: Framework): string {
+  return allRules(framework)
+    .map((r) => `${r.n}. ${r.id} (${r.weight}) - ${r.title}`)
+    .join("\n");
+}
+
 /** Every rule, flattened, for lookups by the Validator and for search. */
 export function allRules(framework: Framework): Rule[] {
   return RULEBOOK[framework].groups.flatMap((g) => g.rules);

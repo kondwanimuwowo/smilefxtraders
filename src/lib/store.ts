@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import type { AIReviewResult } from "@/lib/gavo/review-shape";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -8,13 +9,11 @@ export type Direction = "long" | "short";
 export type TradeResult = "win" | "loss" | "open";
 export type ToastTone = "teal" | "gold" | "coral";
 
-export interface AIReviewResult {
-  grade:   string;
-  verdict: string;
-  good:    string[];
-  improve: string[];
-  tip:     string;
-}
+// Defined in lib/gavo/review-shape.ts alongside the normaliser that produces
+// it, and re-exported here so the many existing `from "@/lib/store"` imports
+// keep working. One definition: a second copy declaring `good: string[]` would
+// let the pre-rule-id shape type-check indefinitely.
+export type { ReviewPoint, AIReviewResult } from "@/lib/gavo/review-shape";
 
 export interface Trade {
   id: string;
