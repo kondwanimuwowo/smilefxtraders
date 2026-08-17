@@ -56,6 +56,7 @@ const NAV: { section: string; items: NavItem[] }[] = [
       { href: "/alerts",    icon: "notifications_active", label: "Setup Alerts" },
       { href: "/community", icon: "groups",               label: "Community"    },
       { href: "/academy",   icon: "school",               label: "Academy"      },
+      { href: "/rulebook",  icon: "menu_book",            label: "The Rulebook" },
     ],
   },
 ];

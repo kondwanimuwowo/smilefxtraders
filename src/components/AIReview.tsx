@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import type { Trade, AIReviewResult } from "@/lib/store";
 import { Icon, GavoIcon } from "@/components/ui";
 
@@ -229,6 +230,16 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
               </p>
             </div>
           )}
+
+          {/* Gavo cites rule numbers, so the rules have to be one tap away. */}
+          <Link
+            href={`/rulebook?fw=${trade.framework ?? "SMC"}`}
+            className="inline-flex items-center gap-1 self-start text-[11.5px] font-semibold text-ink-dim hover:text-teal transition-colors"
+          >
+            <Icon name="menu_book" size={14} />
+            Read the {trade.framework === "SnD" ? "S&D" : "SMC"} rulebook
+            <Icon name="chevron_right" size={13} />
+          </Link>
         </div>
       )}
     </div>

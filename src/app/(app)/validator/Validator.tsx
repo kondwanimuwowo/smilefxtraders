@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ruleById } from "@/lib/rulebook";
 import { Panel, PanelHead, Button, DirPill, Icon, Field, Select, SegRow, MonoInput, EmptyState } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import {
@@ -62,7 +64,12 @@ function CheckToggle({ label, checked, onChange }: { label: string; checked: boo
   );
 }
 
-function RuleRow({ rule }: { rule: RuleResult }) {
+function RuleRow({ rule, framework }: { rule: RuleResult; framework: Framework }) {
+  // The Validator's rule ids match the rulebook's where they check the same
+  // thing, so a failed check can send the trader to the rule it broke. Without
+  // this the Validator says "you are fighting the trend" and offers nowhere to
+  // learn why that matters.
+  const linked = ruleById(framework, rule.id);
   return (
     <div
       className={cn(
@@ -80,6 +87,15 @@ function RuleRow({ rule }: { rule: RuleResult }) {
       <div className="min-w-0 flex-1">
         <div className="text-[13px] font-semibold text-ink-strong">{rule.label}</div>
         <div className="text-[12px] mt-0.5 leading-relaxed text-ink-dim">{rule.why}</div>
+        {linked && (
+          <Link
+            href={`/rulebook?fw=${framework}#${linked.id}`}
+            className="inline-flex items-center gap-1 mt-1.5 text-[11.5px] font-semibold text-teal hover:opacity-75"
+          >
+            Rule {linked.n}: {linked.title}
+            <Icon name="chevron_right" size={13} />
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -665,7 +681,7 @@ export function Validator() {
             ) : (
               <div className="px-4 pb-4 flex flex-col gap-2">
                 {result.rules.map((rule) => (
-                  <RuleRow key={rule.id} rule={rule} />
+                  <RuleRow key={rule.id} rule={rule} framework={setup.framework} />
                 ))}
               </div>
             )}

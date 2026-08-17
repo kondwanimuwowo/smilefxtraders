@@ -11,6 +11,7 @@ import { SOCIAL_LINKS } from "@/lib/social-links";
 const NAV = [
   { href: "/", label: "Home" },
   { href: "/features", label: "Features" },
+  { href: "/rulebook", label: "Rulebook" },
   { href: "/learn", label: "Academy" },
   { href: "/our-community", label: "Community" },
   { href: "/pricing", label: "Pricing" },

@@ -4,6 +4,7 @@ import { SOCIAL_LINKS } from "@/lib/social-links";
 
 const LINKS: [string, string][] = [
   ["Features",  "/features"],
+  ["Rulebook",  "/rulebook"],
   ["Pricing",   "/pricing"],
   ["Academy",   "/learn"],
   ["Community", "/our-community"],
