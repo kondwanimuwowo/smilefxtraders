@@ -11,20 +11,20 @@ const WEIGHT_CHIP: Record<RuleWeight, string> = {
   supporting:   "bg-panel-2 text-ink-dim",
 };
 
-// Only shown in-app: a prospect has no numbers for us to check anything against.
 const EVIDENCE_NOTE: Record<RuleEvidence, string> = {
   computed: "Checked from your numbers",
   declared: "You confirm this",
 };
 
 /**
- * The rulebook, rendered from the same object Gavo's prompt is built from.
+ * The rulebook for members, inside the app shell.
  *
- * Shared by the in-app page and the marketing page so the two cannot describe
- * different standards. `marketing` only changes the surrounding copy; the rules
- * themselves are identical by construction.
+ * The marketing site has its own presentation (MarketingRulebook) because this
+ * one is built from app surface tokens and read as a dashboard page on the apex.
+ * Both render the same RULEBOOK object, so they cannot describe different
+ * standards.
  */
-export function RulebookView({ marketing = false }: { marketing?: boolean }) {
+export function RulebookView() {
   const [framework, setFramework] = useState<Framework>("SMC");
   const book = RULEBOOK[framework];
 
@@ -132,9 +132,7 @@ export function RulebookView({ marketing = false }: { marketing?: boolean }) {
                         >
                           {WEIGHT_LABEL[rule.weight]}
                         </span>
-                        {!marketing && (
-                          <span className="text-[10px] text-ink-dim">{EVIDENCE_NOTE[rule.evidence]}</span>
-                        )}
+                        <span className="text-[10px] text-ink-dim">{EVIDENCE_NOTE[rule.evidence]}</span>
                       </div>
                       <p className="text-[13px] leading-relaxed text-ink-mid">{rule.body}</p>
                     </div>
@@ -151,9 +149,8 @@ export function RulebookView({ marketing = false }: { marketing?: boolean }) {
         <header className="px-5 py-4 bg-panel-2">
           <h2 className="font-display font-semibold text-[16px] text-ink-strong">How the grade is worked out</h2>
           <p className="text-[12.5px] mt-1 text-ink-dim">
-            {marketing
-              ? "Every journalled trade is graded against these thirteen rules."
-              : "Gavo grades every trade you journal against these thirteen rules, and checks what it can against real broker price data."}
+            Gavo grades every trade you journal against these thirteen rules, and checks what it can
+            against real broker price data. Which rules broke matters more than how many.
           </p>
         </header>
         <div className="flex flex-col">
