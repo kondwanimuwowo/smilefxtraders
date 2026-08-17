@@ -7,7 +7,7 @@ import { buildPriceContext, formatPriceContext, entryPeriodFor } from "@/lib/gav
 import { AuthUnavailableError } from "@/lib/api-error";
 // The rulebook these prompts carry is the same object /rulebook renders, so
 // the standard members read is provably the standard Gavo grades against.
-import { buildRulebookPrompt } from "@/lib/rulebook";
+import { buildRulebookPrompt, buildGradePrompt } from "@/lib/rulebook";
 
 const client = new Anthropic();
 
@@ -36,12 +36,7 @@ ${buildRulebookPrompt("SMC")}
 Respond ONLY with minified JSON, no markdown fences, no extra text. Shape:
 {"grade":"A+|A|B|C|D","verdict":"one punchy sentence (max 20 words)","good":["2–3 specific things the trader did well, referencing SMC concepts"],"improve":["2–3 specific things to improve, referencing exact rules broken"],"tip":"one actionable ICT-specific tip the trader should apply on their next setup"}
 
-Grade scale:
-- A+ : All 13 rules satisfied, clean execution, excellent R:R
-- A  : 11–12 rules satisfied, minor friction but solid process
-- B  : 8–10 rules satisfied, identifiable gaps but fundamentally sound
-- C  : 5–7 rules satisfied, significant rule breaks, lucky outcome or unclear bias
-- D  : Fewer than 5 rules satisfied, undisciplined, random entry with no SMC basis`;
+${buildGradePrompt("SMC")}`;
 
 const SND_SYSTEM_PROMPT = `You are Gavo, an AI trading coach built for the Smile FX Traders community. You specialise in Supply & Demand (S&D) trading, and your role is to review a student's trade journal entry and grade it honestly but encouragingly against the Supply & Demand rulebook.
 
@@ -63,12 +58,7 @@ ${buildRulebookPrompt("SnD")}
 Respond ONLY with minified JSON, no markdown fences, no extra text. Shape:
 {"grade":"A+|A|B|C|D","verdict":"one punchy sentence (max 20 words)","good":["2–3 specific things the trader did well, referencing S&D concepts"],"improve":["2–3 specific things to improve, referencing exact rules broken"],"tip":"one actionable S&D-specific tip the trader should apply on their next setup"}
 
-Grade scale:
-- A+ : All 13 rules satisfied, clean execution, fresh zone, excellent R:R
-- A  : 11–12 rules satisfied, minor friction but solid S&D process
-- B  : 8–10 rules satisfied, identifiable gaps but fundamentally sound
-- C  : 5–7 rules satisfied, significant rule breaks such as a stale zone or wrong-side approach
-- D  : Fewer than 5 rules satisfied, random entry with no S&D basis`;
+${buildGradePrompt("SnD")}`;
 
 // ── Trade-specific user message (NOT cached — changes every request) ──────────
 

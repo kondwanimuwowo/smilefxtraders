@@ -1,9 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { RULEBOOK, GRADE_SCALE } from "@/lib/rulebook";
+import { RULEBOOK, GRADE_SCALE, WEIGHT_LABEL, WEIGHT_BLURB, type RuleWeight, type RuleEvidence } from "@/lib/rulebook";
 import type { Framework } from "@/lib/frameworks";
 import { cn } from "@/lib/cn";
+
+const WEIGHT_CHIP: Record<RuleWeight, string> = {
+  invalidating: "bg-[rgba(234,82,61,0.12)] text-coral",
+  core:         "bg-[rgba(248,185,61,0.12)] text-gold",
+  supporting:   "bg-panel-2 text-ink-dim",
+};
+
+// Only shown in-app: a prospect has no numbers for us to check anything against.
+const EVIDENCE_NOTE: Record<RuleEvidence, string> = {
+  computed: "Checked from your numbers",
+  declared: "You confirm this",
+};
 
 /**
  * The rulebook, rendered from the same object Gavo's prompt is built from.
@@ -60,6 +72,27 @@ export function RulebookView({ marketing = false }: { marketing?: boolean }) {
 
       <p className="text-[14px] leading-relaxed max-w-2xl text-ink-mid">{book.intro}</p>
 
+      {/* The tiers are load-bearing: they decide whether a break is fatal or
+          merely costly, so they belong above the rules rather than in a footnote. */}
+      <div className="rounded-2xl overflow-hidden bg-panel shadow-sm">
+        <header className="px-5 py-4 bg-panel-2">
+          <h2 className="font-display font-semibold text-[16px] text-ink-strong">Not every rule costs the same</h2>
+          <p className="text-[12.5px] mt-1 text-ink-dim">
+            Some rules are the ones others depend on. Break one of those and the setup is void, however clean the rest of it looks.
+          </p>
+        </header>
+        <div className="flex flex-col">
+          {(["invalidating", "core", "supporting"] as RuleWeight[]).map((w, i) => (
+            <div key={w} className={cn("flex items-start gap-3 px-5 py-3", i < 2 && "border-b border-line")}>
+              <span className={cn("text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 mt-0.5", WEIGHT_CHIP[w])}>
+                {WEIGHT_LABEL[w]}
+              </span>
+              <span className="text-[13px] text-ink-mid">{WEIGHT_BLURB[w]}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Rules */}
       <div className="flex flex-col gap-5">
         {book.groups.map((group, gi) => (
@@ -91,7 +124,18 @@ export function RulebookView({ marketing = false }: { marketing?: boolean }) {
                       {rule.n}
                     </span>
                     <div className="min-w-0">
-                      <h3 className="font-semibold text-[14px] mb-1 text-ink-strong">{rule.title}</h3>
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <h3 className="font-semibold text-[14px] text-ink-strong">{rule.title}</h3>
+                        <span
+                          className={cn("text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded", WEIGHT_CHIP[rule.weight])}
+                          title={WEIGHT_BLURB[rule.weight]}
+                        >
+                          {WEIGHT_LABEL[rule.weight]}
+                        </span>
+                        {!marketing && (
+                          <span className="text-[10px] text-ink-dim">{EVIDENCE_NOTE[rule.evidence]}</span>
+                        )}
+                      </div>
                       <p className="text-[13px] leading-relaxed text-ink-mid">{rule.body}</p>
                     </div>
                   </div>

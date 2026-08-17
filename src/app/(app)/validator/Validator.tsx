@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ruleById } from "@/lib/rulebook";
+import { ruleById, WEIGHT_LABEL, WEIGHT_BLURB, type Readiness, type RuleWeight } from "@/lib/rulebook";
 import { Panel, PanelHead, Button, DirPill, Icon, Field, Select, SegRow, MonoInput, EmptyState } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import {
@@ -12,32 +12,43 @@ import {
 } from "@/lib/frameworks";
 import { useInstruments } from "@/lib/hooks/useInstruments";
 
-// ── Grade display helpers ─────────────────────────────────────────────────────
+// ── Readiness display helpers ─────────────────────────────────────────────────
+//
+// The Validator used to hand out A+ to D, the same letters Gavo gives a closed
+// trade. Two assessments sharing one vocabulary read as a contradiction when
+// they disagreed, and they will disagree by design: this sees what a trader
+// declares before entry, Gavo sees the outcome and real broker prices. So this
+// answers "should I take this?" and leaves the grading to Gavo.
 
-const GRADE_COLOR: Record<string, string> = {
-  "A+": "var(--teal)",   A: "var(--teal)",
-  B:    "var(--gold)",   C: "var(--coral)",
-  D:    "var(--coral-bright)",
+const READINESS_CFG: Record<Readiness, {
+  label:   string;
+  icon:    string;
+  /** Raw var value — needed for the SVG stroke and alpha-suffixed shadows. */
+  color:   string;
+  textCls: string;
+  bgCls:   string;
+}> = {
+  cleared: {
+    label: "Cleared to trade", icon: "verified", color: "var(--teal)",
+    textCls: "text-teal", bgCls: "bg-[rgba(8,174,170,0.10)]",
+  },
+  caution: {
+    label: "Proceed with caution", icon: "warning", color: "var(--gold)",
+    textCls: "text-gold", bgCls: "bg-[rgba(248,185,61,0.12)]",
+  },
+  "do-not-take": {
+    label: "Do not take this", icon: "cancel", color: "var(--coral)",
+    textCls: "text-coral", bgCls: "bg-[rgba(234,82,61,0.12)]",
+  },
 };
+
 const STATUS_ICON: Record<Status, string>    = { pass: "check_circle", fail: "cancel", warn: "warning", na: "remove_circle" };
 const STATUS_TEXT_CLS: Record<Status, string> = { pass: "text-teal", fail: "text-coral", warn: "text-gold", na: "text-ink-dim" };
-// Plain-consumption class equivalents of GRADE_COLOR/GRADE_BG — kept alongside
-// the raw-var versions because line ~590 needs GRADE_COLOR concatenated with
-// an alpha suffix (`${color}33`), which Tailwind classes can't express.
-const GRADE_TEXT_CLS: Record<string, string> = {
-  "A+": "text-teal",   A: "text-teal",
-  B:    "text-gold",   C: "text-coral",
-  D:    "text-coral-bright",
-};
-const GRADE_BG_CLS: Record<string, string> = {
-  "A+": "bg-[rgba(8,174,170,0.12)]",  A:  "bg-[rgba(8,174,170,0.10)]",
-  B:    "bg-[rgba(248,185,61,0.12)]", C:  "bg-[rgba(234,82,61,0.10)]",
-  D:    "bg-[rgba(234,82,61,0.16)]",
-};
-const GRADE_SOLID_BG_CLS: Record<string, string> = {
-  "A+": "bg-teal",   A: "bg-teal",
-  B:    "bg-gold",   C: "bg-coral",
-  D:    "bg-coral-bright",
+
+const WEIGHT_CHIP: Record<RuleWeight, string> = {
+  invalidating: "bg-[rgba(234,82,61,0.12)] text-coral",
+  core:         "bg-[rgba(248,185,61,0.12)] text-gold",
+  supporting:   "bg-panel-2 text-ink-dim",
 };
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -85,7 +96,17 @@ function RuleRow({ rule, framework }: { rule: RuleResult; framework: Framework }
         className={cn("shrink-0 mt-0.5", STATUS_TEXT_CLS[rule.status])}
       />
       <div className="min-w-0 flex-1">
-        <div className="text-[13px] font-semibold text-ink-strong">{rule.label}</div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[13px] font-semibold text-ink-strong">{rule.label}</span>
+          {linked && (
+            <span
+              className={cn("text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded", WEIGHT_CHIP[linked.weight])}
+              title={WEIGHT_BLURB[linked.weight]}
+            >
+              {WEIGHT_LABEL[linked.weight]}
+            </span>
+          )}
+        </div>
         <div className="text-[12px] mt-0.5 leading-relaxed text-ink-dim">{rule.why}</div>
         {linked && (
           <Link
@@ -101,14 +122,15 @@ function RuleRow({ rule, framework }: { rule: RuleResult; framework: Framework }
   );
 }
 
-function GradeRing({ grade, score }: { grade: string; score: number }) {
-  const color = GRADE_COLOR[grade] ?? "var(--teal)";
-  const r     = 38;
-  const circ  = 2 * Math.PI * r;
-  const dash  = (score / 100) * circ;
+/** Rules cleared out of rules that applied. A count, not a score. */
+function ReadinessDial({ readiness, clear, total }: { readiness: Readiness; clear: number; total: number }) {
+  const { color, icon } = READINESS_CFG[readiness];
+  const r    = 38;
+  const circ = 2 * Math.PI * r;
+  const dash = total > 0 ? (clear / total) * circ : 0;
   return (
     <div className="relative shrink-0 w-24 h-24">
-      <svg width={96} height={96} className="-rotate-90">
+      <svg width={96} height={96} className="-rotate-90" aria-hidden>
         <circle cx={48} cy={48} r={r} fill="none" stroke="currentColor" strokeWidth={6} className="text-track" />
         <circle
           cx={48} cy={48} r={r} fill="none"
@@ -119,13 +141,9 @@ function GradeRing({ grade, score }: { grade: string; score: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
-        <span
-          className={cn("font-display font-bold text-[26px] tracking-[-0.02em] leading-none", GRADE_TEXT_CLS[grade] ?? "text-teal")}
-        >
-          {grade}
-        </span>
-        <span className="tabular-nums font-semibold text-[11px] text-ink-dim">
-          {score}%
+        <Icon name={icon} size={20} fill className={READINESS_CFG[readiness].textCls} />
+        <span className="tabular-nums font-display font-bold text-[17px] leading-none text-ink-strong">
+          {clear}<span className="text-ink-dim">/{total}</span>
         </span>
       </div>
     </div>
@@ -197,8 +215,9 @@ interface HistoryEntry {
   dir:       "long" | "short";
   model:     string;
   framework: Framework;
-  grade:     string;
-  score:     number;
+  readiness: Readiness;
+  clear:     number;
+  total:     number;
   time:      string;
 }
 
@@ -209,12 +228,12 @@ function HistoryRow({ entry, divider }: { entry: HistoryEntry; divider?: boolean
     <div className={cn("flex items-center gap-3 py-2.5 px-2.5 -mx-2.5 rounded-lg", divider && "border-b border-line")}>
       <div
         className={cn(
-          "shrink-0 w-9 h-9 rounded-xl flex items-center justify-center font-display font-bold text-[13px]",
-          GRADE_BG_CLS[entry.grade] ?? "bg-[rgba(8,174,170,0.10)]",
-          GRADE_TEXT_CLS[entry.grade] ?? "text-teal"
+          "shrink-0 w-9 h-9 rounded-xl flex items-center justify-center",
+          READINESS_CFG[entry.readiness].bgCls,
         )}
+        title={READINESS_CFG[entry.readiness].label}
       >
-        {entry.grade}
+        <Icon name={READINESS_CFG[entry.readiness].icon} size={17} fill className={READINESS_CFG[entry.readiness].textCls} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
@@ -227,12 +246,15 @@ function HistoryRow({ entry, divider }: { entry: HistoryEntry; divider?: boolean
         <div className="flex items-center gap-2">
           <div className="flex-1 h-1 rounded-full overflow-hidden bg-track">
             <div
-              className={cn("h-full rounded-full transition-all", GRADE_SOLID_BG_CLS[entry.grade] ?? "bg-teal")}
-              style={{ width: `${entry.score}%` }}
+              className="h-full rounded-full transition-all"
+              style={{
+                width: `${entry.total > 0 ? (entry.clear / entry.total) * 100 : 0}%`,
+                background: READINESS_CFG[entry.readiness].color,
+              }}
             />
           </div>
           <span className="text-[10px] tabular-nums shrink-0 text-ink-dim">
-            {entry.score}%
+            {entry.clear}/{entry.total}
           </span>
         </div>
       </div>
@@ -253,17 +275,19 @@ export function Validator() {
   const [history,     setHistory]     = useState<HistoryEntry[]>([]);
   const [killzoneNow, setKillzoneNow] = useState(() => isInKillzone("London"));
   const [calcOpen,    setCalcOpen]    = useState(false);
-  const [calcBalance, setCalcBalance] = useState("10000");
-  const [calcRisk,    setCalcRisk]    = useState("1");
-  const [calcEntry,   setCalcEntry]   = useState("");
-  const [calcSl,      setCalcSl]      = useState("");
+
+  // Balance/risk/entry/SL now live in `setup`, not here. They used to be local
+  // state feeding only the pip calculator, which is why rules 8 and 10 could
+  // never be checked: validate() had no access to the numbers sitting three
+  // lines above it.
+  const { balance: calcBalance, riskPct: calcRisk, entryPrice: calcEntry, slPrice: calcSl } = setup;
 
   // Restore history + balance from localStorage
   useEffect(() => {
     const saved = localStorage.getItem(HISTORY_KEY);
     if (saved) { try { setHistory(JSON.parse(saved)); } catch { /* ignore */ } }
     const bal = localStorage.getItem("smfx_balance");
-    if (bal) setCalcBalance(bal);
+    if (bal) setSetup((s) => ({ ...s, balance: bal }));
   }, []);
 
   // Persist history to localStorage
@@ -286,7 +310,11 @@ export function Validator() {
   const set = <K extends keyof Setup>(k: K, v: Setup[K]) =>
     setSetup((p) => ({ ...p, [k]: v }));
 
-  function handleFrameworkChange(fw: Framework) { setSetup(BLANK_SETUP(fw)); }
+  // Framework switch resets the setup but keeps balance and risk %: those are
+  // properties of the trader's account, not of the setup being validated.
+  function handleFrameworkChange(fw: Framework) {
+    setSetup((prev) => ({ ...BLANK_SETUP(fw), balance: prev.balance, riskPct: prev.riskPct }));
+  }
 
   const result: ValidationResult = useMemo(() => validate(setup), [setup]);
 
@@ -315,7 +343,7 @@ export function Validator() {
     const now  = new Date();
     const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
     setHistory((h) => [
-      { id: "h" + Date.now(), pair: setup.pair, dir: setup.dir as "long" | "short", model: setup.model, framework: setup.framework, grade: result.grade, score: result.score, time },
+      { id: "h" + Date.now(), pair: setup.pair, dir: setup.dir as "long" | "short", model: setup.model, framework: setup.framework, readiness: result.readiness, clear: result.clear, total: result.total, time },
       ...h.slice(0, 9),
     ]);
   }
@@ -355,7 +383,7 @@ export function Validator() {
             Check every condition before you press the button. No exceptions.
           </p>
         </div>
-        <Button type="button" variant="ghost" icon="refresh" onClick={() => setSetup(BLANK_SETUP(setup.framework))}>
+        <Button type="button" variant="ghost" icon="refresh" onClick={() => setSetup((prev) => ({ ...BLANK_SETUP(prev.framework), balance: prev.balance, riskPct: prev.riskPct }))}>
           Reset
         </Button>
       </div>
@@ -424,6 +452,23 @@ export function Validator() {
                 )}
               </div>
 
+              <Field label={setup.dir === "long" ? "Where does entry sit in the HTF range?" : "Where does entry sit in the HTF range?"}>
+                <SegRow
+                  value={setup.pdZone}
+                  onChange={(v) => set("pdZone", v as Setup["pdZone"])}
+                  options={[
+                    { v: "discount",    l: "Discount" },
+                    { v: "equilibrium", l: "Equilibrium" },
+                    { v: "premium",     l: "Premium" },
+                  ]}
+                />
+                <p className="text-[11px] mt-1.5 text-ink-dim">
+                  {setup.dir === "long"
+                    ? "A long belongs in discount, below the 50% level of the HTF range."
+                    : "A short belongs in premium, above the 50% level of the HTF range."}
+                </p>
+              </Field>
+
               <Field label="Planned R:R">
                 <MonoInput value={setup.rr} onChange={(e) => set("rr", e.target.value)} placeholder="e.g. 3.5" />
               </Field>
@@ -449,17 +494,43 @@ export function Validator() {
                       <CheckToggle label="Zone is fresh (untested)"            checked={setup.zoneIsFresh}      onChange={(v) => set("zoneIsFresh", v)} />
                       <CheckToggle label="Origin move was strong and impulsive" checked={setup.strongOrigin}    onChange={(v) => set("strongOrigin", v)} />
                       <CheckToggle label="Price approaching from correct side"  checked={setup.correctSide}     onChange={(v) => set("correctSide", v)} />
-                      <CheckToggle
-                        label={setup.dir === "short" ? "Zone sits in premium area" : "Zone sits in discount area"}
-                        checked={setup.inPremiumDiscount}
-                        onChange={(v) => set("inPremiumDiscount", v)}
-                      />
                       <div className="flex flex-col gap-1">
                         <CheckToggle label="Entry inside session killzone" checked={setup.killzone} onChange={(v) => set("killzone", v)} />
                         <KillzoneBadge active={killzoneNow} session={setup.session} />
                       </div>
                     </>
                   )}
+                </div>
+              </Field>
+
+              {/* Execution + discipline declarations (rules 2, 7, 8, 12, 13) */}
+              <Field label="Execution &amp; discipline">
+                <div className="flex flex-col gap-2">
+                  <CheckToggle
+                    label={isSMC ? "Aligned with the HTF draw on liquidity" : "Aligned with the HTF magnet"}
+                    checked={setup.htfDrawAligned}
+                    onChange={(v) => set("htfDrawAligned", v)}
+                  />
+                  <CheckToggle
+                    label={isSMC ? "Price retraced into the POI (not a chase)" : "Price retraced to the zone edge (not a chase)"}
+                    checked={setup.cleanRetrace}
+                    onChange={(v) => set("cleanRetrace", v)}
+                  />
+                  <CheckToggle
+                    label={isSMC ? "Stop beyond swept liquidity / OB extreme" : "Stop beyond the distal edge of the zone"}
+                    checked={setup.stopBeyondInvalidation}
+                    onChange={(v) => set("stopBeyondInvalidation", v)}
+                  />
+                  <CheckToggle
+                    label="Pre-planned, marked before price arrived"
+                    checked={setup.prePlanned}
+                    onChange={(v) => set("prePlanned", v)}
+                  />
+                  <CheckToggle
+                    label="News calendar checked, no red folder within 15m"
+                    checked={setup.newsChecked}
+                    onChange={(v) => set("newsChecked", v)}
+                  />
                 </div>
               </Field>
 
@@ -526,26 +597,26 @@ export function Validator() {
                       <Field label="Account balance" half>
                         <MonoInput
                           value={calcBalance}
-                          onChange={(e) => { setCalcBalance(e.target.value); localStorage.setItem("smfx_balance", e.target.value); }}
+                          onChange={(e) => { set("balance", e.target.value); localStorage.setItem("smfx_balance", e.target.value); }}
                           placeholder="10000"
                         />
                       </Field>
                       <Field label="Risk %" half>
-                        <MonoInput value={calcRisk} onChange={(e) => setCalcRisk(e.target.value)} placeholder="1" />
+                        <MonoInput value={calcRisk} onChange={(e) => set("riskPct", e.target.value)} placeholder="1" />
                       </Field>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Field label="Entry price" half>
                         <MonoInput
                           value={calcEntry}
-                          onChange={(e) => setCalcEntry(e.target.value)}
+                          onChange={(e) => set("entryPrice", e.target.value)}
                           placeholder={setup.pair === "EURUSD" ? "1.08500" : setup.pair === "XAUUSD" ? "2330.00" : "..."}
                         />
                       </Field>
                       <Field label="Stop loss" half>
                         <MonoInput
                           value={calcSl}
-                          onChange={(e) => setCalcSl(e.target.value)}
+                          onChange={(e) => set("slPrice", e.target.value)}
                           placeholder={setup.pair === "EURUSD" ? "1.08300" : setup.pair === "XAUUSD" ? "2325.00" : "..."}
                         />
                       </Field>
@@ -602,7 +673,7 @@ export function Validator() {
 
                     {calcResult && (
                       <p className="text-[11px] text-ink-dim">
-                        These prices will pre-fill the trade log when you click "Log this trade".
+                        These prices will pre-fill the trade log when you click &ldquo;Log this trade&rdquo;.
                       </p>
                     )}
                   </div>
@@ -617,20 +688,20 @@ export function Validator() {
 
           {/* Verdict card */}
           <div
-            className={cn("rounded-2xl p-5", GRADE_BG_CLS[result.grade] ?? "bg-[rgba(8,174,170,0.10)]")}
-            style={{ boxShadow: `0 0 0 2px ${GRADE_COLOR[result.grade]}55` }}
+            className={cn("rounded-2xl p-5", READINESS_CFG[result.readiness].bgCls)}
+            style={{ boxShadow: `0 0 0 2px ${READINESS_CFG[result.readiness].color}55` }}
           >
             <div className="flex items-center gap-5 mb-3">
-              <GradeRing grade={result.grade} score={result.score} />
+              <ReadinessDial readiness={result.readiness} clear={result.clear} total={result.total} />
               <div className="flex-1">
-                <div className={cn("text-[11px] font-semibold uppercase tracking-widest mb-1", GRADE_TEXT_CLS[result.grade] ?? "text-teal")}>
-                  Overall grade
+                <div className={cn("text-[11px] font-semibold uppercase tracking-widest mb-1", READINESS_CFG[result.readiness].textCls)}>
+                  {READINESS_CFG[result.readiness].label}
                 </div>
                 <p className="text-[14px] font-semibold leading-snug mb-2 text-ink-strong">
                   {result.verdict}
                 </p>
                 <div className="text-[11.5px] text-ink-dim">
-                  {passCount}/{result.rules.length} rules passed
+                  {passCount} of {result.total} rules fully met
                 </div>
                 {setup.fibConfluence && (
                   <div className="flex items-center gap-1.5 mt-1.5">
@@ -660,7 +731,7 @@ export function Validator() {
                 </Button>
               ) : (
                 <Button type="button" variant="ghost" icon="block" disabled>
-                  Resolve fails to log
+                  Resolve invalidating rules to log
                 </Button>
               )}
             </div>
@@ -686,6 +757,31 @@ export function Validator() {
               </div>
             )}
           </Panel>
+
+          {/* Model notes — advice about the chosen model, not rulebook rules */}
+          {result.subChecks.length > 0 && (
+            <Panel pad={0}>
+              <div className="px-5 pt-4 pb-2">
+                <div className="font-display font-semibold text-[15px] text-ink-strong">
+                  Notes on this model
+                </div>
+                <p className="text-[12px] mt-0.5 text-ink-dim">
+                  Specific to {setup.model}. These do not count toward the thirteen rules.
+                </p>
+              </div>
+              <div className="px-4 pb-4 flex flex-col gap-2">
+                {result.subChecks.map((c) => (
+                  <div key={c.id} className="flex items-start gap-3 px-4 py-3 rounded-xl bg-panel-2 shadow-sm">
+                    <Icon name={STATUS_ICON[c.status]} size={17} className={cn("shrink-0 mt-0.5", STATUS_TEXT_CLS[c.status])} />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[13px] font-semibold text-ink-strong">{c.label}</div>
+                      <div className="text-[12px] mt-0.5 leading-relaxed text-ink-dim">{c.why}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Panel>
+          )}
 
           {/* Status legend */}
           <div className="flex items-center gap-4 px-1">
