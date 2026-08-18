@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Icon } from "@/components/ui";
 import { SOCIAL_LINKS } from "@/lib/social-links";
+import { TrustpilotBadge } from "./TrustpilotBadge";
 
 const LINKS: [string, string][] = [
   ["Features",  "/features"],
@@ -66,16 +67,21 @@ export function MarketingFooter() {
           ))}
         </nav>
 
-        {/* Directory listing badge. Height is set alongside width so the row
-            does not reflow when the image arrives — the SVG is 597x103, so 200
-            wide is 35 tall. It is orange on transparent with white type, which
-            is why it sits on the navy footer rather than a light surface. */}
-        <div className="flex justify-center mt-8">
+        {/* Trust row — Trustpilot rating and the directory listing. Stacked
+            on phones, side by side from sm up where there is room for both
+            without either shrinking. The Trustpilot widget is declared
+            width:100%, so it needs a fixed track once it stops being the only
+            thing on the line. */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-5 sm:gap-8 mt-8">
+          <div className="w-full sm:w-[230px] shrink-0">
+            <TrustpilotBadge />
+          </div>
+
           <a
             href="https://saasbrowser.com/en/saas/1570605/smile-fx-traders"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block opacity-80 transition-opacity hover:opacity-100"
+            className="inline-block shrink-0 opacity-80 transition-opacity hover:opacity-100"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
