@@ -576,104 +576,6 @@ export function Validator() {
                 )}
               </div>
 
-              {/* Position size calculator. Its own section rather than a
-                  collapsed drawer: Risk % is the input for rule 10, an
-                  invalidating rule, and an input that decides whether a setup
-                  is void should not sit behind a disclosure. */}
-              <div className="border-t border-line pt-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Icon name="calculate" size={15} className="text-teal-deep" />
-                  <span className="text-[11.5px] font-semibold uppercase tracking-wider flex-1 text-left text-ink-dim">
-                    Position size calculator
-                  </span>
-                </div>
-
-                <div className="flex flex-col gap-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <Field label="Account balance" half>
-                        <MonoInput
-                          value={calcBalance}
-                          onChange={(e) => { set("balance", e.target.value); localStorage.setItem("smfx_balance", e.target.value); }}
-                          placeholder="10000"
-                        />
-                      </Field>
-                      <Field label="Risk %" half>
-                        <MonoInput value={calcRisk} onChange={(e) => set("riskPct", e.target.value)} placeholder="1" />
-                      </Field>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <Field label="Entry price" half>
-                        <MonoInput
-                          value={calcEntry}
-                          onChange={(e) => set("entryPrice", e.target.value)}
-                          placeholder={setup.pair === "EURUSD" ? "1.08500" : setup.pair === "XAUUSD" ? "2330.00" : "..."}
-                        />
-                      </Field>
-                      <Field label="Stop loss" half>
-                        <MonoInput
-                          value={calcSl}
-                          onChange={(e) => set("slPrice", e.target.value)}
-                          placeholder={setup.pair === "EURUSD" ? "1.08300" : setup.pair === "XAUUSD" ? "2325.00" : "..."}
-                        />
-                      </Field>
-                    </div>
-
-                    {calcResult && (
-                      <div className="rounded-xl p-4 bg-panel-2 shadow-sm">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4">
-                          <div>
-                            <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">
-                              {calcResult.isForex ? "Pip distance" : setup.pair === "XAUUSD" ? "$ distance" : "Points"}
-                            </div>
-                            <div className="text-[14px] font-semibold text-ink-strong">
-                              {calcResult.isForex ? calcResult.pipDist.toFixed(1) : calcResult.pipDist.toFixed(2)}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Dollar risk</div>
-                            <div className="text-[14px] font-semibold text-coral-deep">
-                              −${calcResult.dollarRisk.toFixed(2)}
-                            </div>
-                          </div>
-                          <div className="col-span-2">
-                            <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Lot size</div>
-                            <div className="font-bold text-[26px] tracking-[-0.02em] text-gold-deep">
-                              {calcResult.lots < 0.01 ? calcResult.lots.toFixed(4) : calcResult.lots.toFixed(2)}
-                            </div>
-                          </div>
-                          {calcResult.tp !== null && (
-                            <div>
-                              <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">
-                                TP ({setup.rr}R)
-                              </div>
-                              <div className={cn("text-[14px] font-semibold", setup.dir === "long" ? "text-teal-deep" : "text-coral-deep")}>
-                                {calcResult.tp.toFixed(calcResult.isForex ? 5 : setup.pair === "XAUUSD" ? 2 : 1)}
-                              </div>
-                            </div>
-                          )}
-                          {calcResult.dollarProfit !== null && (
-                            <div>
-                              <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Expected profit</div>
-                              <div className="text-[14px] font-semibold text-teal-deep">
-                                +${calcResult.dollarProfit.toFixed(2)}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {!calcResult && calcEntry && calcSl && (
-                      <p className="text-[11.5px] text-coral-deep">Enter valid entry and SL prices.</p>
-                    )}
-
-                    {calcResult && (
-                      <p className="text-[11px] text-ink-dim">
-                        These prices will pre-fill the trade log when you click &ldquo;Log this trade&rdquo;.
-                      </p>
-                    )}
-                </div>
-              </div>
             </div>
           </Panel>
         </div>
@@ -753,6 +655,100 @@ export function Validator() {
             )}
           </Panel>
 
+
+          {/* Position size calculator — its own card in the results column,
+              matching the design prototype. It used to be a collapsed drawer
+              at the bottom of the setup card, which hid Risk %: the input for
+              rule 10, an invalidating rule. An input that decides whether a
+              setup is void does not belong behind a disclosure. */}
+          <Panel>
+            <PanelHead title="Position size calculator" icon="calculate" />
+            <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Field label="Account balance" half>
+                    <MonoInput
+                      value={calcBalance}
+                      onChange={(e) => { set("balance", e.target.value); localStorage.setItem("smfx_balance", e.target.value); }}
+                      placeholder="10000"
+                    />
+                  </Field>
+                  <Field label="Risk %" half>
+                    <MonoInput value={calcRisk} onChange={(e) => set("riskPct", e.target.value)} placeholder="1" />
+                  </Field>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Field label="Entry price" half>
+                    <MonoInput
+                      value={calcEntry}
+                      onChange={(e) => set("entryPrice", e.target.value)}
+                      placeholder={setup.pair === "EURUSD" ? "1.08500" : setup.pair === "XAUUSD" ? "2330.00" : "..."}
+                    />
+                  </Field>
+                  <Field label="Stop loss" half>
+                    <MonoInput
+                      value={calcSl}
+                      onChange={(e) => set("slPrice", e.target.value)}
+                      placeholder={setup.pair === "EURUSD" ? "1.08300" : setup.pair === "XAUUSD" ? "2325.00" : "..."}
+                    />
+                  </Field>
+                </div>
+
+                {calcResult && (
+                  <div className="rounded-xl p-4 bg-panel-2 shadow-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4">
+                      <div>
+                        <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">
+                          {calcResult.isForex ? "Pip distance" : setup.pair === "XAUUSD" ? "$ distance" : "Points"}
+                        </div>
+                        <div className="text-[14px] font-semibold text-ink-strong">
+                          {calcResult.isForex ? calcResult.pipDist.toFixed(1) : calcResult.pipDist.toFixed(2)}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Dollar risk</div>
+                        <div className="text-[14px] font-semibold text-coral-deep">
+                          −${calcResult.dollarRisk.toFixed(2)}
+                        </div>
+                      </div>
+                      <div className="col-span-2">
+                        <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Lot size</div>
+                        <div className="font-bold text-[26px] tracking-[-0.02em] text-gold-deep">
+                          {calcResult.lots < 0.01 ? calcResult.lots.toFixed(4) : calcResult.lots.toFixed(2)}
+                        </div>
+                      </div>
+                      {calcResult.tp !== null && (
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">
+                            TP ({setup.rr}R)
+                          </div>
+                          <div className={cn("text-[14px] font-semibold", setup.dir === "long" ? "text-teal-deep" : "text-coral-deep")}>
+                            {calcResult.tp.toFixed(calcResult.isForex ? 5 : setup.pair === "XAUUSD" ? 2 : 1)}
+                          </div>
+                        </div>
+                      )}
+                      {calcResult.dollarProfit !== null && (
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Expected profit</div>
+                          <div className="text-[14px] font-semibold text-teal-deep">
+                            +${calcResult.dollarProfit.toFixed(2)}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {!calcResult && calcEntry && calcSl && (
+                  <p className="text-[11.5px] text-coral-deep">Enter valid entry and SL prices.</p>
+                )}
+
+                {calcResult && (
+                  <p className="text-[11px] text-ink-dim">
+                    These prices will pre-fill the trade log when you click &ldquo;Log this trade&rdquo;.
+                  </p>
+                )}
+            </div>
+          </Panel>
           {/* Model notes — advice about the chosen model, not rulebook rules */}
           {result.subChecks.length > 0 && (
             <Panel pad={0}>
