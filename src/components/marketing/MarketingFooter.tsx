@@ -66,6 +66,28 @@ export function MarketingFooter() {
           ))}
         </nav>
 
+        {/* Directory listing badge. Height is set alongside width so the row
+            does not reflow when the image arrives — the SVG is 597x103, so 200
+            wide is 35 tall. It is orange on transparent with white type, which
+            is why it sits on the navy footer rather than a light surface. */}
+        <div className="flex justify-center mt-8">
+          <a
+            href="https://saasbrowser.com/en/saas/1570605/smile-fx-traders"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block opacity-80 transition-opacity hover:opacity-100"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://static-files.saasbrowser.com/saas-browser-badge-15.svg"
+              alt="Smile FX Traders on SaaS Browser"
+              width={200}
+              height={35}
+              loading="lazy"
+            />
+          </a>
+        </div>
+
         <p className="text-[12px] leading-relaxed mt-6 text-justify text-[rgba(255,255,255,0.5)]">
           <strong className="font-bold text-[rgba(255,255,255,0.85)]">Risk Warning:</strong>{" "}
           Trading forex, CFDs, and other leveraged instruments carries a high level of risk and may not suit every investor. Leverage can work against you as well as for you, and you could lose some or all of your capital. Only trade with money you can afford to lose, and speak with an independent financial advisor if you&apos;re unsure.
