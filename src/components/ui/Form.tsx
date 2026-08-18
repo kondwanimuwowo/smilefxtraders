@@ -33,7 +33,7 @@ export function Field({ label, hint, half, children, style }: FieldProps) {
 // triggers iOS Safari's auto-zoom-on-focus, a real mobile UX bug. Buttons/labels
 // elsewhere in this file are unaffected since only focusable text fields zoom.
 const inputCls =
-  "w-full rounded-[9px] px-3 py-2.5 text-base sm:text-[13.5px] outline-none transition-shadow placeholder:text-[var(--ink-dim)] focus:shadow-[0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong";
+  "w-full rounded-[10px] px-3 py-2.5 text-base sm:text-[13.5px] outline-none transition-shadow placeholder:text-[var(--ink-dim)] focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong";
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input className={inputCls} {...props} />;
@@ -106,7 +106,7 @@ export function Select({ value, onChange, options, disabled, compact, borderless
 
   const triggerCls = compact
     ? "w-full rounded-lg px-2.5 py-1.5 text-[12px] flex items-center justify-between gap-1.5 outline-none transition-shadow"
-    : "w-full rounded-[9px] px-3 py-2.5 text-[13.5px] flex items-center justify-between gap-2 outline-none transition-shadow";
+    : "w-full rounded-[10px] px-3 py-2.5 text-[13.5px] flex items-center justify-between gap-2 outline-none transition-shadow";
 
   const displayLabel = selected?.l ?? placeholder ?? "—";
   const isPlaceholder = !selected;
@@ -194,9 +194,13 @@ interface SegRowProps {
   options: (string | { v: string; l: string })[];
 }
 
+// A pill riding inside a --panel-2 track, rather than a row of bordered
+// buttons. Same shape the design prototype uses, and it reads as one control
+// instead of several: the track carries the grouping, so nothing needs an
+// outline to say where it begins.
 export function SegRow({ value, onChange, options }: SegRowProps) {
   return (
-    <div className="flex gap-1.5">
+    <div className="flex gap-0.5 p-1 rounded-full bg-panel-2">
       {options.map((o) => {
         const v = typeof o === "string" ? o : o.v;
         const l = typeof o === "string" ? o : o.l;
@@ -207,10 +211,10 @@ export function SegRow({ value, onChange, options }: SegRowProps) {
             type="button"
             onClick={() => onChange(v)}
             className={cn(
-              "flex-1 py-2 text-[12.5px] font-semibold rounded-[8px] border transition-colors",
+              "flex-1 py-1.5 text-[12.5px] font-semibold rounded-full transition-colors",
               active
-                ? "bg-[rgba(8,174,170,0.12)] border-[rgba(8,174,170,0.4)] text-teal-deep"
-                : "bg-panel-2 border-line text-ink-mid"
+                ? "bg-panel text-teal-deep shadow-sm"
+                : "bg-transparent text-ink-mid hover:text-ink-strong"
             )}
           >
             {l}

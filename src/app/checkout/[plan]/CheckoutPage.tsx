@@ -395,7 +395,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
                 onChange={(e) => handlePhoneChange(e.target.value)}
                 placeholder="+260 97 123 4567"
                 required
-                className="w-full px-4 py-3 rounded-xl text-[14px] bg-panel-2 focus:shadow-[0_0_0_2px_var(--teal)] outline-none transition-shadow text-ink-strong"
+                className="w-full px-4 py-3 rounded-xl text-[14px] bg-panel-2 focus:ring-2 focus:ring-teal-deep outline-none transition-shadow text-ink-strong"
               />
             </div>
 

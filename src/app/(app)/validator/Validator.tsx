@@ -60,7 +60,7 @@ function CheckToggle({ label, checked, onChange }: { label: string; checked: boo
       onClick={() => onChange(!checked)}
       className={cn(
         "flex items-center gap-2.5 px-3 py-2 rounded-xl text-left w-full transition-all",
-        checked ? "shadow-[0_0_0_2px_var(--teal)] bg-[rgba(8,174,170,0.08)]" : "shadow-sm bg-panel-2"
+        checked ? "ring-2 ring-teal-deep bg-teal-tint" : "shadow-sm bg-panel-2"
       )}
     >
       <Icon
@@ -85,8 +85,8 @@ function RuleRow({ rule, framework }: { rule: RuleResult; framework: Framework }
     <div
       className={cn(
         "flex items-start gap-3 px-4 py-3 rounded-xl transition-colors",
-        rule.status === "fail" ? "bg-[rgba(234,82,61,0.05)] shadow-[0_0_0_2px_rgba(234,82,61,0.2)]"
-          : rule.status === "warn" ? "bg-[rgba(248,185,61,0.05)] shadow-[0_0_0_2px_rgba(248,185,61,0.2)]"
+        rule.status === "fail" ? "bg-coral-tint ring-1 ring-coral-deep/40"
+          : rule.status === "warn" ? "bg-gold-tint ring-1 ring-gold-deep/40"
           : "bg-panel-2 shadow-sm"
       )}
     >
@@ -154,7 +154,7 @@ function ModelInfoCard({ framework, model }: { framework: Framework; model: stri
   const info = MODEL_INFO[framework]?.[model];
   if (!info) return null;
   return (
-    <div className="rounded-xl px-4 py-3.5 flex items-start gap-3 bg-[rgba(8,174,170,0.06)] shadow-[0_0_0_2px_rgba(8,174,170,0.18)]">
+    <div className="rounded-xl px-4 py-3.5 flex items-start gap-3 bg-teal-tint ring-1 ring-teal-deep/40">
       <Icon name="lightbulb" size={17} fill className="text-teal-deep shrink-0 mt-0.5" />
       <div>
         <div className="text-[12px] font-semibold mb-1 text-teal-deep">{model}</div>
@@ -541,7 +541,7 @@ export function Validator() {
                   <span className="text-[11.5px] font-semibold uppercase tracking-wider text-ink-dim">
                     Fibonacci confluence
                   </span>
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[rgba(248,185,61,0.1)] text-gold-deep shadow-[0_0_0_2px_rgba(248,185,61,0.2)]">
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gold-tint text-gold-deep ring-1 ring-gold-deep/40">
                     optional
                   </span>
                 </div>
@@ -566,7 +566,7 @@ export function Validator() {
                 </div>
 
                 {setup.fibConfluence && (
-                  <div className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5 bg-[rgba(248,185,61,0.06)] shadow-[0_0_0_2px_rgba(248,185,61,0.18)]">
+                  <div className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5 bg-gold-tint ring-1 ring-gold-deep/40">
                     <Icon name="bolt" size={13} fill className="text-gold-deep shrink-0 mt-px" />
                     <p className="text-[11.5px] leading-relaxed text-ink-dim">
                       Fibonacci confluence is active. If all main rules pass, this{" "}

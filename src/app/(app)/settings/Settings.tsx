@@ -398,7 +398,7 @@ export function Settings() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Your name"
-                    className="w-full rounded-[9px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow focus:shadow-[0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
+                    className="w-full rounded-[10px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
                   />
                 </Field>
                 <Field label="Username" half>
@@ -409,7 +409,7 @@ export function Settings() {
                       value={handle}
                       onChange={(e) => setHandle(e.target.value.replace(/[@\s]/g, "_").toLowerCase())}
                       placeholder="your_handle"
-                      className="w-full rounded-[9px] pl-7 pr-3 py-2.5 text-[13.5px] outline-none transition-shadow focus:shadow-[0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
+                      className="w-full rounded-[10px] pl-7 pr-3 py-2.5 text-[13.5px] outline-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
                     />
                   </div>
                 </Field>
@@ -420,7 +420,7 @@ export function Settings() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full rounded-[9px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow focus:shadow-[0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
+                  className="w-full rounded-[10px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
                 />
                 <div className="flex items-center justify-between gap-3 mt-1.5">
                   <span className="text-[11px] text-ink-dim">
@@ -449,7 +449,7 @@ export function Settings() {
                   value={loc}
                   onChange={(e) => setLoc(e.target.value)}
                   placeholder="e.g. Lusaka, Zambia"
-                  className="w-full rounded-[9px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow focus:shadow-[0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
+                  className="w-full rounded-[10px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
                 />
               </Field>
               <div className="flex justify-end">
@@ -517,7 +517,7 @@ export function Settings() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="new-password"
-                  className="w-full rounded-[9px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow focus:shadow-[0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
+                  className="w-full rounded-[10px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
                 />
               </Field>
               <Field label="Confirm new password">
@@ -527,7 +527,7 @@ export function Settings() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="new-password"
-                  className="w-full rounded-[9px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow focus:shadow-[0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
+                  className="w-full rounded-[10px] px-3 py-2.5 text-[13.5px] outline-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
                 />
               </Field>
               <div className="flex justify-end">
@@ -699,7 +699,7 @@ export function Settings() {
                   value={deleteTyped}
                   onChange={(e) => setDeleteTyped(e.target.value)}
                   placeholder={handle}
-                  className="w-full rounded-[9px] px-3 py-2.5 text-[13.5px] outline-none mb-3 transition-shadow focus:shadow-[0_0_0_2px_var(--teal)] bg-panel-2 text-ink-strong"
+                  className="w-full rounded-[10px] px-3 py-2.5 text-[13.5px] outline-none mb-3 transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
                 />
                 <div className="flex gap-3">
                   <Button

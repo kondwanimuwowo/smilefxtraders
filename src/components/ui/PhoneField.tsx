@@ -30,7 +30,7 @@ export function PhoneField({ countryIso2, onCountryChange, national, onNationalC
           options={COUNTRIES.map((c) => ({ v: c.iso2, l: `${c.name} (+${c.dialCode})` }))}
         />
       </div>
-      <div className="flex-1 flex items-center rounded-[9px] focus-within:shadow-[0_0_0_2px_var(--teal)] transition-shadow bg-panel-2">
+      <div className="flex-1 flex items-center rounded-[10px] focus-within:ring-2 focus-within:ring-teal-deep transition-shadow bg-panel-2">
         <span className="pl-3 text-base sm:text-[13.5px] text-ink-dim select-none">
           +{country.dialCode}
         </span>
@@ -41,7 +41,7 @@ export function PhoneField({ countryIso2, onCountryChange, national, onNationalC
           value={national}
           onChange={(e) => onNationalChange(e.target.value.replace(/[^\d]/g, ""))}
           placeholder="971234567"
-          className={`w-full rounded-[9px] pl-1.5 pr-3 py-2.5 text-base sm:text-[13.5px] outline-none bg-transparent placeholder:text-[var(--ink-dim)] ${
+          className={`w-full rounded-[10px] pl-1.5 pr-3 py-2.5 text-base sm:text-[13.5px] outline-none bg-transparent placeholder:text-[var(--ink-dim)] ${
             invalid ? "text-coral-deep" : "text-ink-strong"
           }`}
         />
