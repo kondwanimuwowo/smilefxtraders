@@ -37,7 +37,7 @@ export function Notifications() {
           <button
             type="button"
             onClick={() => markRead.mutate({ all: true })}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold transition-colors hover:bg-hover text-teal-deep shadow-[0_0_0_2px_var(--teal)]"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold transition-colors hover:bg-hover text-teal-deep ring-2 ring-teal-deep"
           >
             <Icon name="done_all" size={15} />
             Mark all read
@@ -47,7 +47,7 @@ export function Notifications() {
 
       {notifs.length === 0 ? (
         <div className="rounded-2xl flex flex-col items-center py-20 text-center bg-panel shadow-md">
-          <div className="size-14 rounded-2xl flex items-center justify-center mb-4 bg-[rgba(8,174,170,0.08)] shadow-[0_0_0_2px_var(--teal)]">
+          <div className="size-14 rounded-2xl flex items-center justify-center mb-4 bg-[rgba(8,174,170,0.08)] ring-2 ring-teal-deep">
             <Icon name="notifications" size={26} className="text-teal-deep" />
           </div>
           <div className="font-semibold text-[15px] mb-1 text-ink-strong">
@@ -64,7 +64,7 @@ export function Notifications() {
               <div className="text-[11px] font-semibold uppercase tracking-widest mb-2 px-1 text-ink-dim">
                 Unread · {unread.length}
               </div>
-              <div className="rounded-2xl overflow-hidden shadow-[0_0_0_2px_var(--teal)] bg-panel">
+              <div className="rounded-2xl overflow-hidden ring-2 ring-teal-deep bg-panel">
                 {unread.map((n, i) => {
                   const cfg = TONE_CONFIG[n.tone] ?? TONE_CONFIG.teal;
                   return (

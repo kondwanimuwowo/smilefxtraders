@@ -590,8 +590,8 @@ export function Journal() {
               <span
                 className={`inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${
                   streak.type === "win"
-                    ? "bg-[rgba(8,174,170,0.1)] text-teal-deep shadow-[0_0_0_2px_rgba(8,174,170,0.28)]"
-                    : "bg-[rgba(234,82,61,0.1)] text-coral-deep shadow-[0_0_0_2px_rgba(234,82,61,0.28)]"
+                    ? "bg-teal-tint text-teal-deep ring-1 ring-teal-deep/40"
+                    : "bg-coral-tint text-coral-deep ring-1 ring-coral-deep/40"
                 }`}
               >
                 <Icon
@@ -660,14 +660,14 @@ export function Journal() {
       <div className="flex flex-col gap-3 mb-5">
         {/* Filter bar */}
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center rounded-xl p-0.5 bg-panel-2 shadow-sm">
+          <div className="flex items-center gap-0.5 rounded-full p-1 bg-panel-2">
             {FILTERS.map((f) => (
               <button
                 key={f}
                 type="button"
                 onClick={() => handleFilterChange(f)}
-                className={`px-3.5 py-1.5 rounded-[10px] text-[12.5px] font-semibold transition-all ${
-                  filter === f ? "bg-panel text-ink-strong shadow-[0_1px_4px_rgba(0,0,0,0.12)]" : "text-ink-dim"
+                className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors ${
+                  filter === f ? "bg-teal-solid text-white" : "text-ink-mid hover:text-ink-strong"
                 }`}
               >
                 {f}

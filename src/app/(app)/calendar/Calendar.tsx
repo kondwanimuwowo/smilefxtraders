@@ -81,7 +81,7 @@ export function Calendar() {
               className={cn(
                 "text-[12px] font-semibold px-3 py-1.5 rounded-lg transition-colors",
                 filter === c
-                  ? "bg-teal text-navy-deep shadow-[0_0_0_2px_var(--teal)]"
+                  ? "bg-teal text-navy-deep ring-2 ring-teal-deep"
                   : "bg-panel-2 text-ink-dim hover:text-ink-strong"
               )}
             >

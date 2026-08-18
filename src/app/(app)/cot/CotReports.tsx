@@ -168,7 +168,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
     // Outer wrapper is relative + no overflow clip so the floating dropdown can escape
     <div className="relative">
     <div
-      className="rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-150 h-full bg-panel shadow-md hover:shadow-[0_0_0_2px_var(--teal)]"
+      className="rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-150 h-full bg-panel shadow-md hover:ring-2 ring-teal-deep"
       onClick={() => onOpen(entry.pair)}
       role="button"
       aria-label={`Open ${entry.pair} COT detail`}

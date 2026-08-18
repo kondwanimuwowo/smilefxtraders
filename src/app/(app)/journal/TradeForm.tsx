@@ -405,7 +405,7 @@ export function TradeForm({ edit, preset, onSaved, onCancel }: Props) {
                       }
                       className={`rounded-full px-3 py-1 text-[12px] font-semibold transition-all cursor-pointer ${
                         active
-                          ? "bg-[rgba(248,185,61,0.15)] shadow-[0_0_0_2px_var(--gold)] text-gold-deep"
+                          ? "bg-[rgba(248,185,61,0.15)] ring-2 ring-gold-deep text-gold-deep"
                           : "bg-panel-2 shadow-sm text-ink-dim"
                       }`}
                     >

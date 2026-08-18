@@ -311,7 +311,7 @@ function LessonList({
               id={`lesson-${lesson.id}`}
               key={lesson.id}
               className={`rounded-2xl overflow-hidden ${
-                isPlaying ? "bg-[rgba(8,174,170,0.07)] shadow-[0_0_0_2px_var(--teal)]" : "bg-panel shadow-sm"
+                isPlaying ? "bg-[rgba(8,174,170,0.07)] ring-2 ring-teal-deep" : "bg-panel shadow-sm"
               }`}
             >
               <button
@@ -354,7 +354,7 @@ function LessonList({
                       onClick={() => markComplete({ lessonId: lesson.id, completed: !isDone })}
                       className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[12.5px] font-semibold transition-all ${
                         isDone
-                          ? "bg-[rgba(8,174,170,0.1)] text-teal-deep shadow-[0_0_0_2px_var(--teal)]"
+                          ? "bg-[rgba(8,174,170,0.1)] text-teal-deep ring-2 ring-teal-deep"
                           : "bg-panel-2 text-ink-mid shadow-sm"
                       }`}
                     >

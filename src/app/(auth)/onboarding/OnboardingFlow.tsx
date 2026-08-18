@@ -16,14 +16,14 @@ const FRAMEWORKS: {
 }[] = [
   {
     key: "SMC", label: "Smart Money Concepts (ICT)", sub: "Order blocks, FVGs, liquidity sweeps", icon: "psychology",
-    selectedCls: "shadow-[0_0_0_2px_var(--teal)] bg-[color-mix(in_srgb,var(--teal)_8%,transparent)]",
+    selectedCls: "ring-2 ring-teal-deep bg-[color-mix(in_srgb,var(--teal)_8%,transparent)]",
     iconBoxCls:  "bg-[color-mix(in_srgb,var(--teal)_15%,transparent)]",
     iconCls:     "text-teal-deep",
     radioCls:    "text-teal-deep",
   },
   {
     key: "SnD", label: "Supply & Demand", sub: "Fresh zones, impulsive origins, premium/discount", icon: "layers",
-    selectedCls: "shadow-[0_0_0_2px_var(--gold)] bg-[color-mix(in_srgb,var(--gold)_8%,transparent)]",
+    selectedCls: "ring-2 ring-gold-deep bg-[color-mix(in_srgb,var(--gold)_8%,transparent)]",
     iconBoxCls:  "bg-[color-mix(in_srgb,var(--gold)_15%,transparent)]",
     iconCls:     "text-gold-deep",
     radioCls:    "text-gold-deep",
@@ -229,7 +229,7 @@ export function OnboardingFlow() {
                   onClick={() => setTradingDuration(value)}
                   className={cn(
                     "flex items-center justify-center p-4 rounded-xl text-center font-semibold text-[14px] transition-all",
-                    active ? "shadow-[0_0_0_2px_var(--teal)] bg-[rgba(8,174,170,0.08)] text-ink-strong" : "shadow-md bg-panel-2 text-ink-mid"
+                    active ? "ring-2 ring-teal-deep bg-[rgba(8,174,170,0.08)] text-ink-strong" : "shadow-md bg-panel-2 text-ink-mid"
                   )}
                 >
                   {label}
@@ -259,7 +259,7 @@ export function OnboardingFlow() {
                   onClick={() => setSkill(value)}
                   className={cn(
                     "flex items-center justify-between p-4 rounded-xl text-left transition-all",
-                    active ? "shadow-[0_0_0_2px_var(--teal)] bg-[rgba(8,174,170,0.08)]" : "shadow-md bg-panel-2"
+                    active ? "ring-2 ring-teal-deep bg-[rgba(8,174,170,0.08)]" : "shadow-md bg-panel-2"
                   )}
                 >
                   <div>
@@ -299,7 +299,7 @@ export function OnboardingFlow() {
                   onClick={() => setGoal(value)}
                   className={cn(
                     "flex items-center justify-between p-4 rounded-xl text-left transition-all",
-                    active ? "shadow-[0_0_0_2px_var(--teal)] bg-[rgba(8,174,170,0.08)]" : "shadow-md bg-panel-2"
+                    active ? "ring-2 ring-teal-deep bg-[rgba(8,174,170,0.08)]" : "shadow-md bg-panel-2"
                   )}
                 >
                   <div>
@@ -337,7 +337,7 @@ export function OnboardingFlow() {
                   onClick={() => toggleInstrument(key)}
                   className={cn(
                     "flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-center transition-all",
-                    selected ? "shadow-[0_0_0_2px_var(--teal)] bg-[rgba(8,174,170,0.08)]" : "shadow-sm bg-panel-2"
+                    selected ? "ring-2 ring-teal-deep bg-[rgba(8,174,170,0.08)]" : "shadow-sm bg-panel-2"
                   )}
                 >
                   <span className={cn("font-semibold text-[13px]", selected ? "text-ink-strong" : "text-ink-mid")}>

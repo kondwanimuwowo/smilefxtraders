@@ -13,11 +13,11 @@ const FEATURES = ["COT Bias", "Trend Matrix", "DXY Confluence"] as const;
 // not by pair symbol, so a new instrument only needs a category/tier to land
 // in the right visual group automatically.
 const GROUP_ACCENT: Record<string, { barCls: string; hoverShadowCls: string; chipBgCls: string; chipTextCls: string }> = {
-  majors:      { barCls: "bg-teal",        hoverShadowCls: "hover:shadow-[0_0_0_2px_var(--teal)]",        chipBgCls: "bg-[color-mix(in_srgb,var(--teal)_12%,transparent)]",        chipTextCls: "text-teal-deep" },
-  minors:      { barCls: "bg-teal-bright", hoverShadowCls: "hover:shadow-[0_0_0_2px_var(--teal-bright)]", chipBgCls: "bg-[color-mix(in_srgb,var(--teal-bright)_12%,transparent)]", chipTextCls: "text-teal-deep" },
-  commodities: { barCls: "bg-gold",        hoverShadowCls: "hover:shadow-[0_0_0_2px_var(--gold)]",        chipBgCls: "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)]",        chipTextCls: "text-gold-deep" },
-  indices:     { barCls: "bg-navy",        hoverShadowCls: "hover:shadow-[0_0_0_2px_var(--navy)]",        chipBgCls: "bg-[color-mix(in_srgb,var(--navy)_12%,transparent)]",        chipTextCls: "text-navy" },
-  dollar:      { barCls: "bg-coral",       hoverShadowCls: "hover:shadow-[0_0_0_2px_var(--coral)]",       chipBgCls: "bg-[color-mix(in_srgb,var(--coral)_12%,transparent)]",       chipTextCls: "text-coral-deep" },
+  majors:      { barCls: "bg-teal",        hoverShadowCls: "hover:ring-2 ring-teal-deep",        chipBgCls: "bg-[color-mix(in_srgb,var(--teal)_12%,transparent)]",        chipTextCls: "text-teal-deep" },
+  minors:      { barCls: "bg-teal-bright", hoverShadowCls: "hover:ring-2 ring-teal-deep", chipBgCls: "bg-[color-mix(in_srgb,var(--teal-bright)_12%,transparent)]", chipTextCls: "text-teal-deep" },
+  commodities: { barCls: "bg-gold",        hoverShadowCls: "hover:ring-2 ring-gold-deep",        chipBgCls: "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)]",        chipTextCls: "text-gold-deep" },
+  indices:     { barCls: "bg-navy",        hoverShadowCls: "hover:ring-2 ring-navy",        chipBgCls: "bg-[color-mix(in_srgb,var(--navy)_12%,transparent)]",        chipTextCls: "text-navy" },
+  dollar:      { barCls: "bg-coral",       hoverShadowCls: "hover:ring-2 ring-coral-deep",       chipBgCls: "bg-[color-mix(in_srgb,var(--coral)_12%,transparent)]",       chipTextCls: "text-coral-deep" },
 };
 
 export default function PairsPage() {

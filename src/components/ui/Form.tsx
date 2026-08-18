@@ -121,7 +121,7 @@ export function Select({ value, onChange, options, disabled, compact, borderless
         className={cn(
           triggerCls,
           "bg-panel-2 disabled:opacity-50",
-          !borderless && open && "shadow-[0_0_0_2px_var(--teal)]",
+          !borderless && open && "ring-2 ring-teal-deep",
           isPlaceholder ? "text-ink-dim" : "text-ink-strong"
         )}
       >

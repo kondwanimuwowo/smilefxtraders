@@ -49,7 +49,7 @@ export default function MacroEdgeOverviewPage() {
         <div className="grid gap-3 grid-cols-2 mb-5">
           <Link
             href={`/macroedge/${strongest.currency}`}
-            className="flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-panel shadow-md hover:shadow-[0_0_0_2px_var(--teal-bright)] transition-shadow"
+            className="flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-panel shadow-md hover:ring-2 ring-teal-deep transition-shadow"
           >
             <span className="flex items-center justify-center size-9 rounded-xl shrink-0 bg-[rgba(48,232,223,0.10)]">
               <Icon name="trending_up" size={17} className="text-teal-deep" />
@@ -63,7 +63,7 @@ export default function MacroEdgeOverviewPage() {
           </Link>
           <Link
             href={`/macroedge/${weakest.currency}`}
-            className="flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-panel shadow-md hover:shadow-[0_0_0_2px_var(--coral-bright)] transition-shadow"
+            className="flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-panel shadow-md hover:ring-2 ring-coral-deep transition-shadow"
           >
             <span className="flex items-center justify-center size-9 rounded-xl shrink-0 bg-[rgba(255,89,66,0.10)]">
               <Icon name="trending_down" size={17} className="text-coral-deep" />

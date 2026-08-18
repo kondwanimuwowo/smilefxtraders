@@ -178,7 +178,7 @@ function AlertCard({
       className={cn(
         "rounded-2xl overflow-hidden",
         alert.status === "active"
-          ? "bg-[color-mix(in_srgb,var(--teal)_5%,transparent)] shadow-[0_0_0_2px_var(--teal)]"
+          ? "bg-[color-mix(in_srgb,var(--teal)_5%,transparent)] ring-2 ring-teal-deep"
           : "bg-panel shadow-md",
         (alert.status === "sl" || alert.status === "cancelled" || alert.status === "closed") && "opacity-75"
       )}
@@ -395,7 +395,7 @@ export function Alerts() {
     <div className="view">
       {/* Free-plan delay warning */}
       {user?.plan === "free" && (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4 text-[13px] bg-[rgba(248,185,61,0.08)] shadow-[0_0_0_2px_var(--gold)] text-gold-deep">
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4 text-[13px] bg-[rgba(248,185,61,0.08)] ring-2 ring-gold-deep text-gold-deep">
           <Icon name="schedule" size={16} className="text-gold-deep shrink-0" />
           <span>
             <strong>Free plan</strong>: alerts are shown with a 4-hour delay.{" "}
@@ -417,7 +417,7 @@ export function Alerts() {
         </div>
         <div className="flex items-center gap-3">
           {activeCount > 0 && (
-            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[rgba(8,174,170,0.1)] shadow-[0_0_0_2px_var(--teal)]">
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[rgba(8,174,170,0.1)] ring-2 ring-teal-deep">
               <span className="relative flex size-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-teal" />
                 <span className="relative inline-flex rounded-full size-2 bg-teal" />
@@ -457,12 +457,12 @@ export function Alerts() {
 
       {/* Filters */}
       <div className="flex items-center gap-3 mb-5 flex-wrap">
-        <div className="flex items-center rounded-xl p-0.5 bg-panel-2 shadow-sm">
+        <div className="flex items-center gap-0.5 rounded-full p-1 bg-panel-2">
           {STATUS_FILTERS.map(({ v, l }) => (
             <button
               key={v} type="button" onClick={() => setStatusFilter(v)}
-              className={`px-3.5 py-1.5 rounded-[10px] text-[12.5px] font-semibold transition-all ${
-                statusFilter === v ? "bg-panel text-ink-strong shadow-[0_1px_4px_rgba(0,0,0,0.12)]" : "text-ink-dim"
+              className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors ${
+                statusFilter === v ? "bg-teal-solid text-white" : "text-ink-mid hover:text-ink-strong"
               }`}
             >
               {l}
@@ -526,7 +526,7 @@ export function Alerts() {
 
       {/* Pro plan note — students only */}
       {!isInstructor && (
-        <div className="mt-6 rounded-2xl px-5 py-4 flex items-start gap-3 bg-[rgba(248,185,61,0.06)] shadow-[0_0_0_2px_var(--gold)]">
+        <div className="mt-6 rounded-2xl px-5 py-4 flex items-start gap-3 bg-[rgba(248,185,61,0.06)] ring-2 ring-gold-deep">
           <Icon name="workspace_premium" size={17} fill className="text-gold-deep shrink-0 mt-px" />
           <p className="text-[12.5px] leading-relaxed text-ink-mid">
             <strong className="text-ink-strong">Edge & Pro traders</strong> receive alerts in real time via this feed and push notifications. Free plan members see alerts with a 4-hour delay. Upgrade in{" "}

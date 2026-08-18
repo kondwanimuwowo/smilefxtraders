@@ -104,7 +104,7 @@ function PairCard({ record, liveSpot }: { record: FxOrderRecord; liveSpot: strin
     <div
       className={cn(
         "flex flex-col rounded-2xl overflow-hidden bg-panel",
-        hasAlert ? "shadow-[0_0_0_2px_var(--teal)]" : "shadow-sm"
+        hasAlert ? "ring-2 ring-teal-deep" : "shadow-sm"
       )}
     >
       {/* Card header */}
