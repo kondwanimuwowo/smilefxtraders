@@ -274,7 +274,6 @@ export function Validator() {
   const [setup,       setSetup]       = useState<Setup>(BLANK_SETUP("SMC"));
   const [history,     setHistory]     = useState<HistoryEntry[]>([]);
   const [killzoneNow, setKillzoneNow] = useState(() => isInKillzone("London"));
-  const [calcOpen,    setCalcOpen]    = useState(false);
 
   // Balance/risk/entry/SL now live in `setup`, not here. They used to be local
   // state feeding only the pip calculator, which is why rules 8 and 10 could
@@ -577,22 +576,19 @@ export function Validator() {
                 )}
               </div>
 
-              {/* Position size calculator */}
+              {/* Position size calculator. Its own section rather than a
+                  collapsed drawer: Risk % is the input for rule 10, an
+                  invalidating rule, and an input that decides whether a setup
+                  is void should not sit behind a disclosure. */}
               <div className="border-t border-line pt-4">
-                <button
-                  type="button"
-                  onClick={() => setCalcOpen((o) => !o)}
-                  className="flex items-center gap-2 w-full mb-2"
-                >
+                <div className="flex items-center gap-2 mb-3">
                   <Icon name="calculate" size={15} className="text-teal-deep" />
                   <span className="text-[11.5px] font-semibold uppercase tracking-wider flex-1 text-left text-ink-dim">
                     Position size calculator
                   </span>
-                  <Icon name={calcOpen ? "expand_less" : "expand_more"} size={15} className="text-ink-dim" />
-                </button>
+                </div>
 
-                {calcOpen && (
-                  <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Field label="Account balance" half>
                         <MonoInput
@@ -676,8 +672,7 @@ export function Validator() {
                         These prices will pre-fill the trade log when you click &ldquo;Log this trade&rdquo;.
                       </p>
                     )}
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           </Panel>
