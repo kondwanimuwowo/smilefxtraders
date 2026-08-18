@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useTransition } from "react";
-import Script from "next/script";
+import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -9,20 +8,7 @@ import { Input, Field, Button, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { signupAction } from "../actions";
 import { CHECKOUT_PLANS, setPendingPlan } from "@/lib/pending-plan";
-
-// Turnstile site keys are public by design — this string is served in the
-// page HTML to every visitor either way, so it lives here rather than in an
-// env var. (A NEXT_PUBLIC_* var would also have to be inlined at build time,
-// which a Worker runtime secret is not.) The *secret* key never leaves
-// Supabase. Widget: Cloudflare dashboard → Turnstile.
-const TURNSTILE_SITE_KEY = "0x4AAAAAAEQrIxtBvC5iBBYz";
-
-// Minimal surface of the Turnstile script we actually call.
-declare global {
-  interface Window {
-    turnstile?: { reset: (container?: string | HTMLElement) => void };
-  }
-}
+import { TurnstileWidget, useTurnstile, TURNSTILE_PENDING_MESSAGE } from "@/components/auth/Turnstile";
 
 function suggestUsername(fullName: string): string {
   const parts = fullName.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -79,7 +65,7 @@ export function SignupForm() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendLoading, setResendLoading] = useState(false);
 
-  const turnstileRef = useRef<HTMLDivElement>(null);
+  const turnstile = useTurnstile();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -89,8 +75,8 @@ export function SignupForm() {
     // Turnstile hasn't produced a token yet (script still loading, or the
     // challenge is mid-flight). Say so rather than letting Supabase reject
     // the signup with a generic captcha error.
-    if (!data.get("cf-turnstile-response")) {
-      setError("Please wait a moment for the security check to finish, then try again.");
+    if (!turnstile.hasToken(data)) {
+      setError(TURNSTILE_PENDING_MESSAGE);
       return;
     }
 
@@ -101,7 +87,7 @@ export function SignupForm() {
         // Tokens are single-use: the one just spent is dead, so without a
         // reset every retry fails on an already-redeemed token rather than
         // on the real problem.
-        window.turnstile?.reset(turnstileRef.current ?? undefined);
+        turnstile.reset();
       } else if (result && "pendingVerification" in result && result.pendingVerification) {
         setPendingEmail(result.email);
       }
@@ -154,7 +140,7 @@ export function SignupForm() {
     return (
       <div className="flex flex-col items-center text-center py-6">
         <div className="size-14 rounded-2xl flex items-center justify-center mb-5 bg-[rgba(8,174,170,0.08)] border border-[rgba(8,174,170,0.2)]">
-          <Icon name="mark_email_unread" size={28} className="text-teal" />
+          <Icon name="mark_email_unread" size={28} className="text-teal-deep" />
         </div>
         <h1 className="font-display font-medium mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
           Check your email
@@ -162,7 +148,7 @@ export function SignupForm() {
         <p className="text-[14px] leading-relaxed mb-1 text-ink-mid">
           We sent a confirmation link to
         </p>
-        <p className="text-[14.5px] font-semibold mb-5 text-teal">
+        <p className="text-[14.5px] font-semibold mb-5 text-teal-deep">
           {pendingEmail}
         </p>
         <p className="text-[13px] leading-relaxed mb-6 max-w-[320px] text-ink-dim">
@@ -180,7 +166,7 @@ export function SignupForm() {
         </Button>
         <p className="text-center text-[13.5px] mt-6 text-ink-mid">
           Already verified?{" "}
-          <Link href="/login" className="font-semibold hover:underline text-teal">
+          <Link href="/login" className="font-semibold hover:underline text-teal-deep">
             Sign in
           </Link>
         </p>
@@ -190,7 +176,7 @@ export function SignupForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
-      <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2 text-teal">
+      <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2 text-teal-deep">
         Join the community
       </div>
 
@@ -240,20 +226,10 @@ export function SignupForm() {
         </Field>
       </div>
 
-      {/* Turnstile injects a hidden `cf-turnstile-response` input here, which
-          the form's own FormData picks up — no wiring needed. `auto` follows
-          the visitor's colour scheme so it doesn't glare in dark mode. */}
-      <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
-      <div
-        ref={turnstileRef}
-        className="cf-turnstile mb-4 flex justify-center"
-        data-sitekey={TURNSTILE_SITE_KEY}
-        data-action="signup"
-        data-theme="auto"
-      />
+      <TurnstileWidget innerRef={turnstile.ref} action="signup" />
 
       {error && (
-        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-bright border border-[rgba(234,82,61,0.2)]">
+        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-deep border border-[rgba(234,82,61,0.2)]">
           {error}
         </div>
       )}
@@ -264,7 +240,7 @@ export function SignupForm() {
 
       <p className="text-center text-[13.5px] mt-6 text-ink-mid">
         Already a member?{" "}
-        <Link href={`/login${plan ? `?plan=${plan}` : ""}`} className="font-semibold hover:underline text-teal">
+        <Link href={`/login${plan ? `?plan=${plan}` : ""}`} className="font-semibold hover:underline text-teal-deep">
           Sign in
         </Link>
       </p>

@@ -8,6 +8,7 @@ import { Input, Field, Button, Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { loginAction, demoLoginAction } from "../actions";
 import { CHECKOUT_PLANS, setPendingPlan } from "@/lib/pending-plan";
+import { TurnstileWidget, useTurnstile, TURNSTILE_PENDING_MESSAGE } from "@/components/auth/Turnstile";
 
 // Friendly copy for the ?error= codes /auth/callback redirects here with —
 // without this, someone clicking an expired/consumed email link lands on a
@@ -56,28 +57,48 @@ export function LoginForm() {
   const [isPending, startTransition] = useTransition();
   const [isDemo, setIsDemo] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const turnstile = useTurnstile();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     const data = new FormData(e.currentTarget);
+
+    // Say so plainly rather than letting Supabase reject the sign-in with a
+    // generic captcha error the user can do nothing about.
+    if (!turnstile.hasToken(data)) {
+      setError(TURNSTILE_PENDING_MESSAGE);
+      return;
+    }
+
     startTransition(async () => {
       // loginAction redirects itself on success (same response cycle as the
       // session cookie it sets) — it only ever returns when there's an error.
       const result = await loginAction(data);
-      if (result?.error) setError(result.error);
+      if (result?.error) {
+        setError(result.error);
+        turnstile.reset();
+      }
     });
   }
 
   function handleDemo() {
+    // The demo button lives inside the form but doesn't submit it, so the
+    // token comes from the widget directly rather than from FormData.
+    const token = turnstile.token();
+    if (!token) {
+      setError(TURNSTILE_PENDING_MESSAGE);
+      return;
+    }
     setIsDemo(true);
     setError(null);
     startTransition(async () => {
       // demoLoginAction redirects itself on success — see handleSubmit above.
-      const result = await demoLoginAction();
+      const result = await demoLoginAction(token);
       if (result?.error) {
         setError(result.error);
         setIsDemo(false);
+        turnstile.reset();
       }
     });
   }
@@ -104,7 +125,7 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
       {/* Eyebrow */}
-      <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2 text-teal">
+      <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2 text-teal-deep">
         Welcome back
       </div>
 
@@ -140,14 +161,16 @@ export function LoginForm() {
           <input type="checkbox" name="remember" defaultChecked className="accent-teal" />
           Remember me
         </label>
-        <Link href="/forgot-password" className="text-[13px] font-medium hover:underline text-teal">
+        <Link href="/forgot-password" className="text-[13px] font-medium hover:underline text-teal-deep">
           Forgot password?
         </Link>
       </div>
 
+      <TurnstileWidget innerRef={turnstile.ref} action="login" />
+
       {/* Error */}
       {error && (
-        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-bright border border-[rgba(234,82,61,0.2)]">
+        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-deep border border-[rgba(234,82,61,0.2)]">
           {error}
         </div>
       )}
@@ -178,7 +201,7 @@ export function LoginForm() {
 
       <p className="text-center text-[13.5px] mt-6 text-ink-mid">
         New here?{" "}
-        <Link href={`/signup${plan ? `?plan=${plan}` : ""}`} className="font-semibold hover:underline text-teal">
+        <Link href={`/signup${plan ? `?plan=${plan}` : ""}`} className="font-semibold hover:underline text-teal-deep">
           Create an account
         </Link>
       </p>

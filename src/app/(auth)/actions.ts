@@ -36,14 +36,31 @@ export async function loginAction(formData: FormData) {
   const email    = formData.get("email") as string;
   const password = formData.get("password") as string;
 
+  // Supabase's CAPTCHA protection is a project-wide Auth setting, so enabling
+  // it for signup (see signupAction) also armed it on /token — this endpoint.
+  // Without the token every email/password login was rejected outright with
+  // "captcha protection: request disallowed (no captcha_token found)", while
+  // OAuth kept working because it never reaches /token.
+  const captchaToken = formData.get("cf-turnstile-response");
+
   try {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+      ...(typeof captchaToken === "string" && captchaToken
+        ? { options: { captchaToken } }
+        : {}),
+    });
     if (error) {
       if (error.message.toLowerCase().includes("invalid login")) {
         return { error: "Incorrect email or password." };
       }
       if (error.message.toLowerCase().includes("email not confirmed")) {
         return { error: "Please verify your email first. Check your inbox for the confirmation link (it may be in spam)." };
+      }
+      // Don't hand the raw provider text to a person trying to sign in.
+      if (/captcha/i.test(error.message)) {
+        return { error: "The security check didn't pass. Please try again." };
       }
       return { error: error.message };
     }
@@ -64,13 +81,19 @@ export async function loginAction(formData: FormData) {
   redirect(plan ? `/checkout/${plan}` : "/dashboard");
 }
 
-export async function demoLoginAction() {
+// Takes the token explicitly: the demo button sits inside the login form but
+// does not submit it, so there is no FormData to pull it from. It still needs
+// one -- CAPTCHA protection guards /token regardless of which button was
+// pressed.
+export async function demoLoginAction(captchaToken?: string) {
   const supabase = await createClient();
+  const captcha = captchaToken ? { options: { captchaToken } } : {};
 
   try {
     const { error } = await supabase.auth.signInWithPassword({
       email:    process.env.DEMO_EMAIL    ?? "demo@smilefxtraders.com",
       password: process.env.DEMO_PASSWORD ?? "demo-trader-2025",
+      ...captcha,
     });
 
     if (error) {
