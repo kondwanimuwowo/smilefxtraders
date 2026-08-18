@@ -194,10 +194,14 @@ interface SegRowProps {
   options: (string | { v: string; l: string })[];
 }
 
-// A pill riding inside a --panel-2 track, rather than a row of bordered
-// buttons. Same shape the design prototype uses, and it reads as one control
-// instead of several: the track carries the grouping, so nothing needs an
-// outline to say where it begins.
+// A filled pill riding inside a --panel-2 track, rather than a row of bordered
+// buttons. Same shape and treatment as the design prototype: the track carries
+// the grouping, so nothing needs an outline to say where it begins, and the
+// selected option is a solid teal fill with a white label.
+//
+// --teal-solid, not --teal: the prototype fills with the raw brand teal, where
+// a white label sits at 2.75:1. --teal-solid holds the same hue (178.6deg) and
+// saturation and only drops value, so it reads as the same colour at 4.54:1.
 export function SegRow({ value, onChange, options }: SegRowProps) {
   return (
     <div className="flex gap-0.5 p-1 rounded-full bg-panel-2">
@@ -213,7 +217,7 @@ export function SegRow({ value, onChange, options }: SegRowProps) {
             className={cn(
               "flex-1 py-1.5 text-[12.5px] font-semibold rounded-full transition-colors",
               active
-                ? "bg-panel text-teal-deep shadow-sm"
+                ? "bg-teal-solid text-white"
                 : "bg-transparent text-ink-mid hover:text-ink-strong"
             )}
           >
