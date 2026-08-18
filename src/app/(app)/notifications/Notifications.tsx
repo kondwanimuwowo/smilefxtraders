@@ -6,9 +6,9 @@ import { useMarkNotifsRead } from "@/lib/hooks/useNotifications";
 import { Icon } from "@/components/ui";
 
 const TONE_CONFIG: Record<string, { icon: string; iconCls: string; bgCls: string }> = {
-  teal:  { icon: "notifications_active", iconCls: "text-teal",  bgCls: "bg-[rgba(8,174,170,0.1)]"  },
-  gold:  { icon: "workspace_premium",    iconCls: "text-gold",  bgCls: "bg-[rgba(248,185,61,0.1)]" },
-  coral: { icon: "warning",              iconCls: "text-coral", bgCls: "bg-[rgba(234,82,61,0.1)]"  },
+  teal:  { icon: "notifications_active", iconCls: "text-teal-deep",  bgCls: "bg-[rgba(8,174,170,0.1)]"  },
+  gold:  { icon: "workspace_premium",    iconCls: "text-gold-deep",  bgCls: "bg-[rgba(248,185,61,0.1)]" },
+  coral: { icon: "warning",              iconCls: "text-coral-deep", bgCls: "bg-[rgba(234,82,61,0.1)]"  },
 };
 
 import { fmtRelative } from "@/lib/date";
@@ -37,7 +37,7 @@ export function Notifications() {
           <button
             type="button"
             onClick={() => markRead.mutate({ all: true })}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold transition-colors hover:bg-hover text-teal shadow-[0_0_0_2px_var(--teal)]"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold transition-colors hover:bg-hover text-teal-deep shadow-[0_0_0_2px_var(--teal)]"
           >
             <Icon name="done_all" size={15} />
             Mark all read
@@ -48,7 +48,7 @@ export function Notifications() {
       {notifs.length === 0 ? (
         <div className="rounded-2xl flex flex-col items-center py-20 text-center bg-panel shadow-md">
           <div className="size-14 rounded-2xl flex items-center justify-center mb-4 bg-[rgba(8,174,170,0.08)] shadow-[0_0_0_2px_var(--teal)]">
-            <Icon name="notifications" size={26} className="text-teal" />
+            <Icon name="notifications" size={26} className="text-teal-deep" />
           </div>
           <div className="font-semibold text-[15px] mb-1 text-ink-strong">
             All clear

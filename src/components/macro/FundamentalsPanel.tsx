@@ -12,14 +12,14 @@ function ScoreChip({ label, score }: { label: string; score: number }) {
     <div className="flex items-center gap-2 rounded-xl px-3 py-2.5 bg-panel-2 shadow-sm flex-1">
       <Link
         href={`/macroedge/${label}`}
-        className="text-[11px] font-bold px-1.5 py-0.5 rounded-md tracking-wide bg-panel shadow-sm text-ink-mid hover:text-teal transition-colors shrink-0"
+        className="text-[11px] font-bold px-1.5 py-0.5 rounded-md tracking-wide bg-panel shadow-sm text-ink-mid hover:text-teal-deep transition-colors shrink-0"
       >
         {label}
       </Link>
       <span
         className={cn(
           "font-display font-bold tabular-nums text-[16px] ml-auto",
-          score > 0 ? "text-teal-bright" : score < 0 ? "text-coral-bright" : "text-gold"
+          score > 0 ? "text-teal-deep" : score < 0 ? "text-coral-deep" : "text-gold-deep"
         )}
       >
         {score > 0 ? "+" : ""}

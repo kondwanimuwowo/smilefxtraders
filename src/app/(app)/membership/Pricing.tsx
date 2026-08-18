@@ -138,7 +138,7 @@ export function Pricing() {
       <div
         className="rounded-2xl px-6 py-5 flex items-center gap-4 mb-10 bg-[rgba(8,174,170,0.06)] shadow-[0_0_0_2px_var(--teal)]"
       >
-        <Icon name="verified_user" size={30} fill className="text-teal shrink-0" />
+        <Icon name="verified_user" size={30} fill className="text-teal-deep shrink-0" />
         <div>
           <div className="font-display font-semibold text-[15px] mb-0.5 text-ink-strong">
             7-day money-back guarantee

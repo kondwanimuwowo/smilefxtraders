@@ -108,7 +108,7 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
                   i < results.length - 1 && "border-b border-line"
                 )}
               >
-                <Icon name={TYPE_ICON[r.type]} size={18} className="text-teal shrink-0" />
+                <Icon name={TYPE_ICON[r.type]} size={18} className="text-teal-deep shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-ink whitespace-nowrap overflow-hidden text-ellipsis">{r.label}</div>
                   <div className="text-xs mt-0.5 text-ink-dim">{r.sub}</div>
@@ -133,7 +133,7 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
                 onClick={() => { router.push(s.href); onClose(); }}
                 className="flex items-center gap-1.5 text-[13.5px] font-medium px-3.5 py-2 rounded-[10px] border-none cursor-pointer bg-[var(--bg-soft)] text-ink-mid"
               >
-                <Icon name={s.icon} size={17} className="text-teal" />
+                <Icon name={s.icon} size={17} className="text-teal-deep" />
                 {s.label}
               </button>
             ))}

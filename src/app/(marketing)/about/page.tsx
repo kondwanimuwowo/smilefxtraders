@@ -93,9 +93,9 @@ export default function AboutPage() {
           </div>
           <div className="reveal mt-9 flex flex-col gap-0">
             {[
-              { year: "2023", yearColCls: "text-[var(--teal-dark)]", dotCls: "bg-teal", title: "A WhatsApp group", body: "A handful of Lusaka traders sharing setups and learning smart money together.", last: false },
-              { year: "2024", yearColCls: "text-[var(--teal-dark)]", dotCls: "bg-teal", title: "The Academy takes shape", body: "Kondwani structures the method into a six-level curriculum, taught in order.", last: false },
-              { year: "2025 to today", yearColCls: "text-[var(--gold-dark)]", dotCls: "bg-gold", title: "The full platform", body: "Tools, teaching, and community brought together in one desk. Growing across Zambia and the continent.", last: true },
+              { year: "2023", yearColCls: "text-teal-deep", dotCls: "bg-teal", title: "A WhatsApp group", body: "A handful of Lusaka traders sharing setups and learning smart money together.", last: false },
+              { year: "2024", yearColCls: "text-teal-deep", dotCls: "bg-teal", title: "The Academy takes shape", body: "Kondwani structures the method into a six-level curriculum, taught in order.", last: false },
+              { year: "2025 to today", yearColCls: "text-gold-deep", dotCls: "bg-gold", title: "The full platform", body: "Tools, teaching, and community brought together in one desk. Growing across Zambia and the continent.", last: true },
             ].map(({ year, yearColCls, dotCls, title, body, last }) => (
               <div key={year} className="flex gap-5">
                 <div className="flex flex-col items-center">

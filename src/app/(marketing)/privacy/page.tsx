@@ -69,7 +69,7 @@ export default function PrivacyPage() {
             <div>
               <h3 className="font-display font-medium text-[19px] text-ink-strong mb-2">Contact</h3>
               <p>
-                Questions about this policy: <a href="mailto:support@smilefxtraders.com" className="text-teal font-semibold">support@smilefxtraders.com</a>.
+                Questions about this policy: <a href="mailto:support@smilefxtraders.com" className="text-teal-deep font-semibold">support@smilefxtraders.com</a>.
               </p>
             </div>
           </div>

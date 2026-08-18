@@ -53,9 +53,9 @@ const DEFAULT_NOTES: Notes = {
 const CYCLE: Record<Bias, Bias> = { bullish: "bearish", bearish: "ranging", ranging: "bullish" };
 
 const BIAS_CONFIG: Record<Bias, { icon: string; textCls: string; bgCls: string; barBgCls: string }> = {
-  bullish: { icon: "trending_up",   textCls: "text-teal-bright",  bgCls: "bg-[rgba(48,232,223,0.13)]", barBgCls: "bg-teal"  },
-  bearish: { icon: "trending_down", textCls: "text-coral-bright", bgCls: "bg-[rgba(255,89,66,0.13)]",  barBgCls: "bg-coral" },
-  ranging: { icon: "trending_flat", textCls: "text-gold",         bgCls: "bg-[rgba(248,185,61,0.13)]", barBgCls: "bg-gold"  },
+  bullish: { icon: "trending_up",   textCls: "text-teal-deep",  bgCls: "bg-[rgba(48,232,223,0.13)]", barBgCls: "bg-teal"  },
+  bearish: { icon: "trending_down", textCls: "text-coral-deep", bgCls: "bg-[rgba(255,89,66,0.13)]",  barBgCls: "bg-coral" },
+  ranging: { icon: "trending_flat", textCls: "text-gold-deep",         bgCls: "bg-[rgba(248,185,61,0.13)]", barBgCls: "bg-gold"  },
 };
 
 // ── Confluence helpers ────────────────────────────────────────────────────────
@@ -165,7 +165,7 @@ function NoteRow({ pair, value, onChange, readonly }: { pair: string; value: str
           placeholder="Your HTF analysis…"
         />
         <button type="button" onClick={() => { onChange(draft); setEditing(false); }}>
-          <Icon name="check" size={14} className="text-teal" />
+          <Icon name="check" size={14} className="text-teal-deep" />
         </button>
       </div>
     );
@@ -363,7 +363,7 @@ export function TrendMatrix({ initial }: { initial: TrendMatrixInitial | null })
       </div>
 
       {saveError && (
-        <div className="mb-4 px-4 py-2.5 rounded-xl text-[12.5px] bg-[rgba(234,82,61,0.1)] text-coral">
+        <div className="mb-4 px-4 py-2.5 rounded-xl text-[12.5px] bg-[rgba(234,82,61,0.1)] text-coral-deep">
           {saveError}
         </div>
       )}
@@ -458,7 +458,7 @@ export function TrendMatrix({ initial }: { initial: TrendMatrixInitial | null })
 
       {/* ── How to use ── */}
       <div className="mt-4 rounded-2xl px-5 py-4 flex items-start gap-3 bg-[rgba(8,174,170,0.06)] shadow-[0_0_0_2px_rgba(8,174,170,0.15)]">
-        <Icon name="info" size={17} fill className="text-teal shrink-0 mt-px" />
+        <Icon name="info" size={17} fill className="text-teal-deep shrink-0 mt-px" />
         <p className="text-[12.5px] leading-relaxed text-ink-mid">
           {isInstructor
             ? "Update this matrix every Sunday after your weekly chart review, then hit Publish. Students will immediately see your updated bias across all pairs and timeframes."

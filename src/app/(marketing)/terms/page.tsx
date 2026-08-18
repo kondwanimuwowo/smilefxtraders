@@ -41,14 +41,14 @@ export default function TermsPage() {
             <div>
               <h3 className="font-display font-medium text-[19px] text-ink-strong mb-2">Subscriptions & billing</h3>
               <p>
-                Smile FX Traders offers a free Starter plan and paid Edge and Pro plans, billed monthly or annually (annual billing saves 20%). Paid plans renew automatically until cancelled; cancelling keeps your access until the end of the current billing period. Prices are shown in ZMW and USD at checkout. See our <a href="/pricing" className="text-teal font-semibold">Pricing</a> page for current plan details.
+                Smile FX Traders offers a free Starter plan and paid Edge and Pro plans, billed monthly or annually (annual billing saves 20%). Paid plans renew automatically until cancelled; cancelling keeps your access until the end of the current billing period. Prices are shown in ZMW and USD at checkout. See our <a href="/pricing" className="text-teal-deep font-semibold">Pricing</a> page for current plan details.
               </p>
             </div>
 
             <div>
               <h3 className="font-display font-medium text-[19px] text-ink-strong mb-2">Educational content only</h3>
               <p>
-                Nothing on Smile FX Traders, including the Academy curriculum, live alerts, community posts, Trend Matrix, MacroEdge commentary, or Gavo AI trade reviews, constitutes financial advice. See our <a href="/risk-disclosure" className="text-teal font-semibold">Risk Disclosure</a> for details on the risks of leveraged trading.
+                Nothing on Smile FX Traders, including the Academy curriculum, live alerts, community posts, Trend Matrix, MacroEdge commentary, or Gavo AI trade reviews, constitutes financial advice. See our <a href="/risk-disclosure" className="text-teal-deep font-semibold">Risk Disclosure</a> for details on the risks of leveraged trading.
               </p>
             </div>
 
@@ -76,7 +76,7 @@ export default function TermsPage() {
             <div>
               <h3 className="font-display font-medium text-[19px] text-ink-strong mb-2">Contact</h3>
               <p>
-                Questions about these terms: <a href="mailto:support@smilefxtraders.com" className="text-teal font-semibold">support@smilefxtraders.com</a>.
+                Questions about these terms: <a href="mailto:support@smilefxtraders.com" className="text-teal-deep font-semibold">support@smilefxtraders.com</a>.
               </p>
             </div>
           </div>

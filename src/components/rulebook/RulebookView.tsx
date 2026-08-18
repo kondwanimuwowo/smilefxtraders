@@ -9,8 +9,8 @@ import { cn } from "@/lib/cn";
 import type { RuleStats } from "@/lib/gavo/rule-stats";
 
 const WEIGHT_CHIP: Record<RuleWeight, string> = {
-  invalidating: "bg-[rgba(234,82,61,0.12)] text-coral",
-  core:         "bg-[rgba(248,185,61,0.12)] text-gold",
+  invalidating: "bg-[rgba(234,82,61,0.12)] text-coral-deep",
+  core:         "bg-[rgba(248,185,61,0.12)] text-gold-deep",
   supporting:   "bg-panel-2 text-ink-dim",
 };
 
@@ -34,12 +34,12 @@ function RuleRecord({ stat, id }: { stat?: RuleStats; id: string }) {
   return (
     <div className="flex items-center gap-3 mt-2 text-[11px]">
       {record.flagged > 0 && (
-        <span className="font-semibold text-coral">
+        <span className="font-semibold text-coral-deep">
           Flagged in {record.flagged} of your last {stat.reviewed} reviews
         </span>
       )}
       {record.flagged === 0 && record.praised > 0 && (
-        <span className="font-semibold text-teal">
+        <span className="font-semibold text-teal-deep">
           Credited in {record.praised} of your last {stat.reviewed} reviews
         </span>
       )}
@@ -93,7 +93,7 @@ export function RulebookView({ stats }: { stats?: Record<Framework, RuleStats> }
             className={cn(
               "rounded-xl px-4 py-2 text-[13px] font-semibold transition-all active:scale-[0.98]",
               framework === fw
-                ? "bg-teal text-white shadow-sm"
+                ? "bg-teal-solid text-white shadow-sm"
                 : "bg-panel-2 text-ink-mid hover:opacity-80",
             )}
           >
@@ -131,7 +131,7 @@ export function RulebookView({ stats }: { stats?: Record<Framework, RuleStats> }
           <section key={group.title} className="rounded-2xl overflow-hidden bg-panel shadow-sm">
             <header className="px-5 py-4 bg-panel-2">
               <div className="flex items-baseline gap-2.5">
-                <span className="font-display font-bold text-[12px] tabular-nums text-teal">
+                <span className="font-display font-bold text-[12px] tabular-nums text-teal-deep">
                   {String(gi + 1).padStart(2, "0")}
                 </span>
                 <h2 className="font-display font-semibold text-[16px] tracking-[-0.01em] text-ink-strong">
@@ -198,7 +198,7 @@ export function RulebookView({ stats }: { stats?: Record<Framework, RuleStats> }
               <span
                 className={cn(
                   "font-display font-bold text-[15px] w-9 shrink-0 tabular-nums",
-                  g.tone === "teal" ? "text-teal" : g.tone === "gold" ? "text-gold" : "text-coral",
+                  g.tone === "teal" ? "text-teal-deep" : g.tone === "gold" ? "text-gold-deep" : "text-coral-deep",
                 )}
               >
                 {g.grade}

@@ -18,7 +18,7 @@ const SESSION_GUIDE = [
   {
     name:    "Tokyo",
     time:    "02:00 – 11:00",
-    textCls: "text-gold",
+    textCls: "text-gold-deep",
     ringCls: "shadow-[0_0_0_2px_rgba(248,185,61,0.35)]",
     bgCls:   "bg-[rgba(248,185,61,0.06)]",
     pairs:   ["USD/JPY", "AUD/USD", "NZD/USD", "EUR/JPY"],
@@ -27,7 +27,7 @@ const SESSION_GUIDE = [
   {
     name:    "Frankfurt",
     time:    "08:00 – 17:00",
-    textCls: "text-teal",
+    textCls: "text-teal-deep",
     ringCls: "shadow-[0_0_0_2px_rgba(8,174,170,0.35)]",
     bgCls:   "bg-[rgba(8,174,170,0.06)]",
     pairs:   ["EUR/USD", "GBP/USD", "USD/CHF"],
@@ -36,7 +36,7 @@ const SESSION_GUIDE = [
   {
     name:    "London",
     time:    "09:00 – 18:00",
-    textCls: "text-teal-bright",
+    textCls: "text-teal-deep",
     ringCls: "shadow-[0_0_0_2px_rgba(48,232,223,0.35)]",
     bgCls:   "bg-[rgba(48,232,223,0.06)]",
     pairs:   ["EUR/USD", "GBP/USD", "GBP/JPY", "XAU/USD"],
@@ -45,7 +45,7 @@ const SESSION_GUIDE = [
   {
     name:    "New York",
     time:    "14:00 – 23:00",
-    textCls: "text-coral-bright",
+    textCls: "text-coral-deep",
     ringCls: "shadow-[0_0_0_2px_rgba(255,89,66,0.35)]",
     bgCls:   "bg-[rgba(255,89,66,0.06)]",
     pairs:   ["EUR/USD", "GBP/USD", "USD/CAD", "XAU/USD", "NAS100"],
@@ -57,28 +57,28 @@ const KILLZONES = [
   {
     name:  "London Open",
     time:  "09:00 – 10:00",
-    textCls: "text-teal-bright",
+    textCls: "text-teal-deep",
     barCls: "bg-teal-bright",
     desc:  "First hour of European session. Institutional orders execute, structure shifts occur. High probability for BOS entries on the 15m–1h.",
   },
   {
     name:  "London–NY Overlap",
     time:  "14:00 – 18:00",
-    textCls: "text-teal",
+    textCls: "text-teal-deep",
     barCls: "bg-teal",
     desc:  "Both institutional desks active simultaneously. Strongest 4-hour window of the day. Clean liquidity sweeps and trend continuation moves.",
   },
   {
     name:  "NY Open",
     time:  "14:00 – 16:00",
-    textCls: "text-coral-bright",
+    textCls: "text-coral-deep",
     barCls: "bg-coral-bright",
     desc:  "US equity and bond markets open. News catalysts drive sharp displacement. Best for momentum entries after London sets the direction.",
   },
   {
     name:  "NY Close",
     time:  "21:00 – 23:00",
-    textCls: "text-coral",
+    textCls: "text-coral-deep",
     barCls: "bg-coral",
     desc:  "End-of-day position squaring. Liquidity pools above/below session highs targeted. Not a primary setup window but useful for exits.",
   },
@@ -92,7 +92,7 @@ export default function SessionsPage() {
 
       {/* ── Header ── */}
       <div className="mb-6">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.26em] mb-1.5 text-teal">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.26em] mb-1.5 text-teal-deep">
           GMT+2 · Africa / Lusaka
         </div>
         <h1 className="font-display font-medium leading-tight text-[28px] tracking-[-0.02em] text-ink-strong">

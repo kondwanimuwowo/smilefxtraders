@@ -4,9 +4,9 @@ import { cn } from "@/lib/cn";
 type StatTone = "up" | "down" | "gold" | "neutral";
 
 const TONE_TEXT_CLS: Record<StatTone, string> = {
-  up:      "text-teal-bright",
-  down:    "text-coral-bright",
-  gold:    "text-gold",
+  up:      "text-teal-deep",
+  down:    "text-coral-deep",
+  gold:    "text-gold-deep",
   neutral: "text-ink-strong",
 };
 

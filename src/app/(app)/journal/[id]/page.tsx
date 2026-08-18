@@ -55,8 +55,8 @@ function pnlLabel(t: Trade) {
   return t.pnlR > 0 ? `+${t.pnlR.toFixed(1)}R` : `${t.pnlR.toFixed(1)}R`;
 }
 function pnlTextCls(t: Trade) {
-  if (t.result === "open") return "text-gold";
-  return t.pnlR > 0 ? "text-teal-bright" : "text-coral-bright";
+  if (t.result === "open") return "text-gold-deep";
+  return t.pnlR > 0 ? "text-teal-deep" : "text-coral-deep";
 }
 function resultBgCls(t: Trade) {
   if (t.result === "open") return "bg-[rgba(248,185,61,0.14)]";
@@ -184,7 +184,7 @@ export default function TradeDetailPage() {
             variant="ghost"
             icon="delete"
             onClick={handleDelete}
-            className="!text-coral"
+            className="!text-coral-deep"
           >
             Delete
           </Button>
@@ -200,7 +200,7 @@ export default function TradeDetailPage() {
             </h1>
             <DirPill dir={t.dir} />
             {t.framework === "SnD" && (
-              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-[rgba(248,185,61,0.12)] text-gold shadow-[0_0_0_2px_rgba(248,185,61,0.25)]">
+              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-[rgba(248,185,61,0.12)] text-gold-deep shadow-[0_0_0_2px_rgba(248,185,61,0.25)]">
                 S&D
               </span>
             )}
@@ -212,8 +212,8 @@ export default function TradeDetailPage() {
             {t.fromAlert && (
               <>
                 <span>·</span>
-                <Icon name="notifications_active" size={13} fill className="text-gold" />
-                <span className="text-gold">From alert</span>
+                <Icon name="notifications_active" size={13} fill className="text-gold-deep" />
+                <span className="text-gold-deep">From alert</span>
               </>
             )}
           </div>
@@ -224,7 +224,7 @@ export default function TradeDetailPage() {
           {pipMove && (
             <div className="flex flex-col items-end rounded-2xl px-4 py-3.5 shrink-0 bg-panel-2 shadow-sm">
               <span
-                className={`font-bold tabular-nums text-[20px] ${t.result === "win" ? "text-teal-bright" : "text-coral-bright"}`}
+                className={`font-bold tabular-nums text-[20px] ${t.result === "win" ? "text-teal-deep" : "text-coral-deep"}`}
               >
                 {pipMove}
               </span>
@@ -288,7 +288,7 @@ export default function TradeDetailPage() {
 
           {/* Model */}
           <div className="rounded-xl px-4 py-4 flex items-start gap-3 bg-panel shadow-sm">
-            <Icon name="schema" size={20} className="shrink-0 mt-0.5 text-teal" />
+            <Icon name="schema" size={20} className="shrink-0 mt-0.5 text-teal-deep" />
             <div>
               <div className="font-semibold text-[14px] mb-0.5 text-ink-strong">
                 {t.model}
@@ -317,7 +317,7 @@ export default function TradeDetailPage() {
                 {t.stopLoss != null && (
                   <div>
                     <div className="text-[11px] mb-0.5 text-ink-dim">Stop loss</div>
-                    <div className="font-semibold text-[15px] text-coral">
+                    <div className="font-semibold text-[15px] text-coral-deep">
                       {fmtPrice(t.stopLoss, t.pair)}
                     </div>
                   </div>
@@ -325,7 +325,7 @@ export default function TradeDetailPage() {
                 {t.takeProfit != null && (
                   <div>
                     <div className="text-[11px] mb-0.5 text-ink-dim">Take profit</div>
-                    <div className="font-semibold text-[15px] text-teal">
+                    <div className="font-semibold text-[15px] text-teal-deep">
                       {fmtPrice(t.takeProfit, t.pair)}
                     </div>
                   </div>
@@ -334,7 +334,7 @@ export default function TradeDetailPage() {
                   <div>
                     <div className="text-[11px] mb-0.5 text-ink-dim">Closed at</div>
                     <div
-                      className={`font-semibold text-[15px] ${t.result === "win" ? "text-teal-bright" : "text-coral-bright"}`}
+                      className={`font-semibold text-[15px] ${t.result === "win" ? "text-teal-deep" : "text-coral-deep"}`}
                     >
                       {fmtPrice(t.closePrice, t.pair)}
                     </div>
@@ -402,9 +402,9 @@ export default function TradeDetailPage() {
                 <Icon
                   name={t.discipline ? "check_circle" : "cancel"}
                   size={20}
-                  className={t.discipline ? "text-teal" : "text-coral"}
+                  className={t.discipline ? "text-teal-deep" : "text-coral-deep"}
                 />
-                <span className={`text-[13px] font-semibold ${t.discipline ? "text-teal" : "text-coral"}`}>
+                <span className={`text-[13px] font-semibold ${t.discipline ? "text-teal-deep" : "text-coral-deep"}`}>
                   {t.discipline ? "Clean" : "Broken"}
                 </span>
               </div>
@@ -426,7 +426,7 @@ export default function TradeDetailPage() {
                   {fibTags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[rgba(248,185,61,0.13)] shadow-[0_0_0_2px_rgba(248,185,61,0.3)] text-gold"
+                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[rgba(248,185,61,0.13)] shadow-[0_0_0_2px_rgba(248,185,61,0.3)] text-gold-deep"
                     >
                       <Icon name="architecture" size={11} />
                       {tag}
@@ -457,9 +457,9 @@ export default function TradeDetailPage() {
           {/* Discipline breach — merged with mistake if both present */}
           {!t.discipline && (
             <div className="flex items-start gap-3 rounded-xl px-4 py-4 bg-[rgba(234,82,61,0.07)] shadow-[0_0_0_2px_rgba(234,82,61,0.22)]">
-              <Icon name="warning" size={18} fill className="text-coral shrink-0 mt-px" />
+              <Icon name="warning" size={18} fill className="text-coral-deep shrink-0 mt-px" />
               <div>
-                <div className="font-semibold text-[13px] mb-1 text-coral">
+                <div className="font-semibold text-[13px] mb-1 text-coral-deep">
                   {t.mistake ? "Rule broken" : "Discipline breach recorded"}
                 </div>
                 <div className="text-[12.5px] leading-relaxed text-ink-mid">

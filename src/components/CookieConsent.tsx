@@ -44,9 +44,9 @@ export function CookieConsent() {
         aria-label="Cookie consent"
       >
         <div className="mx-auto max-w-[1000px] md:mb-4 md:mx-4">
-          <div className="flex items-center gap-4 flex-wrap justify-between rounded-t-2xl md:rounded-2xl px-5 py-4 bg-[var(--navy-deep,#082A3B)] border border-[rgba(255,255,255,0.1)] shadow-[0_-8px_30px_rgba(0,0,0,0.35)] md:shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
+          <div className="on-dark flex items-center gap-4 flex-wrap justify-between rounded-t-2xl md:rounded-2xl px-5 py-4 bg-[var(--navy-deep,#082A3B)] border border-[rgba(255,255,255,0.1)] shadow-[0_-8px_30px_rgba(0,0,0,0.35)] md:shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
             <div className="flex items-start gap-3 min-w-0">
-              <Icon name="info" size={20} className="text-gold shrink-0 mt-0.5" />
+              <Icon name="info" size={20} className="text-gold-deep shrink-0 mt-0.5" />
               <p className="text-[13px] leading-relaxed text-[rgba(255,255,255,0.78)]">
                 We use a necessary cookie to keep you signed in. With your permission, we also set an analytics cookie to see how the platform is used. See our{" "}
                 <a href="/privacy" className="underline text-white">Privacy Policy</a>.

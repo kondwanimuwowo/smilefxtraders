@@ -87,20 +87,20 @@ function HistoryTable({ history }: { history: CotEntry["history"] }) {
                 <td className={cn(historyCellCls, "text-ink-mid")}>
                   {fmtDate(w.date)}
                 </td>
-                <td className={cn(historyCellCls, "font-medium", w.largeSpecNet >= 0 ? "text-teal-bright" : "text-coral-bright")}>
+                <td className={cn(historyCellCls, "font-medium", w.largeSpecNet >= 0 ? "text-teal-deep" : "text-coral-deep")}>
                   {fmt(w.largeSpecNet)}
                   {prev && (
                     <Icon name={w.largeSpecNet > prev.largeSpecNet ? "arrow_upward" : "arrow_downward"}
                       size={11} className="text-current ml-0.5 opacity-70" />
                   )}
                 </td>
-                <td className={cn(historyCellCls, "font-medium", w.commercialNet >= 0 ? "text-teal" : "text-coral")}>
+                <td className={cn(historyCellCls, "font-medium", w.commercialNet >= 0 ? "text-teal-deep" : "text-coral-deep")}>
                   {fmt(w.commercialNet)}
                 </td>
                 <td className={cn(historyCellCls, "text-ink-dim")}>
                   {fmt(w.smallSpecNet)}
                 </td>
-                <td className={cn(historyCellCls, "font-semibold", chg === null ? "text-ink-dim" : chg >= 0 ? "text-teal-bright" : "text-coral-bright")}>
+                <td className={cn(historyCellCls, "font-semibold", chg === null ? "text-ink-dim" : chg >= 0 ? "text-teal-deep" : "text-coral-deep")}>
                   {chg === null ? "—" : fmt(chg)}
                 </td>
               </tr>
@@ -119,7 +119,7 @@ function HistoryBadge({ weeks }: { weeks: number }) {
   return (
     <span
       title={`${weeks} weeks of CFTC report history available for this instrument`}
-      className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded cursor-help bg-[rgba(8,174,170,0.08)] text-teal border border-[rgba(8,174,170,0.18)]"
+      className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded cursor-help bg-[rgba(8,174,170,0.08)] text-teal-deep border border-[rgba(8,174,170,0.18)]"
     >
       <Icon name="history" size={11} />
       {weeks > 52 ? `${years}yr` : `${weeks}wk`}
@@ -213,14 +213,14 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
         {/* WoW change + overview link */}
         <div className="flex flex-col items-end gap-1 shrink-0">
           <div className="text-right">
-            <div className={cn("font-display font-bold tabular-nums text-[18px] tracking-[-0.01em]", entry.wowChange >= 0 ? "text-teal-bright" : "text-coral-bright")}>
+            <div className={cn("font-display font-bold tabular-nums text-[18px] tracking-[-0.01em]", entry.wowChange >= 0 ? "text-teal-deep" : "text-coral-deep")}>
               {fmt(entry.wowChange)}
             </div>
             <div className="text-[11px] text-ink-dim">WoW change</div>
             {entry.openInterest != null && entry.openInterest > 0 && (
               <div className="text-[10.5px] tabular-nums mt-0.5 text-ink-dim">
                 OI {fmtAbs(entry.openInterest)} · net{" "}
-                <span className={cur.largeSpecNet >= 0 ? "text-teal" : "text-coral"}>
+                <span className={cur.largeSpecNet >= 0 ? "text-teal-deep" : "text-coral-deep"}>
                   {fmtPct(cur.largeSpecNet, entry.openInterest)}
                 </span>{" "}
                 of OI
@@ -230,7 +230,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
           <Link
             href={`/pair/${entry.pair}`}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1 text-[11px] font-semibold transition-colors hover:opacity-80 text-teal"
+            className="flex items-center gap-1 text-[11px] font-semibold transition-colors hover:opacity-80 text-teal-deep"
           >
             Overview <Icon name="open_in_new" size={11} />
           </Link>
@@ -251,8 +251,8 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
         {/* Position breakdown */}
         <div className="flex flex-col justify-center gap-3.5">
           {[
-            { label: "Large Speculators", sub: "Smart Money: institutions", value: cur.largeSpecNet,  prev: prev.largeSpecNet,  colorCls: cur.largeSpecNet  >= 0 ? "text-teal" : "text-coral", barCls: cur.largeSpecNet  >= 0 ? "bg-teal" : "bg-coral" },
-            { label: "Commercials",       sub: "Hedgers: contrarian signal", value: cur.commercialNet, prev: prev.commercialNet, colorCls: cur.commercialNet >= 0 ? "text-teal" : "text-coral", barCls: cur.commercialNet >= 0 ? "bg-teal" : "bg-coral" },
+            { label: "Large Speculators", sub: "Smart Money: institutions", value: cur.largeSpecNet,  prev: prev.largeSpecNet,  colorCls: cur.largeSpecNet  >= 0 ? "text-teal-deep" : "text-coral-deep", barCls: cur.largeSpecNet  >= 0 ? "bg-teal" : "bg-coral" },
+            { label: "Commercials",       sub: "Hedgers: contrarian signal", value: cur.commercialNet, prev: prev.commercialNet, colorCls: cur.commercialNet >= 0 ? "text-teal-deep" : "text-coral-deep", barCls: cur.commercialNet >= 0 ? "bg-teal" : "bg-coral" },
             { label: "Small Speculators", sub: "Retail: fade at extremes",   value: cur.smallSpecNet,  prev: prev.smallSpecNet,  colorCls: "text-ink-dim", barCls: "bg-ink-dim" },
           ].map(({ label, sub, value, prev: p, colorCls, barCls }) => {
             const chg = value - p;
@@ -267,7 +267,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
                     <div className={cn("font-semibold tabular-nums text-[13px]", colorCls)}>
                       {fmt(value)}
                     </div>
-                    <div className={cn("text-[10px] tabular-nums", chg >= 0 ? "text-teal-bright" : "text-coral-bright")}>
+                    <div className={cn("text-[10px] tabular-nums", chg >= 0 ? "text-teal-deep" : "text-coral-deep")}>
                       {fmt(chg)} WoW
                     </div>
                   </div>
@@ -335,13 +335,13 @@ function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: bool
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-start gap-3 px-4 py-3 text-left text-[12px] leading-relaxed text-ink-mid"
       >
-        <Icon name="school" size={15} fill className="text-gold shrink-0 mt-px" />
+        <Icon name="school" size={15} fill className="text-gold-deep shrink-0 mt-px" />
         <span className="flex-1">
           <strong className="text-ink-strong">Signal</strong> is driven by the Large Spec net position: net long = bullish bias, net short = bearish bias, confirmed by weekly momentum direction.{" "}
           <strong className="text-ink-strong">COT Index (0–100)</strong> shows where that positioning sits within its own 3-year range — a cycle gauge, not the direction itself.{" "}
           <strong className="text-ink-strong">Divergence</strong> between large specs and commercials adds conviction.
         </span>
-        <Icon name={open ? "expand_less" : "expand_more"} size={16} className="text-gold shrink-0 mt-px" />
+        <Icon name={open ? "expand_less" : "expand_more"} size={16} className="text-gold-deep shrink-0 mt-px" />
       </button>
 
       {open && (
@@ -349,21 +349,21 @@ function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: bool
           <div className="grid gap-4 text-[12.5px] leading-relaxed grid-cols-1 md:grid-cols-3 text-ink-mid">
             <div>
               <div className="flex items-center gap-1.5 mb-2">
-                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">1</div>
+                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal-deep">1</div>
                 <span className="font-semibold text-ink-strong">Identify the Bias</span>
               </div>
               Check whether Large Speculators are <strong>net long</strong> (positive net = bullish bias) or <strong>net short</strong> (negative net = bearish bias). Then check the WoW direction: are they adding or reducing? Adding to a net long position is the strongest bullish confirmation.
             </div>
             <div>
               <div className="flex items-center gap-1.5 mb-2">
-                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">2</div>
+                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal-deep">2</div>
                 <span className="font-semibold text-ink-strong">Check Divergence</span>
               </div>
               The most powerful signal is when large specs and commercials are both aligned. Commercials hedge the opposite side, so when they are heavily short while large specs go long, that&apos;s institutional conviction you want to trade with.
             </div>
             <div>
               <div className="flex items-center gap-1.5 mb-2">
-                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal">3</div>
+                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal-deep">3</div>
                 <span className="font-semibold text-ink-strong">Confirm with Price</span>
               </div>
               COT alone does not give you an entry; it gives you a directional filter. Combine a bullish COT signal with a swept liquidity pool, a valid OB or FVG on HTF, and a killzone entry window.
@@ -372,11 +372,11 @@ function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: bool
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-[12.5px] leading-relaxed text-ink-mid">
             <div className="rounded-xl px-4 py-3 shadow-sm bg-[rgba(8,174,170,0.05)]">
-              <div className="font-semibold mb-1 text-teal">Extreme readings: reversal or continuation?</div>
+              <div className="font-semibold mb-1 text-teal-deep">Extreme readings: reversal or continuation?</div>
               At COT Index &gt; 80, large specs are near their most bullish in a year. Always check price structure — if price has not yet moved proportionally, COT is leading; if price has already run hard, the extreme may be signalling a top.
             </div>
             <div className="rounded-xl px-4 py-3 shadow-sm bg-[rgba(248,185,61,0.05)]">
-              <div className="font-semibold mb-1 text-gold">DXY is your master bias</div>
+              <div className="font-semibold mb-1 text-gold-deep">DXY is your master bias</div>
               When the USD Index (DXY) COT Index is low, that&apos;s a tailwind for EURUSD, GBPUSD, NZDUSD, AUDUSD, and XAUUSD longs simultaneously. Cross-reference DXY with your pairs for the strongest setups.
             </div>
           </div>
@@ -443,7 +443,7 @@ function CotFilterDropdown({
         onClick={() => setOpen((o) => !o)}
         className={cn(
           "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all active:scale-95 border",
-          filter.kind !== "all" ? "bg-teal text-white border-teal" : "bg-panel-2 text-ink-mid border-line"
+          filter.kind !== "all" ? "bg-teal-solid text-white border-teal" : "bg-panel-2 text-ink-mid border-line"
         )}
       >
         <Icon name="tune" size={14} />
@@ -457,7 +457,7 @@ function CotFilterDropdown({
           type="button"
           onClick={() => onChange({ kind: "all" })}
           title="Clear filter"
-          className="flex items-center justify-center size-7 rounded-lg transition-colors active:scale-95 bg-panel-2 text-ink-dim border border-line hover:text-coral hover:border-coral"
+          className="flex items-center justify-center size-7 rounded-lg transition-colors active:scale-95 bg-panel-2 text-ink-dim border border-line hover:text-coral-deep hover:border-coral"
         >
           <Icon name="close" size={14} />
         </button>
@@ -470,7 +470,7 @@ function CotFilterDropdown({
             onClick={() => select({ kind: "all" })}
             className={cn(
               "w-full text-left px-3.5 py-2 text-[12.5px] font-semibold transition-colors hover:bg-hover",
-              filter.kind === "all" ? "text-teal" : "text-ink-strong"
+              filter.kind === "all" ? "text-teal-deep" : "text-ink-strong"
             )}
           >
             All pairs
@@ -488,7 +488,7 @@ function CotFilterDropdown({
                 onClick={() => select({ kind: "group", id: g.id, label: g.label })}
                 className={cn(
                   "w-full flex items-center justify-between px-3.5 py-1.5 text-[12.5px] font-medium transition-colors hover:bg-hover",
-                  activeGroup ? "text-teal" : "text-ink-mid"
+                  activeGroup ? "text-teal-deep" : "text-ink-mid"
                 )}
               >
                 {g.label}
@@ -510,7 +510,7 @@ function CotFilterDropdown({
                   onClick={() => select({ kind: "currency", code: c })}
                   className={cn(
                     "px-2 py-1 rounded-md text-[11.5px] font-semibold text-center transition-all active:scale-95",
-                    activeCur ? "bg-teal text-white" : "bg-panel-2 text-ink-mid border border-line"
+                    activeCur ? "bg-teal-solid text-white" : "bg-panel-2 text-ink-mid border border-line"
                   )}
                 >
                   {c}
@@ -655,8 +655,8 @@ export function CotReports() {
           <div
             className={cn(
               "flex items-center gap-2 px-3 py-1.5 rounded-xl text-[12px]",
-              allLoaded ? "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.08)] text-teal"
-                : hasData ? "shadow-[0_0_0_1px_rgba(248,185,61,0.2)] bg-[rgba(248,185,61,0.08)] text-gold"
+              allLoaded ? "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.08)] text-teal-deep"
+                : hasData ? "shadow-[0_0_0_1px_rgba(248,185,61,0.2)] bg-[rgba(248,185,61,0.08)] text-gold-deep"
                   : "bg-panel-2 text-ink-dim"
             )}
           >
@@ -691,7 +691,7 @@ export function CotReports() {
 
       {/* ── Load error ── */}
       {loadError && (
-        <div className="mb-5 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-[13px] shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral">
+        <div className="mb-5 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-[13px] shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral-deep">
           <span>Couldn&apos;t load COT data. Please try again.</span>
           <button
             type="button"

@@ -36,7 +36,7 @@ export function InviteUserForm() {
 
   return (
     <div className="rounded-2xl p-5 mb-6 flex items-center gap-3 bg-panel shadow-md">
-      <Icon name="person_add" size={18} className="text-gold" />
+      <Icon name="person_add" size={18} className="text-gold-deep" />
       <input
         type="email"
         value={email}

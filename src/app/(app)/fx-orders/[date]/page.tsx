@@ -43,9 +43,9 @@ function LevelRow({ level, spot, pair }: { level: FxLevel; spot: number | null; 
   const huge   = nm >= 1000;
 
   const priceColorCls = near
-    ? (above ? "text-teal-bright" : "text-coral-bright")
+    ? (above ? "text-teal-deep" : "text-coral-deep")
     : huge
-      ? "text-gold"
+      ? "text-gold-deep"
       : "text-ink-strong";
 
   const dotBgCls = huge
@@ -72,7 +72,7 @@ function LevelRow({ level, spot, pair }: { level: FxLevel; spot: number | null; 
 
       {/* Notional */}
       <span
-        className={cn("text-[11px] shrink-0", huge ? "text-gold" : "text-ink-dim", level.large ? "font-bold" : "font-normal")}
+        className={cn("text-[11px] shrink-0", huge ? "text-gold-deep" : "text-ink-dim", level.large ? "font-bold" : "font-normal")}
       >
         {fmtNotional(level)}
       </span>
@@ -80,7 +80,7 @@ function LevelRow({ level, spot, pair }: { level: FxLevel; spot: number | null; 
       {/* Pip distance */}
       {near && dist !== null && (
         <span
-          className={cn("text-[10px] font-semibold shrink-0 rounded-md px-1.5 py-0.5", above ? "text-teal bg-[rgba(8,174,170,0.1)]" : "text-coral bg-[rgba(234,82,61,0.1)]")}
+          className={cn("text-[10px] font-semibold shrink-0 rounded-md px-1.5 py-0.5", above ? "text-teal-deep bg-[rgba(8,174,170,0.1)]" : "text-coral-deep bg-[rgba(234,82,61,0.1)]")}
         >
           {Math.round(dist)}p
         </span>
@@ -251,13 +251,13 @@ export default function FxOrdersDatePage() {
               {totalLevels} levels
             </span>
             {largeLevels > 0 && (
-              <span className="flex items-center gap-1 text-gold">
+              <span className="flex items-center gap-1 text-gold-deep">
                 <Icon name="star" size={13} fill />
                 {largeLevels} ≥1bn
               </span>
             )}
             {nearPairs > 0 && (
-              <span className="flex items-center gap-1 text-teal">
+              <span className="flex items-center gap-1 text-teal-deep">
                 <Icon name="near_me" size={13} fill />
                 {nearPairs} pairs with near levels
               </span>
@@ -275,20 +275,20 @@ export default function FxOrdersDatePage() {
       {!loading && !error && (
         <div className="flex items-center gap-4 flex-wrap rounded-xl px-4 py-2.5 mb-5 shadow-sm bg-panel-2">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">Key</span>
-          <div className="flex items-center gap-1.5 text-[11.5px] text-teal-bright">
+          <div className="flex items-center gap-1.5 text-[11.5px] text-teal-deep">
             <div className="w-2 h-2 rounded-full bg-teal-bright" />
             Level above spot ≤50 pips
           </div>
-          <div className="flex items-center gap-1.5 text-[11.5px] text-coral-bright">
+          <div className="flex items-center gap-1.5 text-[11.5px] text-coral-deep">
             <div className="w-2 h-2 rounded-full bg-coral-bright" />
             Level below spot ≤50 pips
           </div>
-          <div className="flex items-center gap-1.5 text-[11.5px] text-gold">
+          <div className="flex items-center gap-1.5 text-[11.5px] text-gold-deep">
             <div className="w-2 h-2 rounded-full bg-gold" />
             Large ≥$1bn notional
           </div>
           <div className="flex items-center gap-1.5 text-[11.5px] text-ink-dim">
-            <span className="text-[10px] font-bold rounded-md px-1 py-0.5 bg-[rgba(8,174,170,0.1)] text-teal">
+            <span className="text-[10px] font-bold rounded-md px-1 py-0.5 bg-[rgba(8,174,170,0.1)] text-teal-deep">
               25p
             </span>
             pip distance from spot
@@ -298,7 +298,7 @@ export default function FxOrdersDatePage() {
 
       {/* ── Error ── */}
       {error && (
-        <div className="rounded-2xl px-5 py-4 text-[13px] shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.06)] text-coral">
+        <div className="rounded-2xl px-5 py-4 text-[13px] shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.06)] text-coral-deep">
           {error}
         </div>
       )}

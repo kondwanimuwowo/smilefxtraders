@@ -11,22 +11,22 @@ const SESSIONS = [
   {
     name: "London",    open: 9,  close: 18,
     openL: "09:00", closeL: "18:00",
-    textCls: "text-teal-bright", barBgCls: "bg-teal-bright", glowShadowCls: "shadow-[0_0_10px_rgba(48,232,223,0.28)]",
+    textCls: "text-teal-deep", barBgCls: "bg-teal-bright", glowShadowCls: "shadow-[0_0_10px_rgba(48,232,223,0.28)]",
   },
   {
     name: "New York",  open: 14, close: 23,
     openL: "14:00", closeL: "23:00",
-    textCls: "text-coral-bright", barBgCls: "bg-coral-bright", glowShadowCls: "shadow-[0_0_10px_rgba(255,89,66,0.28)]",
+    textCls: "text-coral-deep", barBgCls: "bg-coral-bright", glowShadowCls: "shadow-[0_0_10px_rgba(255,89,66,0.28)]",
   },
   {
     name: "Frankfurt", open: 8,  close: 17,
     openL: "08:00", closeL: "17:00",
-    textCls: "text-teal", barBgCls: "bg-teal", glowShadowCls: "shadow-[0_0_10px_rgba(8,174,170,0.24)]",
+    textCls: "text-teal-deep", barBgCls: "bg-teal", glowShadowCls: "shadow-[0_0_10px_rgba(8,174,170,0.24)]",
   },
   {
     name: "Tokyo",     open: 2,  close: 11,
     openL: "02:00", closeL: "11:00",
-    textCls: "text-gold", barBgCls: "bg-gold", glowShadowCls: "shadow-[0_0_10px_rgba(248,185,61,0.26)]",
+    textCls: "text-gold-deep", barBgCls: "bg-gold", glowShadowCls: "shadow-[0_0_10px_rgba(248,185,61,0.26)]",
   },
   {
     name: "Sydney",    open: 23, close: 8,
@@ -114,7 +114,7 @@ export function SessionTimeline() {
             Session Timeline
           </span>
           {isKillzone && (
-            <span className="text-[9.5px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-[rgba(48,232,223,0.08)] text-teal-bright shadow-[0_0_0_1px_rgba(48,232,223,0.22)]">
+            <span className="text-[9.5px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-[rgba(48,232,223,0.08)] text-teal-deep shadow-[0_0_0_1px_rgba(48,232,223,0.22)]">
               London · NY Overlap
             </span>
           )}
@@ -229,7 +229,7 @@ export function SessionTimeline() {
           </span>
           {nowLeft !== null && timeLabel && (
             <span
-              className="absolute tabular-nums -translate-x-1/2 top-1 text-[9px] text-teal-bright opacity-90 font-bold"
+              className="absolute tabular-nums -translate-x-1/2 top-1 text-[9px] text-teal-deep opacity-90 font-bold"
               style={{ left: `${nowLeft}%` }}
             >
               {timeLabel}
@@ -260,7 +260,7 @@ export function SessionTimeline() {
                 <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.06em] text-center text-ink-dim">
                   {c.label}
                 </span>
-                <span className="text-[7.5px] sm:text-[8.5px] font-bold uppercase tracking-[0.08em] text-teal">
+                <span className="text-[7.5px] sm:text-[8.5px] font-bold uppercase tracking-[0.08em] text-teal-deep">
                   {day}
                 </span>
               </div>

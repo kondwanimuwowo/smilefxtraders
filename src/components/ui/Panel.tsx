@@ -31,7 +31,7 @@ export function PanelHead({ title, icon, sub, action, style }: PanelHeadProps) {
   return (
     <div className="flex items-center justify-between gap-3 mb-4" style={style}>
       <div className="flex items-center gap-2.5 min-w-0">
-        {icon && <Icon name={icon} size={20} className="text-teal" />}
+        {icon && <Icon name={icon} size={20} className="text-teal-deep" />}
         <div className="min-w-0">
           <div className="text-[15px] font-semibold truncate text-ink-strong tracking-[0.01em]">
             {title}

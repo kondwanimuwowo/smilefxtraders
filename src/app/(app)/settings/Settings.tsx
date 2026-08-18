@@ -58,7 +58,7 @@ function MembershipSection() {
         </p>
         {confirmOpen ? (
           <div className="rounded-xl p-4 mb-2 bg-[rgba(234,82,61,0.06)] shadow-[0_0_0_2px_var(--coral)]">
-            <p className="text-[13px] font-semibold mb-3 text-coral">
+            <p className="text-[13px] font-semibold mb-3 text-coral-deep">
               Cancel {planLabel}? You&apos;ll lose live alerts, AI reviews, and full Academy access.
             </p>
             <div className="flex gap-3">
@@ -68,7 +68,7 @@ function MembershipSection() {
                 variant="ghost"
                 loading={cancelling}
                 onClick={handleCancel}
-                className="flex-1 !text-coral !border-[rgba(234,82,61,0.3)]"
+                className="flex-1 !text-coral-deep !border-[rgba(234,82,61,0.3)]"
               >
                 Confirm cancel
               </Button>
@@ -80,7 +80,7 @@ function MembershipSection() {
             variant="ghost"
             icon="cancel"
             onClick={() => setConfirmOpen(true)}
-            className="!text-coral !border-[rgba(234,82,61,0.3)]"
+            className="!text-coral-deep !border-[rgba(234,82,61,0.3)]"
           >
             Cancel subscription
           </Button>
@@ -599,7 +599,7 @@ export function Settings() {
                         type="button"
                         onClick={() => toggleInstr(pair)}
                         className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
-                          active ? "bg-teal text-white" : "bg-panel-2 text-ink-dim shadow-sm"
+                          active ? "bg-teal-solid text-white" : "bg-panel-2 text-ink-dim shadow-sm"
                         }`}
                       >
                         {pair}
@@ -691,7 +691,7 @@ export function Settings() {
             </p>
             {deleteConfirmOpen ? (
               <div className="rounded-xl p-4 bg-[rgba(234,82,61,0.06)] shadow-[0_0_0_2px_var(--coral)]">
-                <p className="text-[13px] font-semibold mb-3 text-coral">
+                <p className="text-[13px] font-semibold mb-3 text-coral-deep">
                   Type your username (@{handle || "…"}) to confirm.
                 </p>
                 <input
@@ -716,7 +716,7 @@ export function Settings() {
                     loading={deleting}
                     disabled={deleteTyped.trim().toLowerCase() !== handle.trim().toLowerCase() || !handle}
                     onClick={handleDeleteAccount}
-                    className="flex-1 !text-coral !border-[rgba(234,82,61,0.3)]"
+                    className="flex-1 !text-coral-deep !border-[rgba(234,82,61,0.3)]"
                   >
                     Permanently delete
                   </Button>
@@ -728,7 +728,7 @@ export function Settings() {
                 variant="ghost"
                 icon="delete_forever"
                 onClick={() => setDeleteConfirmOpen(true)}
-                className="!text-coral !border-[rgba(234,82,61,0.3)]"
+                className="!text-coral-deep !border-[rgba(234,82,61,0.3)]"
               >
                 Delete account
               </Button>

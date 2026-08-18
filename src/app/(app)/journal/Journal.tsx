@@ -21,9 +21,9 @@ const SESSION_BG_CLS: Record<string, string> = {
   Asia:       "bg-gold",
 };
 const SESSION_TEXT_CLS: Record<string, string> = {
-  London:     "text-teal",
-  "New York": "text-coral",
-  Asia:       "text-gold",
+  London:     "text-teal-deep",
+  "New York": "text-coral-deep",
+  Asia:       "text-gold-deep",
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -34,17 +34,17 @@ function pnlLabel(t: Trade) {
   return `${t.pnlR.toFixed(1)}R`;
 }
 function pnlCls(t: Trade): { textCls: string; bgCls: string; shadowCls: string } {
-  if (t.result === "open") return { textCls: "text-gold", bgCls: "bg-gold", shadowCls: "shadow-[0_0_4px_var(--gold)]" };
+  if (t.result === "open") return { textCls: "text-gold-deep", bgCls: "bg-gold", shadowCls: "shadow-[0_0_4px_var(--gold)]" };
   return t.pnlR >= 0
-    ? { textCls: "text-teal-bright", bgCls: "bg-teal-bright", shadowCls: "shadow-[0_0_4px_var(--teal-bright)]" }
-    : { textCls: "text-coral-bright", bgCls: "bg-coral-bright", shadowCls: "shadow-[0_0_4px_var(--coral-bright)]" };
+    ? { textCls: "text-teal-deep", bgCls: "bg-teal-bright", shadowCls: "shadow-[0_0_4px_var(--teal-bright)]" }
+    : { textCls: "text-coral-deep", bgCls: "bg-coral-bright", shadowCls: "shadow-[0_0_4px_var(--coral-bright)]" };
 }
 
 function StatusPill({ result }: { result: Trade["result"] }) {
   const cfg = {
-    win:  { label: "Win",  cls: "text-teal-bright bg-[rgba(48,232,223,0.12)]" },
-    loss: { label: "Loss", cls: "text-coral-bright bg-[rgba(255,89,66,0.12)]" },
-    open: { label: "Open", cls: "text-gold bg-[rgba(248,185,61,0.12)]" },
+    win:  { label: "Win",  cls: "text-teal-deep bg-[rgba(48,232,223,0.12)]" },
+    loss: { label: "Loss", cls: "text-coral-deep bg-[rgba(255,89,66,0.12)]" },
+    open: { label: "Open", cls: "text-gold-deep bg-[rgba(248,185,61,0.12)]" },
   }[result];
   return (
     <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-bold uppercase tracking-[0.04em]", cfg.cls)}>
@@ -161,7 +161,7 @@ function EquityHero({ trades }: { trades: Trade[] }) {
   if (stats.equity.length < 2) return null;
 
   const equityColor    = stats.netR >= 0 ? "var(--teal-bright)" : "var(--coral-bright)";
-  const equityColorCls = stats.netR >= 0 ? "text-teal-bright" : "text-coral-bright";
+  const equityColorCls = stats.netR >= 0 ? "text-teal-deep" : "text-coral-deep";
 
   return (
     <Panel className="mb-5">
@@ -254,7 +254,7 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
             <div className="text-[10px] font-semibold uppercase tracking-wider mb-1 text-ink-dim">
               Avg win
             </div>
-            <div className="font-display font-bold tabular-nums text-[20px] tracking-[-0.01em] text-teal-bright">
+            <div className="font-display font-bold tabular-nums text-[20px] tracking-[-0.01em] text-teal-deep">
               +{stats.avgWin.toFixed(1)}R
             </div>
           </div>
@@ -262,7 +262,7 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
             <div className="text-[10px] font-semibold uppercase tracking-wider mb-1 text-ink-dim">
               Avg loss
             </div>
-            <div className="font-display font-bold tabular-nums text-[20px] tracking-[-0.01em] text-coral-bright">
+            <div className="font-display font-bold tabular-nums text-[20px] tracking-[-0.01em] text-coral-deep">
               {stats.avgLoss.toFixed(1)}R
             </div>
           </div>
@@ -332,7 +332,7 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
         <Panel>
           <div className="px-4 pt-4 pb-4">
             <div className="flex items-center gap-2 mb-3">
-              <Icon name="warning" size={15} fill className="text-coral" />
+              <Icon name="warning" size={15} fill className="text-coral-deep" />
               <span className="font-display font-semibold text-[14px] text-ink-strong">
                 Recurring leaks
               </span>
@@ -380,7 +380,7 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
           </span>
           <DirPill dir={trade.dir} size="sm" />
           {trade.fromAlert && (
-            <Icon name="notifications_active" size={13} fill className="text-gold shrink-0" />
+            <Icon name="notifications_active" size={13} fill className="text-gold-deep shrink-0" />
           )}
         </div>
       </td>
@@ -416,7 +416,7 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
         <Icon
           name={trade.discipline ? "check_circle" : "cancel"}
           size={16}
-          className={trade.discipline ? "text-teal" : "text-coral"}
+          className={trade.discipline ? "text-teal-deep" : "text-coral-deep"}
         />
       </td>
       <td className="px-4 py-3">
@@ -495,7 +495,7 @@ function TableFooter({
                   key={p}
                   type="button"
                   onClick={() => onPageChange(p)}
-                  className={`size-7 rounded-lg text-[12px] font-semibold transition-colors ${page === p ? "bg-teal text-white" : "text-ink-mid"}`}
+                  className={`size-7 rounded-lg text-[12px] font-semibold transition-colors ${page === p ? "bg-teal-solid text-white" : "text-ink-mid"}`}
                 >
                   {p}
                 </button>
@@ -520,13 +520,13 @@ function TableFooter({
         <div className="flex items-center gap-4">
           <span className="text-ink-dim">
             Win rate:{" "}
-            <strong className={winRate == null ? "text-ink-strong" : winRate >= 50 ? "text-teal-bright" : "text-coral-bright"}>
+            <strong className={winRate == null ? "text-ink-strong" : winRate >= 50 ? "text-teal-deep" : "text-coral-deep"}>
               {winRate == null ? "—" : `${winRate}%`}
             </strong>
           </span>
           <span className="text-ink-dim">
             Net R:{" "}
-            <strong className={netR >= 0 ? "text-teal-bright" : "text-coral-bright"}>
+            <strong className={netR >= 0 ? "text-teal-deep" : "text-coral-deep"}>
               {netR >= 0 ? "+" : ""}{netR.toFixed(1)}R
             </strong>
           </span>
@@ -590,8 +590,8 @@ export function Journal() {
               <span
                 className={`inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${
                   streak.type === "win"
-                    ? "bg-[rgba(8,174,170,0.1)] text-teal-bright shadow-[0_0_0_2px_rgba(8,174,170,0.28)]"
-                    : "bg-[rgba(234,82,61,0.1)] text-coral-bright shadow-[0_0_0_2px_rgba(234,82,61,0.28)]"
+                    ? "bg-[rgba(8,174,170,0.1)] text-teal-deep shadow-[0_0_0_2px_rgba(8,174,170,0.28)]"
+                    : "bg-[rgba(234,82,61,0.1)] text-coral-deep shadow-[0_0_0_2px_rgba(234,82,61,0.28)]"
                 }`}
               >
                 <Icon

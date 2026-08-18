@@ -35,7 +35,7 @@ function PointRow({ point, framework, tone }: { point: ReviewPoint; framework: F
         name={tone === "good" ? "check_circle" : "trending_flat"}
         size={15}
         fill={tone === "good"}
-        className={cn("shrink-0 mt-0.5", tone === "good" ? "text-teal" : "text-coral")}
+        className={cn("shrink-0 mt-0.5", tone === "good" ? "text-teal-deep" : "text-coral-deep")}
       />
       <span className="min-w-0">
         {point.text}
@@ -48,7 +48,7 @@ function PointRow({ point, framework, tone }: { point: ReviewPoint; framework: F
                 <Link
                   key={id}
                   href={`/rules?fw=${framework}#${id}`}
-                  className="inline-flex items-center gap-1 text-[10.5px] font-semibold px-1.5 py-0.5 rounded bg-panel-2 text-ink-dim hover:text-teal transition-colors"
+                  className="inline-flex items-center gap-1 text-[10.5px] font-semibold px-1.5 py-0.5 rounded bg-panel-2 text-ink-dim hover:text-teal-deep transition-colors"
                   title={rule.title}
                 >
                   Rule {rule.n}
@@ -175,7 +175,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           <button
             type="button"
             onClick={runReview}
-            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-[rgba(8,174,170,0.12)] text-teal border border-[rgba(8,174,170,0.2)]"
+            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-[rgba(8,174,170,0.12)] text-teal-deep border border-[rgba(8,174,170,0.2)]"
           >
             Review
           </button>
@@ -185,7 +185,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           <button
             type="button"
             onClick={runReview}
-            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-[rgba(234,82,61,0.10)] text-coral border border-[rgba(234,82,61,0.2)]"
+            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-[rgba(234,82,61,0.10)] text-coral-deep border border-[rgba(234,82,61,0.2)]"
           >
             Retry
           </button>
@@ -194,7 +194,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
         {state === "locked" && (
           <a
             href="/pricing"
-            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-[rgba(248,185,61,0.12)] text-gold border border-[rgba(248,185,61,0.2)]"
+            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-[rgba(248,185,61,0.12)] text-gold-deep border border-[rgba(248,185,61,0.2)]"
           >
             Upgrade
           </a>
@@ -235,7 +235,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           {/* What you did well */}
           {result.good.length > 0 && (
             <div>
-              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2 text-teal">
+              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2 text-teal-deep">
                 What you did well
               </div>
               <ul className="flex flex-col gap-2">
@@ -249,7 +249,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           {/* Areas to improve */}
           {result.improve.length > 0 && (
             <div>
-              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2 text-coral">
+              <div className="text-[10.5px] font-semibold uppercase tracking-wider mb-2 text-coral-deep">
                 Areas to improve
               </div>
               <ul className="flex flex-col gap-2">
@@ -263,9 +263,9 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           {/* Tip */}
           {result.tip && (
             <div className="rounded-xl px-3.5 py-3 flex items-start gap-2.5 bg-[rgba(248,185,61,0.08)] border border-[rgba(248,185,61,0.2)]">
-              <Icon name="lightbulb" size={15} fill className="text-gold shrink-0 mt-0.5" />
+              <Icon name="lightbulb" size={15} fill className="text-gold-deep shrink-0 mt-0.5" />
               <p className="text-[12.5px] leading-relaxed text-ink-mid">
-                <span className="font-semibold text-gold">{tipLabel}</span>
+                <span className="font-semibold text-gold-deep">{tipLabel}</span>
                 {result.tip}
               </p>
             </div>
@@ -274,7 +274,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           {/* Gavo cites rule numbers, so the rules have to be one tap away. */}
           <Link
             href={`/rules?fw=${framework}`}
-            className="inline-flex items-center gap-1 self-start text-[11.5px] font-semibold text-ink-dim hover:text-teal transition-colors"
+            className="inline-flex items-center gap-1 self-start text-[11.5px] font-semibold text-ink-dim hover:text-teal-deep transition-colors"
           >
             <Icon name="menu_book" size={14} />
             Read the {framework === "SnD" ? "S&D" : "SMC"} rulebook

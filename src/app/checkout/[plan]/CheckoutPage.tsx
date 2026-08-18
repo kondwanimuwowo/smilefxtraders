@@ -196,7 +196,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
       <div className="min-h-screen flex items-center justify-center p-6 bg-app-bg">
         <div className="rounded-3xl px-10 py-12 text-center max-w-sm w-full bg-panel border border-line">
           <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[rgba(8,174,170,0.12)] border-2 border-teal">
-            <Icon name="check_circle" size={32} className="text-teal" />
+            <Icon name="check_circle" size={32} className="text-teal-deep" />
           </div>
           <h2 className="font-display font-medium text-[24px] mb-2 tracking-[-0.02em] text-ink-strong">
             You&apos;re on {plan.name}!
@@ -207,7 +207,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
           <button
             type="button"
             onClick={() => router.push(needsOnboarding ? "/onboarding" : "/dashboard")}
-            className="w-full py-3 rounded-xl font-semibold text-[14px] bg-teal text-white"
+            className="w-full py-3 rounded-xl font-semibold text-[14px] bg-teal-solid text-white"
           >
             {needsOnboarding ? "Continue setup" : "Go to Dashboard"}
           </button>
@@ -223,7 +223,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
           {step === "waiting" ? (
             <>
               <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[rgba(248,185,61,0.12)] border-2 border-gold">
-                <Icon name={payMethod === "card" ? "credit_card" : "phone_android"} size={32} className="animate-pulse text-gold" />
+                <Icon name={payMethod === "card" ? "credit_card" : "phone_android"} size={32} className="animate-pulse text-gold-deep" />
               </div>
               <h2 className="font-display font-medium text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">
                 {payMethod === "card" ? "Complete your card payment" : "Check your phone"}
@@ -247,7 +247,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
           ) : (
             <>
               <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[rgba(234,82,61,0.12)] border-2 border-coral">
-                <Icon name="error" size={32} className="text-coral" />
+                <Icon name="error" size={32} className="text-coral-deep" />
               </div>
               <h2 className="font-display font-medium text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">Payment failed</h2>
               <p className="text-[13.5px] mb-6 text-ink-dim">{errMsg}</p>
@@ -296,7 +296,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
               <ul className="space-y-2 mb-5">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-[13px] text-ink-mid">
-                    <Icon name="check_circle" size={15} className="text-teal shrink-0" />
+                    <Icon name="check_circle" size={15} className="text-teal-deep shrink-0" />
                     {f}
                   </li>
                 ))}
@@ -325,11 +325,11 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
             {/* Trust strip */}
             <div className="rounded-2xl p-5 bg-panel border border-line flex flex-col gap-3">
               <div className="flex items-center gap-2.5 text-[13px] text-ink-mid">
-                <Icon name="lock" size={16} className="text-teal shrink-0" />
+                <Icon name="lock" size={16} className="text-teal-deep shrink-0" />
                 Payments are processed securely by Lenco &mdash; we never see or store your card or mobile money details.
               </div>
               <div className="flex items-center gap-2.5 text-[13px] text-ink-mid">
-                <Icon name="verified_user" size={16} className="text-teal shrink-0" />
+                <Icon name="verified_user" size={16} className="text-teal-deep shrink-0" />
                 Encrypted end-to-end. Cancel or change your plan anytime from Settings.
               </div>
             </div>
@@ -361,7 +361,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
               {(["monthly", "annual"] as const).map((c) => (
                 <button key={c} type="button" onClick={() => setCycle(c)}
                   className={`flex-1 py-2.5 text-[13px] font-semibold capitalize transition-all ${
-                    cycle === c ? "bg-teal text-white" : "bg-panel-2 text-ink-mid"
+                    cycle === c ? "bg-teal-solid text-white" : "bg-panel-2 text-ink-mid"
                   }`}
                 >
                   {c} {c === "annual" && <span className="text-[11px] opacity-75">−20%</span>}
@@ -404,7 +404,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
               <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">
                 Mobile money operator
                 {autoPicked && (
-                  <span className="text-[9.5px] font-bold normal-case px-1.5 py-0.5 rounded-full bg-[rgba(8,174,170,0.1)] text-teal border border-[rgba(8,174,170,0.2)]">
+                  <span className="text-[9.5px] font-bold normal-case px-1.5 py-0.5 rounded-full bg-[rgba(8,174,170,0.1)] text-teal-deep border border-[rgba(8,174,170,0.2)]">
                     auto-detected
                   </span>
                 )}
@@ -447,7 +447,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
             </div>
 
             {errMsg && (
-              <p className="text-[12.5px] px-3 py-2 rounded-xl bg-[rgba(234,82,61,0.08)] text-coral border border-[rgba(234,82,61,0.2)]">
+              <p className="text-[12.5px] px-3 py-2 rounded-xl bg-[rgba(234,82,61,0.08)] text-coral-deep border border-[rgba(234,82,61,0.2)]">
                 {errMsg}
               </p>
             )}

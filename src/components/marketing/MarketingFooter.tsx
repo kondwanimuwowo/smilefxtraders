@@ -66,19 +66,21 @@ export function MarketingFooter() {
           ))}
         </nav>
 
-        <p className="text-[12px] leading-relaxed mt-6 text-justify text-[rgba(255,255,255,0.35)]">
-          <strong className="font-bold text-[rgba(255,255,255,0.5)]">Risk Warning:</strong> Trading forex, CFDs, and other leveraged instruments carries a high level of risk and may not suit every investor. Leverage can work against you as well as for you, and you could lose some or all of your capital. Only trade with money you can afford to lose, and speak with an independent financial advisor if you&apos;re unsure.
+        <p className="text-[12px] leading-relaxed mt-6 text-justify text-[rgba(255,255,255,0.5)]">
+          <strong className="font-bold text-[rgba(255,255,255,0.85)]">Risk Warning:</strong>{" "}
+          Trading forex, CFDs, and other leveraged instruments carries a high level of risk and may not suit every investor. Leverage can work against you as well as for you, and you could lose some or all of your capital. Only trade with money you can afford to lose, and speak with an independent financial advisor if you&apos;re unsure.
         </p>
 
-        <p className="text-[12px] leading-relaxed mt-4 text-justify text-[rgba(255,255,255,0.35)]">
-          <strong className="font-bold text-[rgba(255,255,255,0.5)]">Disclaimer:</strong> Smile FX Traders provides educational content, analysis tools, and community discussion. Nothing on this site is financial advice, and no result shown by any trader, tool, or feature is a promise of future performance. By visiting or using this website, you agree to our{" "}
+        <p className="text-[12px] leading-relaxed mt-4 text-justify text-[rgba(255,255,255,0.5)]">
+          <strong className="font-bold text-[rgba(255,255,255,0.85)]">Disclaimer:</strong>{" "}
+          Smile FX Traders provides educational content, analysis tools, and community discussion. Nothing on this site is financial advice, and no result shown by any trader, tool, or feature is a promise of future performance. By visiting or using this website, you agree to our{" "}
           <Link href="/terms" className="underline hover:text-white">Terms of Service</Link>,{" "}
           <Link href="/privacy" className="underline hover:text-white">Privacy Policy</Link>, and{" "}
           <Link href="/risk-disclosure" className="underline hover:text-white">Risk Disclosure</Link>.
         </p>
 
         {/* Bottom bar */}
-        <div className="flex items-center justify-between gap-4 flex-wrap mt-9 pt-6 text-[12.5px] border-t border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.4)]">
+        <div className="flex items-center justify-between gap-4 flex-wrap mt-9 pt-6 text-[12.5px] border-t border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.5)]">
           <span>© {year} Smile FX Traders</span>
           <div className="flex items-center gap-4 flex-wrap">
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>

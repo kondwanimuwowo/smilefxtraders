@@ -45,7 +45,7 @@ export function CotBiasPanel() {
         title="COT positioning"
         icon="bar_chart"
         action={
-          <Link href="/cot" className="text-[12px] font-medium text-teal">
+          <Link href="/cot" className="text-[12px] font-medium text-teal-deep">
             COT →
           </Link>
         }
@@ -59,11 +59,11 @@ export function CotBiasPanel() {
         </div>
       ) : data?.locked ? (
         <div className="py-3 text-center">
-          <Icon name="lock" size={18} className="text-gold mb-1.5" />
+          <Icon name="lock" size={18} className="text-gold-deep mb-1.5" />
           <div className="text-[12.5px] mb-2 text-ink-dim">
             Weekly institutional positioning is a Pro feature.
           </div>
-          <Link href="/pricing" className="text-[12px] font-semibold text-teal">
+          <Link href="/pricing" className="text-[12px] font-semibold text-teal-deep">
             Upgrade to unlock →
           </Link>
         </div>
@@ -87,7 +87,7 @@ export function CotBiasPanel() {
                   href={`/cot/${e.pair}`}
                   className="flex items-center gap-2 group"
                 >
-                  <span className="text-[12px] font-semibold shrink-0 text-ink-strong w-[60px] group-hover:text-teal transition-colors">
+                  <span className="text-[12px] font-semibold shrink-0 text-ink-strong w-[60px] group-hover:text-teal-deep transition-colors">
                     {e.pair}
                   </span>
                   {/* Index position track — thumb at the 3-yr percentile */}

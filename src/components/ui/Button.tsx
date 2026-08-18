@@ -31,15 +31,25 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const BASE =
   "inline-flex items-center justify-center gap-2 font-semibold rounded-full cursor-pointer select-none transition-all duration-150 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.97]";
 
+// Every filled variant here pairs a white label with a --*-solid fill rather
+// than the raw brand hue: white on --teal is 2.75:1 and on --coral 3.64:1,
+// both under the 4.5:1 AA floor at these text sizes. --teal-solid holds the
+// brand hue and saturation exactly and only drops value, so the button reads
+// as the same teal. See the palette note in globals.css.
+//
+// Hover DARKENS (brightness-95) rather than lightening: the old
+// brightness-105 raised the fill toward the failing range — on --teal-solid it
+// lands at ~4.15:1, so the button would drop below AA exactly while the user
+// is pointing at it.
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "text-white bg-[linear-gradient(135deg,var(--teal),#069E9A)] hover:brightness-105",
+    "text-white bg-[linear-gradient(135deg,var(--teal-solid),var(--teal-solid-2))] hover:brightness-95",
   ghost:
-    "border border-[var(--line)] text-[var(--ink-mid)] bg-transparent hover:border-[var(--teal)] hover:bg-[var(--teal)] hover:text-white",
+    "border border-[var(--line)] text-[var(--ink-mid)] bg-transparent hover:border-[var(--teal-solid)] hover:bg-[var(--teal-solid)] hover:text-white",
   outline:
-    "border border-[var(--teal)] text-white bg-[var(--teal)] hover:brightness-105",
+    "border border-[var(--teal-solid)] text-white bg-[var(--teal-solid)] hover:brightness-95",
   danger:
-    "border border-[var(--coral)] text-[var(--coral)] bg-transparent hover:bg-[var(--coral)] hover:text-white",
+    "border border-[var(--coral)] text-[var(--coral-deep)] bg-transparent hover:bg-[var(--coral-solid)] hover:text-white hover:border-[var(--coral-solid)]",
 };
 
 const SIZES: Record<Size, { cls: string; iconSize: number }> = {

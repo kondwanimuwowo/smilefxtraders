@@ -118,7 +118,7 @@ export function LessonEditorClient({ courseId, lesson }: { courseId: string; les
           type="button"
           disabled={isPending}
           onClick={saveLesson}
-          className={cn("self-end px-5 py-2 rounded-xl text-[13.5px] font-semibold transition-all bg-teal text-white", isPending && "opacity-70")}
+          className={cn("self-end px-5 py-2 rounded-xl text-[13.5px] font-semibold transition-all bg-teal-solid text-white", isPending && "opacity-70")}
         >
           {saved ? "Saved ✓" : isPending ? "Saving…" : "Save lesson"}
         </button>
@@ -144,14 +144,14 @@ export function LessonEditorClient({ courseId, lesson }: { courseId: string; les
               onClick={() => setTab(t)}
               className={cn(
                 "px-4 py-3 text-[13px] font-semibold capitalize transition-all border-b-2 -mb-px",
-                tab === t ? "border-teal text-teal" : "border-transparent text-ink-dim"
+                tab === t ? "border-teal text-teal-deep" : "border-transparent text-ink-dim"
               )}
             >
               {t}
             </button>
           ))}
           {isDirty && (
-            <span className="ml-auto text-[11.5px] text-gold">Unsaved draft…</span>
+            <span className="ml-auto text-[11.5px] text-gold-deep">Unsaved draft…</span>
           )}
         </div>
 

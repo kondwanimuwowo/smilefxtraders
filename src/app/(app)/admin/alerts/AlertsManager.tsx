@@ -38,10 +38,10 @@ const STATUS_BG_CLS: Record<AlertStatusApp, string> = {
   closed:    "bg-[rgba(154,154,154,0.08)]",
 };
 const STATUS_TEXT_CLS: Record<AlertStatusApp, string> = {
-  active:    "text-teal",
-  tp1:       "text-teal-bright",
-  tp2:       "text-teal-bright",
-  sl:        "text-coral",
+  active:    "text-teal-deep",
+  tp1:       "text-teal-deep",
+  tp2:       "text-teal-deep",
+  sl:        "text-coral-deep",
   cancelled: "text-ink-dim",
   closed:    "text-ink-dim",
 };
@@ -108,10 +108,10 @@ export function AlertsManager() {
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
         {[
           { label: "Total",    value: total,   colorCls: "text-ink-strong", sub: null },
-          { label: "Active",   value: active,  colorCls: "text-teal",       sub: null },
-          { label: "TP Hit",   value: tpHits,  colorCls: "text-teal-bright", sub: total > 0 ? `${hitRate}% hit rate` : null },
-          { label: "SL Hit",   value: slHits,  colorCls: "text-coral",      sub: null },
-          { label: "Win rate", value: total > 0 ? `${hitRate}%` : "—", colorCls: hitRate >= 50 ? "text-teal" : "text-coral", sub: "tp hits / total" },
+          { label: "Active",   value: active,  colorCls: "text-teal-deep",       sub: null },
+          { label: "TP Hit",   value: tpHits,  colorCls: "text-teal-deep", sub: total > 0 ? `${hitRate}% hit rate` : null },
+          { label: "SL Hit",   value: slHits,  colorCls: "text-coral-deep",      sub: null },
+          { label: "Win rate", value: total > 0 ? `${hitRate}%` : "—", colorCls: hitRate >= 50 ? "text-teal-deep" : "text-coral-deep", sub: "tp hits / total" },
         ].map(({ label, value, colorCls, sub }) => (
           <div key={label} className="rounded-2xl p-4 bg-panel shadow-sm">
             <div className="text-[11px] uppercase tracking-wide font-semibold mb-1 text-ink-dim">{label}</div>
@@ -148,7 +148,7 @@ export function AlertsManager() {
             <button
               type="button"
               onClick={() => router.push("/alerts/new")}
-              className="mt-3 text-[13px] font-semibold text-teal"
+              className="mt-3 text-[13px] font-semibold text-teal-deep"
             >
               Post your first setup →
             </button>
@@ -172,7 +172,7 @@ export function AlertsManager() {
                     <span
                       className={cn(
                         "text-[10.5px] font-bold uppercase px-1.5 py-0.5 rounded-full w-fit",
-                        a.dir === "long" ? "bg-[rgba(8,174,170,0.12)] text-teal" : "bg-[rgba(234,82,61,0.1)] text-coral"
+                        a.dir === "long" ? "bg-[rgba(8,174,170,0.12)] text-teal-deep" : "bg-[rgba(234,82,61,0.1)] text-coral-deep"
                       )}
                     >
                       {a.dir === "long" ? "L" : "S"}
@@ -186,7 +186,7 @@ export function AlertsManager() {
                     <span className="text-right tabular-nums text-[12px] text-ink-mid">
                       {a.entry}
                     </span>
-                    <span className="text-right tabular-nums text-[12.5px] font-semibold text-gold">
+                    <span className="text-right tabular-nums text-[12.5px] font-semibold text-gold-deep">
                       {a.rr}R
                     </span>
                     <span className="text-right text-[11.5px] text-ink-dim">
@@ -212,7 +212,7 @@ export function AlertsManager() {
                         <span
                           className={cn(
                             "text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full",
-                            a.dir === "long" ? "bg-[rgba(8,174,170,0.12)] text-teal" : "bg-[rgba(234,82,61,0.1)] text-coral"
+                            a.dir === "long" ? "bg-[rgba(8,174,170,0.12)] text-teal-deep" : "bg-[rgba(234,82,61,0.1)] text-coral-deep"
                           )}
                         >
                           {a.dir}
@@ -232,10 +232,10 @@ export function AlertsManager() {
                       {/* Level summary */}
                       <div className="flex flex-wrap gap-4 text-[12px] text-ink-mid">
                         <span>Entry <strong className="text-ink-strong">{a.entry}</strong></span>
-                        <span>SL <strong className="text-coral-bright">{a.sl}</strong></span>
-                        <span>TP1 <strong className="text-teal-bright">{a.tp1}</strong></span>
-                        {a.tp2 && <span>TP2 <strong className="text-teal-bright">{a.tp2}</strong></span>}
-                        <span>R:R <strong className="text-gold">{a.rr}R</strong></span>
+                        <span>SL <strong className="text-coral-deep">{a.sl}</strong></span>
+                        <span>TP1 <strong className="text-teal-deep">{a.tp1}</strong></span>
+                        {a.tp2 && <span>TP2 <strong className="text-teal-deep">{a.tp2}</strong></span>}
+                        <span>R:R <strong className="text-gold-deep">{a.rr}R</strong></span>
                         <span>Session <strong className="text-ink-strong">{a.session}</strong></span>
                       </div>
                       {a.note && (
@@ -265,7 +265,7 @@ export function AlertsManager() {
                         <button
                           type="button"
                           onClick={() => { if (confirm("Delete this alert permanently?")) deleteAlert(a.id); }}
-                          className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11.5px] font-semibold transition-all hover:opacity-80 bg-[rgba(234,82,61,0.08)] text-coral shadow-[0_0_0_1px_rgba(234,82,61,0.2)]"
+                          className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11.5px] font-semibold transition-all hover:opacity-80 bg-[rgba(234,82,61,0.08)] text-coral-deep shadow-[0_0_0_1px_rgba(234,82,61,0.2)]"
                         >
                           <Icon name="delete" size={13} />
                           Delete

@@ -81,7 +81,7 @@ export default function PostAlertPage() {
                       key={d} type="button" onClick={() => set("dir", d)}
                       className={`flex-1 py-2 text-[12.5px] font-semibold capitalize transition-all ${
                         form.dir === d
-                          ? d === "long" ? "bg-teal text-white" : "bg-coral text-white"
+                          ? d === "long" ? "bg-teal-solid text-white" : "bg-coral-solid text-white"
                           : "bg-panel-2 text-ink-mid"
                       }`}
                     >
@@ -137,7 +137,7 @@ export default function PostAlertPage() {
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {form.tags.map((t) => (
                     <button key={t} type="button" onClick={() => set("tags", form.tags.filter((x) => x !== t))}
-                      className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[rgba(8,174,170,0.1)] text-teal shadow-[0_0_0_2px_var(--teal)]"
+                      className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[rgba(8,174,170,0.1)] text-teal-deep shadow-[0_0_0_2px_var(--teal)]"
                     >
                       {t} <Icon name="close" size={10} />
                     </button>

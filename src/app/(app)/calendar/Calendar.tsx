@@ -126,7 +126,7 @@ export function Calendar() {
                   <ImpactDots level={ev.impact} />
                   <Link
                     href={`/macroedge/${ev.currency}`}
-                    className="text-[11px] font-bold px-2 py-0.5 rounded-lg tracking-wide bg-panel-2 text-ink-mid hover:text-teal hover:shadow-[0_0_0_1px_var(--teal-bright)] transition-colors shrink-0"
+                    className="text-[11px] font-bold px-2 py-0.5 rounded-lg tracking-wide bg-panel-2 text-ink-mid hover:text-teal-deep hover:shadow-[0_0_0_1px_var(--teal-bright)] transition-colors shrink-0"
                   >
                     {ev.currency}
                   </Link>
@@ -137,7 +137,7 @@ export function Calendar() {
                     {ev.forecast && <span className="text-ink-dim">F: {ev.forecast}{ev.unit}</span>}
                     {ev.previous && <span className="text-ink-dim">P: {ev.previous}{ev.unit}</span>}
                     {ev.actual && (
-                      <span className="text-teal-bright font-semibold">{ev.actual}{ev.unit}</span>
+                      <span className="text-teal-deep font-semibold">{ev.actual}{ev.unit}</span>
                     )}
                   </div>
                 </div>

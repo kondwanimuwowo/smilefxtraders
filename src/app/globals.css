@@ -54,6 +54,60 @@
   @media (pointer: coarse) {
     .tap-target { min-height: 44px; min-width: 44px; }
   }
+
+  /* ─── Keyboard focus ─────────────────────────────────────────────────────
+     A global default, because nothing in this app used to render a focus
+     ring at all — the whole interface was unusable by keyboard, and every
+     interactive element reported as not focus-visible in devtools.
+
+     :focus-visible, not :focus, so the ring appears for keyboard and
+     programmatic focus but never on mouse clicks — the reason people reach
+     for `outline: none` in the first place.
+
+     Two layers rather than one: the offset ring reads on light surfaces, and
+     the 1px white/dark inner edge keeps it visible where the ring lands on a
+     teal or coral fill of its own color. `outline` (not box-shadow) so it
+     survives on elements whose shadow is already doing layout work, and so
+     it follows border-radius automatically.
+
+     Anything opting out must replace the affordance, not delete it. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--teal-deep);
+    outline-offset: 2px;
+    border-radius: inherit;
+  }
+
+  /* Windows high-contrast mode paints its own system focus indicator and
+     ignores author colors; a transparent outline lets it through instead of
+     leaving nothing behind. */
+  @media (forced-colors: active) {
+    :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+      outline-color: Highlight;
+    }
+  }
+
+  /* ─── Dark islands ───────────────────────────────────────────────────────
+     For containers that paint their own dark surface regardless of the active
+     theme: the auth split-screen, the cookie bar, navy card headers. In light
+     theme --*-deep resolves to dark hues, so brand text inside one of these
+     would be dark-on-dark.
+
+     Declaring `on-dark` re-points the text tokens at the bright variants for
+     that subtree, which keeps ONE rule true everywhere — brand text is always
+     a -deep token — instead of a list of files exempt from it. The marketing
+     `.dark` band applies the same overrides itself.
+
+     This sets tokens only, no background: the container keeps painting its own
+     gradient. Use it wherever a dark surface is hardcoded rather than themed. */
+  .on-dark {
+    --teal-deep:  var(--teal-bright);
+    --coral-deep: #FF8A78;
+    --gold-deep:  #FFD37A;
+    --teal-tint:  rgba(8, 174, 170, 0.20);
+    --coral-tint: rgba(255, 89, 66, 0.18);
+    --gold-tint:  rgba(248, 185, 61, 0.16);
+    --line:       rgba(255, 255, 255, 0.14);
+  }
 }
 
 /* ─── Brand + semantic palette ──────────────────────────────────────────────── */
@@ -71,6 +125,58 @@
   --long-bright:  var(--teal-bright);
   --short:        var(--coral);
   --short-bright: var(--coral-bright);
+  /* Text-safe direction pair. Declared here rather than per theme: both
+     themes redefine --teal-deep/--coral-deep on the same <html> element, and
+     a var() reference resolves against that element's computed value, so
+     these follow the active theme without being duplicated. */
+  --long-deep:    var(--teal-deep);
+  --short-deep:   var(--coral-deep);
+
+  /* ─── Solid fills that carry WHITE text ──────────────────────────────────
+     Primary buttons and other filled controls. White on the brand --teal is
+     2.75:1 and on --gold 1.75:1, so neither raw hue can back a white label.
+
+     These deliberately do NOT flip per theme, unlike the -deep family: the
+     label is always white, so the fill must stay dark in both. Reusing
+     --teal-deep here would break dark mode, where it resolves to the bright
+     cyan and white would sit at 1.53.
+
+     --teal-solid keeps the brand hue (178.6deg) and saturation (0.954)
+     exactly and only drops value, so it reads as the same teal rather than a
+     different color. At 4.54:1 it is the LIGHTEST on-hue teal that clears AA
+     with white — don't lighten it further. The -2 step is the gradient's far
+     stop.
+
+     Gold has no entry on purpose. No gold light enough to still look gold can
+     carry white text, so gold fills always take --navy-deep ink (8.54:1),
+     which is the pairing CLAUDE.md already specifies. */
+  --teal-solid:   #068481;
+  --teal-solid-2: #056E6B;
+  --coral-solid:  #B8402F;
+
+  /* ─── Which brand token goes on TEXT ──────────────────────────────────────
+     The seven tokens above are FILL colors: backgrounds, rings, icon fills,
+     chart strokes, dots. None of them may be used as a text color.
+
+     They are defined here, outside the light/dark blocks, so they hold the
+     same hex in both themes — they were picked to read on the dark navy
+     panel. On the light theme's white panel every one of them fails WCAG AA
+     (4.5:1 for body text): gold 1.75, teal-bright 1.53, teal 2.75,
+     coral-bright 3.11, coral 3.64.
+
+     So text uses the --*-deep tokens instead, defined per theme below. Those
+     flip: dark hues in light mode, the bright hues in dark mode. Same idea
+     the COT chart series already uses (--chart-ls and friends), generalised
+     from strokes to type.
+
+       text  →  --teal-deep / --coral-deep / --gold-deep   (and --long-deep /
+                --short-deep for direction semantics)
+       fill  →  --teal / --coral / --gold + the -bright and -tint variants
+
+     Large display numbers should generally be --ink-strong with the semantic
+     color carried by a -tint pill beside them, rather than colored directly.
+     A 26px figure in a brand hue is the single most common way this palette
+     goes unreadable. */
 
   /* Marketing card/mock shadow scale (consumed by the marketing components
      section below) — named shadow-card-* rather than shadow-sm/md/lg/xl to
@@ -94,13 +200,59 @@
   --bg-tint:    #ECF4F4;
   --line:       rgba(11, 66, 93, 0.13);
   --ink:        rgba(8, 42, 59, 0.90);
-  --ink-mid:    rgba(8, 42, 59, 0.60);
-  --ink-dim:    rgba(8, 42, 59, 0.42);
+  /* The three ink tiers are spaced so that EVERY one clears 4.5:1, not just
+     the top two. 0.65 is the AA floor on these light surfaces, so a passing
+     three-step ramp has to start there and climb -- 0.65 / 0.78 / 0.90.
+
+     The previous ramp (0.42 / 0.60 / 0.90) failed on its bottom two rungs:
+     --ink-mid painted 4.00:1 on --panel-2 and --ink-dim only 2.46:1, while
+     labelling things a trader has to read to act -- "Lot size", "Dollar
+     risk", "Expected profit" on the position calculator among them.
+
+     Cost of the fix, stated plainly: text is darker throughout and the STEPS
+     between tiers are smaller, so the hierarchy reads softer than it did.
+     That is the price of a bottom rung that is legible at all. Lean on size
+     and weight to carry hierarchy that alpha no longer can.
+
+     (The design prototype in public/inspo uses the old 0.42/0.60 values on
+     every page -- it never measured these, so it is not a reference here.) */
+  --ink-mid:    rgba(8, 42, 59, 0.78);
+  /* The floor: 4.63:1 worst case. Do not lower it -- 0.60 lands at 4.00 and
+     0.42 (where this sat) at 2.46. */
+  --ink-dim:    rgba(8, 42, 59, 0.65);
   --ink-strong: #082A3B;
   --hover:      rgba(8, 42, 59, 0.05);
   --track:      rgba(8, 42, 59, 0.10);
   --row-hover:  rgba(8, 42, 59, 0.035);
   --topbar-bg:  rgba(255, 255, 255, 0.78);
+
+  /* Text-safe brand hues. Each clears 4.5:1 against ALL four light surfaces
+     (--panel #FFFFFF, --panel-2 #EEF2F6, --app-bg #F6F8FA, --bg-tint
+     #ECF4F4), not just white — pills and card headers sit on --panel-2, and
+     a value tuned only against white fails there. Worst-case ratios:
+     teal 5.34, coral 5.43, gold 4.97.
+
+     --gold-deep reads brownish, and that is unavoidable: yellow has high
+     intrinsic luminance, so any gold dark enough to pass AA as text stops
+     looking yellow. Hence the split — --gold keeps the brand yellow on
+     fills, rings and icons; --gold-deep is for type only. */
+  --teal-deep:  #076F6B;
+  --coral-deep: #AE3A2A;
+  --gold-deep:  #8A6009;
+
+  /* Tinted surfaces for pills, chips and icon bubbles. Previously inlined as
+     raw rgba() in ~315 places across 61 distinct alpha values (0.1 and 0.10
+     and 0.12 and 0.025…), so the wash drifted per component and dark mode
+     never got its own value. Pair each with the matching -deep token: those
+     combinations are verified to clear 4.5:1, worst case 4.69 on --panel-2.
+
+     Don't raise these much. The alpha darkens the pill, which eats the text
+     contrast the -deep tokens buy: on --panel-2 a 0.20 teal tint falls to
+     4.43 and a 0.16 coral tint to 4.48. Roughly 0.16 is the ceiling for a
+     tint carrying -deep text; above that, verify before shipping. */
+  --teal-tint:  rgba(8, 174, 170, 0.12);
+  --coral-tint: rgba(234, 82, 61, 0.12);
+  --gold-tint:  rgba(248, 185, 61, 0.16);
 
   /* COT positioning chart series — darker steps of the brand hues so 2px
      lines pass 3:1 contrast on the white panel (validated). Retail is a
@@ -119,13 +271,36 @@
   --bg-tint:    rgba(8, 174, 170, 0.16);
   --line:       rgba(148, 210, 208, 0.13);
   --ink:        rgba(255, 255, 255, 0.87);
-  --ink-mid:    rgba(255, 255, 255, 0.62);
-  --ink-dim:    rgba(255, 255, 255, 0.42);
+  /* Same three-passing-tier rule as light. White on the dark panels has more
+     headroom, so the floor lands at 0.55 rather than 0.65 (4.79 worst case);
+     0.42 sat at 3.45. */
+  --ink-mid:    rgba(255, 255, 255, 0.70);
+  --ink-dim:    rgba(255, 255, 255, 0.55);
   --ink-strong: #FFFFFF;
   --hover:      rgba(255, 255, 255, 0.05);
   --track:      rgba(255, 255, 255, 0.08);
   --row-hover:  rgba(255, 255, 255, 0.03);
   --topbar-bg:  rgba(6, 22, 30, 0.6);
+
+  /* Text-safe brand hues, dark theme. Here the bright variants are already
+     strong on the navy panel, so -deep resolves to them rather than to
+     anything darker — the token name describes its ROLE (safe for text),
+     not its lightness.
+
+     Two deliberate exceptions to "just use the bright variant":
+       coral — --coral-bright #FF5942 is only 3.88:1 on --panel-2, so text
+               gets a lighter step. The bright hue stays in use for fills.
+       gold  — --gold #F8B93D passes (6.88 worst case) but sits close to the
+               floor on tinted pills; #FFD37A gives real headroom. */
+  --teal-deep:  #30E8DF;
+  --coral-deep: #FF8A78;
+  --gold-deep:  #FFD37A;
+
+  /* Tints are lifted slightly: the same alpha over a dark surface reads as
+     almost nothing, where over white it reads as a clear wash. */
+  --teal-tint:  rgba(8, 174, 170, 0.20);
+  --coral-tint: rgba(255, 89, 66, 0.16);
+  --gold-tint:  rgba(248, 185, 61, 0.14);
 
   /* COT chart series — brand hues pass contrast on the dark panel as-is */
   --chart-ls:     var(--teal);
@@ -164,11 +339,27 @@
   --color-row-hover: var(--row-hover);
   --color-topbar-bg: var(--topbar-bg);
 
+  /* Solid fills for white-labelled controls (bg-teal-solid). */
+  --color-teal-solid:   var(--teal-solid);
+  --color-teal-solid-2: var(--teal-solid-2);
+  --color-coral-solid:  var(--coral-solid);
+
+  /* Text-safe brand hues (text-teal-deep, bg-gold-tint, …). See the note in
+     the palette block: -deep is the only brand family allowed on text. */
+  --color-teal-deep:  var(--teal-deep);
+  --color-coral-deep: var(--coral-deep);
+  --color-gold-deep:  var(--gold-deep);
+  --color-teal-tint:  var(--teal-tint);
+  --color-coral-tint: var(--coral-tint);
+  --color-gold-tint:  var(--gold-tint);
+
   /* Direction semantics (tweakable — never hard-code teal/coral directly) */
   --color-long:         var(--long);
   --color-long-bright:  var(--long-bright);
+  --color-long-deep:    var(--long-deep);
   --color-short:        var(--short);
   --color-short-bright: var(--short-bright);
+  --color-short-deep:   var(--short-deep);
 
   /* Background Gradients */
   --background-image-navy-grad: linear-gradient(165deg, #0C4359 0%, #082A3B 78%);
@@ -305,8 +496,14 @@
     height: 5px;
     border-radius: 999px;
     background: var(--track);
-    outline: none;
     cursor: pointer;
+  }
+  /* A slider is keyboard-driven by definition (arrow keys), so it is the one
+     control that must never lose its ring. The ring goes on the track since
+     the thumb is a pseudo-element and cannot carry :focus-visible itself. */
+  .auth-range:focus-visible {
+    outline: 2px solid var(--teal-deep);
+    outline-offset: 4px;
   }
   .auth-range::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -359,10 +556,7 @@
    nothing outside marketing pages — promoting them to :root would silently
    start rendering backgrounds/colors there that were never designed for. */
 .marketing-theme {
-  --teal-dark:  #0B807C;
-  --coral-dark: #B84030;
   --gold-light: #FFD37A;
-  --gold-dark:  #D99A1E;
   --navy-mid:   #1672A1;
 
   /* Marketing-only layout tokens */
@@ -383,8 +577,8 @@
   --bg-tint:    #ECF4F4;
   --line:       rgba(11, 66, 93, 0.13);
   --ink:        rgba(8, 42, 59, 0.90);
-  --ink-mid:    rgba(8, 42, 59, 0.60);
-  --ink-dim:    rgba(8, 42, 59, 0.42);
+  --ink-mid:    rgba(8, 42, 59, 0.78);   /* see the ink-ramp note on the app tokens above */
+  --ink-dim:    rgba(8, 42, 59, 0.65);
   --ink-strong: #082A3B;
   --hover:      rgba(8, 42, 59, 0.05);
   --track:      rgba(8, 42, 59, 0.10);
@@ -421,11 +615,26 @@
   .section-sm { @apply py-16; }
   .dark { @apply bg-navy-grad text-white; }
   .dark h1, .dark h2, .dark h3 { @apply text-white; }
+  /* Marketing re-pins the surface tokens to their light values (see the note
+     further up), which is right for the page but wrong inside a .dark band:
+     these sections paint a navy gradient over that light surface, so the
+     text-safe --*-deep hues would be dark-on-dark. Re-point them at the
+     bright variants for the subtree. Without this every -deep token inside a
+     .dark section drops to roughly 1.3:1.
+
+     Tints get a lift too — 12% of a hue over navy is imperceptible. */
+  .dark {
+    --teal-deep:  var(--teal-bright);
+    --coral-deep: #FF8A78;
+    --gold-deep:  #FFD37A;
+    --teal-tint:  rgba(8, 174, 170, 0.20);
+    --coral-tint: rgba(255, 89, 66, 0.18);
+    --gold-tint:  rgba(248, 185, 61, 0.16);
+  }
   .soft { @apply bg-[var(--bg-soft)]; }
 
   /* ---------- eyebrow / section head ---------- */
-  .eyebrow { @apply text-xs font-bold uppercase tracking-[0.26em] text-teal inline-flex items-center gap-2; }
-  .dark .eyebrow { @apply text-teal-bright; }
+  .eyebrow { @apply text-xs font-bold uppercase tracking-[0.26em] text-teal-deep inline-flex items-center gap-2; }
   .sec-head { @apply max-w-[680px]; }
   .sec-head.center { @apply mx-auto text-center; }
   .sec-head h2 { @apply mt-4 text-[clamp(30px,4vw,46px)]; }
@@ -435,13 +644,13 @@
   /* ---------- country pills (light bg) ---------- */
   .country-pill {
     @apply inline-flex items-center py-[7px] px-4 rounded-full text-[13px] font-semibold
-           text-[var(--teal-dark)] border border-[rgba(8,174,170,0.3)] bg-[rgba(8,174,170,0.08)];
+           text-[var(--teal-deep)] border border-[rgba(8,174,170,0.3)] bg-[rgba(8,174,170,0.08)];
   }
 
   /* ---------- feature anchor pills (dark hero) ---------- */
   .feature-pill {
     @apply inline-flex items-center py-[7px] px-4 rounded-full text-[13px] font-semibold no-underline
-           text-teal-bright border border-[rgba(48,232,223,0.35)] bg-[rgba(8,174,170,0.12)]
+           text-teal-deep border border-[rgba(48,232,223,0.35)] bg-teal-tint
            transition-colors duration-150
            hover:bg-[rgba(8,174,170,0.24)] hover:border-[rgba(48,232,223,0.65)];
   }
@@ -449,9 +658,8 @@
   /* ---------- inline text link with arrow ---------- */
   .link-arrow {
     @apply inline-flex items-center gap-1.5 font-semibold text-[15px] no-underline
-           text-[var(--teal-dark)] hover:text-coral;
+           text-teal-deep hover:text-coral-deep;
   }
-  .dark .link-arrow { @apply text-teal-bright; }
   .link-arrow svg { @apply transition-transform duration-200 ease-app; }
   .link-arrow:hover svg { @apply translate-x-1; }
 
@@ -463,8 +671,8 @@
   .g2 { @apply grid gap-6 grid-cols-2; }
   .g4 { @apply grid gap-6 grid-cols-4; }
 
-  .icon-chip { @apply w-[52px] h-[52px] rounded-[14px] bg-bg-tint flex items-center justify-center text-teal; }
-  .dark .icon-chip { @apply bg-[rgba(8,174,170,0.16)] text-teal-bright; }
+  .icon-chip { @apply w-[52px] h-[52px] rounded-[14px] bg-bg-tint flex items-center justify-center text-teal-deep; }
+  .dark .icon-chip { @apply bg-teal-tint; }
 
   /* tool card */
   .tool-card { @apply p-[28px]; }
@@ -474,19 +682,19 @@
   /* pills / chips */
   .chip {
     @apply inline-flex items-center gap-[5px] py-[5px] px-3 rounded-full text-[12.5px] font-semibold
-           bg-bg-tint text-[var(--teal-dark)];
+           bg-bg-tint text-[var(--teal-deep)];
   }
-  .chip.coral { @apply bg-[rgba(234,82,61,0.12)] text-[var(--coral-dark)]; }
-  .chip.gold { @apply bg-[rgba(248,185,61,0.16)] text-[var(--gold-dark)]; }
-  .badge-long { @apply text-[var(--teal-dark)] bg-[rgba(8,174,170,0.12)]; }
-  .badge-short { @apply text-[var(--coral-dark)] bg-[rgba(234,82,61,0.12)]; }
+  .chip.coral { @apply bg-coral-tint text-coral-deep; }
+  .chip.gold { @apply bg-gold-tint text-gold-deep; }
+  .badge-long { @apply text-teal-deep bg-teal-tint; }
+  .badge-short { @apply text-coral-deep bg-coral-tint; }
 
   /* stats */
   .stat-row { @apply grid grid-cols-4 gap-7; }
   .stat .num { @apply font-display font-bold text-[44px] leading-none text-ink tracking-[-0.02em]; }
   .dark .stat .num { @apply text-white; }
-  .stat .num .suf { @apply text-coral; }
-  .dark .stat .num .suf { @apply text-gold; }
+  .stat .num .suf { @apply text-coral-deep; }
+  .dark .stat .num .suf { @apply text-gold-deep; }
   .stat .lbl { @apply text-sm text-ink-mid mt-2.5; }
   .dark .stat .lbl { @apply text-[rgba(255,255,255,0.62)]; }
 
@@ -544,7 +752,7 @@
   .price-card { @apply relative bg-white border border-line rounded-[22px] p-[30px] shadow-card-md; }
   .price-card.featured { @apply border-teal shadow-[0_0_0_2px_var(--teal),var(--shadow-card-lg)]; }
   .price-flag {
-    @apply absolute -top-[13px] left-[30px] bg-teal text-white text-[11px] font-bold uppercase
+    @apply absolute -top-[13px] left-[30px] bg-teal-solid text-white text-[11px] font-bold uppercase
            tracking-[0.08em] py-[5px] px-[13px] rounded-full;
   }
   .price-feat { @apply flex gap-2.5 items-start text-sm text-ink py-[7px] leading-[1.4]; }

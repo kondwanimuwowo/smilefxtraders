@@ -206,7 +206,7 @@ function PostCard({ post }: { post: ApiPost }) {
       }`}
     >
       {post.isInstructor && (
-        <div className="flex items-center gap-2 px-5 py-2 text-[11.5px] font-semibold bg-[rgba(248,185,61,0.08)] text-gold">
+        <div className="flex items-center gap-2 px-5 py-2 text-[11.5px] font-semibold bg-[rgba(248,185,61,0.08)] text-gold-deep">
           <Icon name="workspace_premium" size={14} fill />
           Instructor post · Kondwani
         </div>
@@ -219,7 +219,7 @@ function PostCard({ post }: { post: ApiPost }) {
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-[14px] text-ink-strong">{post.name}</span>
             {post.isInstructor && (
-              <Icon name="verified" size={15} className="text-gold" />
+              <Icon name="verified" size={15} className="text-gold-deep" />
             )}
             <span className="text-[12px] text-ink-dim">@{post.handle}</span>
             <span className="text-[12px] text-ink-dim">· {relativeTime(post.time)}</span>
@@ -245,7 +245,7 @@ function PostCard({ post }: { post: ApiPost }) {
         <button
           type="button"
           onClick={() => toggleLike()}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors hover:bg-hover ${post.likedByMe ? "text-teal" : "text-ink-dim"}`}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors hover:bg-hover ${post.likedByMe ? "text-teal-deep" : "text-ink-dim"}`}
         >
           <Icon name="favorite" size={18} />
           {post.likes}
@@ -254,7 +254,7 @@ function PostCard({ post }: { post: ApiPost }) {
         <button
           type="button"
           onClick={() => { setCommentOpen((o) => !o); setTimeout(() => inputRef.current?.focus(), 50); }}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors hover:bg-hover ${commentOpen ? "text-teal" : "text-ink-dim"}`}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors hover:bg-hover ${commentOpen ? "text-teal-deep" : "text-ink-dim"}`}
         >
           <Icon name="chat_bubble_outline" size={17} />
           {post.comments}
@@ -294,7 +294,7 @@ function PostCard({ post }: { post: ApiPost }) {
                   type="button"
                   onClick={submitComment}
                   disabled={!draft.trim()}
-                  className={draft.trim() ? "text-teal" : "text-ink-dim"}
+                  className={draft.trim() ? "text-teal-deep" : "text-ink-dim"}
                   aria-label="Post comment"
                 >
                   <Icon name="send" size={17} />
@@ -414,14 +414,14 @@ function ComposeBox() {
             <div className="w-px h-4 shrink-0 bg-line" />
             <TogglePill
               active={dir === "long"}
-              activeClass="bg-[rgba(8,174,170,0.15)] text-teal shadow-[0_0_0_2px_var(--teal)]"
+              activeClass="bg-[rgba(8,174,170,0.15)] text-teal-deep shadow-[0_0_0_2px_var(--teal)]"
               onClick={() => setDir(dir === "long" ? "" : "long")}
             >
               Long
             </TogglePill>
             <TogglePill
               active={dir === "short"}
-              activeClass="bg-[rgba(234,82,61,0.12)] text-coral shadow-[0_0_0_2px_var(--coral)]"
+              activeClass="bg-[rgba(234,82,61,0.12)] text-coral-deep shadow-[0_0_0_2px_var(--coral)]"
               onClick={() => setDir(dir === "short" ? "" : "short")}
             >
               Short
@@ -429,14 +429,14 @@ function ComposeBox() {
             <div className="w-px h-4 shrink-0 bg-line" />
             <TogglePill
               active={result === "WIN"}
-              activeClass="bg-[rgba(8,174,170,0.12)] text-teal-bright shadow-[0_0_0_2px_var(--teal)]"
+              activeClass="bg-[rgba(8,174,170,0.12)] text-teal-deep shadow-[0_0_0_2px_var(--teal)]"
               onClick={() => setResult(result === "WIN" ? "" : "WIN")}
             >
               Win
             </TogglePill>
             <TogglePill
               active={result === "LOSS"}
-              activeClass="bg-[rgba(234,82,61,0.1)] text-coral shadow-[0_0_0_2px_var(--coral)]"
+              activeClass="bg-[rgba(234,82,61,0.1)] text-coral-deep shadow-[0_0_0_2px_var(--coral)]"
               onClick={() => setResult(result === "LOSS" ? "" : "LOSS")}
             >
               Loss
@@ -458,9 +458,9 @@ function ComposeBox() {
       </div>
 
       {error instanceof Error && error.message.includes("Pro") && (
-        <div className="px-5 pb-3 text-[12px] text-coral">
+        <div className="px-5 pb-3 text-[12px] text-coral-deep">
           Community posting requires a Pro plan.{" "}
-          <a href="/membership" className="text-teal underline">Upgrade</a>
+          <a href="/membership" className="text-teal-deep underline">Upgrade</a>
         </div>
       )}
     </div>
@@ -546,7 +546,7 @@ function Leaderboard() {
                 <div className="text-[12.5px] font-semibold truncate text-ink-strong">{l.name}</div>
                 <div className="text-[11px] text-ink-dim">{l.winRate}% win rate</div>
               </div>
-              <span className="font-display font-bold text-[13px] tabular-nums text-teal-bright">
+              <span className="font-display font-bold text-[13px] tabular-nums text-teal-deep">
                 {l.netR}
               </span>
             </div>
@@ -580,7 +580,7 @@ function CommunityStats() {
       <div className="grid grid-cols-2 gap-3">
         {stats.map(({ label, value, icon }) => (
           <div key={label} className="rounded-xl px-3 py-3 flex flex-col gap-1 bg-panel-2 shadow-sm">
-            <Icon name={icon} size={16} className="text-teal" />
+            <Icon name={icon} size={16} className="text-teal-deep" />
             <div className="font-display font-bold text-[18px] text-ink-strong">{value}</div>
             <div className="text-[11px] text-ink-dim">{label}</div>
           </div>
@@ -625,7 +625,7 @@ export function Community() {
                 onClick={() => setFilter(tab.id)}
                 className={`px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all ${
                   filter === tab.id
-                    ? "bg-[rgba(8,174,170,0.12)] text-teal shadow-[0_0_0_2px_var(--teal)]"
+                    ? "bg-[rgba(8,174,170,0.12)] text-teal-deep shadow-[0_0_0_2px_var(--teal)]"
                     : "bg-transparent text-ink-dim"
                 }`}
               >
@@ -689,7 +689,7 @@ export function Community() {
                 "Tag your pair and direction when posting a trade.",
               ].map((rule) => (
                 <li key={rule} className="flex items-start gap-2">
-                  <Icon name="check" size={14} className="text-teal shrink-0 mt-px" />
+                  <Icon name="check" size={14} className="text-teal-deep shrink-0 mt-px" />
                   {rule}
                 </li>
               ))}

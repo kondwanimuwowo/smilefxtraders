@@ -55,11 +55,11 @@ interface IdxCls {
 }
 
 const IDX_CLS: Record<"coralBright" | "coral" | "tealBright" | "teal" | "gold", IdxCls> = {
-  coralBright: { textCls: "text-coral-bright", barBgCls: "bg-coral-bright", markerBorderCls: "border-coral-bright", badgeBgCls: "bg-[rgba(255,89,66,0.12)]",  badgeTextCls: "text-coral-bright", badgeBorderCls: "border-[rgba(255,89,66,0.12)]"  },
-  coral:       { textCls: "text-coral",        barBgCls: "bg-coral",        markerBorderCls: "border-coral",        badgeBgCls: "bg-[rgba(234,82,61,0.10)]",  badgeTextCls: "text-coral",        badgeBorderCls: "border-[rgba(234,82,61,0.10)]"  },
-  tealBright:  { textCls: "text-teal-bright",  barBgCls: "bg-teal-bright",  markerBorderCls: "border-teal-bright",  badgeBgCls: "bg-[rgba(48,232,223,0.12)]", badgeTextCls: "text-teal-bright",  badgeBorderCls: "border-[rgba(48,232,223,0.12)]" },
-  teal:        { textCls: "text-teal",         barBgCls: "bg-teal",         markerBorderCls: "border-teal",         badgeBgCls: "bg-[rgba(8,174,170,0.10)]",  badgeTextCls: "text-teal",         badgeBorderCls: "border-[rgba(8,174,170,0.10)]"  },
-  gold:        { textCls: "text-gold",         barBgCls: "bg-gold",         markerBorderCls: "border-gold",         badgeBgCls: "bg-[rgba(248,185,61,0.10)]", badgeTextCls: "text-gold",         badgeBorderCls: "border-[rgba(248,185,61,0.10)]" },
+  coralBright: { textCls: "text-coral-deep", barBgCls: "bg-coral-bright", markerBorderCls: "border-coral-bright", badgeBgCls: "bg-[rgba(255,89,66,0.12)]",  badgeTextCls: "text-coral-deep", badgeBorderCls: "border-[rgba(255,89,66,0.12)]"  },
+  coral:       { textCls: "text-coral-deep",        barBgCls: "bg-coral",        markerBorderCls: "border-coral",        badgeBgCls: "bg-[rgba(234,82,61,0.10)]",  badgeTextCls: "text-coral-deep",        badgeBorderCls: "border-[rgba(234,82,61,0.10)]"  },
+  tealBright:  { textCls: "text-teal-deep",  barBgCls: "bg-teal-bright",  markerBorderCls: "border-teal-bright",  badgeBgCls: "bg-[rgba(48,232,223,0.12)]", badgeTextCls: "text-teal-deep",  badgeBorderCls: "border-[rgba(48,232,223,0.12)]" },
+  teal:        { textCls: "text-teal-deep",         barBgCls: "bg-teal",         markerBorderCls: "border-teal",         badgeBgCls: "bg-[rgba(8,174,170,0.10)]",  badgeTextCls: "text-teal-deep",         badgeBorderCls: "border-[rgba(8,174,170,0.10)]"  },
+  gold:        { textCls: "text-gold-deep",         barBgCls: "bg-gold",         markerBorderCls: "border-gold",         badgeBgCls: "bg-[rgba(248,185,61,0.10)]", badgeTextCls: "text-gold-deep",         badgeBorderCls: "border-[rgba(248,185,61,0.10)]" },
 };
 
 function indexCls(idx: number): IdxCls {
@@ -181,7 +181,7 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
             <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">
               COT Index
             </span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-[rgba(8,174,170,0.08)] text-teal border border-[rgba(8,174,170,0.18)]">
+            <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-[rgba(8,174,170,0.08)] text-teal-deep border border-[rgba(8,174,170,0.18)]">
               {totalWeeks >= 156 ? "3yr · 156w range" : `${totalWeeks}w range`}
             </span>
           </div>
@@ -201,7 +201,7 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
           <span className="text-[10px] uppercase tracking-wide font-medium text-ink-dim">Current net</span>
           <span className={cn(
             "font-display font-bold tabular-nums text-[18px] tracking-[-0.01em]",
-            (rows[0]?.largeSpecNet ?? 0) >= 0 ? "text-teal-bright" : "text-coral-bright"
+            (rows[0]?.largeSpecNet ?? 0) >= 0 ? "text-teal-deep" : "text-coral-deep"
           )}>
             {fmtNet(rows[0]?.largeSpecNet ?? 0)}
           </span>
@@ -217,11 +217,11 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
 
         {/* Zone key */}
         <div className="flex items-center justify-between pt-1">
-          <span className="text-[10px] px-2 py-0.5 rounded bg-[rgba(234,82,61,0.10)] text-coral">
+          <span className="text-[10px] px-2 py-0.5 rounded bg-[rgba(234,82,61,0.10)] text-coral-deep">
             0–20 extreme short
           </span>
           <span className="text-[10px] text-ink-dim">40–60 neutral</span>
-          <span className="text-[10px] px-2 py-0.5 rounded bg-[rgba(8,174,170,0.10)] text-teal">
+          <span className="text-[10px] px-2 py-0.5 rounded bg-[rgba(8,174,170,0.10)] text-teal-deep">
             80–100 extreme long
           </span>
         </div>
@@ -231,7 +231,7 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
       <div className="px-5 py-3 grid grid-cols-3 gap-2 bg-panel-2">
         <div>
           <div className="text-[10px] uppercase tracking-wide font-medium mb-0.5 text-ink-dim">Period peak</div>
-          <div className="font-semibold tabular-nums text-[13px] text-teal-bright">{fmtNet(peakNet)}</div>
+          <div className="font-semibold tabular-nums text-[13px] text-teal-deep">{fmtNet(peakNet)}</div>
           <div className="text-[10px] text-ink-dim">{fmtDate(peakDate)}</div>
         </div>
         <div className="flex flex-col items-center">
@@ -241,7 +241,7 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
         </div>
         <div className="flex flex-col items-end">
           <div className="text-[10px] uppercase tracking-wide font-medium mb-0.5 text-ink-dim">Period trough</div>
-          <div className="font-semibold tabular-nums text-[13px] text-coral-bright">{fmtNet(troughNet)}</div>
+          <div className="font-semibold tabular-nums text-[13px] text-coral-deep">{fmtNet(troughNet)}</div>
           <div className="text-[10px] text-ink-dim">{fmtDate(troughDate)}</div>
         </div>
       </div>

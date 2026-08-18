@@ -26,7 +26,7 @@ export default function CareersPage() {
           </p>
           <a
             href="mailto:support@smilefxtraders.com?subject=Careers%20at%20Smile%20FX%20Traders"
-            className="reveal inline-flex items-center gap-2 mt-6 font-semibold text-teal"
+            className="reveal inline-flex items-center gap-2 mt-6 font-semibold text-teal-deep"
           >
             <Icon name="mail" size={18} />
             Reach out anyway

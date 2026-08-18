@@ -88,8 +88,8 @@ function useMarkComplete() {
 
 const TIER_CONFIG: Record<PlanTier, { label: string; textCls: string; badgeCls: string }> = {
   free: { label: "Free", textCls: "text-ink-dim", badgeCls: "text-ink-dim bg-panel-2"              },
-  edge: { label: "Edge", textCls: "text-teal",    badgeCls: "text-teal bg-[rgba(8,174,170,0.12)]"  },
-  pro:  { label: "Pro",  textCls: "text-gold",    badgeCls: "text-gold bg-[rgba(248,185,61,0.12)]" },
+  edge: { label: "Edge", textCls: "text-teal-deep",    badgeCls: "text-teal-deep bg-[rgba(8,174,170,0.12)]"  },
+  pro:  { label: "Pro",  textCls: "text-gold-deep",    badgeCls: "text-gold-deep bg-[rgba(248,185,61,0.12)]" },
 };
 
 function tierAccess(userPlan: PlanTier, courseTier: string): boolean {
@@ -216,7 +216,7 @@ function LessonBody({ body }: { body: string | null }) {
   if (!body) {
     return (
       <div className="rounded-xl flex flex-col items-center justify-center gap-2 py-10 bg-panel-2 shadow-sm">
-        <Icon name="play_circle" size={44} fill className="text-teal" />
+        <Icon name="play_circle" size={44} fill className="text-teal-deep" />
         <span className="text-[13px] font-medium text-ink-dim">
           Video coming soon, instructor will upload
         </span>
@@ -321,7 +321,7 @@ function LessonList({
               >
                 <div
                   className={`size-8 rounded-full flex items-center justify-center shrink-0 text-[13px] font-bold ${
-                    isDone ? "bg-teal text-white" : "bg-panel-2 text-ink-dim"
+                    isDone ? "bg-teal-solid text-white" : "bg-panel-2 text-ink-dim"
                   }`}
                 >
                   {isDone ? <Icon name="check" size={16} className="text-white" /> : i + 1}
@@ -354,7 +354,7 @@ function LessonList({
                       onClick={() => markComplete({ lessonId: lesson.id, completed: !isDone })}
                       className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[12.5px] font-semibold transition-all ${
                         isDone
-                          ? "bg-[rgba(8,174,170,0.1)] text-teal shadow-[0_0_0_2px_var(--teal)]"
+                          ? "bg-[rgba(8,174,170,0.1)] text-teal-deep shadow-[0_0_0_2px_var(--teal)]"
                           : "bg-panel-2 text-ink-mid shadow-sm"
                       }`}
                     >
@@ -369,7 +369,7 @@ function LessonList({
                           if (!isDone) markComplete({ lessonId: lesson.id, completed: true });
                           openLesson(next.id);
                         }}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12.5px] font-semibold ml-auto bg-teal text-white"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12.5px] font-semibold ml-auto bg-teal-solid text-white"
                       >
                         Next lesson
                         <Icon name="arrow_forward" size={15} className="text-white" />
@@ -405,7 +405,7 @@ function ProgressBanner({ completedIds, totalLessons, isLoading }: { completedId
       <div className="flex-1">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[13px] font-semibold text-ink-strong">Your progress</span>
-          <span className="font-display font-bold text-[13px] text-teal">
+          <span className="font-display font-bold text-[13px] text-teal-deep">
             {done} / {totalLessons} lessons
           </span>
         </div>
@@ -417,7 +417,7 @@ function ProgressBanner({ completedIds, totalLessons, isLoading }: { completedId
         </div>
       </div>
       <div className="text-right shrink-0">
-        <div className="font-display font-bold text-[22px] tracking-[-0.03em] text-teal">{pct}%</div>
+        <div className="font-display font-bold text-[22px] tracking-[-0.03em] text-teal-deep">{pct}%</div>
         <div className="text-[11px] text-ink-dim">complete</div>
       </div>
     </div>

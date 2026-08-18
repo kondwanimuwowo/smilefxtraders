@@ -38,7 +38,7 @@ export default async function AdminAcademyPage() {
         </div>
         <Link
           href="/admin/academy/courses/new"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-semibold transition-all bg-teal text-white"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-semibold transition-all bg-teal-solid text-white"
         >
           <Icon name="add" size={16} />
           New course
@@ -48,8 +48,8 @@ export default async function AdminAcademyPage() {
       {/* Summary stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
         {[
-          { label: "Total students",    value: totalStudents,                 colorCls: "text-teal"    },
-          { label: "Lessons completed", value: totalProgressRecords,          colorCls: "text-teal"    },
+          { label: "Total students",    value: totalStudents,                 colorCls: "text-teal-deep"    },
+          { label: "Lessons completed", value: totalProgressRecords,          colorCls: "text-teal-deep"    },
           { label: "Total lessons",     value: totalLessons,                  colorCls: "text-ink-mid" },
         ].map(({ label, value, colorCls }) => (
           <div key={label} className="rounded-2xl p-4 bg-panel shadow-sm">
@@ -62,7 +62,7 @@ export default async function AdminAcademyPage() {
       {/* Course cards */}
       <div className="flex flex-col gap-4">
         {courses.map((course) => {
-          const tierCls   = course.tier === "free" ? "bg-panel-2 text-ink-dim" : course.tier === "edge" ? "bg-[rgba(8,174,170,0.12)] text-teal" : "bg-[rgba(248,185,61,0.12)] text-gold";
+          const tierCls   = course.tier === "free" ? "bg-panel-2 text-ink-dim" : course.tier === "edge" ? "bg-[rgba(8,174,170,0.12)] text-teal-deep" : "bg-[rgba(248,185,61,0.12)] text-gold-deep";
           const tierLabel = course.tier === "free" ? "Free" : course.tier === "edge" ? "Edge" : "Pro";
           const totalCompletions = course.lessons.reduce((s, l) => s + (completionMap.get(l.id) ?? 0), 0);
           const maxCompletions   = Math.max(...course.lessons.map((l) => completionMap.get(l.id) ?? 0), 1);
@@ -89,7 +89,7 @@ export default async function AdminAcademyPage() {
                         {tierLabel}
                       </span>
                       {!course.published && (
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[rgba(234,82,61,0.12)] text-coral">
+                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[rgba(234,82,61,0.12)] text-coral-deep">
                           Draft
                         </span>
                       )}
@@ -124,7 +124,7 @@ export default async function AdminAcademyPage() {
                       <div className="flex-1 min-w-0">
                         <div className={cn("text-[12px] truncate mb-1", lesson.published ? "text-ink-mid" : "text-ink-dim")}>
                           {lesson.title}
-                          {!lesson.published && <span className="ml-1.5 text-[10px] text-coral">draft</span>}
+                          {!lesson.published && <span className="ml-1.5 text-[10px] text-coral-deep">draft</span>}
                         </div>
                         <div className="relative h-1 rounded-full overflow-hidden bg-track">
                           <div

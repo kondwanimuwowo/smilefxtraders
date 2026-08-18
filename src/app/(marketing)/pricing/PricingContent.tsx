@@ -37,15 +37,15 @@ export function PricingContent({ prices }: Props) {
             <div className="toggle-wrap">
               <button
                 onClick={() => setAnnual(false)}
-                className={`border-none py-[9px] px-5 rounded-full font-sans font-semibold text-sm cursor-pointer transition-all duration-200 ${!annual ? "bg-teal text-white" : "bg-transparent text-white/70"}`}
+                className={`border-none py-[9px] px-5 rounded-full font-sans font-semibold text-sm cursor-pointer transition-all duration-200 ${!annual ? "bg-teal-solid text-white" : "bg-transparent text-white/70"}`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setAnnual(true)}
-                className={`border-none py-[9px] px-5 rounded-full font-sans font-semibold text-sm cursor-pointer transition-all duration-200 ${annual ? "bg-teal text-white" : "bg-transparent text-white/70"}`}
+                className={`border-none py-[9px] px-5 rounded-full font-sans font-semibold text-sm cursor-pointer transition-all duration-200 ${annual ? "bg-teal-solid text-white" : "bg-transparent text-white/70"}`}
               >
-                Annual <span className={annual ? "text-white" : "text-gold"}>−20%</span>
+                Annual <span className={annual ? "text-white" : "text-gold-deep"}>−20%</span>
               </button>
             </div>
           </div>
@@ -75,7 +75,7 @@ export function PricingContent({ prices }: Props) {
 
           {/* Money-back */}
           <div className="reveal flex items-center gap-4 mt-10 mx-auto max-w-[640px] py-5 px-6 bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.2)] rounded-[18px]">
-            <Icon name="verified_user" size={28} className="text-teal shrink-0" />
+            <Icon name="verified_user" size={28} className="text-teal-deep shrink-0" />
             <div>
               <div className="font-bold text-[15px] text-ink-strong">7-day money-back guarantee</div>
               <p className="text-[13px] text-ink-dim mt-1">Not satisfied in your first 7 days? Email us and we&apos;ll refund in full, no questions asked.</p>

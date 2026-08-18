@@ -74,7 +74,7 @@ function UploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
             )}
           >
             <Icon name={file ? "check_circle" : "upload_file"} size={28} fill
-              className={file ? "text-teal" : "text-ink-dim"} />
+              className={file ? "text-teal-deep" : "text-ink-dim"} />
             <span className="text-[13px] font-medium">
               {file ? file.name : "Click to select FXO image"}
             </span>
@@ -108,7 +108,7 @@ function UploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
             <div
               className={cn(
                 "rounded-xl px-3 py-2.5 text-[12.5px]",
-                status === "error" ? "shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral" : "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.07)] text-teal"
+                status === "error" ? "shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral-deep" : "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.07)] text-teal-deep"
               )}
             >
               {msg}
@@ -118,7 +118,7 @@ function UploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
           <button
             type="submit"
             disabled={!file || status === "loading" || status === "done"}
-            className="flex items-center justify-center gap-2 rounded-xl py-2.5 text-[13.5px] font-semibold transition-all active:scale-[0.98] disabled:opacity-50 bg-teal text-white"
+            className="flex items-center justify-center gap-2 rounded-xl py-2.5 text-[13.5px] font-semibold transition-all active:scale-[0.98] disabled:opacity-50 bg-teal-solid text-white"
           >
             {status === "loading" ? (
               <><Icon name="autorenew" size={16} className="animate-spin" /> Extracting with Claude Vision…</>
@@ -181,21 +181,21 @@ function DateCard({ summary, isToday }: { summary: FxDateSummary; isToday: boole
         <div className="flex items-start justify-between gap-3">
           <div>
             <div
-              className={cn("font-display font-bold leading-none tabular-nums text-[28px] tracking-[-0.03em]", isToday ? "text-teal-bright" : "text-ink-strong")}
+              className={cn("font-display font-bold leading-none tabular-nums text-[28px] tracking-[-0.03em]", isToday ? "text-teal-deep" : "text-ink-strong")}
             >
               {dd}
-              <span className={cn("text-[18px] font-normal mx-0.5", isToday ? "text-teal" : "text-ink-dim")}>/</span>
+              <span className={cn("text-[18px] font-normal mx-0.5", isToday ? "text-teal-deep" : "text-ink-dim")}>/</span>
               {mm}
             </div>
             <div
-              className={cn("text-[11.5px] font-semibold mt-1.5 uppercase tracking-wider", isToday ? "text-teal" : "text-ink-dim")}
+              className={cn("text-[11.5px] font-semibold mt-1.5 uppercase tracking-wider", isToday ? "text-teal-deep" : "text-ink-dim")}
             >
               {isToday ? "Today" : summary.dayName}
             </div>
           </div>
 
           <div className="flex flex-col items-end shrink-0">
-            <span className={cn("text-[10px] font-semibold uppercase tracking-wider", isToday ? "text-teal" : "text-ink-dim")}>
+            <span className={cn("text-[10px] font-semibold uppercase tracking-wider", isToday ? "text-teal-deep" : "text-ink-dim")}>
               {isToday ? "Today" : "NY Cut"}
             </span>
             <span className="tabular-nums text-[11px] mt-0.5 text-ink-dim">
@@ -230,7 +230,7 @@ function DateCard({ summary, isToday }: { summary: FxDateSummary; isToday: boole
         <Icon
           name="arrow_forward"
           size={16}
-          className={cn("transition-transform group-hover:translate-x-0.5 shrink-0", isToday ? "text-teal" : "text-ink-dim")}
+          className={cn("transition-transform group-hover:translate-x-0.5 shrink-0", isToday ? "text-teal-deep" : "text-ink-dim")}
         />
       </div>
 
@@ -344,7 +344,7 @@ export default function FxOrdersPage() {
             <div
               className={cn(
                 "flex items-start gap-2 text-[12px] font-medium px-3 py-2 rounded-xl max-w-sm",
-                syncErr ? "shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral" : "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.07)] text-teal"
+                syncErr ? "shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral-deep" : "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.07)] text-teal-deep"
               )}
             >
               <Icon name={syncErr ? "error" : "check_circle"} size={14} fill className="shrink-0 mt-px" />
@@ -354,7 +354,7 @@ export default function FxOrdersPage() {
                   <button
                     type="button"
                     onClick={() => { setSyncMsg(""); setSyncErr(false); setShowUpload(true); }}
-                    className="underline mt-0.5 font-semibold text-coral"
+                    className="underline mt-0.5 font-semibold text-coral-deep"
                   >
                     Upload image manually instead →
                   </button>
@@ -376,7 +376,7 @@ export default function FxOrdersPage() {
                 type="button"
                 onClick={syncToday}
                 disabled={syncing}
-                className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] disabled:opacity-60 bg-teal text-white"
+                className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] disabled:opacity-60 bg-teal-solid text-white"
               >
                 <Icon name={syncing ? "autorenew" : "sync"} size={15} className={syncing ? "animate-spin" : ""} />
                 {syncing ? "Syncing…" : "Sync Today"}
@@ -398,9 +398,9 @@ export default function FxOrdersPage() {
 
       {/* ── Education callout ── */}
       <div className="rounded-2xl px-5 py-4 mb-7 flex items-start gap-3 shadow-sm bg-[rgba(248,185,61,0.05)]">
-        <Icon name="tips_and_updates" size={16} fill className="text-gold shrink-0 mt-px" />
+        <Icon name="tips_and_updates" size={16} fill className="text-gold-deep shrink-0 mt-px" />
         <div>
-          <div className="text-[12.5px] font-semibold mb-0.5 text-gold">
+          <div className="text-[12.5px] font-semibold mb-0.5 text-gold-deep">
             How to use these levels
           </div>
           <p className="text-[12px] leading-relaxed text-ink-dim">
@@ -420,7 +420,7 @@ export default function FxOrdersPage() {
       ) : loadError ? (
         <div className="rounded-2xl p-12 flex flex-col items-center gap-4 text-center bg-panel shadow-md">
           <div className="flex items-center justify-center w-16 h-16 rounded-2xl shadow-[0_0_0_1px_rgba(234,82,61,0.15)] bg-[rgba(234,82,61,0.06)]">
-            <Icon name="error" size={32} fill className="text-coral" />
+            <Icon name="error" size={32} fill className="text-coral-deep" />
           </div>
           <div>
             <div className="font-display font-bold text-[17px] mb-1.5 text-ink-strong">
@@ -433,7 +433,7 @@ export default function FxOrdersPage() {
           <button
             type="button"
             onClick={reload}
-            className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] bg-teal text-white"
+            className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] bg-teal-solid text-white"
           >
             <Icon name="refresh" size={15} />
             Retry
@@ -442,7 +442,7 @@ export default function FxOrdersPage() {
       ) : summaries.length === 0 ? (
         <div className="rounded-2xl p-12 flex flex-col items-center gap-4 text-center bg-panel shadow-md">
           <div className="flex items-center justify-center w-16 h-16 rounded-2xl shadow-[0_0_0_1px_rgba(8,174,170,0.15)] bg-[rgba(8,174,170,0.06)]">
-            <Icon name="event_busy" size={32} className="text-teal" />
+            <Icon name="event_busy" size={32} className="text-teal-deep" />
           </div>
           <div>
             <div className="font-display font-bold text-[17px] mb-1.5 text-ink-strong">
@@ -469,7 +469,7 @@ export default function FxOrdersPage() {
                 type="button"
                 onClick={syncToday}
                 disabled={syncing}
-                className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] disabled:opacity-60 bg-teal text-white"
+                className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] disabled:opacity-60 bg-teal-solid text-white"
               >
                 <Icon name="sync" size={15} />
                 Sync Today

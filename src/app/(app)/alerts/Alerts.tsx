@@ -142,10 +142,10 @@ import { fmtRelative } from "@/lib/date";
 function timeAgo(iso: string): string { return fmtRelative(iso); }
 
 const STATUS_CONFIG: Record<AlertStatusApp, { label: string; textCls: string; bgCls: string; icon: string }> = {
-  active:    { label: "Active",    textCls: "text-teal",        bgCls: "bg-[rgba(8,174,170,0.12)]",  icon: "radio_button_checked" },
-  tp1:       { label: "TP1 Hit",   textCls: "text-teal-bright",  bgCls: "bg-[rgba(48,232,223,0.12)]", icon: "done_all" },
-  tp2:       { label: "TP2 Hit",   textCls: "text-teal-bright",  bgCls: "bg-[rgba(48,232,223,0.16)]", icon: "verified" },
-  sl:        { label: "Stop Loss", textCls: "text-coral",       bgCls: "bg-[rgba(234,82,61,0.12)]",  icon: "cancel" },
+  active:    { label: "Active",    textCls: "text-teal-deep",        bgCls: "bg-[rgba(8,174,170,0.12)]",  icon: "radio_button_checked" },
+  tp1:       { label: "TP1 Hit",   textCls: "text-teal-deep",  bgCls: "bg-[rgba(48,232,223,0.12)]", icon: "done_all" },
+  tp2:       { label: "TP2 Hit",   textCls: "text-teal-deep",  bgCls: "bg-[rgba(48,232,223,0.16)]", icon: "verified" },
+  sl:        { label: "Stop Loss", textCls: "text-coral-deep",       bgCls: "bg-[rgba(234,82,61,0.12)]",  icon: "cancel" },
   cancelled: { label: "Cancelled", textCls: "text-ink-dim",     bgCls: "bg-[rgba(0,0,0,0.06)]",       icon: "block" },
   closed:    { label: "Closed",    textCls: "text-ink-dim",     bgCls: "bg-[rgba(0,0,0,0.06)]",       icon: "lock" },
 };
@@ -208,7 +208,7 @@ function AlertCard({
             </div>
           </div>
           <div className="text-right shrink-0">
-            <div className="font-display font-bold tabular-nums text-2xl tracking-[-0.02em] text-gold">
+            <div className="font-display font-bold tabular-nums text-2xl tracking-[-0.02em] text-gold-deep">
               {alert.rr}R
             </div>
             <div className="text-[11px] font-semibold text-ink-dim">Planned R:R</div>
@@ -219,10 +219,10 @@ function AlertCard({
       {/* Levels grid */}
       <div className="mx-5 mb-3 grid grid-cols-2 sm:grid-cols-4 rounded-xl overflow-hidden shadow-sm">
         {[
-          { label: "Entry", value: alert.entry, colorCls: alert.dir === "long" ? "text-teal" : "text-coral", icon: "login" },
-          { label: "Stop",  value: alert.sl,    colorCls: "text-coral-bright", icon: "stop_circle" },
-          { label: "TP 1",  value: alert.tp1,   colorCls: "text-teal-bright",  icon: "flag" },
-          { label: "TP 2",  value: alert.tp2 ?? "—", colorCls: alert.tp2 ? "text-teal-bright" : "text-ink-dim", icon: "flag_2" },
+          { label: "Entry", value: alert.entry, colorCls: alert.dir === "long" ? "text-teal-deep" : "text-coral-deep", icon: "login" },
+          { label: "Stop",  value: alert.sl,    colorCls: "text-coral-deep", icon: "stop_circle" },
+          { label: "TP 1",  value: alert.tp1,   colorCls: "text-teal-deep",  icon: "flag" },
+          { label: "TP 2",  value: alert.tp2 ?? "—", colorCls: alert.tp2 ? "text-teal-deep" : "text-ink-dim", icon: "flag_2" },
         ].map(({ label, value, colorCls, icon }, i) => (
           // Fixed 4-cell grid (2x2 on mobile, 1x4 on sm+) — a simple "not-last"
           // divider doesn't work here since cells are side-by-side, not
@@ -285,7 +285,7 @@ function AlertCard({
           />
           <span className="text-[12px] font-medium text-ink-mid">Kondwani · Instructor</span>
           {(alert.taken ?? 0) > 0 && (
-            <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-[rgba(8,174,170,0.1)] text-teal">
+            <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-[rgba(8,174,170,0.1)] text-teal-deep">
               {alert.taken} taken
             </span>
           )}
@@ -308,7 +308,7 @@ function AlertCard({
             <button
               type="button"
               onClick={() => { if (confirm("Delete this alert?")) deleteAlert(alert.id); }}
-              className="p-1 rounded-lg text-coral"
+              className="p-1 rounded-lg text-coral-deep"
             >
               <Icon name="delete" size={14} />
             </button>
@@ -318,7 +318,7 @@ function AlertCard({
         {/* Student copy-to-journal */}
         {!isInstructor && alert.status === "active" && (
           copied ? (
-            <span className="flex items-center gap-1.5 text-[12.5px] font-semibold text-teal">
+            <span className="flex items-center gap-1.5 text-[12.5px] font-semibold text-teal-deep">
               <Icon name="check_circle" size={16} fill />
               In your journal
             </span>
@@ -395,11 +395,11 @@ export function Alerts() {
     <div className="view">
       {/* Free-plan delay warning */}
       {user?.plan === "free" && (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4 text-[13px] bg-[rgba(248,185,61,0.08)] shadow-[0_0_0_2px_var(--gold)] text-gold">
-          <Icon name="schedule" size={16} className="text-gold shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4 text-[13px] bg-[rgba(248,185,61,0.08)] shadow-[0_0_0_2px_var(--gold)] text-gold-deep">
+          <Icon name="schedule" size={16} className="text-gold-deep shrink-0" />
           <span>
             <strong>Free plan</strong>: alerts are shown with a 4-hour delay.{" "}
-            <a href="/membership" className="underline font-semibold text-gold">Upgrade to Pro</a>{" "}
+            <a href="/membership" className="underline font-semibold text-gold-deep">Upgrade to Pro</a>{" "}
             for live calls.
           </span>
         </div>
@@ -422,7 +422,7 @@ export function Alerts() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-teal" />
                 <span className="relative inline-flex rounded-full size-2 bg-teal" />
               </span>
-              <span className="text-[12.5px] font-semibold text-teal">
+              <span className="text-[12.5px] font-semibold text-teal-deep">
                 {activeCount} active {activeCount === 1 ? "alert" : "alerts"}
               </span>
             </div>
@@ -440,9 +440,9 @@ export function Alerts() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
           {[
             { label: "Total alerts", value: alerts.length,  icon: "notifications",        colorCls: "text-ink-strong" },
-            { label: "Active",       value: activeCount,    icon: "radio_button_checked", colorCls: "text-teal"       },
-            { label: "TP hit",       value: tpCount,        icon: "done_all",             colorCls: "text-teal-bright"},
-            { label: "Stop loss",    value: slCount,        icon: "cancel",               colorCls: "text-coral"      },
+            { label: "Active",       value: activeCount,    icon: "radio_button_checked", colorCls: "text-teal-deep"       },
+            { label: "TP hit",       value: tpCount,        icon: "done_all",             colorCls: "text-teal-deep"},
+            { label: "Stop loss",    value: slCount,        icon: "cancel",               colorCls: "text-coral-deep"      },
           ].map(({ label, value, icon, colorCls }) => (
             <div key={label} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-panel shadow-md">
               <Icon name={icon} size={18} className={cn("shrink-0", colorCls)} />
@@ -474,7 +474,7 @@ export function Alerts() {
             <button
               key={p} type="button" onClick={() => setPairFilter(p)}
               className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
-                pairFilter === p ? "bg-teal text-white" : "bg-panel-2 text-ink-dim shadow-sm"
+                pairFilter === p ? "bg-teal-solid text-white" : "bg-panel-2 text-ink-dim shadow-sm"
               }`}
             >
               {p}
@@ -527,10 +527,10 @@ export function Alerts() {
       {/* Pro plan note — students only */}
       {!isInstructor && (
         <div className="mt-6 rounded-2xl px-5 py-4 flex items-start gap-3 bg-[rgba(248,185,61,0.06)] shadow-[0_0_0_2px_var(--gold)]">
-          <Icon name="workspace_premium" size={17} fill className="text-gold shrink-0 mt-px" />
+          <Icon name="workspace_premium" size={17} fill className="text-gold-deep shrink-0 mt-px" />
           <p className="text-[12.5px] leading-relaxed text-ink-mid">
             <strong className="text-ink-strong">Edge & Pro traders</strong> receive alerts in real time via this feed and push notifications. Free plan members see alerts with a 4-hour delay. Upgrade in{" "}
-            <a href="/membership" className="text-gold no-underline">Membership</a>.
+            <a href="/membership" className="text-gold-deep no-underline">Membership</a>.
           </p>
         </div>
       )}

@@ -32,7 +32,7 @@ export function FeatureBlock({ icon, title, lead, bullets, cta, className }: Fea
       <ul className="feature-list">
         {bullets.map((b) => (
           <li key={b}>
-            <Icon name="check_circle" size={22} className="text-teal shrink-0" />
+            <Icon name="check_circle" size={22} className="text-teal-deep shrink-0" />
             {b}
           </li>
         ))}

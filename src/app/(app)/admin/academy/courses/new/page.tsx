@@ -110,10 +110,10 @@ export default function NewCoursePage() {
           </div>
         </label>
 
-        {error && <div className="text-[12.5px] text-coral">{error}</div>}
+        {error && <div className="text-[12.5px] text-coral-deep">{error}</div>}
 
         <button type="button" disabled={isPending} onClick={create}
-          className={cn("w-full py-2.5 rounded-xl text-[14px] font-bold bg-teal text-white", isPending && "opacity-70")}>
+          className={cn("w-full py-2.5 rounded-xl text-[14px] font-bold bg-teal-solid text-white", isPending && "opacity-70")}>
           {isPending ? "Creating…" : "Create course"}
         </button>
       </div>

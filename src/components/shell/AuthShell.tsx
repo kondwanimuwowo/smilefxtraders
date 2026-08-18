@@ -41,13 +41,13 @@ export async function AuthShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen md:h-screen grid grid-cols-1 md:grid-cols-[1fr_1.05fr] md:overflow-hidden">
       {/* ── Brand panel — full version, desktop+ only. Fixed in place; only the
           form panel beside it scrolls. ── */}
-      <div className="hidden md:flex flex-col justify-between p-12 md:h-screen bg-[linear-gradient(160deg,#0B425D_0%,#082A3B_70%)]">
+      <div className="on-dark hidden md:flex flex-col justify-between p-12 md:h-screen bg-[linear-gradient(160deg,#0B425D_0%,#082A3B_70%)]">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
           <BrandMarkAuth />
           <div className="leading-[1.05]">
             <div className="font-display font-bold text-xl text-white">Smile FX</div>
-            <div className="font-semibold tracking-[0.24em] uppercase mt-0.5 text-[10px] text-teal-bright">
+            <div className="font-semibold tracking-[0.24em] uppercase mt-0.5 text-[10px] text-teal-deep">
               Traders
             </div>
           </div>
@@ -67,7 +67,7 @@ export async function AuthShell({ children }: { children: ReactNode }) {
             {FEATURES.map(({ icon, text }) => (
               <div key={text} className="flex items-center gap-3 text-[13.5px] text-[rgba(255,255,255,0.88)]">
                 <span className="flex items-center justify-center rounded-[8px] shrink-0 size-[30px] bg-[rgba(8,174,170,0.18)]">
-                  <Icon name={icon} size={17} className="text-teal-bright" />
+                  <Icon name={icon} size={17} className="text-teal-deep" />
                 </span>
                 {text}
               </div>
@@ -93,7 +93,7 @@ export async function AuthShell({ children }: { children: ReactNode }) {
       </div>
 
       {/* ── Brand header — compact version, mobile only ── */}
-      <Link href="/" className="flex md:hidden items-center gap-3 px-5 py-6 bg-[linear-gradient(160deg,#0B425D_0%,#082A3B_70%)]">
+      <Link href="/" className="on-dark flex md:hidden items-center gap-3 px-5 py-6 bg-[linear-gradient(160deg,#0B425D_0%,#082A3B_70%)]">
         <BrandMarkAuth size={38} />
         <div className="leading-[1.05]">
           <div className="font-display font-bold text-base text-white">Smile FX Traders</div>

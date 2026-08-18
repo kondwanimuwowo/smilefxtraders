@@ -121,7 +121,7 @@ function FeaturedAlertCard() {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 text-[10.5px] font-bold tracking-widest uppercase text-teal-bright">
+        <div className="flex items-center gap-1.5 text-[10.5px] font-bold tracking-widest uppercase text-teal-deep">
           <span className="size-1.5 rounded-full bg-teal-bright animate-live" />
           LIVE
         </div>
@@ -162,10 +162,10 @@ function FeaturedAlertCard() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
           {(
             [
-              ["Entry", alert.entry,           alert.dir === "long" ? "text-teal" : "text-coral"],
-              ["Stop",  alert.sl,              "text-coral-bright"],
-              ["TP1",   alert.tp1,             "text-teal-bright"],
-              ["R:R",   alert.rr + "R",        "text-gold"],
+              ["Entry", alert.entry,           alert.dir === "long" ? "text-teal-deep" : "text-coral-deep"],
+              ["Stop",  alert.sl,              "text-coral-deep"],
+              ["TP1",   alert.tp1,             "text-teal-deep"],
+              ["R:R",   alert.rr + "R",        "text-gold-deep"],
             ] as [string, string, string][]
           ).map(([label, val, colorCls]) => (
             <div key={label} className="rounded-xl p-3 bg-panel-2">
@@ -194,7 +194,7 @@ function FeaturedAlertCard() {
           </Link>
           <div className="ml-auto flex items-center gap-4 text-[12px] text-ink-dim">
             <span className="flex items-center gap-1.5">
-              <Icon name="favorite" size={14} fill className="text-coral" />
+              <Icon name="favorite" size={14} fill className="text-coral-deep" />
               {alert.reactions ?? 0}
             </span>
             <span className="flex items-center gap-1.5">
@@ -313,7 +313,7 @@ function fmtR(r: number) {
 }
 
 function rColorCls(r: number) {
-  return r > 0 ? "text-teal-bright" : r < 0 ? "text-coral-bright" : "text-ink-mid";
+  return r > 0 ? "text-teal-deep" : r < 0 ? "text-coral-deep" : "text-ink-mid";
 }
 
 // ── Responsive Sparkline wrapper ──────────────────────────────────────────────
@@ -350,7 +350,7 @@ function ActiveTradesPanel() {
       <div className="flex flex-col">
         {active.map((t, i) => {
           const isLong = t.dir.toLowerCase() === "long";
-          const dirColorCls = isLong ? "text-teal" : "text-coral";
+          const dirColorCls = isLong ? "text-teal-deep" : "text-coral-deep";
           const dirBgCls = isLong ? "bg-teal" : "bg-coral";
           return (
             <div
@@ -393,7 +393,7 @@ function ActiveTradesPanel() {
               {/* Right: R:R + date */}
               <div className="flex flex-col items-end gap-1.5 shrink-0">
                 {t.rr != null && (
-                  <span className="text-[11px] font-bold tabular-nums text-gold">
+                  <span className="text-[11px] font-bold tabular-nums text-gold-deep">
                     {t.rr}R
                   </span>
                 )}
@@ -409,7 +409,7 @@ function ActiveTradesPanel() {
       {/* Footer pulse */}
       <div className="flex items-center gap-2 px-5 py-2.5 bg-[rgba(248,185,61,0.05)]">
         <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold shadow-[0_0_6px_var(--gold)] animate-[live-pulse_2s_infinite]" />
-        <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-gold">
+        <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-gold-deep">
           {active.length} position{active.length !== 1 ? "s" : ""} live
         </span>
       </div>
@@ -421,10 +421,10 @@ function ActiveTradesPanel() {
 
 const SESSION_DEFS = [
   { name: "Sydney",    flag: "🇦🇺", open: 23, close: 8,  textCls: "text-ink-mid",      dotBgCls: "bg-ink-mid",      glowShadowCls: "shadow-[0_0_4px_var(--ink-mid)]",      closeL: "08:00" },
-  { name: "Tokyo",     flag: "🇯🇵", open: 2,  close: 11, textCls: "text-gold",          dotBgCls: "bg-gold",          glowShadowCls: "shadow-[0_0_4px_var(--gold)]",          closeL: "11:00" },
-  { name: "Frankfurt", flag: "🇩🇪", open: 8,  close: 17, textCls: "text-teal",          dotBgCls: "bg-teal",          glowShadowCls: "shadow-[0_0_4px_var(--teal)]",          closeL: "17:00" },
-  { name: "London",    flag: "🇬🇧", open: 9,  close: 18, textCls: "text-teal-bright",   dotBgCls: "bg-teal-bright",   glowShadowCls: "shadow-[0_0_4px_var(--teal-bright)]",   closeL: "18:00" },
-  { name: "New York",  flag: "🇺🇸", open: 14, close: 23, textCls: "text-coral-bright",  dotBgCls: "bg-coral-bright",  glowShadowCls: "shadow-[0_0_4px_var(--coral-bright)]",  closeL: "23:00" },
+  { name: "Tokyo",     flag: "🇯🇵", open: 2,  close: 11, textCls: "text-gold-deep",          dotBgCls: "bg-gold",          glowShadowCls: "shadow-[0_0_4px_var(--gold)]",          closeL: "11:00" },
+  { name: "Frankfurt", flag: "🇩🇪", open: 8,  close: 17, textCls: "text-teal-deep",          dotBgCls: "bg-teal",          glowShadowCls: "shadow-[0_0_4px_var(--teal)]",          closeL: "17:00" },
+  { name: "London",    flag: "🇬🇧", open: 9,  close: 18, textCls: "text-teal-deep",   dotBgCls: "bg-teal-bright",   glowShadowCls: "shadow-[0_0_4px_var(--teal-bright)]",   closeL: "18:00" },
+  { name: "New York",  flag: "🇺🇸", open: 14, close: 23, textCls: "text-coral-deep",  dotBgCls: "bg-coral-bright",  glowShadowCls: "shadow-[0_0_4px_var(--coral-bright)]",  closeL: "23:00" },
 ] as const;
 
 function nowGMT2() {
@@ -493,7 +493,7 @@ function SessionCard() {
               Sessions
             </span>
             {isKillzone && (
-              <span className="text-[9px] font-bold uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-full bg-[rgba(48,232,223,0.08)] text-teal-bright shadow-[0_0_0_2px_rgba(48,232,223,0.22)]">
+              <span className="text-[9px] font-bold uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-full bg-[rgba(48,232,223,0.08)] text-teal-deep shadow-[0_0_0_2px_rgba(48,232,223,0.22)]">
                 Killzone
               </span>
             )}
@@ -567,7 +567,7 @@ function SessionCard() {
           ) : (
             <div />
           )}
-          <Link href="/sessions" className="text-[11.5px] font-medium text-teal">
+          <Link href="/sessions" className="text-[11.5px] font-medium text-teal-deep">
             All sessions →
           </Link>
         </div>
@@ -594,7 +594,7 @@ export function Dashboard() {
       {/* ── Header ── */}
       <div className="flex items-end justify-between gap-4 flex-wrap mb-5">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.26em] mb-1.5 text-teal">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.26em] mb-1.5 text-teal-deep">
             {getDayLabel()} · {getSessionLabel()}
           </div>
           <h1 className="font-display font-normal leading-tight text-[28px] text-ink-strong tracking-[-0.02em]">
@@ -716,7 +716,7 @@ export function Dashboard() {
                         name={t.discipline ? "check_circle" : "cancel"}
                         size={14}
                         fill
-                        className={cn("shrink-0", t.discipline ? "text-teal-bright" : "text-coral-bright")}
+                        className={cn("shrink-0", t.discipline ? "text-teal-deep" : "text-coral-deep")}
                       />
                       <span className="truncate">{t.pair} · {t.model}</span>
                     </div>
@@ -735,7 +735,7 @@ export function Dashboard() {
               title="High-impact today"
               icon="event"
               action={
-                <Link href="/calendar" className="text-[12px] font-medium text-teal">
+                <Link href="/calendar" className="text-[12px] font-medium text-teal-deep">
                   Calendar →
                 </Link>
               }
@@ -766,7 +766,7 @@ export function Dashboard() {
                       {ev.event}
                     </span>
                     {ev.actual && (
-                      <span className="text-[11px] font-semibold shrink-0 ml-auto text-teal">
+                      <span className="text-[11px] font-semibold shrink-0 ml-auto text-teal-deep">
                         {ev.actual}
                       </span>
                     )}
@@ -782,7 +782,7 @@ export function Dashboard() {
               title="Trend snapshot"
               icon="ssid_chart"
               action={
-                <Link href="/trend" className="text-[12px] font-medium text-teal">
+                <Link href="/trend" className="text-[12px] font-medium text-teal-deep">
                   Matrix →
                 </Link>
               }
@@ -823,9 +823,9 @@ export function Dashboard() {
                   </div>
                   <span
                     className={`text-[11px] font-semibold text-right shrink-0 w-[50px] ${
-                      bias === "Bullish" ? "text-teal-bright" :
-                      bias === "Bearish" ? "text-coral-bright" :
-                      "text-gold"
+                      bias === "Bullish" ? "text-teal-deep" :
+                      bias === "Bearish" ? "text-coral-deep" :
+                      "text-gold-deep"
                     }`}
                   >
                     {bias}

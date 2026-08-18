@@ -58,7 +58,7 @@ function BookBody({ book }: { book: Rulebook }) {
                 )}
               >
                 <span
-                  className="font-display font-bold text-[34px] leading-none tabular-nums shrink-0 w-[46px] text-[rgba(8,174,170,0.28)]"
+                  className="font-display font-bold text-[34px] leading-none tabular-nums shrink-0 w-[46px] text-teal-deep/70"
                   aria-hidden
                 >
                   {String(rule.n).padStart(2, "0")}
@@ -100,9 +100,9 @@ function GradeTable() {
             <span
               className={cn(
                 "font-display font-bold text-[16px] w-11 h-11 rounded-full grid place-items-center shrink-0 tabular-nums",
-                g.tone === "teal" ? "bg-[rgba(8,174,170,0.12)] text-[var(--teal-dark)]"
-                  : g.tone === "gold" ? "bg-[rgba(248,185,61,0.16)] text-[var(--gold-dark)]"
-                  : "bg-[rgba(234,82,61,0.12)] text-[var(--coral-dark)]",
+                g.tone === "teal" ? "bg-[rgba(8,174,170,0.12)] text-teal-deep"
+                  : g.tone === "gold" ? "bg-[rgba(248,185,61,0.16)] text-gold-deep"
+                  : "bg-[rgba(234,82,61,0.12)] text-coral-deep",
               )}
             >
               {g.grade}
@@ -130,8 +130,8 @@ export function MarketingRulebook() {
             className={cn(
               "inline-flex items-center py-[9px] px-5 rounded-full text-[13.5px] font-semibold transition-colors duration-150",
               framework === fw
-                ? "bg-[var(--teal-dark)] text-white"
-                : "bg-bg-tint text-[var(--teal-dark)] hover:bg-[rgba(8,174,170,0.18)]",
+                ? "bg-teal-solid text-white"
+                : "bg-bg-tint text-teal-deep hover:bg-[rgba(8,174,170,0.18)]",
             )}
           >
             {RULEBOOK[fw].label}

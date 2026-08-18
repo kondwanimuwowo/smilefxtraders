@@ -166,7 +166,7 @@ export function Sidebar() {
               <div className="font-display font-bold text-sm leading-none text-ink-strong">
                 Smile FX
               </div>
-              <div className="font-display text-[10px] font-bold tracking-[0.2em] uppercase mt-0.5 text-teal">
+              <div className="font-display text-[10px] font-bold tracking-[0.2em] uppercase mt-0.5 text-teal-deep">
                 TRADERS
               </div>
             </div>
@@ -311,7 +311,7 @@ function ProfileButton({
     ? "Lead Instructor"
     : `@${user.handle.replace(/^@/, "")} · ${planLabel}`;
 
-  const sublineCls = isInstructor ? "text-gold" : "text-ink-dim";
+  const sublineCls = isInstructor ? "text-gold-deep" : "text-ink-dim";
 
   const menuWidth = 220;
 
@@ -419,7 +419,7 @@ function ProfileButton({
               type="button"
               onClick={() => { setOpen(false); onSignout(); }}
               disabled={signingOut}
-              className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-medium transition-colors hover:bg-hover text-coral"
+              className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-medium transition-colors hover:bg-hover text-coral-deep"
             >
               <Icon name="logout" size={17} />
               {signingOut ? "Signing out…" : "Sign out"}

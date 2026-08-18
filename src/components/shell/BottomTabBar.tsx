@@ -44,7 +44,7 @@ export function BottomTabBar() {
         const content = (
           <>
             <Icon name={tab.icon} size={22} className={navActiveIconClass(active)} />
-            <span className={cn("text-[10px] font-medium leading-none mt-0.5", active ? "text-teal" : "text-ink-mid")}>
+            <span className={cn("text-[10px] font-medium leading-none mt-0.5", active ? "text-teal-deep" : "text-ink-mid")}>
               {tab.label}
             </span>
           </>

@@ -47,7 +47,7 @@ export default function OurCommunityPage() {
             <div className="reveal">
               <div className="card p-1.5">
                 <div className="py-[13px] px-3.5 flex items-center gap-2 border-b border-line">
-                  <Icon name="leaderboard" size={18} className="text-[var(--gold-dark)]" />
+                  <Icon name="leaderboard" size={18} className="text-gold-deep" />
                   <span className="font-bold text-[13.5px] text-ink">Monthly Leaderboard</span>
                 </div>
                 {[
@@ -65,8 +65,8 @@ export default function OurCommunityPage() {
                       <div className="text-[11.5px] text-ink-dim">{m.loc}</div>
                     </div>
                     <div className="text-right">
-                      <div className="mono font-bold text-[var(--teal-dark)] text-[13px]">{m.pnl}</div>
-                      <div className="text-[11.5px] text-[var(--gold-dark)]">🔥 {m.streak}</div>
+                      <div className="mono font-bold text-teal-deep text-[13px]">{m.pnl}</div>
+                      <div className="text-[11.5px] text-gold-deep">🔥 {m.streak}</div>
                     </div>
                   </div>
                 ))}

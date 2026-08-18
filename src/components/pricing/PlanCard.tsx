@@ -19,7 +19,7 @@ function FeatureRow({ text, included }: { text: string; included: boolean }) {
       <Icon
         name={included ? "check_circle" : "cancel"}
         size={16}
-        className={cn("shrink-0 mt-0.5", included ? "text-teal" : "text-track")}
+        className={cn("shrink-0 mt-0.5", included ? "text-teal-deep" : "text-track")}
       />
       <span className={cn("text-[13px] leading-snug", included ? "text-ink-mid opacity-100" : "text-ink-dim opacity-55")}>
         {text}
@@ -42,7 +42,7 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
       )}
     >
       {meta.popular && (
-        <div className="absolute left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-teal text-white -top-3.5">
+        <div className="absolute left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-teal-solid text-white -top-3.5">
           Most popular
         </div>
       )}
@@ -90,7 +90,7 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
                 {annual ? "billed annually" : "billed monthly"} · ZMW
               </div>
               {annual && (
-                <div className="text-[12px] font-semibold mt-1 text-teal">
+                <div className="text-[12px] font-semibold mt-1 text-teal-deep">
                   Save 20% with annual billing
                 </div>
               )}

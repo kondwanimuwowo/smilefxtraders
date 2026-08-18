@@ -9,9 +9,9 @@ import { cn } from "@/lib/cn";
 // kept as an arbitrary-value class referencing the same undefined token
 // rather than "fixed" to a real color.
 const TONE_TEXT_CLS: Record<ToastTone, string> = {
-  teal:  "text-[var(--teal-bright)]",
+  teal:  "text-[var(--teal-deep)]",
   gold:  "text-[var(--gold-bright)]",
-  coral: "text-[var(--coral-bright)]",
+  coral: "text-[var(--coral-deep)]",
 };
 
 export function ToastHost() {

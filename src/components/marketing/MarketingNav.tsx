@@ -105,7 +105,7 @@ export function MarketingNav() {
       <header
         className={cn(
           "fixed top-0 left-0 right-0 z-[70] transition-[background,box-shadow] duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
-          scrolled || mobileOpen ? "bg-[rgba(255,255,255,0.88)] backdrop-blur-[12px]" : "bg-transparent",
+          scrolled || mobileOpen ? "bg-[rgba(255,255,255,0.88)] backdrop-blur-[12px]" : "bg-transparent on-dark",
           scrolled && "shadow-[0_2px_8px_rgba(11,66,93,0.06)]"
         )}
       >
@@ -121,7 +121,7 @@ export function MarketingNav() {
                 )}>
                   Smile FX
                 </div>
-                <div className="font-display text-[11px] uppercase tracking-[0.2em] font-bold text-teal mt-0.5">
+                <div className="font-display text-[11px] uppercase tracking-[0.2em] font-bold text-teal-deep mt-0.5">
                   Traders
                 </div>
               </div>
@@ -139,8 +139,13 @@ export function MarketingNav() {
                   className={cn(
                     "px-[13px] py-2 rounded-lg text-[14.5px] font-medium no-underline transition-all duration-200",
                     scrolled ? "hover:bg-[rgba(11,66,93,0.06)]" : "hover:bg-[rgba(255,255,255,0.08)]",
+                    // Unscrolled the bar is transparent over the navy hero, so
+                    // the active link needs the bright hue; scrolled it sits on
+                    // a near-white blur and needs the dark one. `on-dark` on the
+                    // header flips --teal-deep for the whole subtree, so this
+                    // stays one class either way.
                     pathname === n.href
-                      ? (scrolled ? "text-teal-dark" : "text-teal-bright")
+                      ? "text-teal-deep"
                       : (scrolled ? "text-ink-mid" : "text-[rgba(255,255,255,0.78)]")
                   )}
                 >
@@ -211,7 +216,7 @@ export function MarketingNav() {
                 href={n.href}
                 className={cn(
                   "font-display text-[19px] font-medium py-3.5 px-1 border-b border-[rgba(255,255,255,0.1)] no-underline flex items-center justify-between",
-                  active ? "text-teal-bright" : "text-[rgba(255,255,255,0.9)]"
+                  active ? "text-teal-deep" : "text-[rgba(255,255,255,0.9)]"
                 )}
                 style={{
                   opacity: mobileOpen ? 1 : 0,
@@ -284,7 +289,7 @@ export function MarketingNav() {
         </div>
 
         <p
-          className="text-xs text-[rgba(255,255,255,0.4)] text-center pb-2"
+          className="text-xs text-[rgba(255,255,255,0.5)] text-center pb-2"
           style={{
             opacity: mobileOpen ? 1 : 0,
             transition: "opacity 320ms var(--ease-app, cubic-bezier(0.16,1,0.3,1)) 340ms",

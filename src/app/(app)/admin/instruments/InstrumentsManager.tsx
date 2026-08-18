@@ -32,13 +32,14 @@ const CATEGORY_COLORS: Record<string, string> = {
   commodity: "rgba(248,185,61,0.14)",
   index:     "rgba(22,114,161,0.16)",
 };
-// forex/commodity reference --teal-dark/--gold-dark, which are scoped to
-// .marketing-theme in globals.css and not present on admin pages — left as
-// raw var strings (not converted) since they're silently no-ops here,
-// matching this project's precedent for other pre-existing broken-token configs.
+// These used to reference --teal-dark/--gold-dark, which were scoped to
+// .marketing-theme and therefore resolved to nothing on admin pages — the
+// category labels were silently unstyled. Both tokens have since been folded
+// into the app-wide --*-deep family, so they now resolve (and are contrast-safe)
+// here as well.
 const CATEGORY_TEXT: Record<string, string> = {
-  forex:     "var(--teal-dark)",
-  commodity: "var(--gold-dark)",
+  forex:     "var(--teal-deep)",
+  commodity: "var(--gold-deep)",
   index:     "var(--navy)",
 };
 
@@ -185,7 +186,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
         </div>
         <button
           onClick={openAdd}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all active:scale-95 bg-teal shadow-[0_4px_14px_rgba(8,174,170,0.28)]"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all active:scale-95 bg-teal-solid shadow-[0_4px_14px_rgba(8,174,170,0.28)]"
         >
           <Icon name="add" size={18} />
           Add instrument
@@ -278,12 +279,12 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
             <button
               onClick={() => fetch("/api/admin/instruments", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: inst.id, fxoTracked: !inst.fxoTracked }) }).then((r) => r.json()).then((u: Instrument) => setInstruments((prev) => prev.map((i) => i.id === inst.id ? u : i)))}
               className="flex items-center gap-1.5 text-[12px] font-medium transition-colors"
-              style={{ color: inst.fxoTracked ? "var(--teal-dark)" : "var(--ink-dim)" }}
+              style={{ color: inst.fxoTracked ? "var(--teal-deep)" : "var(--ink-dim)" }}
             >
               <Icon
                 name={inst.fxoTracked ? "check_circle" : "radio_button_unchecked"}
                 size={16}
-                className={inst.fxoTracked ? "text-teal" : "text-ink-dim"}
+                className={inst.fxoTracked ? "text-teal-deep" : "text-ink-dim"}
               />
               {inst.fxoTracked ? "Yes" : "No"}
             </button>
@@ -291,8 +292,8 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
             {/* Active toggle */}
             <button
               onClick={() => toggleActive(inst)}
-              className={cn("flex items-center gap-1.5 text-[12px] font-medium transition-colors", inst.active ? undefined : "text-coral")}
-              style={{ color: inst.active ? "var(--teal-dark)" : undefined }}
+              className={cn("flex items-center gap-1.5 text-[12px] font-medium transition-colors", inst.active ? undefined : "text-coral-deep")}
+              style={{ color: inst.active ? "var(--teal-deep)" : undefined }}
             >
               <span className={cn("w-9 h-5 rounded-full relative transition-colors flex-shrink-0", inst.active ? "bg-teal" : "bg-track")}>
                 <span className={cn("absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform", inst.active ? "translate-x-4" : "translate-x-0")} />
@@ -314,7 +315,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
                 className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-[rgba(234,82,61,0.1)]"
                 aria-label="Delete"
               >
-                <Icon name="delete" size={16} className="text-coral" />
+                <Icon name="delete" size={16} className="text-coral-deep" />
               </button>
             </div>
           </div>
@@ -453,7 +454,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
             </div>
 
             {error && (
-              <div className="mt-4 px-3.5 py-2.5 rounded-xl text-[13px] bg-[rgba(234,82,61,0.1)] text-coral shadow-[0_0_0_1px_rgba(234,82,61,0.2)]">
+              <div className="mt-4 px-3.5 py-2.5 rounded-xl text-[13px] bg-[rgba(234,82,61,0.1)] text-coral-deep shadow-[0_0_0_1px_rgba(234,82,61,0.2)]">
                 {error}
               </div>
             )}
@@ -468,7 +469,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
               <button
                 onClick={handleSave}
                 disabled={isPending}
-                className="flex-1 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all active:scale-95 disabled:opacity-60 bg-teal shadow-[0_4px_14px_rgba(8,174,170,0.28)]"
+                className="flex-1 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all active:scale-95 disabled:opacity-60 bg-teal-solid shadow-[0_4px_14px_rgba(8,174,170,0.28)]"
               >
                 {isPending ? "Saving…" : editId ? "Save changes" : "Add instrument"}
               </button>

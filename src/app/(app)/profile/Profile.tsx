@@ -100,8 +100,8 @@ export function Profile() {
   // badge has always been text-only on transparent.
   const PLAN_LABEL: Record<string, { label: string; cls: string }> = {
     free: { label: "Starter", cls: "text-ink-dim" },
-    edge: { label: "Edge",    cls: "text-teal"    },
-    pro:  { label: "Pro",     cls: "text-gold"    },
+    edge: { label: "Edge",    cls: "text-teal-deep"    },
+    pro:  { label: "Pro",     cls: "text-gold-deep"    },
   };
   const planCfg = PLAN_LABEL[plan];
 
@@ -137,7 +137,7 @@ export function Profile() {
                 <Chip tone="neutral">Lv. {level}</Chip>
               </div>
               {streak > 0 && (
-                <div className="flex items-center gap-1.5 mt-2 text-[13px] font-semibold text-gold">
+                <div className="flex items-center gap-1.5 mt-2 text-[13px] font-semibold text-gold-deep">
                   <Icon name="local_fire_department" size={17} />
                   {streak}-day streak
                 </div>
@@ -152,7 +152,7 @@ export function Profile() {
                 ...(user?.loc ? [{ icon: "location_on", label: "Location", value: user.loc }] : []),
               ].map(({ icon, label, value }) => (
                 <div key={label} className="flex items-center gap-3 py-1.5">
-                  <Icon name={icon} size={17} className="text-teal" />
+                  <Icon name={icon} size={17} className="text-teal-deep" />
                   <span className="text-[13px] flex-1 text-ink-mid">{label}</span>
                   <span className="text-[13px] font-semibold text-ink-strong">{value}</span>
                 </div>
@@ -180,7 +180,7 @@ export function Profile() {
                   }`}
                   title={b.desc}
                 >
-                  <Icon name={b.icon} size={22} className={b.earned ? "text-gold" : "text-ink-dim"} />
+                  <Icon name={b.icon} size={22} className={b.earned ? "text-gold-deep" : "text-ink-dim"} />
                   <span className={`text-[10.5px] font-semibold leading-tight ${b.earned ? "text-ink-strong" : "text-ink-dim"}`}>
                     {b.label}
                   </span>
@@ -194,10 +194,10 @@ export function Profile() {
         <div className="flex flex-col gap-4">
           {/* Stats grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <StatBox label="Net R"      value={(stats.netR >= 0 ? "+" : "") + stats.netR.toFixed(1) + "R"} colorCls={stats.netR >= 0 ? "text-teal-bright" : "text-coral-bright"} />
+            <StatBox label="Net R"      value={(stats.netR >= 0 ? "+" : "") + stats.netR.toFixed(1) + "R"} colorCls={stats.netR >= 0 ? "text-teal-deep" : "text-coral-deep"} />
             <StatBox label="Win Rate"   value={`${stats.winRate}%`}      sub={`${stats.wins}W / ${stats.losses}L`} />
-            <StatBox label="Expectancy" value={(stats.expectancy >= 0 ? "+" : "") + stats.expectancy + "R"} sub="Expected R/trade" colorCls={stats.expectancy > 0 ? "text-teal" : stats.expectancy < 0 ? "text-coral" : "text-ink-dim"} />
-            <StatBox label="Discipline" value={`${stats.discFollowed}%`} sub="Rules followed" colorCls={stats.discFollowed >= 80 ? "text-teal" : "text-coral"} />
+            <StatBox label="Expectancy" value={(stats.expectancy >= 0 ? "+" : "") + stats.expectancy + "R"} sub="Expected R/trade" colorCls={stats.expectancy > 0 ? "text-teal-deep" : stats.expectancy < 0 ? "text-coral-deep" : "text-ink-dim"} />
+            <StatBox label="Discipline" value={`${stats.discFollowed}%`} sub="Rules followed" colorCls={stats.discFollowed >= 80 ? "text-teal-deep" : "text-coral-deep"} />
             <StatBox label="Trades"     value={String(trades.length)}   sub={`${stats.closed} closed`} />
           </div>
 
@@ -225,10 +225,10 @@ export function Profile() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Panel>
               <PanelHead title="Performance breakdown" icon="analytics" />
-              <TradeHistoryRow i={0} label="Avg win"       value={`+${stats.avgWin.toFixed(1)}R`}  colorCls="text-teal-bright"  />
-              <TradeHistoryRow i={1} label="Avg loss"      value={`${stats.avgLoss.toFixed(1)}R`}  colorCls="text-coral-bright" />
+              <TradeHistoryRow i={0} label="Avg win"       value={`+${stats.avgWin.toFixed(1)}R`}  colorCls="text-teal-deep"  />
+              <TradeHistoryRow i={1} label="Avg loss"      value={`${stats.avgLoss.toFixed(1)}R`}  colorCls="text-coral-deep" />
               <TradeHistoryRow i={2} label="Closed trades" value={String(stats.closed)}            colorCls="text-ink-strong"   />
-              <TradeHistoryRow i={3} label="Open trades"   value={String(trades.filter(t => t.result === "open").length)} colorCls="text-gold" />
+              <TradeHistoryRow i={3} label="Open trades"   value={String(trades.filter(t => t.result === "open").length)} colorCls="text-gold-deep" />
             </Panel>
 
             <Panel>
@@ -261,7 +261,7 @@ export function Profile() {
                   <div key={m.model}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[12.5px] font-medium text-ink-strong">{m.model}</span>
-                      <span className={`text-[12px] tabular-nums font-semibold ${m.pct >= 60 ? "text-teal" : m.pct >= 40 ? "text-gold" : "text-coral"}`}>
+                      <span className={`text-[12px] tabular-nums font-semibold ${m.pct >= 60 ? "text-teal-deep" : m.pct >= 40 ? "text-gold-deep" : "text-coral-deep"}`}>
                         {m.pct}% · {m.n}T
                       </span>
                     </div>
@@ -294,7 +294,7 @@ export function Profile() {
                     <div className="text-right shrink-0">
                       <div
                         className={`font-display font-bold tabular-nums text-[14px] tracking-[-0.01em] ${
-                          t.result === "win" ? "text-teal-bright" : t.result === "loss" ? "text-coral-bright" : "text-gold"
+                          t.result === "win" ? "text-teal-deep" : t.result === "loss" ? "text-coral-deep" : "text-gold-deep"
                         }`}
                       >
                         {t.result === "open" ? "Open" : (t.pnlR >= 0 ? "+" : "") + t.pnlR.toFixed(1) + "R"}

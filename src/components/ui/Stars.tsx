@@ -21,7 +21,7 @@ export function Stars({ value, onChange, size = 18 }: StarsProps) {
             name="star"
             size={size}
             fill={n <= value}
-            className={n <= value ? "text-gold" : "text-ink-dim"}
+            className={n <= value ? "text-gold-deep" : "text-ink-dim"}
           />
         </button>
       ))}

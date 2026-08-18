@@ -34,7 +34,7 @@ export function FAQAccordion({ items, title, titleClassName, className }: FAQAcc
               <Icon
                 name="add"
                 className={cn(
-                  "text-teal shrink-0 transition-transform duration-[250ms]",
+                  "text-teal-deep shrink-0 transition-transform duration-[250ms]",
                   openFaq === i ? "rotate-45" : "rotate-0"
                 )}
               />

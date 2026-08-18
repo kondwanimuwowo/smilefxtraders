@@ -45,14 +45,14 @@ export default async function AdminPage() {
     : [];
 
   const stats = [
-    { label: "Total members",       value: totalUsers.toLocaleString(),   icon: "group",          colorCls: "text-teal"  },
-    { label: "Edge subscribers",     value: edgeUsers.toLocaleString(),     icon: "trending_up",    colorCls: "text-teal"  },
-    { label: "Pro subscribers",      value: proUsers.toLocaleString(),      icon: "workspace_premium", colorCls: "text-gold" },
-    { label: "New this month",       value: newUsersMonth.toLocaleString(), icon: "person_add",     colorCls: "text-teal"  },
+    { label: "Total members",       value: totalUsers.toLocaleString(),   icon: "group",          colorCls: "text-teal-deep"  },
+    { label: "Edge subscribers",     value: edgeUsers.toLocaleString(),     icon: "trending_up",    colorCls: "text-teal-deep"  },
+    { label: "Pro subscribers",      value: proUsers.toLocaleString(),      icon: "workspace_premium", colorCls: "text-gold-deep" },
+    { label: "New this month",       value: newUsersMonth.toLocaleString(), icon: "person_add",     colorCls: "text-teal-deep"  },
     { label: "Trades all time",      value: totalTrades.toLocaleString(),   icon: "menu_book",      colorCls: "text-ink-mid" },
-    { label: "Trades this month",    value: tradesMonth.toLocaleString(),   icon: "show_chart",     colorCls: "text-teal"  },
+    { label: "Trades this month",    value: tradesMonth.toLocaleString(),   icon: "show_chart",     colorCls: "text-teal-deep"  },
     { label: "Posts all time",       value: totalPosts.toLocaleString(),    icon: "forum",          colorCls: "text-ink-mid" },
-    { label: "Posts this month",     value: postsMonth.toLocaleString(),    icon: "chat",           colorCls: "text-teal"  },
+    { label: "Posts this month",     value: postsMonth.toLocaleString(),    icon: "chat",           colorCls: "text-teal-deep"  },
   ];
 
   return (
@@ -91,8 +91,8 @@ export default async function AdminPage() {
         <div className="flex flex-col gap-3">
           {[
             { label: "Starter (Free)", count: freeUsers, barCls: "bg-ink-dim", textCls: "text-ink-dim" },
-            { label: "Edge",           count: edgeUsers, barCls: "bg-teal",    textCls: "text-teal"    },
-            { label: "Pro",            count: proUsers,  barCls: "bg-gold",    textCls: "text-gold"    },
+            { label: "Edge",           count: edgeUsers, barCls: "bg-teal",    textCls: "text-teal-deep"    },
+            { label: "Pro",            count: proUsers,  barCls: "bg-gold",    textCls: "text-gold-deep"    },
           ].map(({ label, count, barCls, textCls }) => (
             <div key={label} className="flex items-center gap-3">
               <span className="w-28 text-[12.5px] text-ink-mid">{label}</span>
@@ -113,7 +113,7 @@ export default async function AdminPage() {
       {/* Recent signups */}
       <div className="rounded-2xl overflow-hidden bg-panel shadow-md">
         <div className="px-5 py-4 bg-panel-2 flex items-center gap-2">
-          <Icon name="person_add" size={18} className="text-teal" />
+          <Icon name="person_add" size={18} className="text-teal-deep" />
           <span className="font-display font-semibold text-[15px] text-ink-strong">
             New members (last 7 days)
           </span>
@@ -140,8 +140,8 @@ export default async function AdminPage() {
                   className={cn(
                     "text-[11px] font-semibold px-2.5 py-0.5 rounded-full",
                     u.plan === "FREE" ? "bg-panel-2 text-ink-dim"
-                      : u.plan === "EDGE" ? "bg-[rgba(8,174,170,0.12)] text-teal"
-                        : "bg-[rgba(248,185,61,0.12)] text-gold"
+                      : u.plan === "EDGE" ? "bg-[rgba(8,174,170,0.12)] text-teal-deep"
+                        : "bg-[rgba(248,185,61,0.12)] text-gold-deep"
                   )}
                 >
                   {u.plan === "FREE" ? "Free" : u.plan === "EDGE" ? "Edge" : "Pro"}

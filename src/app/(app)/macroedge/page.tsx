@@ -52,12 +52,12 @@ export default function MacroEdgeOverviewPage() {
             className="flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-panel shadow-md hover:shadow-[0_0_0_2px_var(--teal-bright)] transition-shadow"
           >
             <span className="flex items-center justify-center size-9 rounded-xl shrink-0 bg-[rgba(48,232,223,0.10)]">
-              <Icon name="trending_up" size={17} className="text-teal-bright" />
+              <Icon name="trending_up" size={17} className="text-teal-deep" />
             </span>
             <div className="min-w-0">
               <div className="text-[11px] text-ink-dim">Strongest</div>
               <div className="text-[15px] font-bold text-ink-strong">
-                {strongest.currency} <span className="text-teal-bright tabular-nums">+{strongest.totalScore.toFixed(1)}</span>
+                {strongest.currency} <span className="text-teal-deep tabular-nums">+{strongest.totalScore.toFixed(1)}</span>
               </div>
             </div>
           </Link>
@@ -66,12 +66,12 @@ export default function MacroEdgeOverviewPage() {
             className="flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-panel shadow-md hover:shadow-[0_0_0_2px_var(--coral-bright)] transition-shadow"
           >
             <span className="flex items-center justify-center size-9 rounded-xl shrink-0 bg-[rgba(255,89,66,0.10)]">
-              <Icon name="trending_down" size={17} className="text-coral-bright" />
+              <Icon name="trending_down" size={17} className="text-coral-deep" />
             </span>
             <div className="min-w-0">
               <div className="text-[11px] text-ink-dim">Weakest</div>
               <div className="text-[15px] font-bold text-ink-strong">
-                {weakest.currency} <span className="text-coral-bright tabular-nums">{weakest.totalScore.toFixed(1)}</span>
+                {weakest.currency} <span className="text-coral-deep tabular-nums">{weakest.totalScore.toFixed(1)}</span>
               </div>
             </div>
           </Link>
@@ -117,7 +117,7 @@ export default function MacroEdgeOverviewPage() {
                   <span
                     className={cn(
                       "font-display font-bold tabular-nums text-[15px] shrink-0",
-                      positive ? "text-teal-bright" : negative ? "text-coral-bright" : "text-gold"
+                      positive ? "text-teal-deep" : negative ? "text-coral-deep" : "text-gold-deep"
                     )}
                   >
                     {s.totalScore > 0 ? "+" : ""}

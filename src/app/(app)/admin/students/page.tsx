@@ -69,7 +69,7 @@ export default async function AdminStudentsPage() {
                         <div className="text-[13px] font-semibold truncate text-ink-strong">
                           {u.name}
                           {u.role === "INSTRUCTOR" && (
-                            <span className="ml-1.5 text-[10px] font-bold uppercase text-gold">instructor</span>
+                            <span className="ml-1.5 text-[10px] font-bold uppercase text-gold-deep">instructor</span>
                           )}
                         </div>
                         <div className="text-[11.5px] truncate text-ink-dim">@{u.username}</div>
@@ -87,8 +87,8 @@ export default async function AdminStudentsPage() {
                         className={cn(
                           "text-[11px] font-semibold px-2.5 py-0.5 rounded-full",
                           u.plan === "FREE" ? "bg-panel-2 text-ink-dim"
-                            : u.plan === "EDGE" ? "bg-[rgba(8,174,170,0.12)] text-teal"
-                              : "bg-[rgba(248,185,61,0.12)] text-gold"
+                            : u.plan === "EDGE" ? "bg-[rgba(8,174,170,0.12)] text-teal-deep"
+                              : "bg-[rgba(248,185,61,0.12)] text-gold-deep"
                         )}
                       >
                         {u.plan === "FREE" ? "Free" : u.plan === "EDGE" ? "Edge" : "Pro"}

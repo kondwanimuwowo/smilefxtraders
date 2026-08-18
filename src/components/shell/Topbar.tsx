@@ -83,9 +83,9 @@ export function Topbar() {
 // ── NotifBell ─────────────────────────────────────────────────────────────────
 
 const TONE_CONFIG: Record<string, { icon: string; textCls: string; bgCls: string }> = {
-  teal:  { icon: "notifications_active", textCls: "text-teal",  bgCls: "bg-[rgba(8,174,170,0.1)]"  },
-  gold:  { icon: "workspace_premium",    textCls: "text-gold",  bgCls: "bg-[rgba(248,185,61,0.1)]" },
-  coral: { icon: "warning",              textCls: "text-coral", bgCls: "bg-[rgba(234,82,61,0.1)]"  },
+  teal:  { icon: "notifications_active", textCls: "text-teal-deep",  bgCls: "bg-[rgba(8,174,170,0.1)]"  },
+  gold:  { icon: "workspace_premium",    textCls: "text-gold-deep",  bgCls: "bg-[rgba(248,185,61,0.1)]" },
+  coral: { icon: "warning",              textCls: "text-coral-deep", bgCls: "bg-[rgba(234,82,61,0.1)]"  },
 };
 
 import { fmtRelative } from "@/lib/date";
@@ -156,7 +156,7 @@ function NotifBell() {
             <span className="text-[13.5px] font-semibold text-ink-strong">
               Notifications
               {unreadCount > 0 && (
-                <span className="ml-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-coral text-white">
+                <span className="ml-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-coral-solid text-white">
                   {unreadCount}
                 </span>
               )}
@@ -165,7 +165,7 @@ function NotifBell() {
               <button
                 type="button"
                 onClick={() => markRead.mutate({ all: true })}
-                className="text-[11.5px] font-semibold transition-colors hover:opacity-80 text-teal"
+                className="text-[11.5px] font-semibold transition-colors hover:opacity-80 text-teal-deep"
               >
                 Mark all read
               </button>
@@ -225,7 +225,7 @@ function NotifBell() {
           <Link
             href="/notifications"
             onClick={() => setOpen(false)}
-            className="flex items-center justify-center gap-1.5 py-3 text-[12.5px] font-semibold transition-colors hover:bg-hover bg-panel-2 text-teal"
+            className="flex items-center justify-center gap-1.5 py-3 text-[12.5px] font-semibold transition-colors hover:bg-hover bg-panel-2 text-teal-deep"
           >
             See all notifications
             <Icon name="arrow_forward" size={15} />

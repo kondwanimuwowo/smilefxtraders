@@ -29,15 +29,15 @@ export default function LearnPage() {
           </div>
           <div className="flex gap-7 mt-[34px] flex-wrap">
             <div>
-              <div className="mono text-[30px] font-bold text-teal-bright">64</div>
+              <div className="mono text-[30px] font-bold text-teal-deep">64</div>
               <div className="text-[13px] text-white/60">Video lessons</div>
             </div>
             <div>
-              <div className="mono text-[30px] font-bold text-gold">6</div>
+              <div className="mono text-[30px] font-bold text-gold-deep">6</div>
               <div className="text-[13px] text-white/60">Structured levels</div>
             </div>
             <div>
-              <div className="mono text-[30px] font-bold text-teal-bright">∞</div>
+              <div className="mono text-[30px] font-bold text-teal-deep">∞</div>
               <div className="text-[13px] text-white/60">Replays &amp; updates</div>
             </div>
           </div>
@@ -53,7 +53,7 @@ export default function LearnPage() {
           <div className="mt-12 flex flex-col gap-[18px]">
             {LEVELS.map(({ num, title, desc, state, lessons }) => {
               const icon = state === "done" ? "verified" : state === "current" ? "play_circle" : "lock";
-              const iconColorCls = state === "done" ? "text-teal" : state === "current" ? "text-gold" : "text-ink-dim";
+              const iconColorCls = state === "done" ? "text-teal-deep" : state === "current" ? "text-gold-deep" : "text-ink-dim";
               const iconBgCls = state === "current" ? "bg-[rgba(248,185,61,0.16)]" : state === "done" ? "bg-[rgba(8,174,170,0.14)]" : "bg-[var(--bg-soft)]";
               const tag = state === "done"
                 ? <span className="chip text-[11px]">Complete</span>
@@ -101,7 +101,7 @@ export default function LearnPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <Icon name="play_lesson" size={18} className="text-teal" />
+                  <Icon name="play_lesson" size={18} className="text-teal-deep" />
                   <span className="font-semibold text-[13px] ml-1">FVG + OB Confluence Entries</span>
                   <span className="chip gold ml-auto text-[10px]">Lesson 4</span>
                 </div>
@@ -119,7 +119,7 @@ export default function LearnPage() {
                   <div className="grid gap-[7px] mt-2.5">
                     {["HTF draw on liquidity established", "OB and FVG overlap in discount"].map((pt, i) => (
                       <div key={pt} className="flex gap-[9px] items-start text-[12.5px]">
-                        <span className="mono w-5 h-5 rounded-md bg-bg-tint text-[var(--teal-dark)] grid place-items-center font-bold text-[11px] shrink-0">{i + 1}</span>
+                        <span className="mono w-5 h-5 rounded-md bg-bg-tint text-teal-deep grid place-items-center font-bold text-[11px] shrink-0">{i + 1}</span>
                         {pt}
                       </div>
                     ))}
@@ -138,7 +138,7 @@ export default function LearnPage() {
             <MarketingCard
               icon="groups_3"
               title="Weekly live calls"
-              description={<>Join Kondwani live to mark up the week&apos;s setups and ask questions in real time. <span className="text-[var(--gold-dark)] font-semibold">Pro plan</span></>}
+              description={<>Join Kondwani live to mark up the week&apos;s setups and ask questions in real time. <span className="text-gold-deep font-semibold">Pro plan</span></>}
             />
             <MarketingCard
               icon="reviews"

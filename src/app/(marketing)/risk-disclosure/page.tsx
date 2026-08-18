@@ -37,7 +37,7 @@ export default function RiskDisclosurePage() {
             </p>
             <p>
               If you have questions about this disclosure, contact us at{" "}
-              <a href="mailto:support@smilefxtraders.com" className="text-teal font-semibold">support@smilefxtraders.com</a>.
+              <a href="mailto:support@smilefxtraders.com" className="text-teal-deep font-semibold">support@smilefxtraders.com</a>.
             </p>
           </div>
         </div>

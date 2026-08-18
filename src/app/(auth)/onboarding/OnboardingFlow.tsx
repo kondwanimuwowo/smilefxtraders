@@ -18,15 +18,15 @@ const FRAMEWORKS: {
     key: "SMC", label: "Smart Money Concepts (ICT)", sub: "Order blocks, FVGs, liquidity sweeps", icon: "psychology",
     selectedCls: "shadow-[0_0_0_2px_var(--teal)] bg-[color-mix(in_srgb,var(--teal)_8%,transparent)]",
     iconBoxCls:  "bg-[color-mix(in_srgb,var(--teal)_15%,transparent)]",
-    iconCls:     "text-teal",
-    radioCls:    "text-teal",
+    iconCls:     "text-teal-deep",
+    radioCls:    "text-teal-deep",
   },
   {
     key: "SnD", label: "Supply & Demand", sub: "Fresh zones, impulsive origins, premium/discount", icon: "layers",
     selectedCls: "shadow-[0_0_0_2px_var(--gold)] bg-[color-mix(in_srgb,var(--gold)_8%,transparent)]",
     iconBoxCls:  "bg-[color-mix(in_srgb,var(--gold)_15%,transparent)]",
-    iconCls:     "text-gold",
-    radioCls:    "text-gold",
+    iconCls:     "text-gold-deep",
+    radioCls:    "text-gold-deep",
   },
 ];
 
@@ -155,7 +155,7 @@ export function OnboardingFlow() {
             />
           </div>
           {phoneTouched && !phoneValid && (
-            <p className="text-[12.5px] mt-2 text-coral">
+            <p className="text-[12.5px] mt-2 text-coral-deep">
               Enter a valid phone number.
             </p>
           )}
@@ -271,7 +271,7 @@ export function OnboardingFlow() {
                   <Icon
                     name={active ? "radio_button_checked" : "radio_button_unchecked"}
                     size={20}
-                    className={cn("shrink-0", active ? "text-teal" : "text-ink-dim")}
+                    className={cn("shrink-0", active ? "text-teal-deep" : "text-ink-dim")}
                   />
                 </button>
               );
@@ -309,7 +309,7 @@ export function OnboardingFlow() {
                   <Icon
                     name={active ? "radio_button_checked" : "radio_button_unchecked"}
                     size={20}
-                    className={cn("shrink-0", active ? "text-teal" : "text-ink-dim")}
+                    className={cn("shrink-0", active ? "text-teal-deep" : "text-ink-dim")}
                   />
                 </button>
               );
@@ -343,7 +343,7 @@ export function OnboardingFlow() {
                   <span className={cn("font-semibold text-[13px]", selected ? "text-ink-strong" : "text-ink-mid")}>
                     {label}
                   </span>
-                  {selected && <Icon name="check_circle" size={14} fill className="text-teal shrink-0" />}
+                  {selected && <Icon name="check_circle" size={14} fill className="text-teal-deep shrink-0" />}
                 </button>
               );
             })}
@@ -361,7 +361,7 @@ export function OnboardingFlow() {
             How much of your account do you risk per trade? Discipline starts here.
           </p>
           <div className="text-center mb-6">
-            <div className="font-display font-bold text-[52px] text-teal">
+            <div className="font-display font-bold text-[52px] text-teal-deep">
               {riskPct}%
             </div>
             <div className="text-[13px] mt-1 text-ink-dim">per trade</div>
@@ -384,7 +384,7 @@ export function OnboardingFlow() {
 
       {/* Navigation */}
       {serverError && (
-        <p className="text-[12.5px] mt-5 text-coral">{serverError}</p>
+        <p className="text-[12.5px] mt-5 text-coral-deep">{serverError}</p>
       )}
       <div className="flex gap-3 mt-7">
         {step > 0 && (

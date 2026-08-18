@@ -25,7 +25,7 @@ export default function ContactPage() {
             href="mailto:support@smilefxtraders.com"
             className="reveal inline-flex items-center gap-3 rounded-2xl px-6 py-5 bg-[var(--bg-soft)] hover:opacity-90 transition-opacity"
           >
-            <Icon name="mail" size={22} className="text-teal" />
+            <Icon name="mail" size={22} className="text-teal-deep" />
             <span className="font-display font-semibold text-[16px] text-ink-strong">support@smilefxtraders.com</span>
           </a>
 

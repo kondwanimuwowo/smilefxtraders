@@ -50,7 +50,7 @@ export default async function HomePage() {
               <div className="absolute inset-0 rounded-[24px] bg-[radial-gradient(ellipse_at_50%_50%,rgba(48,232,223,0.35)_0%,transparent_70%)] blur-3xl" aria-hidden="true" />
               <div className="mock relative w-full max-w-[480px] shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
                 <div className="mock-bar">
-                  <Icon name="candlestick_chart" size={18} className="text-teal" />
+                  <Icon name="candlestick_chart" size={18} className="text-teal-deep" />
                   <span className="font-semibold text-[13px] ml-1">Market Structure</span>
                   <span className="chip ml-auto text-[11px]">
                     <span className="size-1.5 rounded-full bg-teal-bright animate-live" />
@@ -121,7 +121,7 @@ export default async function HomePage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <Icon name="menu_book" size={18} className="text-teal" />
+                  <Icon name="menu_book" size={18} className="text-teal-deep" />
                   <span className="font-semibold text-[13px] ml-1">Trade Journal</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -144,7 +144,7 @@ export default async function HomePage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <Icon name="rule" size={18} className="text-teal" />
+                  <Icon name="rule" size={18} className="text-teal-deep" />
                   <span className="font-semibold text-[13px] ml-1">Rules Validator</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -168,7 +168,7 @@ export default async function HomePage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <Icon name="analytics" size={18} className="text-teal" />
+                  <Icon name="analytics" size={18} className="text-teal-deep" />
                   <span className="font-semibold text-[13px] ml-1">MacroEdge</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -191,7 +191,7 @@ export default async function HomePage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <GavoIcon size={18} className="text-teal" />
+                  <GavoIcon size={18} className="text-teal-deep" />
                   <span className="font-semibold text-[13px] ml-1">Gavo AI Review</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}

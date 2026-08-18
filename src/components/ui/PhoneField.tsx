@@ -42,7 +42,7 @@ export function PhoneField({ countryIso2, onCountryChange, national, onNationalC
           onChange={(e) => onNationalChange(e.target.value.replace(/[^\d]/g, ""))}
           placeholder="971234567"
           className={`w-full rounded-[9px] pl-1.5 pr-3 py-2.5 text-base sm:text-[13.5px] outline-none bg-transparent placeholder:text-[var(--ink-dim)] ${
-            invalid ? "text-coral" : "text-ink-strong"
+            invalid ? "text-coral-deep" : "text-ink-strong"
           }`}
         />
       </div>

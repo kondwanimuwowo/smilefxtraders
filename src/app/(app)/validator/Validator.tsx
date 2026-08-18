@@ -30,24 +30,24 @@ const READINESS_CFG: Record<Readiness, {
 }> = {
   cleared: {
     label: "Cleared to trade", icon: "verified", color: "var(--teal)",
-    textCls: "text-teal", bgCls: "bg-[rgba(8,174,170,0.10)]",
+    textCls: "text-teal-deep", bgCls: "bg-[rgba(8,174,170,0.10)]",
   },
   caution: {
     label: "Proceed with caution", icon: "warning", color: "var(--gold)",
-    textCls: "text-gold", bgCls: "bg-[rgba(248,185,61,0.12)]",
+    textCls: "text-gold-deep", bgCls: "bg-[rgba(248,185,61,0.12)]",
   },
   "do-not-take": {
     label: "Do not take this", icon: "cancel", color: "var(--coral)",
-    textCls: "text-coral", bgCls: "bg-[rgba(234,82,61,0.12)]",
+    textCls: "text-coral-deep", bgCls: "bg-[rgba(234,82,61,0.12)]",
   },
 };
 
 const STATUS_ICON: Record<Status, string>    = { pass: "check_circle", fail: "cancel", warn: "warning", na: "remove_circle" };
-const STATUS_TEXT_CLS: Record<Status, string> = { pass: "text-teal", fail: "text-coral", warn: "text-gold", na: "text-ink-dim" };
+const STATUS_TEXT_CLS: Record<Status, string> = { pass: "text-teal-deep", fail: "text-coral-deep", warn: "text-gold-deep", na: "text-ink-dim" };
 
 const WEIGHT_CHIP: Record<RuleWeight, string> = {
-  invalidating: "bg-[rgba(234,82,61,0.12)] text-coral",
-  core:         "bg-[rgba(248,185,61,0.12)] text-gold",
+  invalidating: "bg-[rgba(234,82,61,0.12)] text-coral-deep",
+  core:         "bg-[rgba(248,185,61,0.12)] text-gold-deep",
   supporting:   "bg-panel-2 text-ink-dim",
 };
 
@@ -66,7 +66,7 @@ function CheckToggle({ label, checked, onChange }: { label: string; checked: boo
       <Icon
         name={checked ? "check_box" : "check_box_outline_blank"}
         size={18}
-        className={cn("shrink-0", checked ? "text-teal" : "text-ink-dim")}
+        className={cn("shrink-0", checked ? "text-teal-deep" : "text-ink-dim")}
       />
       <span className={cn("text-[12.5px] font-medium", checked ? "text-ink-strong" : "text-ink-mid")}>
         {label}
@@ -111,7 +111,7 @@ function RuleRow({ rule, framework }: { rule: RuleResult; framework: Framework }
         {linked && (
           <Link
             href={`/rules?fw=${framework}#${linked.id}`}
-            className="inline-flex items-center gap-1 mt-1.5 text-[11.5px] font-semibold text-teal hover:opacity-75"
+            className="inline-flex items-center gap-1 mt-1.5 text-[11.5px] font-semibold text-teal-deep hover:opacity-75"
           >
             Rule {linked.n}: {linked.title}
             <Icon name="chevron_right" size={13} />
@@ -155,13 +155,13 @@ function ModelInfoCard({ framework, model }: { framework: Framework; model: stri
   if (!info) return null;
   return (
     <div className="rounded-xl px-4 py-3.5 flex items-start gap-3 bg-[rgba(8,174,170,0.06)] shadow-[0_0_0_2px_rgba(8,174,170,0.18)]">
-      <Icon name="lightbulb" size={17} fill className="text-teal shrink-0 mt-0.5" />
+      <Icon name="lightbulb" size={17} fill className="text-teal-deep shrink-0 mt-0.5" />
       <div>
-        <div className="text-[12px] font-semibold mb-1 text-teal">{model}</div>
+        <div className="text-[12px] font-semibold mb-1 text-teal-deep">{model}</div>
         <p className="text-[12px] leading-relaxed text-ink-mid">{info.tip}</p>
         <div className="flex flex-wrap gap-1.5 mt-2">
           {info.need.map((n) => (
-            <span key={n} className="text-[10.5px] font-semibold px-2 py-0.5 rounded-lg bg-[rgba(8,174,170,0.12)] text-teal">
+            <span key={n} className="text-[10.5px] font-semibold px-2 py-0.5 rounded-lg bg-[rgba(8,174,170,0.12)] text-teal-deep">
               {n}
             </span>
           ))}
@@ -537,11 +537,11 @@ export function Validator() {
               {/* Fibonacci confluence */}
               <div className="border-t border-line pt-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <Icon name="architecture" size={15} className="text-gold" />
+                  <Icon name="architecture" size={15} className="text-gold-deep" />
                   <span className="text-[11.5px] font-semibold uppercase tracking-wider text-ink-dim">
                     Fibonacci confluence
                   </span>
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[rgba(248,185,61,0.1)] text-gold shadow-[0_0_0_2px_rgba(248,185,61,0.2)]">
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[rgba(248,185,61,0.1)] text-gold-deep shadow-[0_0_0_2px_rgba(248,185,61,0.2)]">
                     optional
                   </span>
                 </div>
@@ -567,10 +567,10 @@ export function Validator() {
 
                 {setup.fibConfluence && (
                   <div className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5 bg-[rgba(248,185,61,0.06)] shadow-[0_0_0_2px_rgba(248,185,61,0.18)]">
-                    <Icon name="bolt" size={13} fill className="text-gold shrink-0 mt-px" />
+                    <Icon name="bolt" size={13} fill className="text-gold-deep shrink-0 mt-px" />
                     <p className="text-[11.5px] leading-relaxed text-ink-dim">
                       Fibonacci confluence is active. If all main rules pass, this{" "}
-                      <span className="text-gold font-semibold">boosts an A grade to A+</span>.
+                      <span className="text-gold-deep font-semibold">boosts an A grade to A+</span>.
                       It does not fix a failing rule.
                     </p>
                   </div>
@@ -584,7 +584,7 @@ export function Validator() {
                   onClick={() => setCalcOpen((o) => !o)}
                   className="flex items-center gap-2 w-full mb-2"
                 >
-                  <Icon name="calculate" size={15} className="text-teal" />
+                  <Icon name="calculate" size={15} className="text-teal-deep" />
                   <span className="text-[11.5px] font-semibold uppercase tracking-wider flex-1 text-left text-ink-dim">
                     Position size calculator
                   </span>
@@ -635,13 +635,13 @@ export function Validator() {
                           </div>
                           <div>
                             <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Dollar risk</div>
-                            <div className="text-[14px] font-semibold text-coral">
+                            <div className="text-[14px] font-semibold text-coral-deep">
                               −${calcResult.dollarRisk.toFixed(2)}
                             </div>
                           </div>
                           <div className="col-span-2">
                             <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Lot size</div>
-                            <div className="font-bold text-[26px] tracking-[-0.02em] text-gold">
+                            <div className="font-bold text-[26px] tracking-[-0.02em] text-gold-deep">
                               {calcResult.lots < 0.01 ? calcResult.lots.toFixed(4) : calcResult.lots.toFixed(2)}
                             </div>
                           </div>
@@ -650,7 +650,7 @@ export function Validator() {
                               <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">
                                 TP ({setup.rr}R)
                               </div>
-                              <div className={cn("text-[14px] font-semibold", setup.dir === "long" ? "text-teal" : "text-coral")}>
+                              <div className={cn("text-[14px] font-semibold", setup.dir === "long" ? "text-teal-deep" : "text-coral-deep")}>
                                 {calcResult.tp.toFixed(calcResult.isForex ? 5 : setup.pair === "XAUUSD" ? 2 : 1)}
                               </div>
                             </div>
@@ -658,7 +658,7 @@ export function Validator() {
                           {calcResult.dollarProfit !== null && (
                             <div>
                               <div className="text-[10px] uppercase tracking-wider font-semibold mb-0.5 text-ink-dim">Expected profit</div>
-                              <div className="text-[14px] font-semibold text-teal">
+                              <div className="text-[14px] font-semibold text-teal-deep">
                                 +${calcResult.dollarProfit.toFixed(2)}
                               </div>
                             </div>
@@ -668,7 +668,7 @@ export function Validator() {
                     )}
 
                     {!calcResult && calcEntry && calcSl && (
-                      <p className="text-[11.5px] text-coral">Enter valid entry and SL prices.</p>
+                      <p className="text-[11.5px] text-coral-deep">Enter valid entry and SL prices.</p>
                     )}
 
                     {calcResult && (
@@ -705,8 +705,8 @@ export function Validator() {
                 </div>
                 {setup.fibConfluence && (
                   <div className="flex items-center gap-1.5 mt-1.5">
-                    <Icon name="architecture" size={13} className="text-gold" />
-                    <span className="text-[11px] font-semibold text-gold">
+                    <Icon name="architecture" size={13} className="text-gold-deep" />
+                    <span className="text-[11px] font-semibold text-gold-deep">
                       Fib {setup.fibLevel} active
                     </span>
                   </div>
@@ -826,7 +826,7 @@ function KillzoneBadge({ active, session }: { active: boolean; session: string }
     return (
       <div className="flex items-center gap-1.5 pl-1">
         <span className="inline-block w-1.5 h-1.5 rounded-full bg-teal animate-[live-pulse_2s_infinite]" />
-        <span className="text-[11px] font-semibold text-teal">Active now</span>
+        <span className="text-[11px] font-semibold text-teal-deep">Active now</span>
       </div>
     );
   }

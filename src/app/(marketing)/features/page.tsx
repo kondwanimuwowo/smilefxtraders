@@ -46,7 +46,7 @@ export default function FeaturesPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <Icon name="menu_book" size={18} className="text-teal" />
+                  <Icon name="menu_book" size={18} className="text-teal-deep" />
                   <span className="font-semibold text-[13px] ml-1">Trade Journal</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -73,7 +73,7 @@ export default function FeaturesPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <Icon name="rule" size={18} className="text-teal" />
+                  <Icon name="rule" size={18} className="text-teal-deep" />
                   <span className="font-semibold text-[13px] ml-1">Rules Validator</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -102,7 +102,7 @@ export default function FeaturesPage() {
                   <img src="/kondwanimuwowo.png" alt="Kondwani" className="avatar avatar-ring w-[30px] h-[30px] object-cover" />
                   <span className="font-bold text-[13px] ml-1">Kondwani</span>
                   <span className="chip gold text-[10px]">LEAD INSTRUCTOR</span>
-                  <span className="ml-auto inline-flex items-center gap-[5px] text-[11px] font-extrabold text-coral">
+                  <span className="ml-auto inline-flex items-center gap-[5px] text-[11px] font-extrabold text-coral-deep">
                     <span className="w-[7px] h-[7px] rounded-full bg-coral inline-block" />LIVE
                   </span>
                 </div>
@@ -139,7 +139,7 @@ export default function FeaturesPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <Icon name="groups" size={18} className="text-teal" />
+                  <Icon name="groups" size={18} className="text-teal-deep" />
                   <span className="font-semibold text-[13px] ml-1">COT Reports</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -165,7 +165,7 @@ export default function FeaturesPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <Icon name="analytics" size={18} className="text-teal" />
+                  <Icon name="analytics" size={18} className="text-teal-deep" />
                   <span className="font-semibold text-[13px] ml-1">MacroEdge</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -190,7 +190,7 @@ export default function FeaturesPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <GavoIcon size={18} className="text-teal" />
+                  <GavoIcon size={18} className="text-teal-deep" />
                   <span className="font-semibold text-[13px] ml-1">Gavo AI Review</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -216,7 +216,7 @@ export default function FeaturesPage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <Icon name="school" size={18} className="text-teal" />
+                  <Icon name="school" size={18} className="text-teal-deep" />
                   <span className="font-semibold text-[13px] ml-1">Academy</span>
                   <span className="chip ml-auto text-[11px]">27 lessons</span>
                 </div>
@@ -238,7 +238,7 @@ export default function FeaturesPage() {
                         <Icon
                           name={state === "done" ? "verified" : state === "current" ? "play_arrow" : "lock"}
                           size={17}
-                          className={state === "current" ? "text-navy-deep" : state === "done" ? "text-teal" : "text-ink-dim"}
+                          className={state === "current" ? "text-navy-deep" : state === "done" ? "text-teal-deep" : "text-ink-dim"}
                         />
                       </span>
                       <div className="flex-1">

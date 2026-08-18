@@ -112,7 +112,7 @@ export function ResetPasswordForm() {
     return (
       <div className="flex flex-col items-center text-center gap-5">
         <div className="size-16 rounded-full flex items-center justify-center bg-[rgba(234,82,61,0.10)] border-2 border-[rgba(234,82,61,0.25)]">
-          <Icon name="link_off" size={32} className="text-coral" />
+          <Icon name="link_off" size={32} className="text-coral-deep" />
         </div>
         <div>
           <h1 className="font-display font-medium mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
@@ -129,7 +129,7 @@ export function ResetPasswordForm() {
             Request a new link
           </Button>
         )}
-        <Link href="/login" className="text-[13.5px] font-semibold hover:underline text-teal">
+        <Link href="/login" className="text-[13.5px] font-semibold hover:underline text-teal-deep">
           Back to sign in
         </Link>
       </div>
@@ -140,7 +140,7 @@ export function ResetPasswordForm() {
     return (
       <div className="flex flex-col items-center text-center gap-5">
         <div className="size-16 rounded-full flex items-center justify-center bg-[rgba(8,174,170,0.12)] border-2 border-[rgba(8,174,170,0.3)]">
-          <Icon name="lock_open" size={32} className="text-teal" />
+          <Icon name="lock_open" size={32} className="text-teal-deep" />
         </div>
         <div>
           <h1 className="font-display font-medium mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
@@ -156,7 +156,7 @@ export function ResetPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
-      <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2 text-teal">
+      <div className="text-[11px] font-bold uppercase tracking-[0.18em] mb-2 text-teal-deep">
         {isInvite ? "Welcome" : "New password"}
       </div>
 
@@ -189,7 +189,7 @@ export function ResetPasswordForm() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-bright border border-[rgba(234,82,61,0.2)]">
+        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-deep border border-[rgba(234,82,61,0.2)]">
           {error}
         </div>
       )}
