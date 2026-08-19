@@ -9,6 +9,7 @@ import {
   Button, DirPill, Chip, StatTile, Stars, Icon, EmptyState, Panel, Sparkline, Select,
 } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { pricePrecision } from "@/lib/hooks/useCandles";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -357,24 +358,45 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
 
 // ── Trade table row ────────────────────────────────────────────────────────────
 
+/**
+ * Marks a trade that has a chart attached.
+ *
+ * An icon rather than a thumbnail, which was the first attempt: the uploaded
+ * charts are full screenshots (measured: 1599x809), and cropped into a 34px
+ * cell they render as unreadable grey mush that looks like a broken image.
+ * The design prototype draws a synthetic sparkline here for the same reason --
+ * a real chart does not survive being thumbnailed that small. The column only
+ * needs to answer "is there a chart", and the row opens the trade where the
+ * full one lives.
+ */
+function ChartThumb({ url }: { url?: string }) {
+  if (!url) return <span className="text-[12px] text-ink-dim">&mdash;</span>;
+  return (
+    <span
+      className="inline-flex items-center justify-center w-[26px] h-[22px] rounded-md bg-teal-tint align-middle"
+      title="Chart attached"
+    >
+      <Icon name="candlestick_chart" size={14} className="text-teal-deep" />
+    </span>
+  );
+}
+
+/** A level at the pair's own quote precision, or an em dash when unset. */
+function fmtPrice(v: number | undefined, pair: string): string {
+  return typeof v === "number" ? v.toFixed(pricePrecision(pair)) : "—";
+}
+
 function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string) => void; onEdit: () => void }) {
   return (
     <tr
       className="group cursor-pointer transition-colors hover:bg-hover"
       onClick={() => onView(trade.id)}
     >
-      <td className="px-4 py-3 whitespace-nowrap">
+      <td className="px-4 py-3">
         <div className="flex items-center gap-2">
           <span
             className={cn("shrink-0 rounded-full w-1.5 h-1.5", pnlCls(trade).bgCls, trade.result !== "open" && pnlCls(trade).shadowCls)}
           />
-          <div className="text-[12.5px] font-medium tabular-nums text-ink-dim">
-            {trade.date}
-          </div>
-        </div>
-      </td>
-      <td className="px-4 py-3">
-        <div className="flex items-center gap-2">
           <span className="font-display font-bold text-[13.5px] text-ink-strong">
             {trade.pair}
           </span>
@@ -383,6 +405,48 @@ function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string
             <Icon name="notifications_active" size={13} fill className="text-gold-deep shrink-0" />
           )}
         </div>
+      </td>
+
+      {/* Opened — the entry price is the headline, the date sits under it.
+          Both were already on Trade; the table only ever showed the date. */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <div className="text-[12.5px] font-semibold tabular-nums text-ink">
+          {fmtPrice(trade.entryPrice, trade.pair)}
+        </div>
+        <div className="text-[10.5px] tabular-nums mt-px text-ink-dim">{trade.date}</div>
+      </td>
+
+      {/* Stop and target carry direction colour rather than a label: a stop is
+          where the idea dies, a target is where it pays. */}
+      <td className="px-4 py-3 hidden lg:table-cell text-right">
+        {/* The colour belongs to the level, not to the cell: an absent stop
+            drawn in coral reads as a price rather than as nothing. */}
+        <span className={cn("text-[12.5px] tabular-nums", trade.stopLoss == null ? "text-ink-dim" : "text-coral-deep")}>
+          {fmtPrice(trade.stopLoss, trade.pair)}
+        </span>
+      </td>
+      <td className="px-4 py-3 hidden lg:table-cell text-right">
+        <span className={cn("text-[12.5px] tabular-nums", trade.takeProfit == null ? "text-ink-dim" : "text-teal-deep")}>
+          {fmtPrice(trade.takeProfit, trade.pair)}
+        </span>
+      </td>
+
+      <td className="px-4 py-3 hidden xl:table-cell whitespace-nowrap">
+        <div className="text-[12.5px] font-semibold tabular-nums text-ink">
+          {fmtPrice(trade.closePrice, trade.pair)}
+        </div>
+        {trade.closedAt && (
+          <div className="text-[10.5px] tabular-nums mt-px text-ink-dim">
+            {new Date(trade.closedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+          </div>
+        )}
+      </td>
+
+      {/* The real uploaded chart, not a drawn sparkline: the trade already has
+          one, and a thumbnail of the actual markup is worth more than a
+          generic squiggle. */}
+      <td className="px-4 py-3 hidden xl:table-cell text-center">
+        <ChartThumb url={trade.chartUrl} />
       </td>
       <td className="px-4 py-3 hidden lg:table-cell">
         <div className="text-[12px] max-w-[160px] truncate text-ink-mid">
@@ -719,15 +783,23 @@ export function Journal() {
                   <thead>
                     <tr className="bg-panel-2">
                       {[
-                        { label: "Date",    cls: "" },
+                        // Column order follows the design prototype: the pair,
+                        // then the price story (opened / stop / target / closed),
+                        // then classification, then outcome. The levels were
+                        // already on Trade and simply never shown.
                         { label: "Pair",    cls: "" },
+                        { label: "Opened",  cls: "" },
+                        { label: "Stop",    cls: "hidden lg:table-cell text-right" },
+                        { label: "Target",  cls: "hidden lg:table-cell text-right" },
+                        { label: "Closed",  cls: "hidden xl:table-cell" },
+                        { label: "Chart",   cls: "hidden xl:table-cell text-center" },
                         { label: "Model",   cls: "hidden lg:table-cell" },
-                        { label: "Session", cls: "hidden xl:table-cell" },
+                        { label: "Session", cls: "hidden 2xl:table-cell" },
                         { label: "R:R",     cls: "hidden lg:table-cell text-right" },
                         { label: "P&L",     cls: "text-right" },
                         { label: "Status",  cls: "" },
-                        { label: "Rating",  cls: "hidden xl:table-cell" },
-                        { label: "Rules",   cls: "hidden lg:table-cell text-center" },
+                        { label: "Rating",  cls: "hidden 2xl:table-cell" },
+                        { label: "Rules",   cls: "hidden xl:table-cell text-center" },
                         { label: "",        cls: "" },
                       ].map((h) => (
                         <th
