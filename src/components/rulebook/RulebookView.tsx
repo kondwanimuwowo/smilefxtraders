@@ -182,7 +182,7 @@ export function RulebookView({ stats }: { stats?: Record<Framework, RuleStats> }
         <header className="px-5 py-4 bg-panel-2">
           <h2 className="font-display font-semibold text-[16px] text-ink-strong">How the grade is worked out</h2>
           <p className="text-[12.5px] mt-1 text-ink-dim">
-            Gavo grades every trade you journal against these thirteen rules, and checks what it can
+            Gavo grades every trade you journal against these rules, and checks what it can
             against real broker price data. Which rules broke matters more than how many.
           </p>
         </header>

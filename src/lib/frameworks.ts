@@ -392,6 +392,20 @@ function ruleNewsCheck(s: Setup): RuleResult {
   };
 }
 
+function ruleFibConfluence(s: Setup): RuleResult {
+  // "na", not "warn", when it is unmarked. assess() drops na outcomes from
+  // both clear and total, so a trader who never draws a Fibonacci still reads
+  // 13/13 on a clean setup rather than being shown an unreachable 13/14.
+  // Confluence should be able to raise a score, never to lower one.
+  return {
+    id: "fib", label: "Fibonacci confluence at the POI",
+    status: s.fibConfluence ? "pass" : "na",
+    why: s.fibConfluence
+      ? `Entry sits at ${s.fibLevel}. Confluence on an entry that already passes is worth having.`
+      : "Optional. Mark it if you drew a Fibonacci and the entry sits in the OTE band or on a key level; leave it if you did not, and it will not count against you.",
+  };
+}
+
 // ── SMC rule engine ───────────────────────────────────────────────────────────
 
 export function validateSMC(s: Setup): RuleResult[] {
@@ -458,6 +472,7 @@ export function validateSMC(s: Setup): RuleResult[] {
     ruleKillzone(s, "Institutional activity is at its highest."),
     rulePrePlanned(s, "marked this setup"),
     ruleNewsCheck(s),
+    ruleFibConfluence(s),
   ];
 }
 
@@ -532,6 +547,7 @@ export function validateSnD(s: Setup): RuleResult[] {
     ruleKillzone(s, "Best time to trade S&D zones."),
     rulePrePlanned(s, "marked this zone"),
     ruleNewsCheck(s),
+    ruleFibConfluence(s),
   ];
 }
 

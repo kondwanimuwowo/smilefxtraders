@@ -183,7 +183,7 @@ export default async function HomePage() {
               title="Your AI coach, on every trade"
               lead="After logging a trade, ask Gavo for a review. He grades it against the full SMC rulebook and gives you a structured debrief, not just a pat on the back."
               bullets={[
-                "Grades A+ to D against all 13 SMC rules",
+                "Grades A+ to D against the full SMC rulebook",
                 "What you did well vs what to improve",
                 "One actionable tip per review",
               ]}

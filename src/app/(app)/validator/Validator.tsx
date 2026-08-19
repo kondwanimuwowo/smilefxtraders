@@ -757,7 +757,7 @@ export function Validator() {
                   Notes on this model
                 </div>
                 <p className="text-[12px] mt-0.5 text-ink-dim">
-                  Specific to {setup.model}. These do not count toward the thirteen rules.
+                  Specific to {setup.model}. These do not count toward the rulebook.
                 </p>
               </div>
               <div className="px-4 pb-4 flex flex-col gap-2">

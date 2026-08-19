@@ -48,11 +48,24 @@ function perfectSnD(): Setup {
 // ── Rulebook alignment ───────────────────────────────────────────────────────
 
 for (const fw of ["SMC", "SnD"] as const) {
-  check(`${fw} rulebook has 13 rules`, allRules(fw).length === 13, `got ${allRules(fw).length}`);
+  check(`${fw} rulebook has 14 rules`, allRules(fw).length === 14, `got ${allRules(fw).length}`);
 
   const r = validate({ ...BLANK_SETUP(fw) });
-  check(`${fw} validator returns 13 rules`, r.rules.length === 13, `got ${r.rules.length}`);
-  check(`${fw} total counts 13 regardless of model`, r.total === 13, `got ${r.total}`);
+  check(`${fw} validator returns 14 rules`, r.rules.length === 14, `got ${r.rules.length}`);
+
+  // Rule 14 (Fibonacci) is optional confluence: unmarked it reports "na", and
+  // assess() drops na from the denominator. So the count a trader is measured
+  // against stays 13 until they actually claim the confluence — the whole
+  // point of it being confluence rather than a requirement.
+  check(`${fw} total stays 13 while Fibonacci is unmarked`, r.total === 13, `got ${r.total}`);
+  check(`${fw} Fibonacci is na when unmarked`,
+    r.rules.find((x) => x.id === "fib")?.status === "na",
+    `got ${r.rules.find((x) => x.id === "fib")?.status}`);
+
+  const withFib = validate({ ...BLANK_SETUP(fw), fibConfluence: true });
+  check(`${fw} total becomes 14 once Fibonacci is claimed`, withFib.total === 14, `got ${withFib.total}`);
+  check(`${fw} Fibonacci never lowers the count`, withFib.total >= r.total,
+    `${withFib.total} < ${r.total}`);
 
   const ids = new Set(allRules(fw).map((x) => x.id));
   const orphans = r.rules.filter((x) => !ids.has(x.id)).map((x) => x.id);

@@ -38,7 +38,7 @@ export default function FeaturesPage() {
                 "Log entry, SL, TP, close price, model, session, and R:R",
                 "Win rate by session (London, New York, Asia)",
                 "Win rate by SMC model (OB+BOS, Liquidity Sweep, SMT divergence…)",
-                "Discipline score that tracks how often you followed all 13 rules",
+                "Discipline score that tracks how often you followed the rules",
                 "AI review from Gavo: a structured debrief on any trade",
                 "Equity curve built automatically from your closed trades",
               ]}
@@ -59,10 +59,10 @@ export default function FeaturesPage() {
           <div className="feature-row flip scroll-mt-[90px]" id="validator">
             <FeatureBlock
               title="Rules Validator"
-              lead="A 5-minute checklist that keeps impulsive trades off the books. Check all 13 SMC or Supply &amp; Demand rules before clicking execute."
+              lead="A 5-minute checklist that keeps impulsive trades off the books. Check every SMC or Supply &amp; Demand rule before clicking execute."
               bullets={[
                 "SMC and Supply & Demand frameworks",
-                "All 13 rules checked: HTF bias, premium/discount, structure, POI, R:R, risk size, session, discipline",
+                "Every rule checked: HTF bias, premium/discount, structure, POI, R:R, risk size, session, discipline",
                 "Tells you which breaks are fatal and which are survivable",
                 "Reads 'cleared to trade', 'proceed with caution', or 'do not take this' — not a grade",
                 "Pip calculator auto-fills from your account size and risk %",
@@ -180,7 +180,7 @@ export default function FeaturesPage() {
               title="Gavo AI Trade Review"
               lead="Your always-on trading coach. Grade any trade from your journal. Gavo checks it against the full SMC rulebook and gives you a structured debrief."
               bullets={[
-                "Grades A+, A, B, C, or D against all 13 SMC rules",
+                "Grades A+, A, B, C, or D against the full SMC rulebook",
                 "Verdict sentence: what made or broke this trade",
                 "What you did well vs what to improve",
                 "One actionable tip per review",

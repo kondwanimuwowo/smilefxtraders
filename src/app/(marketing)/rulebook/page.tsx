@@ -5,7 +5,7 @@ import { RULEBOOK, allRules } from "@/lib/rulebook";
 
 const TITLE = "The Rulebook | Smile FX Traders";
 const DESCRIPTION =
-  "The thirteen rules every Smile FX Traders setup is graded against, for Smart Money Concepts and Supply & Demand. Published in full, before you join.";
+  "The rules every Smile FX Traders setup is graded against, for Smart Money Concepts and Supply & Demand. Published in full, before you join.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -69,7 +69,7 @@ export default function MarketingRulebookPage() {
               The Rulebook
             </h2>
             <p className="lead">
-              Thirteen rules per framework. Every trade our members journal is graded against them,
+              Fourteen rules per framework, thirteen of them required and one optional confluence. Every trade our members journal is graded against them,
               and Gavo checks what it can against real broker price data. Here it is in full, before
               you pay us anything.
             </p>
