@@ -41,6 +41,12 @@ interface HyperdriveBinding { connectionString: string }
  */
 let loggedConnectionSource = false;
 
+// True only when the Hyperdrive binding actually resolved, i.e. we are running
+// on Workers. Everything the tight timeouts below defend against -- isolate
+// freezes handing out dead sockets -- is a Workers behaviour, so off-Workers
+// they are cost with no benefit. Set by resolveConnectionString().
+let onWorkers = false;
+
 function logConnectionSource(source: string, connectionString: string): void {
   if (loggedConnectionSource) return;
   loggedConnectionSource = true;
@@ -81,6 +87,7 @@ function resolveConnectionString(): string {
     const ctx = getCloudflareContext() as unknown as { env: Record<string, unknown> };
     const hyperdrive = ctx.env.HYPERDRIVE as HyperdriveBinding | undefined;
     if (hyperdrive?.connectionString) {
+      onWorkers = true;
       logConnectionSource("hyperdrive-binding", hyperdrive.connectionString);
       return hyperdrive.connectionString;
     }
@@ -151,9 +158,26 @@ function createPrismaClient() {
     // also caps the notification fan-out's createMany in lib/notifications.ts.
     // Trivial at current user counts, but that is the first query likely to
     // outgrow the cap -- batch it before assuming this number is the problem.
-    connectionTimeoutMillis: 1_500,
+    // ── Why these differ off-Workers ───────────────────────────────────────
+    //
+    // 1.5s is right on Workers: the connection starts at Cloudflare's edge,
+    // a healthy query answers in ~190ms, and the value is deliberately tight
+    // so a dead socket is detected fast rather than stalling a user.
+    //
+    // It is wrong everywhere else. A developer machine connects to Supabase
+    // over the public internet, and from Zambia to eu-west-1 the TLS
+    // handshake plus auth measures 1.3-2.1s -- straddling the limit, so local
+    // dev fails on roughly half of all attempts with "Connection terminated
+    // due to connection timeout" while the database is provably healthy and
+    // answers a raw pg client in 1.4s.
+    //
+    // Off-Workers there is no isolate freeze, so there are no dead sockets to
+    // detect quickly and nothing is bought by the tight value. Keep the
+    // Workers numbers on Workers and give everyone else room for real
+    // network latency.
+    connectionTimeoutMillis: onWorkers ? 1_500 : 15_000,
     idleTimeoutMillis: 10_000,
-    query_timeout: 1_500,
+    query_timeout: onWorkers ? 1_500 : 15_000,
     // Lets the OS notice a dead peer on its own while the isolate is actually
     // running. No help across a freeze, but it costs nothing and shortens the
     // window in which a connection can go stale unnoticed during a request.
@@ -174,7 +198,11 @@ function createPrismaClient() {
     // runtime, and Hyperdrive keeps the real pool to Supabase warm. If this
     // ever needs reverting, delete this one line -- the timeouts and retries
     // above stand on their own.
-    maxUses: 1,
+    // Same reasoning: retiring every connection after one query exists purely
+    // to stop a socket surviving an isolate freeze. Off-Workers it just means
+    // paying a full TLS handshake per query -- which, at the latency measured
+    // above, is the difference between a page that loads and one that does not.
+    maxUses: onWorkers ? 1 : undefined,
     // Page loads fire several API routes in parallel (dashboard, academy,
     // notifications, etc.) that can land on the same reused isolate. A
     // pool of 3 queues the overflow and those queued acquires were hitting
