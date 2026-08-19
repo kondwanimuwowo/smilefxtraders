@@ -11,6 +11,7 @@ import {
   BLANK_SETUP, type Framework, type Setup, type Status, type RuleResult, type ValidationResult,
 } from "@/lib/frameworks";
 import { useInstruments } from "@/lib/hooks/useInstruments";
+import { GavoSetupRead } from "@/components/GavoSetupRead";
 
 // ── Readiness display helpers ─────────────────────────────────────────────────
 //
@@ -655,6 +656,22 @@ export function Validator() {
             )}
           </Panel>
 
+
+          {/* Gavo's read, directly under the checklist it interprets. The
+              checklist states which rules are unmet; this says which of them
+              actually decides the trade. Deliberately no grade -- the verdict
+              card above already owns that, in readiness vocabulary. */}
+          <GavoSetupRead
+            framework={setup.framework}
+            pair={setup.pair}
+            dir={setup.dir}
+            model={setup.model}
+            session={setup.session}
+            readiness={result.readiness}
+            clear={result.clear}
+            total={result.total}
+            rules={result.rules}
+          />
 
           {/* Position size calculator — its own card in the results column,
               matching the design prototype. It used to be a collapsed drawer
