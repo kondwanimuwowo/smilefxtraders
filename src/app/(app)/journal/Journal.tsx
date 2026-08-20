@@ -724,13 +724,13 @@ export function Journal() {
       <div className="flex flex-col gap-3 mb-5">
         {/* Filter bar */}
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-0.5 rounded-full p-1 bg-panel-2">
+          <div className="flex items-center gap-0.5 rounded-full p-1 bg-panel shadow-sm">
             {FILTERS.map((f) => (
               <button
                 key={f}
                 type="button"
                 onClick={() => handleFilterChange(f)}
-                className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors ${
+                className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors ${
                   filter === f ? "bg-teal-solid text-white" : "text-ink-mid hover:text-ink-strong"
                 }`}
               >
@@ -740,7 +740,7 @@ export function Journal() {
           </div>
 
           {/* Search */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl flex-1 min-w-0 bg-panel-2 shadow-sm">
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-full flex-1 min-w-0 bg-panel shadow-sm">
             <Icon name="search" size={15} className="text-ink-dim shrink-0" />
             <input
               type="text"

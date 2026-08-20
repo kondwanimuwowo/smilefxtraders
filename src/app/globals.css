@@ -393,6 +393,15 @@
     background: var(--app-bg);
     color: var(--ink);
     font-family: var(--font-sans), system-ui, sans-serif;
+    /* 500, not the 400 default. The design prototype never goes below 500 on
+       any element, and this UI is mostly small text: at 10-12px in --ink-dim,
+       Open Sans at 400 reads as thin rather than as quiet. Weight carries
+       legibility at these sizes better than size alone does.
+
+       Open Sans is loaded with 400/500/600/700 (see layout.tsx), so 500 is a
+       real cut rather than a browser-synthesised one. Anything that genuinely
+       wants 400 can still say font-normal, which wins over this. */
+    font-weight: 500;
     -webkit-font-smoothing: antialiased;
     min-height: 100%;
     overflow-y: auto;
