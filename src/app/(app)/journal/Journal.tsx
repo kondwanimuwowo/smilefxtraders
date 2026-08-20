@@ -282,7 +282,7 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
 
       {/* Model win rate */}
       <Panel>
-        <div className="px-4 pt-4 pb-3">
+        <div>
           <div className="font-display font-semibold text-[14px] mb-3 text-ink-strong">
             Model win rate
           </div>
@@ -301,7 +301,7 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
       {/* Pair performance */}
       {pairStats.length > 0 && (
         <Panel>
-          <div className="px-4 pt-4 pb-3">
+          <div>
             <div className="font-display font-semibold text-[14px] mb-3 text-ink-strong">
               Pair performance
             </div>
@@ -316,7 +316,7 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
 
       {/* Session breakdown */}
       <Panel>
-        <div className="px-4 pt-4 pb-4">
+        <div>
           <div className="font-display font-semibold text-[14px] mb-3 text-ink-strong">
             Sessions
           </div>
@@ -331,7 +331,7 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
       {/* Recurring leaks */}
       {leaks.length > 0 && (
         <Panel>
-          <div className="px-4 pt-4 pb-4">
+          <div>
             <div className="flex items-center gap-2 mb-3">
               <Icon name="warning" size={15} fill className="text-coral-deep" />
               <span className="font-display font-semibold text-[14px] text-ink-strong">
@@ -779,7 +779,11 @@ export function Journal() {
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full text-left">
+                {/* min-width matches the design prototype. Without it the
+                    table shrinks columns to fit instead of scrolling, and the
+                    price levels collapse into unreadable slivers on narrow
+                    screens now that there are four more of them. */}
+                <table className="w-full text-left min-w-[640px]">
                   <thead>
                     <tr className="bg-panel-2">
                       {[
