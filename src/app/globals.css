@@ -199,6 +199,13 @@
   --panel-2:    #EEF2F6;
   --bg-tint:    #ECF4F4;
   --line:       rgba(11, 66, 93, 0.13);
+  --line-soft:  rgba(11, 66, 93, 0.045);
+  /* A much fainter rule, for dividers that repeat on every row of a table.
+     --line is tuned for a single edge between two sections; drawn 15 times
+     down a list the same value stacks into visual weight and the table starts
+     to read as a grid rather than as rows. This is roughly a third of it:
+     enough to guide the eye along a row, not enough to be noticed as a line. */
+  --line-soft:  rgba(11, 66, 93, 0.045);
   --ink:        rgba(8, 42, 59, 0.90);
   /* The three ink tiers are spaced so that EVERY one clears 4.5:1, not just
      the top two. 0.65 is the AA floor on these light surfaces, so a passing
@@ -270,6 +277,7 @@
   --panel-2:    #103A50;
   --bg-tint:    rgba(8, 174, 170, 0.16);
   --line:       rgba(148, 210, 208, 0.13);
+  --line-soft:  rgba(148, 210, 208, 0.05);
   --ink:        rgba(255, 255, 255, 0.87);
   /* Same three-passing-tier rule as light. White on the dark panels has more
      headroom, so the floor lands at 0.55 rather than 0.65 (4.79 worst case);
@@ -334,6 +342,7 @@
   --color-ink-dim:   var(--ink-dim);
   --color-ink-strong: var(--ink-strong);
   --color-line:      var(--line);
+  --color-line-soft: var(--line-soft);
   --color-hover:     var(--hover);
   --color-track:     var(--track);
   --color-row-hover: var(--row-hover);
@@ -584,6 +593,37 @@
   --track:      rgba(8, 42, 59, 0.10);
   --row-hover:  rgba(8, 42, 59, 0.035);
   --topbar-bg:  rgba(255, 255, 255, 0.78);
+}
+
+@layer base {
+  /* ─── Lesson content tables ──────────────────────────────────────────────
+     Academy lesson bodies are markdown rendered to raw HTML, so their tables
+     arrive with no classes and nothing to hook a utility onto. The
+     .prose-lesson class was already being applied at both call sites but had
+     never been defined anywhere, which left these tables on browser defaults:
+     no padding, no alignment, black hairlines.
+
+     Same soft rule as the app's own tables, so a table inside a lesson and a
+     table on the journal read as the same object. */
+  .prose-lesson table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 13px;
+  }
+  .prose-lesson th,
+  .prose-lesson td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .prose-lesson th {
+    font-weight: 600;
+    color: var(--ink-strong);
+    background: var(--panel);
+  }
+  .prose-lesson td { color: var(--ink-mid); }
+  .prose-lesson tr:last-child td { border-bottom: 0; }
 }
 
 @layer components {

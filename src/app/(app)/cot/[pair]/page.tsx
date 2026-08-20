@@ -534,7 +534,7 @@ export default function CotPairPage() {
                     const rowTint = isLatest ? "bg-[rgba(8,174,170,0.035)]" : undefined;
 
                     return (
-                      <tr key={row.date} className={rowTint}>
+                      <tr key={row.date} className={cn(rowTint, "border-b border-line-soft last:border-0")}>
                         {/* Date */}
                         <td className={cn(
                           cellCls, "font-sans",

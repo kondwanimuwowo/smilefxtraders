@@ -83,7 +83,7 @@ function HistoryTable({ history }: { history: CotEntry["history"] }) {
             const prev = rows[i + 1];
             const chg  = prev ? w.largeSpecNet - prev.largeSpecNet : null;
             return (
-              <tr key={w.date}>
+              <tr key={w.date} className="border-b border-line-soft last:border-0">
                 <td className={cn(historyCellCls, "text-ink-mid")}>
                   {fmtDate(w.date)}
                 </td>

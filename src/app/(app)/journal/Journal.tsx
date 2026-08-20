@@ -389,7 +389,7 @@ function fmtPrice(v: number | undefined, pair: string): string {
 function TradeRow({ trade, onView, onEdit }: { trade: Trade; onView: (id: string) => void; onEdit: () => void }) {
   return (
     <tr
-      className="group cursor-pointer transition-colors hover:bg-hover"
+      className="group cursor-pointer transition-colors hover:bg-hover border-b border-line-soft last:border-0"
       onClick={() => onView(trade.id)}
     >
       <td className="px-4 py-3">

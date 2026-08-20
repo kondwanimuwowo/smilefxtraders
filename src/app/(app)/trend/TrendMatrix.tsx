@@ -411,7 +411,7 @@ export function TrendMatrix({ initial }: { initial: TrendMatrixInitial | null })
             <tbody>
               {loading
                 ? PAIRS.map((pair, i) => (
-                    <tr key={pair} className={cn(i < PAIRS.length - 1 && "border-b border-line")}>
+                    <tr key={pair} className={cn(i < PAIRS.length - 1 && "border-b border-line-soft")}>
                       <td className="px-5 py-4">
                         <div className="h-4 w-16 rounded animate-pulse bg-track" />
                       </td>
@@ -430,7 +430,7 @@ export function TrendMatrix({ initial }: { initial: TrendMatrixInitial | null })
                     return (
                       <tr
                         key={pair}
-                        className={cn("group transition-colors hover:bg-hover", i < PAIRS.length - 1 && "border-b border-line")}
+                        className={cn("group transition-colors hover:bg-hover", i < PAIRS.length - 1 && "border-b border-line-soft")}
                       >
                         <td className="px-5 py-3.5">
                           <div className="font-display font-bold text-[14px] text-ink-strong">{pair}</div>
