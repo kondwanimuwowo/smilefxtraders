@@ -76,7 +76,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] font-semibold text-ink-mid">Title</span>
           <input
-            className="rounded-xl px-3 py-2 text-[13.5px] outline-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
+            className="rounded-xl px-3 py-2 text-base sm:text-[13.5px] outline-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
             value={title} onChange={(e) => setTitle(e.target.value)}
           />
         </label>
@@ -85,7 +85,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
           <span className="text-[12px] font-semibold text-ink-mid">Description</span>
           <textarea
             rows={3}
-            className="rounded-xl px-3 py-2 text-[13.5px] outline-none resize-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
+            className="rounded-xl px-3 py-2 text-base sm:text-[13.5px] outline-none resize-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
             value={description} onChange={(e) => setDescription(e.target.value)}
           />
         </label>

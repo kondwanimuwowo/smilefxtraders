@@ -747,7 +747,15 @@ export function Journal() {
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
               placeholder="Search pair, model, notes…"
-              className="flex-1 bg-transparent text-[12.5px] outline-none text-ink-strong"
+              // text-base below sm for the same reason Form.tsx's inputCls does
+              // it: an <input> under 16px triggers iOS Safari's auto-zoom on
+              // focus. This field never got that treatment.
+              //
+              // leading-5 is for the caret. Browsers draw it to the line-height
+              // box, so 12.5px text in a 36px pill gives a 12.5px caret that
+              // reads as too short for the control. The taller line box gives a
+              // proportionate caret without touching the text size.
+              className="flex-1 bg-transparent text-base sm:text-[12.5px] leading-5 outline-none text-ink-strong"
             />
             {search && (
               <button type="button" onClick={() => handleSearch("")} className="text-ink-dim">

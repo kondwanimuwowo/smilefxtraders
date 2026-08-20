@@ -63,19 +63,19 @@ export default function NewCoursePage() {
 
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] font-semibold text-ink-mid">Title</span>
-          <input className="rounded-xl px-3 py-2 text-[14px] outline-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
+          <input className="rounded-xl px-3 py-2 text-base sm:text-[14px] outline-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
             value={title} onChange={(e) => handleTitleChange(e.target.value)} placeholder="e.g. Advanced SMC Models" />
         </label>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] font-semibold text-ink-mid">Slug</span>
-          <input className="rounded-xl px-3 py-2 text-[14px] outline-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
+          <input className="rounded-xl px-3 py-2 text-base sm:text-[14px] outline-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
             value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="advanced-smc-models" />
         </label>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] font-semibold text-ink-mid">Description</span>
-          <textarea rows={3} className="rounded-xl px-3 py-2 text-[13.5px] outline-none resize-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
+          <textarea rows={3} className="rounded-xl px-3 py-2 text-base sm:text-[13.5px] outline-none resize-none transition-shadow focus:ring-2 focus:ring-teal-deep bg-panel-2 text-ink-strong"
             value={description} onChange={(e) => setDescription(e.target.value)} />
         </label>
 
