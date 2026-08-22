@@ -199,14 +199,13 @@ function PostCard({ post }: { post: ApiPost }) {
 
   return (
     <div
-      className={`rounded-2xl overflow-hidden ${
-        post.isInstructor
-          ? "bg-[color-mix(in_srgb,var(--gold)_8%,transparent)] ring-2 ring-gold-deep"
-          : "bg-panel shadow-md"
-      }`}
+      // The instructor post already announces itself with a gold header strip.
+      // It used to also ring itself in 2px of gold on a gold-washed panel --
+      // the same signal said three times, and the ring read as a border.
+      className="rounded-2xl overflow-hidden bg-panel shadow-md"
     >
       {post.isInstructor && (
-        <div className="flex items-center gap-2 px-5 py-2 text-[11.5px] font-semibold bg-[rgba(248,185,61,0.08)] text-gold-deep">
+        <div className="flex items-center gap-2 px-5 py-2 text-[11.5px] font-semibold bg-gold-tint text-gold-deep">
           <Icon name="workspace_premium" size={14} fill />
           Instructor post · Kondwani
         </div>
@@ -240,8 +239,9 @@ function PostCard({ post }: { post: ApiPost }) {
         <p className="text-[13.5px] leading-relaxed text-ink-mid">{post.text}</p>
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-1 px-5 py-3">
+      {/* Actions -- on their own tinted strip, which separates what you can do
+          to a post from what the post says. */}
+      <div className="flex items-center gap-1 px-5 py-2 bg-panel-2">
         <button
           type="button"
           onClick={() => toggleLike()}
@@ -263,11 +263,11 @@ function PostCard({ post }: { post: ApiPost }) {
 
       {/* Comments */}
       {(commentOpen || post.commentList.length > 0) && (
-        <div className="px-5 pb-4 pt-3 flex flex-col gap-3">
+        <div className="px-5 pb-4 pt-1 flex flex-col gap-3 bg-panel-2">
           {post.commentList.map((c) => (
             <div key={c.id} className="flex items-start gap-2.5">
               <Avatar src={c.avatarUrl ?? undefined} seed={c.avatarSeed} name={c.name} size={28} />
-              <div className="flex-1 rounded-xl px-3 py-2 bg-panel-2">
+              <div className="flex-1 rounded-xl px-3 py-2 bg-panel">
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-[12px] font-semibold text-ink-strong">{c.name}</span>
                   <span className="text-[11px] text-ink-dim">{relativeTime(c.time)}</span>
@@ -280,7 +280,7 @@ function PostCard({ post }: { post: ApiPost }) {
           {commentOpen && (
             <div className="flex items-center gap-2.5 mt-1">
               <Avatar src={user?.avatarUrl} seed={user?.avatarSeed ?? 99} name={user?.name ?? "You"} size={28} />
-              <div className="flex-1 flex items-center gap-2 rounded-xl px-3 py-2 bg-panel-2 border border-line">
+              <div className="flex-1 flex items-center gap-2 rounded-xl px-3 py-2 bg-panel">
                 <input
                   ref={inputRef}
                   type="text"
@@ -590,10 +590,55 @@ function CommunityStats() {
   );
 }
 
+// ── Trending pairs ──────────────────────────────────────────────
+
+/**
+ * What the community is actually talking about, counted from the posts already
+ * in the feed rather than from a new endpoint -- so it costs nothing and can
+ * never disagree with what is on screen. It is scoped to the loaded pages, not
+ * to all time, which is what "trending" should mean anyway.
+ */
+function TrendingPairs({ posts }: { posts: ApiPost[] }) {
+  const counts: Record<string, number> = {};
+  posts.forEach((post) => {
+    if (post.pair) counts[post.pair] = (counts[post.pair] ?? 0) + 1;
+  });
+  const ranked = Object.entries(counts)
+    .map(([pair, n]) => ({ pair, n }))
+    .sort((a, b) => b.n - a.n)
+    .slice(0, 5);
+
+  if (!ranked.length) return null;
+  const max = ranked[0].n;
+
+  return (
+    <Panel>
+      <PanelHead title="Trending pairs" icon="trending_up" />
+      <div className="flex flex-col gap-2.5">
+        {ranked.map(({ pair, n }) => (
+          <div key={pair} className="flex items-center gap-2.5">
+            <span className="text-[12.5px] font-bold w-[62px] shrink-0 text-ink-strong">{pair}</span>
+            <div className="flex-1 h-[5px] rounded-full overflow-hidden bg-track">
+              <div
+                className="h-full rounded-full bg-teal-deep transition-all duration-700 ease-app"
+                style={{ width: `${(n / max) * 100}%` }}
+              />
+            </div>
+            <span className="text-[11px] tabular-nums w-[52px] text-right shrink-0 text-ink-dim">
+              {n} {n === 1 ? "post" : "posts"}
+            </span>
+          </div>
+        ))}
+      </div>
+    </Panel>
+  );
+}
+
 // ── Community ─────────────────────────────────────────────────────────────────
 
 export function Community() {
   const [filter, setFilter] = useState<FeedFilter>("all");
+  const { data: overviewStats } = useCommunityStats();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } = usePosts();
   const allPosts = data?.pages.flatMap((p) => p.posts) ?? [];
   const filtered = filterPosts(allPosts, filter);
@@ -609,6 +654,17 @@ export function Community() {
             Zambia&apos;s SMC trading community: share trades, analysis, and lessons.
           </p>
         </div>
+        {/* The prototype pairs this with a live "62 online now" count. We do not
+            track presence, and a number that looks live but is not is worse
+            than no number, so only the real member count is shown. */}
+        {overviewStats && (
+          <div className="hidden sm:block text-[12.5px] text-ink-dim">
+            <strong className="font-semibold text-ink-strong">
+              {overviewStats.members.toLocaleString()}
+            </strong>{" "}
+            {overviewStats.members === 1 ? "member" : "members"}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] gap-5">
@@ -616,17 +672,18 @@ export function Community() {
         <div className="flex flex-col gap-4">
           <ComposeBox />
 
-          {/* Filter tabs */}
-          <div className="flex items-center gap-1">
+          {/* Filter tabs -- same pill track as the journal's filter bar, so the
+              two feeds a trader switches between do not read as two products. */}
+          <div className="flex items-center gap-0.5 rounded-full p-1 self-start bg-panel shadow-sm">
             {FILTER_TABS.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setFilter(tab.id)}
-                className={`px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all ${
+                className={`px-4 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors ${
                   filter === tab.id
-                    ? "bg-[rgba(8,174,170,0.12)] text-teal-deep ring-2 ring-teal-deep"
-                    : "bg-transparent text-ink-dim"
+                    ? "bg-teal-solid text-white"
+                    : "text-ink-mid hover:text-ink-strong"
                 }`}
               >
                 {tab.label}
@@ -675,6 +732,7 @@ export function Community() {
 
         {/* Sidebar */}
         <div className="flex flex-col gap-4">
+          <TrendingPairs posts={allPosts} />
           <Leaderboard />
           <CommunityStats />
 
