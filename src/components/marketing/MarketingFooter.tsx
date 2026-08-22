@@ -92,7 +92,31 @@ export function MarketingFooter() {
               loading="lazy"
             />
           </a>
+
+          {/* Broker referral (introducing-broker link). rel="sponsored nofollow"
+              is Google's required markup for a commission-bearing link and is
+              invisible to visitors, so it stays regardless of what the visible
+              copy says. */}
+          <a
+            href="https://ic.com/?camp=67851"
+            target="_blank"
+            rel="sponsored nofollow noopener noreferrer"
+            className="inline-block shrink-0 rounded-md overflow-hidden opacity-80 transition-opacity hover:opacity-100"
+          >
+            {/* The file named "black" is the black-BACKGROUND lockup with white
+                type, which is the one that works here. The "white" variant is
+                black type on white and would need its own light chip. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://promo.icmarkets.com/Logos/2021/400x110/BAN_ICM_black_400x110.png"
+              alt="IC Markets"
+              width={127}
+              height={35}
+              loading="lazy"
+            />
+          </a>
         </div>
+
 
         <p className="text-[12px] leading-relaxed mt-6 text-justify text-[rgba(255,255,255,0.5)]">
           <strong className="font-bold text-[rgba(255,255,255,0.85)]">Risk Warning:</strong>{" "}
