@@ -209,11 +209,11 @@ export default async function HomePage() {
                 Kondwani teaches the method itself: liquidity, fair-value gaps, order blocks, premium and discount, worked out from first principles rather than handed over as signals. Every live call is checked against the SMC rulebook before it posts, so you can see why a setup qualifies.
               </p>
               <p className="reveal text-[17px] text-ink-mid mt-4 leading-[1.7]" data-delay="140">
-                He is not the whole company, though. Support answers your questions, accounts handles billing, moderators keep the feed honest, and engineers keep the tools and the market data running.
+                He and the Smile FX team keep the tools and the market data running, and are ready to assist traders in the best way possible.
               </p>
               <blockquote className="reveal mt-6 py-[18px] px-[22px] bg-[var(--bg-soft)] rounded-[14px] flex gap-[13px]" data-delay="160">
                 <span className="w-2 rounded-full bg-coral shrink-0" />
-                <p className="text-base italic text-ink leading-[1.6]">&quot;I don&apos;t want to hand you fish. I want you to read the chart, follow your rules, and never need my signals again.&quot;</p>
+                <p className="text-base italic text-ink leading-[1.6]">&quot;My goal is to shorten the time it takes traders to learn to trade on their own, so they never need a signal service again.&quot;</p>
               </blockquote>
               <div className="reveal flex gap-3.5 mt-[26px] flex-wrap" data-delay="200">
                 <Button href="/about" size="lg" iconRight="arrow_forward">Meet the team</Button>

@@ -41,7 +41,7 @@ export default function AboutPage() {
               </p>
               <blockquote className="reveal mt-6 py-[18px] px-[22px] bg-[var(--bg-soft)] rounded-[14px] flex gap-[13px]" data-delay="200">
                 <span className="w-2 rounded-full bg-coral shrink-0" />
-                <p className="text-base italic text-ink leading-[1.6]">&quot;I don&apos;t want to hand you fish. I want you to read the chart, follow your rules, and never need my signals again.&quot;</p>
+                <p className="text-base italic text-ink leading-[1.6]">&quot;My goal is to shorten the time it takes traders to learn to trade on their own, so they never need a signal service again.&quot;</p>
               </blockquote>
             </div>
           </div>
@@ -53,7 +53,7 @@ export default function AboutPage() {
         <div className="container">
           <div className="sec-head center reveal">
             <h2>The team behind the desk</h2>
-            <p className="lead">Kondwani does the teaching. Everything else here has someone behind it: your account, your questions, the community feed, and the tools themselves.</p>
+            <p className="lead">Kondwani and the Smile FX team keep the tools and the market data running, and are ready to assist traders in the best way possible.</p>
           </div>
           <div className="grid g3 auto-rows-fr mt-12">
             {[
