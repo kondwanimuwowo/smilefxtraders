@@ -233,6 +233,16 @@
   --row-hover:  rgba(8, 42, 59, 0.035);
   --topbar-bg:  rgba(255, 255, 255, 0.78);
 
+  /* Decorative icon fill. A deep slate rather than a brand hue: the design
+     prototype paints every card icon this colour, overriding the teal that
+     its own chip rule still sets underneath (an inline `fill` on the <svg>
+     beats both the `fill="currentColor"` attribute and the parent's color,
+     which is why the teal there is vestigial and easy to misread).
+
+     It also happens to be the accessible choice by a wide margin -- 7.31:1
+     on --bg-tint against --teal's 2.48:1. */
+  --icon:       #36525F;
+
   /* Text-safe brand hues. Each clears 4.5:1 against ALL four light surfaces
      (--panel #FFFFFF, --panel-2 #EEF2F6, --app-bg #F6F8FA, --bg-tint
      #ECF4F4), not just white — pills and card headers sit on --panel-2, and
@@ -289,6 +299,8 @@
   --track:      rgba(255, 255, 255, 0.08);
   --row-hover:  rgba(255, 255, 255, 0.03);
   --topbar-bg:  rgba(6, 22, 30, 0.6);
+  /* 4.70:1 on a tinted chip over --panel. */
+  --icon:       #9BB8C4;
 
   /* Text-safe brand hues, dark theme. Here the bright variants are already
      strong on the navy panel, so -deep resolves to them rather than to
@@ -345,6 +357,7 @@
   --color-line-soft: var(--line-soft);
   --color-hover:     var(--hover);
   --color-track:     var(--track);
+  --color-icon:      var(--icon);
   --color-row-hover: var(--row-hover);
   --color-topbar-bg: var(--topbar-bg);
 
@@ -602,6 +615,10 @@
   --track:      rgba(8, 42, 59, 0.10);
   --row-hover:  rgba(8, 42, 59, 0.035);
   --topbar-bg:  rgba(255, 255, 255, 0.78);
+  /* Pinned for the same reason as the rest of this block: without it a
+     visitor with the dashboard set to dark would inherit the dark #9BB8C4
+     here and get a pale glyph on a pale chip. */
+  --icon:       #36525F;
 }
 
 @layer base {
@@ -720,7 +737,9 @@
   .g2 { @apply grid gap-6 grid-cols-2; }
   .g4 { @apply grid gap-6 grid-cols-4; }
 
-  .icon-chip { @apply w-[52px] h-[52px] rounded-[14px] bg-bg-tint flex items-center justify-center text-teal-deep; }
+  /* Slate icon on a teal-tinted chip, per the prototype. The tint carries the
+     brand; the glyph does not need to as well, and reads better for it. */
+  .icon-chip { @apply w-[52px] h-[52px] rounded-[14px] bg-bg-tint flex items-center justify-center text-icon; }
   .dark .icon-chip { @apply bg-teal-tint; }
 
   /* tool card */

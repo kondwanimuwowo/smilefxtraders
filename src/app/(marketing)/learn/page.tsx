@@ -5,7 +5,7 @@ import { FeatureBlock } from "@/components/marketing/FeatureBlock";
 
 export const metadata: Metadata = {
   title: "Academy | Smile FX Traders",
-  description: "A structured smart-money curriculum: six levels from market-structure foundations to a funded account, taught in order by Kondwani.",
+  description: "A structured smart-money curriculum: six levels from market-structure foundations to a funded account, taught in order.",
 };
 
 const LEVELS = [
@@ -25,7 +25,7 @@ export default function LearnPage() {
         <div className="container">
           <div className="sec-head reveal">
             <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">From your first candle to a funded account</h2>
-            <p className="lead mt-[18px]">Six levels, taught in order. Master each before the next unlocks, so nothing is skipped and nothing is rushed. This is the same path Kondwani walks every new trader through.</p>
+            <p className="lead mt-[18px]">Six levels, taught in order. Master each before the next unlocks, so nothing is skipped and nothing is rushed. This is the same path we walk every new trader through.</p>
           </div>
           <div className="flex gap-7 mt-[34px] flex-wrap">
             <div>

@@ -59,7 +59,7 @@ export async function AuthShell({ children }: { children: ReactNode }) {
             Trade smart money.<br />Together.
           </h1>
           <p className="mt-4 leading-relaxed max-w-[380px] text-[15px] text-[rgba(255,255,255,0.7)]">
-            A professional desk for SMC &amp; Supply-and-Demand traders. Journal your edge, validate every setup, and follow live calls from Kondwani.
+            A professional desk for SMC &amp; Supply-and-Demand traders. Journal your edge, validate every setup, and follow live calls from our trading desk.
           </p>
 
           {/* Feature rows */}

@@ -5,7 +5,7 @@ import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
   title: "About | Smile FX Traders",
-  description: "The story behind Smile FX Traders and Kondwani's mission to give African traders real tools, an honest method, and a community built on discipline.",
+  description: "The story behind Smile FX Traders, and the team giving African traders real tools, an honest method, and a community built on discipline.",
 };
 
 export default function AboutPage() {
@@ -25,14 +25,13 @@ export default function AboutPage() {
       <section className="section" id="story">
         <div className="container">
           <div className="instr-grid">
-            <div className="reveal relative">
-              <div className="rounded-3xl overflow-hidden aspect-[4/5] bg-navy-grad relative shadow-[var(--shadow-card-lg)]">
+            <div className="reveal relative flex justify-center">
+              <div className="rounded-full overflow-hidden aspect-square w-[min(100%,400px)] bg-navy-grad relative shadow-[var(--shadow-card-lg)]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/kondwanimuwowo.png" alt="Kondwani" className="w-full h-full object-cover" />
               </div>
             </div>
             <div>
-              <div className="eyebrow reveal">Lead Instructor</div>
               <h2 className="reveal mt-3.5 text-[clamp(28px,3.4vw,40px)]" data-delay="60">Kondwani</h2>
               <p className="reveal text-[15px] text-ink-mid mt-[22px] leading-[1.75]" data-delay="120">
                 Kondwani learned to trade the hard way: through blown accounts, recycled YouTube &quot;strategies,&quot; and signal groups that taught him nothing. The turning point was smart money: liquidity, fair-value gaps, order blocks, premium and discount. Not magic. Structure. A way to read what price was actually doing.
@@ -45,6 +44,35 @@ export default function AboutPage() {
                 <p className="text-base italic text-ink leading-[1.6]">&quot;I don&apos;t want to hand you fish. I want you to read the chart, follow your rules, and never need my signals again.&quot;</p>
               </blockquote>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* The team */}
+      <section className="section soft" id="team">
+        <div className="container">
+          <div className="sec-head center reveal">
+            <h2>The team behind the desk</h2>
+            <p className="lead">Kondwani does the teaching. Everything else here has someone behind it: your account, your questions, the community feed, and the tools themselves.</p>
+          </div>
+          <div className="grid g3 auto-rows-fr mt-12">
+            {[
+              { icon: "school",      title: "Instruction",          body: "The six-level Academy curriculum, taught in order, plus the weekly live sessions where the week's setups get marked up." },
+              { icon: "campaign",    title: "Live calls",           body: "Every alert is checked against the SMC rulebook before it posts, with the reasoning attached, so you can see why a setup qualifies." },
+              { icon: "forum",       title: "Member support",       body: "Questions about a tool, a trade, or getting back into your account, answered by people who use the platform every day." },
+              { icon: "credit_card", title: "Accounts & billing",  body: "Plans, invoices, Kwacha and card payments, upgrades and cancellations. No dark patterns, no surprise renewals." },
+              { icon: "gavel",       title: "Community moderation", body: "Keeping the feed worth reading: no signal spam, no profit guarantees, no hype at anyone's expense." },
+              { icon: "construction",title: "Platform & data",     body: "The engineers who ship the tools, sync the COT and macro feeds, and keep the desk running while the market is open." },
+            ].map(({ icon, title, body }, i) => (
+              <MarketingCard
+                key={title}
+                icon={icon}
+                title={title}
+                description={body}
+                className="reveal h-full flex flex-col"
+                dataDelay={(i % 3) * 80}
+              />
+            ))}
           </div>
         </div>
       </section>

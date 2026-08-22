@@ -1,21 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 440" fill="none" role="img" aria-label="Trading chart showing an upward trend">
+  <!--
+    Flat by design. Every internal gradient (the line, the area fill, the card
+    body, the endpoint dot) is a single colour: the hero section behind this
+    SVG already carries two radial gradients plus a linear one, and a gradient
+    drawn on top of a gradient reads as mud rather than as depth.
+
+    The corner decoration is gone for the same reason: the teal and gold
+    ambient glows, thin rings and accent dots that sat diagonally opposite each
+    other were competing with the section's own gradient corners. What is left
+    is the card and the chart.
+  -->
   <defs>
-    <linearGradient id="line" x1="70" y1="270" x2="474" y2="108" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#08AEAA"/>
-      <stop offset="100%" stop-color="#30E8DF"/>
-    </linearGradient>
-    <linearGradient id="area" x1="0" y1="108" x2="0" y2="312" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#08AEAA" stop-opacity="0.28"/>
-      <stop offset="100%" stop-color="#08AEAA" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="card" x1="0" y1="70" x2="0" y2="360" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#0E3247" stop-opacity="0.55"/>
-      <stop offset="100%" stop-color="#081F2E" stop-opacity="0.55"/>
-    </linearGradient>
-    <radialGradient id="dot" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#30E8DF"/>
-      <stop offset="100%" stop-color="#08AEAA"/>
-    </radialGradient>
     <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
       <feGaussianBlur stdDeviation="6" result="b"/>
       <feMerge>
@@ -23,24 +18,12 @@
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
-    <filter id="soft" x="-60%" y="-60%" width="220%" height="220%">
-      <feGaussianBlur stdDeviation="10"/>
-    </filter>
   </defs>
-
-  <!-- ── Ambient glows ── -->
-  <ellipse cx="470" cy="90" rx="150" ry="120" fill="#08AEAA" fill-opacity="0.10" filter="url(#soft)"/>
-  <ellipse cx="80" cy="380" rx="120" ry="90" fill="#F8B93D" fill-opacity="0.06" filter="url(#soft)"/>
-
-  <!-- ── Decorative thin rings ── -->
-  <circle cx="502" cy="330" r="46" stroke="#08AEAA" stroke-opacity="0.14" stroke-width="1"/>
-  <circle cx="502" cy="330" r="30" stroke="#08AEAA" stroke-opacity="0.09" stroke-width="1"/>
-  <circle cx="54" cy="118" r="30" stroke="#F8B93D" stroke-opacity="0.12" stroke-width="1"/>
 
   <!-- ══════════════════════════
        GLASS CARD
   ══════════════════════════ -->
-  <rect x="50" y="70" width="440" height="290" rx="22" fill="url(#card)"/>
+  <rect x="50" y="70" width="440" height="290" rx="22" fill="#0B2B3D" fill-opacity="0.55"/>
   <rect x="50" y="70" width="440" height="290" rx="22" stroke="#3FC9C4" stroke-opacity="0.20" stroke-width="1"/>
   <!-- top highlight -->
   <path d="M72 70 H468" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1"/>
@@ -64,16 +47,16 @@
 
   <!-- ── Area fill under the line ── -->
   <path d="M70 270 C110 255 132 258 162 240 C192 222 212 234 246 204 C278 176 302 190 332 162 C362 134 388 146 420 122 C446 103 462 110 474 106 L474 312 L70 312 Z"
-        fill="url(#area)"/>
+        fill="#08AEAA" fill-opacity="0.12"/>
 
   <!-- ── The line ── -->
   <path d="M70 270 C110 255 132 258 162 240 C192 222 212 234 246 204 C278 176 302 190 332 162 C362 134 388 146 420 122 C446 103 462 110 474 106"
-        stroke="url(#line)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow)"/>
+        stroke="#30E8DF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow)"/>
 
   <!-- ── Endpoint marker ── -->
   <line x1="474" y1="106" x2="474" y2="312" stroke="#30E8DF" stroke-opacity="0.28" stroke-width="1" stroke-dasharray="3 4"/>
   <circle cx="474" cy="106" r="12" fill="#30E8DF" fill-opacity="0.16"/>
-  <circle cx="474" cy="106" r="5.5" fill="url(#dot)" filter="url(#glow)"/>
+  <circle cx="474" cy="106" r="5.5" fill="#30E8DF" filter="url(#glow)"/>
   <circle cx="474" cy="106" r="2" fill="#ffffff"/>
 
   <!-- ── Footer axis ticks (minimal) ── -->
@@ -96,10 +79,4 @@
   <rect x="416" y="320" width="66" height="14" rx="5" fill="#30E8DF"/>
   <!-- sublabel -->
   <rect x="416" y="342" width="90" height="6" rx="3" fill="#ffffff" fill-opacity="0.14"/>
-
-  <!-- ── minimal accent dots ── -->
-  <circle cx="36" cy="250" r="3" fill="#08AEAA" fill-opacity="0.5"/>
-  <circle cx="36" cy="232" r="2" fill="#08AEAA" fill-opacity="0.3"/>
-  <circle cx="524" cy="176" r="3" fill="#F8B93D" fill-opacity="0.4"/>
-  <circle cx="524" cy="194" r="2" fill="#F8B93D" fill-opacity="0.22"/>
 </svg>

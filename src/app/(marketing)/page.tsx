@@ -11,7 +11,7 @@ import { getPlanPrices } from "@/lib/server/getPlanPrices";
 export const metadata: Metadata = {
   title: "Smile FX Traders | Trade Smart Money, Together",
   description:
-    "A professional trading desk for SMC and Supply & Demand traders. Journal your edge, validate every setup, and follow live calls from Kondwani.",
+    "A professional trading desk for SMC and Supply & Demand traders. Journal your edge, validate every setup, and follow live calls from our trading desk.",
 };
 
 export default async function HomePage() {
@@ -37,33 +37,24 @@ export default async function HomePage() {
                 className="reveal text-[15px] text-white/76 mt-[22px] max-w-[520px] leading-[1.6]"
                 data-delay="120"
               >
-                A professional trading desk for SMC and Supply &amp; Demand traders. Journal your edge, validate every setup, and follow live calls from Kondwani.
+                A professional trading desk for SMC and Supply &amp; Demand traders. Journal your edge, validate every setup, and follow live calls from our trading desk.
               </p>
               <div className="reveal flex gap-3.5 mt-8 flex-wrap" data-delay="180">
                 <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Start for free</Button>
               </div>
             </div>
 
-            {/* Right: Hero chart mock */}
-            <div className="reveal relative flex items-center justify-center" data-delay="160">
-              {/* Glow — echoes the hero's own radial gradients */}
-              <div className="absolute inset-0 rounded-[24px] bg-[radial-gradient(ellipse_at_50%_50%,rgba(48,232,223,0.35)_0%,transparent_70%)] blur-3xl" aria-hidden="true" />
-              <div className="mock relative w-full max-w-[480px] shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
-                <div className="mock-bar">
-                  <Icon name="candlestick_chart" size={18} className="text-teal-deep" />
-                  <span className="font-semibold text-[13px] ml-1">Market Structure</span>
-                  <span className="chip ml-auto text-[11px]">
-                    <span className="size-1.5 rounded-full bg-teal-bright animate-live" />
-                    Live
-                  </span>
-                </div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/candles-smc.png"
-                  alt="Annotated candlestick chart showing break of market structure, change of character, fair value gap, and order block"
-                  className="w-full h-auto block"
-                />
-              </div>
+            {/* Right: Hero illustration. Deliberately flat -- the section behind
+                it already carries two radial gradients and a linear one, so the
+                artwork keeps solid fills and lets the background do the depth. */}
+            <div className="reveal flex items-center justify-center" data-delay="160">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/hero-illustration.svg"
+                alt=""
+                aria-hidden="true"
+                className="w-full max-w-[480px] h-auto block"
+              />
             </div>
           </div>
         </div>
@@ -80,7 +71,7 @@ export default async function HomePage() {
             {[
               { icon: "menu_book",            title: "Trade Journal",       desc: "Log every trade with full context: entry, SL, TP, model, session, R:R. Find your edge through session analytics and model win-rates." },
               { icon: "rule",                 title: "Rules Validator",     desc: "Walk any idea through the SMC checklist before you click. Get a clear A+ / Wait / No-Trade verdict." },
-              { icon: "notifications_active", title: "Live Alerts",         desc: "Kondwani posts validated setups in real time, with the full reasoning. Copy any alert straight to your journal." },
+              { icon: "notifications_active", title: "Live Alerts",         desc: "Validated setups posted in real time, with the full reasoning behind each one. Copy any alert straight to your journal." },
               { icon: undefined, iconNode: <GavoIcon size={32} />, title: "Gavo AI Review", desc: "Your AI trading coach grades every trade against the SMC rulebook with a structured verdict: what was good, what to improve." },
               { icon: "analytics",            title: "MacroEdge",           desc: "A weighted fundamental score per currency, cross-checked against Trend Matrix and COT, so you know why a pair is biased before the chart shows it." },
               { icon: "school",               title: "Academy",             desc: "A six-level SMC curriculum taught in order, from market structure foundations to prop-firm readiness." },
@@ -121,7 +112,7 @@ export default async function HomePage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <Icon name="menu_book" size={18} className="text-teal-deep" />
+                  <Icon name="menu_book" size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">Trade Journal</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -144,7 +135,7 @@ export default async function HomePage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <Icon name="rule" size={18} className="text-teal-deep" />
+                  <Icon name="rule" size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">Rules Validator</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -168,7 +159,7 @@ export default async function HomePage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <Icon name="analytics" size={18} className="text-teal-deep" />
+                  <Icon name="analytics" size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">MacroEdge</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -191,7 +182,7 @@ export default async function HomePage() {
             <div className="feature-visual reveal" data-delay="120">
               <div className="mock">
                 <div className="mock-bar">
-                  <GavoIcon size={18} className="text-teal-deep" />
+                  <GavoIcon size={18} className="text-teal" />
                   <span className="font-semibold text-[13px] ml-1">Gavo AI Review</span>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -206,24 +197,26 @@ export default async function HomePage() {
       <section className="section">
         <div className="container">
           <div className="instr-grid">
-            <div className="reveal relative">
-              <div className="rounded-3xl overflow-hidden aspect-[4/5] bg-[linear-gradient(165deg,#0C4359_0%,#082A3B_78%)] relative shadow-[var(--shadow-card-lg)]">
+            <div className="reveal relative flex justify-center">
+              <div className="rounded-full overflow-hidden aspect-square w-[min(100%,400px)] bg-[linear-gradient(165deg,#0C4359_0%,#082A3B_78%)] relative shadow-[var(--shadow-card-lg)]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/kondwanimuwowo.png" alt="Kondwani" className="w-full h-full object-cover" />
               </div>
             </div>
             <div>
-              <div className="eyebrow reveal">Lead Instructor</div>
               <h2 className="reveal mt-4 text-[clamp(28px,3.4vw,40px)]" data-delay="60">Kondwani</h2>
               <p className="reveal text-[17px] text-ink-mid mt-[22px] leading-[1.7]" data-delay="120">
-                Live calls posted every trading day. Every alert is validated against the SMC rulebook before posting, so you know exactly why the setup qualifies. Kondwani teaches pure smart money: liquidity, fair-value gaps, order blocks, premium and discount, from first principles.
+                Kondwani teaches the method itself: liquidity, fair-value gaps, order blocks, premium and discount, worked out from first principles rather than handed over as signals. Every live call is checked against the SMC rulebook before it posts, so you can see why a setup qualifies.
+              </p>
+              <p className="reveal text-[17px] text-ink-mid mt-4 leading-[1.7]" data-delay="140">
+                He is not the whole company, though. Support answers your questions, accounts handles billing, moderators keep the feed honest, and engineers keep the tools and the market data running.
               </p>
               <blockquote className="reveal mt-6 py-[18px] px-[22px] bg-[var(--bg-soft)] rounded-[14px] flex gap-[13px]" data-delay="160">
                 <span className="w-2 rounded-full bg-coral shrink-0" />
                 <p className="text-base italic text-ink leading-[1.6]">&quot;I don&apos;t want to hand you fish. I want you to read the chart, follow your rules, and never need my signals again.&quot;</p>
               </blockquote>
               <div className="reveal flex gap-3.5 mt-[26px] flex-wrap" data-delay="200">
-                <Button href="/about" size="lg" iconRight="arrow_forward">Read his story</Button>
+                <Button href="/about" size="lg" iconRight="arrow_forward">Meet the team</Button>
                 <Button href="/learn" size="lg" variant="ghost" icon="school">Browse the Academy</Button>
               </div>
             </div>
