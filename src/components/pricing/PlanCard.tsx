@@ -36,9 +36,16 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
     <div
       className={cn(
         "rounded-2xl flex flex-col relative",
+        // The fill and the wash have to be two separate utilities. Written as
+        // one bg-[gradient,color] the whole thing compiles to background-image
+        // with a colour as its second layer, which is not a valid <image>, so
+        // the browser dropped the declaration and the card painted nothing at
+        // all -- the popular plan sat transparent over the page while both its
+        // neighbours were solid white.
+        "bg-panel",
         meta.popular
-          ? "bg-[linear-gradient(175deg,rgba(8,174,170,0.07)_0%,transparent_40%),var(--panel,#fff)] shadow-[0_0_0_2px_rgba(8,174,170,0.4),0_8px_24px_rgba(0,0,0,0.08)] mt-0"
-          : "bg-[var(--panel,#fff)] shadow-md mt-3.5"
+          ? "bg-[linear-gradient(175deg,var(--teal-tint-soft)_0%,transparent_40%)] shadow-[0_0_0_2px_rgba(8,174,170,0.4),0_8px_24px_rgba(0,0,0,0.08)] mt-0"
+          : "shadow-md mt-3.5"
       )}
     >
       {meta.popular && (
