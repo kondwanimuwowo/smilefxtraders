@@ -37,13 +37,13 @@ export function PricingContent({ prices }: Props) {
             <div className="toggle-wrap">
               <button
                 onClick={() => setAnnual(false)}
-                className={`border-none py-[9px] px-5 rounded-full font-sans font-semibold text-sm cursor-pointer transition-all duration-200 ${!annual ? "bg-teal-solid text-white" : "bg-transparent text-white/70"}`}
+                className={`border-none py-[9px] px-5 rounded-full font-sans font-semibold text-sm cursor-pointer transition-all duration-200 ${!annual ? "bg-teal-solid text-white" : "bg-transparent text-ink-mid hover:text-ink-strong"}`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setAnnual(true)}
-                className={`border-none py-[9px] px-5 rounded-full font-sans font-semibold text-sm cursor-pointer transition-all duration-200 ${annual ? "bg-teal-solid text-white" : "bg-transparent text-white/70"}`}
+                className={`border-none py-[9px] px-5 rounded-full font-sans font-semibold text-sm cursor-pointer transition-all duration-200 ${annual ? "bg-teal-solid text-white" : "bg-transparent text-ink-mid hover:text-ink-strong"}`}
               >
                 Annual <span className={annual ? "text-white" : "text-gold-deep"}>−20%</span>
               </button>

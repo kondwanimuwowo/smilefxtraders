@@ -52,7 +52,7 @@ export function PlanCard({ meta, prices, annual, showUsd = false, renderCta }: P
         <div className="flex items-center gap-3 mb-4">
           <div
             className="size-10 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: `${meta.color}18` }}
+            style={{ background: `color-mix(in srgb, ${meta.color} 12%, transparent)` }}
           >
             <Icon name={meta.icon} size={22} style={{ color: meta.color }} />
           </div>
