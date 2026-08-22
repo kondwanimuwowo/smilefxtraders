@@ -157,6 +157,19 @@
   --teal-solid-2: #056E6B;
   --coral-solid:  #B8402F;
 
+  /* --teal-solid used as INK rather than as a fill.
+
+     The fills above deliberately do not flip, because the label on them is
+     always white. Painting type or an icon in one is a different problem:
+     #068481 is 4.54:1 on white but only 2.96:1 on the dark panel, so plan
+     prices and feature checkmarks fail AA for anyone reading the app in dark
+     mode. This token keeps the solid teal in light and steps up to the bright
+     variant in dark (8.79:1), so the same class works on both.
+
+     Use it anywhere --teal-solid would otherwise land on text or an icon.
+     Marketing pins it below, being always light regardless of the toggle. */
+  --teal-solid-ink: var(--teal-solid);
+
   /* ─── Which brand token goes on TEXT ──────────────────────────────────────
      The seven tokens above are FILL colors: backgrounds, rings, icon fills,
      chart strokes, dots. None of them may be used as a text color.
@@ -328,6 +341,7 @@
        gold  — --gold #F8B93D passes (6.88 worst case) but sits close to the
                floor on tinted pills; #FFD37A gives real headroom. */
   --teal-deep:  #30E8DF;
+  --teal-solid-ink: var(--teal-bright);
   --coral-deep: #FF8A78;
   --gold-deep:  #FFD37A;
 
@@ -380,8 +394,9 @@
   --color-topbar-bg: var(--topbar-bg);
 
   /* Solid fills for white-labelled controls (bg-teal-solid). */
-  --color-teal-solid:   var(--teal-solid);
-  --color-teal-solid-2: var(--teal-solid-2);
+  --color-teal-solid:     var(--teal-solid);
+  --color-teal-solid-2:   var(--teal-solid-2);
+  --color-teal-solid-ink: var(--teal-solid-ink);
   --color-coral-solid:  var(--coral-solid);
 
   /* Text-safe brand hues (text-teal-deep, bg-gold-tint, …). See the note in
@@ -661,6 +676,7 @@
      visitor with the dashboard set to dark would inherit the dark #9BB8C4
      here and get a pale glyph on a pale chip. */
   --icon:       #36525F;
+  --teal-solid-ink: var(--teal-solid);
 }
 
 @layer base {

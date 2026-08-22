@@ -19,7 +19,7 @@ function FeatureRow({ text, included }: { text: string; included: boolean }) {
       <Icon
         name={included ? "check_circle" : "cancel"}
         size={16}
-        className={cn("shrink-0 mt-0.5", included ? "text-teal-solid" : "text-track")}
+        className={cn("shrink-0 mt-0.5", included ? "text-teal-solid-ink" : "text-track")}
       />
       <span className={cn("text-[13px] leading-snug", included ? "text-ink-mid opacity-100" : "text-ink-dim opacity-55")}>
         {text}

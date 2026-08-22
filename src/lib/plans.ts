@@ -56,7 +56,7 @@ export const PLAN_META: PlanMeta[] = [
     id: "edge",
     name: "Edge",
     icon: "trending_up",
-    color: "var(--teal-solid)",
+    color: "var(--teal-solid-ink)",
     tagline: "The full toolkit for serious SMC traders.",
     popular: true,
     features: [
