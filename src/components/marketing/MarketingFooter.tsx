@@ -103,12 +103,13 @@ export function MarketingFooter() {
             rel="sponsored nofollow noopener noreferrer"
             className="inline-block shrink-0 rounded-md overflow-hidden opacity-80 transition-opacity hover:opacity-100"
           >
-            {/* The file named "black" is the black-BACKGROUND lockup with white
-                type, which is the one that works here. The "white" variant is
-                black type on white and would need its own light chip. */}
+            {/* IC Markets names these by BACKGROUND, not by ink: "white" is the
+                dark wordmark on an opaque white ground, which is what reads on
+                this footer and matches the boxed Trustpilot widget beside it.
+                Source is 200x55, so 35px tall lands at 127px wide. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="https://promo.icmarkets.com/Logos/2021/400x110/BAN_ICM_black_400x110.png"
+              src="https://promo.icmarkets.com/Logos/2021/200x55/BAN_ICM_white_200x55.png"
               alt="IC Markets"
               width={127}
               height={35}
