@@ -18,7 +18,7 @@ export function MarketingFooter() {
 
   return (
     <footer className="text-white/70 bg-[var(--navy-deep,#082A3B)] border-t border-[rgba(255,255,255,0.06)] overflow-hidden">
-      <div className="mx-auto px-5 max-w-[1000px] pt-14 pb-14">
+      <div className="mx-auto px-4 max-w-[1000px] pt-14 pb-6">
         {/* Logo lockup */}
         <Link href="/" className="flex items-center justify-center flex-wrap gap-x-4 gap-y-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -55,7 +55,7 @@ export function MarketingFooter() {
         </div>
 
         {/* Links */}
-        <nav className="flex items-center justify-center gap-x-7 gap-y-2 flex-wrap text-center mt-7">
+        <nav className="flex items-center justify-center gap-x-8 gap-y-2 flex-wrap text-center mt-7">
           {LINKS.map(([label, href]) => (
             <Link
               key={href}
@@ -73,7 +73,7 @@ export function MarketingFooter() {
             width:100%, so it needs a fixed track once it stops being the only
             thing on the line. */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-5 sm:gap-8 mt-8">
-          <div className="w-full sm:w-[230px] shrink-0">
+          <div className="w-full sm:w-[230px] shrink-0 border border-[rgba(255,255,255,0.2)] rounded-sm py-1.5">
             <TrustpilotBadge />
           </div>
 

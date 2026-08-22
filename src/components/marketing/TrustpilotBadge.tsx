@@ -65,7 +65,7 @@ export function TrustpilotBadge() {
           rel="noopener noreferrer"
           className="text-[12.5px] text-[rgba(255,255,255,0.5)] hover:text-white transition-colors"
         >
-          Read our reviews on Trustpilot
+          See our reviews on Trustpilot
         </a>
       </div>
     </>
