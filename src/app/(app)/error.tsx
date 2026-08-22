@@ -19,7 +19,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
     <EmptyState
       icon="error"
       title="Something went wrong loading this page"
-      body="This usually clears up on retry — the connection to our servers can occasionally be slow. If it keeps happening, let Kondwani know."
+      body="This usually clears up on retry — the connection to our servers can occasionally be slow. If it keeps happening, contact support@smilefxtraders.com."
       action={
         <Button variant="primary" size="md" icon="refresh" onClick={reset}>
           Try again

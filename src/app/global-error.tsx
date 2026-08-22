@@ -40,7 +40,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
           </h1>
           <p style={{ fontSize: "0.9rem", lineHeight: 1.6, color: INK_DIM, margin: "0 0 1.5rem" }}>
             Something failed at the very top of the app. Reloading usually fixes
-            it. If it keeps happening, let Kondwani know.
+            it. If it keeps happening, contact support@smilefxtraders.com.
           </p>
           <button
             onClick={reset}

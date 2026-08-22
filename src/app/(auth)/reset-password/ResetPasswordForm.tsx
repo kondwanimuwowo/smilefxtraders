@@ -120,7 +120,7 @@ export function ResetPasswordForm() {
           </h1>
           <p className="text-[14.5px] leading-[1.6] text-ink-mid">
             {isInvite
-              ? "This invite link is no longer valid. Ask Kondwani to send you a fresh invite."
+              ? "This invite link is no longer valid. Ask your instructor or contact support@smilefxtraders.com for a fresh invite."
               : "This reset link is no longer valid. Links expire after one use or one hour."}
           </p>
         </div>
