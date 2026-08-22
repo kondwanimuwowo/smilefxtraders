@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
+import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import type { Trade } from "@/lib/store";
@@ -196,6 +197,27 @@ function EquityHero({ trades }: { trades: Trade[] }) {
   );
 }
 
+// A card's closing takeaway -- the conclusion its bars already imply, said in
+// a sentence so the reader is not left doing the arithmetic themselves.
+function Takeaway({ children }: { children: ReactNode }) {
+  return (
+    <div className="mt-4 px-3.5 py-3 rounded-xl bg-panel-2">
+      <p className="text-[12px] leading-relaxed text-ink-mid">{children}</p>
+    </div>
+  );
+}
+
+// The prototype hard-codes this sentence. Ours assembles it from whatever the
+// trade actually carries, so one missing a session or a rating still reads as
+// a sentence rather than as a gap.
+function describeTrade(t: Trade): string {
+  const model = t.model.split("→")[0].split("+")[0].trim();
+  const where = t.session ? ` in the ${t.session} killzone` : "";
+  const tail: string[] = [t.discipline ? "Full checklist followed" : "Checklist not fully followed"];
+  if (t.rating) tail.push(`rated ${t.rating} ${t.rating === 1 ? "star" : "stars"}`);
+  return `${model}${where}, ${t.date}. ${tail.join(", ")}.`;
+}
+
 // ── Analytics panel ────────────────────────────────────────────────────────────
 
 function AnalyticsPanel({ trades }: { trades: Trade[] }) {
@@ -245,12 +267,62 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
       .map(([model, count]) => ({ model: model.split("→")[0].split("+")[0].trim(), count }));
   }, [trades]);
 
+  // avgLoss is stored negative, so the ratio needs its magnitude. Null until
+  // there is at least one of each -- a ratio against zero says nothing.
+  const winLossRatio =
+    stats.avgWin > 0 && stats.avgLoss < 0 ? stats.avgWin / Math.abs(stats.avgLoss) : null;
+
+  // The session bars count every trade; a win rate can only come from closed
+  // ones, so this is its own pass rather than a read of sessionCounts.
+  const bestSession = useMemo(() => {
+    const map: Record<string, { wins: number; total: number }> = {};
+    trades.filter((t) => t.result !== "open" && t.session).forEach((t) => {
+      const key = t.session!;
+      if (!map[key]) map[key] = { wins: 0, total: 0 };
+      map[key].total++;
+      if (t.result === "win") map[key].wins++;
+    });
+    return Object.entries(map)
+      .map(([session, { wins, total }]) => ({
+        session,
+        pct: Math.round((wins / total) * 100),
+        n: total,
+      }))
+      .sort((a, b) => b.pct - a.pct || b.n - a.n)[0] ?? null;
+  }, [trades]);
+
+  // The prototype scopes this to the current month. Taken literally that card
+  // is blank for most of the month at the trade volume a new student actually
+  // logs, so it falls back to the best win overall -- and says which it is
+  // rather than passing an older trade off as this month's.
+  const bestTrade = useMemo(() => {
+    const wins = trades
+      .filter((t) => t.result === "win")
+      .sort((a, b) => b.pnlR - a.pnlR);
+    if (!wins.length) return null;
+
+    const now = new Date();
+    const thisMonth = wins.find((t) => {
+      const when = t.closedAt ?? t.openedAt;
+      if (!when) return false;
+      const d = new Date(when);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+    return thisMonth
+      ? { trade: thisMonth, title: "Best trade this month" }
+      : { trade: wins[0], title: "Best trade so far" };
+  }, [trades]);
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
-      {/* Avg win / avg loss / hold time */}
+      {/* Averages */}
       <Panel>
-        <div className={`px-4 pt-4 pb-4 grid gap-3 ${avgHoldMs != null ? "grid-cols-3" : "grid-cols-2"}`}>
+        <div>
+          <div className="font-display font-semibold text-[14px] mb-3 text-ink-strong">
+            Averages
+          </div>
+          <div className={`grid gap-3 ${avgHoldMs != null ? "grid-cols-3" : "grid-cols-2"}`}>
           <div>
             <div className="text-[10px] font-semibold uppercase tracking-wider mb-1 text-ink-dim">
               Avg win
@@ -263,7 +335,12 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
             <div className="text-[10px] font-semibold uppercase tracking-wider mb-1 text-ink-dim">
               Avg loss
             </div>
-            <div className="font-display font-bold tabular-nums text-[20px] tracking-[-0.01em] text-coral-deep">
+            {/* Coral is for a loss, not for the absence of one -- a red 0.0R
+                reads as a bad number when there is simply nothing there yet. */}
+            <div className={cn(
+              "font-display font-bold tabular-nums text-[20px] tracking-[-0.01em]",
+              stats.losses > 0 ? "text-coral-deep" : "text-ink-strong",
+            )}>
               {stats.avgLoss.toFixed(1)}R
             </div>
           </div>
@@ -276,6 +353,24 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
                 {fmtAvgHold(avgHoldMs)}
               </div>
             </div>
+          )}
+          </div>
+          {winLossRatio != null && (
+            <Takeaway>
+              {winLossRatio >= 1 ? (
+                <>
+                  Your winners average{" "}
+                  <strong className="font-semibold text-ink-strong">{winLossRatio.toFixed(1)}x</strong>{" "}
+                  your losers. Keep cutting losses at 1R.
+                </>
+              ) : (
+                <>
+                  Your losers average{" "}
+                  <strong className="font-semibold text-ink-strong">{(1 / winLossRatio).toFixed(1)}x</strong>{" "}
+                  your winners. Cut losses sooner, or let the winners run further.
+                </>
+              )}
+            </Takeaway>
           )}
         </div>
       </Panel>
@@ -325,6 +420,13 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
               <SessionBar key={session} session={session} count={count} max={sessionMax} />
             ))}
           </div>
+          {bestSession && (
+            <Takeaway>
+              {bestSession.session} is your best session:{" "}
+              <strong className="font-semibold text-teal-deep">{bestSession.pct}% win rate</strong>{" "}
+              across {bestSession.n} {bestSession.n === 1 ? "trade" : "trades"}.
+            </Takeaway>
+          )}
         </div>
       </Panel>
 
@@ -348,6 +450,29 @@ function AnalyticsPanel({ trades }: { trades: Trade[] }) {
             </div>
             <p className="text-[11.5px] leading-relaxed mt-3 text-ink-dim">
               Rule breaks on these setups. Review your checklist before entering.
+            </p>
+          </div>
+        </Panel>
+      )}
+
+      {/* Best trade this month */}
+      {bestTrade && (
+        <Panel>
+          <div>
+            <div className="font-display font-semibold text-[14px] mb-3 text-ink-strong">
+              {bestTrade.title}
+            </div>
+            <div className="flex items-center gap-2.5 mb-2.5">
+              <span className="font-display font-bold text-[16px] text-ink-strong">
+                {bestTrade.trade.pair}
+              </span>
+              <DirPill dir={bestTrade.trade.dir} size="sm" />
+              <span className="ml-auto font-display font-bold tabular-nums text-[18px] text-teal-deep">
+                +{bestTrade.trade.pnlR.toFixed(1)}R
+              </span>
+            </div>
+            <p className="text-[12px] leading-relaxed text-ink-mid">
+              {describeTrade(bestTrade.trade)}
             </p>
           </div>
         </Panel>
