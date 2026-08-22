@@ -195,7 +195,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-app-bg">
         <div className="rounded-3xl px-10 py-12 text-center max-w-sm w-full bg-panel border border-line">
-          <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[rgba(8,174,170,0.12)] border-2 border-teal">
+          <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-teal-tint border-2 border-teal">
             <Icon name="check_circle" size={32} className="text-teal-deep" />
           </div>
           <h2 className="font-display font-medium text-[24px] mb-2 tracking-[-0.02em] text-ink-strong">
@@ -222,7 +222,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
         <div className="rounded-3xl px-10 py-12 text-center max-w-sm w-full bg-panel border border-line">
           {step === "waiting" ? (
             <>
-              <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[rgba(248,185,61,0.12)] border-2 border-gold">
+              <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-gold-tint border-2 border-gold">
                 <Icon name={payMethod === "card" ? "credit_card" : "phone_android"} size={32} className="animate-pulse text-gold-deep" />
               </div>
               <h2 className="font-display font-medium text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">
@@ -246,7 +246,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
             </>
           ) : (
             <>
-              <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[rgba(234,82,61,0.12)] border-2 border-coral">
+              <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-coral-tint border-2 border-coral">
                 <Icon name="error" size={32} className="text-coral-deep" />
               </div>
               <h2 className="font-display font-medium text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">Payment failed</h2>
@@ -296,7 +296,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
               <ul className="space-y-2 mb-5">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-[13px] text-ink-mid">
-                    <Icon name="check_circle" size={15} className="text-teal-deep shrink-0" />
+                    <Icon name="check_circle" size={15} className="text-teal-solid shrink-0" />
                     {f}
                   </li>
                 ))}
@@ -404,7 +404,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
               <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">
                 Mobile money operator
                 {autoPicked && (
-                  <span className="text-[9.5px] font-bold normal-case px-1.5 py-0.5 rounded-full bg-[rgba(8,174,170,0.1)] text-teal-deep border border-[rgba(8,174,170,0.2)]">
+                  <span className="text-[9.5px] font-bold normal-case px-1.5 py-0.5 rounded-full bg-teal-tint text-teal-deep border border-[rgba(8,174,170,0.2)]">
                     auto-detected
                   </span>
                 )}
@@ -419,7 +419,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
                       onClick={() => { setOperator(op.value); setAutoPicked(false); }}
                       className={`flex flex-col items-center gap-1.5 rounded-xl px-2 py-2.5 transition-all border ${
                         active
-                          ? "bg-[rgba(8,174,170,0.07)] border-teal shadow-[inset_0_0_0_1px_rgba(8,174,170,0.25)]"
+                          ? "bg-teal-tint-soft border-teal shadow-[inset_0_0_0_1px_rgba(8,174,170,0.25)]"
                           : "bg-panel-2 border-line"
                       }`}
                     >
@@ -447,7 +447,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
             </div>
 
             {errMsg && (
-              <p className="text-[12.5px] px-3 py-2 rounded-xl bg-[rgba(234,82,61,0.08)] text-coral-deep border border-[rgba(234,82,61,0.2)]">
+              <p className="text-[12.5px] px-3 py-2 rounded-xl bg-coral-tint-soft text-coral-deep border border-[rgba(234,82,61,0.2)]">
                 {errMsg}
               </p>
             )}
