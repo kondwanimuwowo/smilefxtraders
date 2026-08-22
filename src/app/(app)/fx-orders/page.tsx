@@ -100,7 +100,7 @@ function UploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full rounded-xl px-3 py-2.5 text-[13px] outline-none bg-panel-2 border border-line text-ink-strong"
+              className="w-full rounded-xl px-3 py-2.5 text-[13px] outline-none bg-panel-2 shadow-sm text-ink-strong"
             />
           </div>
 
@@ -367,7 +367,7 @@ export default function FxOrdersPage() {
               <button
                 type="button"
                 onClick={() => setShowUpload(true)}
-                className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] hover:opacity-80 bg-panel-2 border border-line text-ink-mid"
+                className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] hover:opacity-80 bg-panel-2 shadow-sm text-ink-mid"
               >
                 <Icon name="upload_file" size={15} />
                 Upload Image
@@ -460,7 +460,7 @@ export default function FxOrdersPage() {
               <button
                 type="button"
                 onClick={() => setShowUpload(true)}
-                className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] hover:opacity-80 bg-panel-2 border border-line text-ink-mid"
+                className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all active:scale-[0.98] hover:opacity-80 bg-panel-2 shadow-sm text-ink-mid"
               >
                 <Icon name="upload_file" size={15} />
                 Upload Image

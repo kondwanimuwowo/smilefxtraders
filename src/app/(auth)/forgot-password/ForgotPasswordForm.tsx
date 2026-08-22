@@ -102,7 +102,7 @@ export function ForgotPasswordForm() {
       <TurnstileWidget innerRef={turnstile.ref} action="password-reset" />
 
       {(state === "error") && (
-        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-coral-tint text-coral-deep border border-[rgba(234,82,61,0.2)]">
+        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-coral-tint text-coral-deep shadow-ring-coral">
           {error}
         </div>
       )}

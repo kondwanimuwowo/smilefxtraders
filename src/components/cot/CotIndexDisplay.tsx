@@ -181,7 +181,7 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
             <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">
               COT Index
             </span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-teal-tint-soft text-teal-deep border border-[rgba(8,174,170,0.18)]">
+            <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-teal-tint-soft text-teal-deep shadow-ring-teal">
               {totalWeeks >= 156 ? "3yr · 156w range" : `${totalWeeks}w range`}
             </span>
           </div>

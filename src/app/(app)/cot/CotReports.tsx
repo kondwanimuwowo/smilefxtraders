@@ -119,7 +119,7 @@ function HistoryBadge({ weeks }: { weeks: number }) {
   return (
     <span
       title={`${weeks} weeks of CFTC report history available for this instrument`}
-      className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded cursor-help bg-teal-tint-soft text-teal-deep border border-[rgba(8,174,170,0.18)]"
+      className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded cursor-help bg-teal-tint-soft text-teal-deep shadow-ring-teal"
     >
       <Icon name="history" size={11} />
       {weeks > 52 ? `${years}yr` : `${weeks}wk`}
@@ -190,7 +190,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
               {entry.synthetic && (
                 <span
                   title={`No direct CFTC contract exists for ${entry.pair} — this signal is derived from its two legs' own currency positioning.`}
-                  className="inline-flex items-center justify-center size-5 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
+                  className="inline-flex items-center justify-center size-5 rounded cursor-help bg-panel-2 text-ink-dim shadow-sm"
                 >
                   <Icon name="auto_awesome" size={12} />
                 </span>
@@ -198,7 +198,7 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
               {entry.usdBase && (
                 <span
                   title="Positions shown for the foreign currency futures (JPY/CHF/CAD). Net positive = bullish on the USD pair."
-                  className="inline-flex items-center justify-center size-5 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
+                  className="inline-flex items-center justify-center size-5 rounded cursor-help bg-panel-2 text-ink-dim shadow-sm"
                 >
                   <Icon name="swap_horiz" size={12} />
                 </span>
@@ -338,7 +338,7 @@ function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: bool
         <Icon name="school" size={15} fill className="text-gold-deep shrink-0 mt-px" />
         <span className="flex-1">
           <strong className="text-ink-strong">Signal</strong> is driven by the Large Spec net position: net long = bullish bias, net short = bearish bias, confirmed by weekly momentum direction.{" "}
-          <strong className="text-ink-strong">COT Index (0–100)</strong> shows where that positioning sits within its own 3-year range — a cycle gauge, not the direction itself.{" "}
+          <strong className="text-ink-strong">COT Index (0–100)</strong> shows where that positioning sits within its own 3-year range. It is a cycle gauge, not the direction itself.{" "}
           <strong className="text-ink-strong">Divergence</strong> between large specs and commercials adds conviction.
         </span>
         <Icon name={open ? "expand_less" : "expand_more"} size={16} className="text-gold-deep shrink-0 mt-px" />
@@ -373,7 +373,7 @@ function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: bool
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-[12.5px] leading-relaxed text-ink-mid">
             <div className="rounded-xl px-4 py-3 shadow-sm bg-teal-tint-soft">
               <div className="font-semibold mb-1 text-teal-deep">Extreme readings: reversal or continuation?</div>
-              At COT Index &gt; 80, large specs are near their most bullish in a year. Always check price structure — if price has not yet moved proportionally, COT is leading; if price has already run hard, the extreme may be signalling a top.
+              At COT Index &gt; 80, large specs are near their most bullish in a year. Always check price structure. If price has not yet moved proportionally, COT is leading; if price has already run hard, the extreme may be signalling a top.
             </div>
             <div className="rounded-xl px-4 py-3 shadow-sm bg-gold-tint-soft">
               <div className="font-semibold mb-1 text-gold-deep">DXY is your master bias</div>
@@ -385,7 +385,7 @@ function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: bool
             <strong className="text-ink-strong">Data source:</strong>{" "}
             {hasData
               ? `CFTC Legacy Futures-Only report (publicreporting.cftc.gov). ${totalHistory.toLocaleString()} total weeks across ${entriesCount} instruments. Synced automatically after each release — CFTC publishes Tuesday's data on Fridays ~15:30 ET.`
-              : "No data loaded yet — data syncs automatically after each CFTC release (Fridays ~15:30 ET)."}
+              : "No data loaded yet. Data syncs automatically after each CFTC release (Fridays ~15:30 ET)."}
           </div>
         </div>
       )}
@@ -457,7 +457,7 @@ function CotFilterDropdown({
           type="button"
           onClick={() => onChange({ kind: "all" })}
           title="Clear filter"
-          className="flex items-center justify-center size-7 rounded-lg transition-colors active:scale-95 bg-panel-2 text-ink-dim border border-line hover:text-coral-deep hover:border-coral"
+          className="flex items-center justify-center size-7 rounded-lg transition-colors active:scale-95 bg-panel-2 text-ink-dim shadow-sm hover:text-coral-deep hover:shadow-ring-coral"
         >
           <Icon name="close" size={14} />
         </button>
@@ -510,7 +510,7 @@ function CotFilterDropdown({
                   onClick={() => select({ kind: "currency", code: c })}
                   className={cn(
                     "px-2 py-1 rounded-md text-[11.5px] font-semibold text-center transition-all active:scale-95",
-                    activeCur ? "bg-teal-solid text-white" : "bg-panel-2 text-ink-mid border border-line"
+                    activeCur ? "bg-teal-solid text-white" : "bg-panel-2 text-ink-mid shadow-sm"
                   )}
                 >
                   {c}
@@ -680,7 +680,7 @@ export function CotReports() {
               type="button"
               onClick={retry}
               disabled={retrying}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-all active:scale-95 disabled:opacity-60 bg-panel-2 border border-line text-ink-mid"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-all active:scale-95 disabled:opacity-60 bg-panel-2 shadow-sm text-ink-mid"
             >
               <Icon name="refresh" size={14} className={retrying ? "animate-[spin_0.7s_linear_infinite]" : undefined} />
               {retrying ? "Refreshing…" : "Refresh"}
@@ -696,7 +696,7 @@ export function CotReports() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[12px] font-semibold transition-all active:scale-95 bg-coral-tint border border-[rgba(234,82,61,0.25)] shrink-0"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[12px] font-semibold transition-all active:scale-95 bg-coral-tint shadow-ring-coral shrink-0"
           >
             <Icon name="refresh" size={13} />
             Retry

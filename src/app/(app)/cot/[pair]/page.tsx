@@ -239,7 +239,7 @@ export default function CotPairPage() {
                   {data.synthetic && (
                     <span
                       title={`No direct CFTC contract exists for ${data.pair} — this signal is derived from its two legs' own currency positioning.`}
-                      className="inline-flex items-center justify-center size-6 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
+                      className="inline-flex items-center justify-center size-6 rounded cursor-help bg-panel-2 text-ink-dim shadow-sm"
                     >
                       <Icon name="auto_awesome" size={13} />
                     </span>
@@ -247,7 +247,7 @@ export default function CotPairPage() {
                   {data.usdBase && (
                     <span
                       title="Positions shown for the foreign currency futures. Net positive = bullish on the USD pair."
-                      className="inline-flex items-center justify-center size-6 rounded cursor-help bg-panel-2 text-ink-dim border border-line"
+                      className="inline-flex items-center justify-center size-6 rounded cursor-help bg-panel-2 text-ink-dim shadow-sm"
                     >
                       <Icon name="swap_horiz" size={13} />
                     </span>
@@ -639,7 +639,7 @@ export default function CotPairPage() {
                 type="button"
                 onClick={loadMore}
                 disabled={loadingMore}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12.5px] font-semibold transition-all active:scale-95 disabled:opacity-60 bg-panel-2 border border-line text-ink-mid"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-[12.5px] font-semibold transition-all active:scale-95 disabled:opacity-60 bg-panel-2 shadow-sm text-ink-mid"
               >
                 <Icon
                   name="refresh"

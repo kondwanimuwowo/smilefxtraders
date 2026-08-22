@@ -169,7 +169,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
 
   // --bg-input is not defined anywhere in the codebase; bg-[var(--bg-input)]
   // preserves that pre-existing no-op exactly instead of "fixing" it.
-  const inputCls = "w-full rounded-xl px-3.5 py-2.5 text-[13.5px] outline-none focus:ring-2 ring-teal transition-shadow bg-[var(--bg-input)] border border-line text-ink";
+  const inputCls = "w-full rounded-xl px-3.5 py-2.5 text-[13.5px] outline-none focus:ring-2 ring-teal transition-shadow bg-[var(--bg-input)] shadow-sm text-ink";
   const labelCls = "block text-[11.5px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim";
 
   return (
@@ -440,7 +440,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
                       role="checkbox"
                       aria-checked={form[key] as boolean}
                       onClick={() => setForm((f) => ({ ...f, [key]: !f[key] }))}
-                      className={cn("mt-0.5 w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-colors border border-line", (form[key] as boolean) ? "bg-teal" : "bg-track")}
+                      className={cn("mt-0.5 w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-colors shadow-sm", (form[key] as boolean) ? "bg-teal" : "bg-track")}
                     >
                       {(form[key] as boolean) && <Icon name="check" size={14} className="text-white" />}
                     </button>

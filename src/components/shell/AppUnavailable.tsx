@@ -18,7 +18,7 @@ export function AppUnavailable() {
       <EmptyState
         icon="error"
         title="Can't reach our servers right now"
-        body="Your account is safe — this is a connection problem on our side, and it usually clears within a few seconds. If it keeps happening, contact support@smilefxtraders.com."
+        body="Your account is safe. This is a connection problem on our side, and it usually clears within a few seconds. If it keeps happening, contact support@smilefxtraders.com."
         action={
           <Button variant="primary" size="md" icon="refresh" onClick={() => window.location.reload()}>
             Try again

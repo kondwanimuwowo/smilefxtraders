@@ -17,7 +17,7 @@ export default function MarketingError({ error, reset }: { error: Error & { dige
       <EmptyState
         icon="error"
         title="This page didn't load"
-        body="Something went wrong on our side. Try again — it usually works on a second attempt."
+        body="Something went wrong on our side. Try again, since it usually works on a second attempt."
         action={
           <Button variant="primary" size="md" icon="refresh" onClick={reset}>
             Try again

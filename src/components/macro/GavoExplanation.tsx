@@ -61,7 +61,7 @@ export function GavoExplanation({ subjectType, subjectKey }: Props) {
           <button
             type="button"
             onClick={runExplain}
-            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-teal-tint text-teal-deep border border-[rgba(8,174,170,0.2)]"
+            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-teal-tint text-teal-deep shadow-ring-teal"
           >
             Explain
           </button>
@@ -70,7 +70,7 @@ export function GavoExplanation({ subjectType, subjectKey }: Props) {
           <button
             type="button"
             onClick={runExplain}
-            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-coral-tint text-coral-deep border border-[rgba(234,82,61,0.2)]"
+            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-coral-tint text-coral-deep shadow-ring-coral"
           >
             Retry
           </button>
@@ -78,7 +78,7 @@ export function GavoExplanation({ subjectType, subjectKey }: Props) {
         {state === "locked" && (
           <a
             href="/pricing"
-            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-gold-tint text-gold-deep border border-[rgba(248,185,61,0.2)]"
+            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-gold-tint text-gold-deep shadow-ring-gold"
           >
             Upgrade
           </a>

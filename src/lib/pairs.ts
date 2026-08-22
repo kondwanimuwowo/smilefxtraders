@@ -72,9 +72,9 @@ export function groupInstruments(instruments: Instrument[]): InstrumentGroup[] {
 
   const groups: InstrumentGroup[] = [
     { id: "majors", label: "FX Majors", description: "The most liquid currency pairs, traded during the London and New York sessions", instruments: majors },
-    { id: "minors", label: "FX Minors", description: "Cross pairs among major currencies — no direct CFTC contract, so COT bias is derived from each leg's currency positioning", instruments: minors },
+    { id: "minors", label: "FX Minors", description: "Cross pairs among major currencies, with no direct CFTC contract, so COT bias is derived from each leg's currency positioning", instruments: minors },
     { id: "commodities", label: "Commodities", description: "Metals and energy with a strong correlation to USD flows", instruments: commodities },
-    { id: "indices", label: "Indices", description: "Equity indices — some carry a direct CFTC COT contract, others are price-only", instruments: indices },
+    { id: "indices", label: "Indices", description: "Equity indices. Some carry a direct CFTC COT contract, others are price-only", instruments: indices },
     { id: "dollar", label: "Dollar Index", description: "The master bias: DXY direction sets the tone for all USD pairs simultaneously", instruments: dxy },
   ];
 

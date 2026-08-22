@@ -247,7 +247,7 @@ export default function TradeDetailPage() {
       {/* ── Chart ── */}
       {/* The no-screenshot branch used to render a seeded random walk with the
           FVG zone fixed at candles 22–26 and the entry at candle 27, regardless
-          of this trade. Real candles arrive with Spotware trendbars — see
+          of this trade. Real candles arrive with Spotware trendbars, see
           charts_plan.md. Until then a trade either shows the trader's own
           screenshot or says plainly that it has none. */}
       {t.chartUrl ? (

@@ -217,7 +217,7 @@ export function OnboardingFlow() {
             How long have you been trading?
           </h1>
           <p className="text-[13.5px] mb-5 leading-relaxed text-ink-mid">
-            No judgment — everyone starts somewhere.
+            No judgment here. Everyone starts somewhere.
           </p>
           <div className="grid grid-cols-2 gap-3">
             {DURATION_OPTIONS.map(({ value, label }) => {

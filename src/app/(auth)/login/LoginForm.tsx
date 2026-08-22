@@ -26,7 +26,7 @@ function SocialButton({ loading, onClick, icon, label }: { loading: boolean; onC
       disabled={loading}
       onClick={onClick}
       className={cn(
-        "flex items-center justify-center gap-3 w-full rounded-full font-semibold transition-all active:scale-[0.98] h-[46px] text-[14.5px] bg-panel-2 border border-line text-ink-strong",
+        "flex items-center justify-center gap-3 w-full rounded-full font-semibold transition-all active:scale-[0.98] h-[46px] text-[14.5px] bg-panel-2 shadow-sm text-ink-strong",
         loading ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100"
       )}
     >
@@ -170,7 +170,7 @@ export function LoginForm() {
 
       {/* Error */}
       {error && (
-        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-coral-tint text-coral-deep border border-[rgba(234,82,61,0.2)]">
+        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-coral-tint text-coral-deep shadow-ring-coral">
           {error}
         </div>
       )}

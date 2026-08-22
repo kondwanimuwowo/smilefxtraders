@@ -19,7 +19,7 @@ export default function CheckoutError({ error, reset }: { error: Error & { diges
       <EmptyState
         icon="error"
         title="This page didn't load"
-        body="If you already approved a payment, don't pay again — check your plan on the settings page first, and contact support if it hasn't updated."
+        body="If you already approved a payment, don't pay again. Check your plan on the settings page first, and contact support if it hasn't updated."
         action={
           <div className="flex flex-wrap items-center justify-center gap-2">
             <Button variant="primary" size="md" icon="refresh" onClick={reset}>

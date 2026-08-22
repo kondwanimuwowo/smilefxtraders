@@ -101,7 +101,7 @@ export default async function AdminAcademyPage() {
                 </div>
                 <Link
                   href={`/admin/academy/courses/${course.id}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all hover:opacity-80 bg-panel-2 text-ink-mid border border-line"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all hover:opacity-80 bg-panel-2 text-ink-mid shadow-sm"
                 >
                   <Icon name="edit" size={15} />
                   Edit

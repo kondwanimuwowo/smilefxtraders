@@ -40,7 +40,7 @@ export function NewsFeed({ currency }: { currency?: string }) {
       ) : items.length === 0 ? (
         <div className="rounded-xl px-4 py-4 flex items-start gap-3 text-[12.5px] bg-panel-2 shadow-sm text-ink-dim">
           <Icon name="rss_feed" size={16} className="text-ink-dim shrink-0 mt-px" />
-          <span>No recent news{currency ? ` tagged ${currency}` : ""} yet — the news sync job populates this.</span>
+          <span>No recent news{currency ? ` tagged ${currency}` : ""} yet. The news sync job populates this.</span>
         </div>
       ) : (
         <div className="flex flex-col gap-1">
