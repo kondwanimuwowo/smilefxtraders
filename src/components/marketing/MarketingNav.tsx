@@ -137,16 +137,19 @@ export function MarketingNav() {
                   key={n.href}
                   href={n.href}
                   className={cn(
-                    "px-[13px] py-2 rounded-lg text-[14.5px] font-medium no-underline transition-all duration-200",
+                    "px-[13px] py-2 rounded-lg text-[14.5px] no-underline transition-all duration-200",
                     scrolled ? "hover:bg-[rgba(11,66,93,0.06)]" : "hover:bg-[rgba(255,255,255,0.08)]",
                     // Unscrolled the bar is transparent over the navy hero, so
-                    // the active link needs the bright hue; scrolled it sits on
+                    // the active link needs the light gold; scrolled it sits on
                     // a near-white blur and needs the dark one. `on-dark` on the
-                    // header flips --teal-deep for the whole subtree, so this
-                    // stays one class either way.
+                    // header flips --gold-deep for the whole subtree, so this
+                    // stays one class either way: #FFD37A over the hero (6.43:1)
+                    // and #8A6009 once the bar turns white (4.97:1). The second
+                    // reads brownish, which is unavoidable -- no gold light
+                    // enough to still look gold clears AA as text on white.
                     pathname === n.href
-                      ? "text-teal-deep"
-                      : (scrolled ? "text-ink-mid" : "text-[rgba(255,255,255,0.78)]")
+                      ? "text-gold-deep font-bold"
+                      : (scrolled ? "text-ink-mid font-medium" : "text-[rgba(255,255,255,0.78)] font-medium")
                   )}
                 >
                   {n.label}
@@ -195,7 +198,7 @@ export function MarketingNav() {
       {/* Mobile full-screen nav — always mounted so open/close can animate;
           visibility toggled via opacity/transform + pointer-events. */}
       <div
-        className="fixed inset-0 lg:hidden flex flex-col px-6 overflow-y-auto bg-navy-deep bg-[radial-gradient(ellipse_at_15%_12%,rgba(8,174,170,0.32)_0%,transparent_50%),radial-gradient(ellipse_at_90%_85%,rgba(248,185,61,0.18)_0%,transparent_48%)] z-[65] pt-[calc(4.5rem+var(--safe-top))] pb-[calc(1.5rem+var(--safe-bottom))]"
+        className="on-dark fixed inset-0 lg:hidden flex flex-col px-6 overflow-y-auto bg-navy-deep bg-[radial-gradient(ellipse_at_15%_12%,rgba(8,174,170,0.32)_0%,transparent_50%),radial-gradient(ellipse_at_90%_85%,rgba(248,185,61,0.18)_0%,transparent_48%)] z-[65] pt-[calc(4.5rem+var(--safe-top))] pb-[calc(1.5rem+var(--safe-bottom))]"
         aria-hidden={!mobileOpen}
         style={{
           opacity: mobileOpen ? 1 : 0,
@@ -215,8 +218,8 @@ export function MarketingNav() {
                 key={n.href}
                 href={n.href}
                 className={cn(
-                  "font-display text-[19px] font-medium py-3.5 px-1 border-b border-[rgba(255,255,255,0.1)] no-underline flex items-center justify-between",
-                  active ? "text-teal-deep" : "text-[rgba(255,255,255,0.9)]"
+                  "font-display text-[19px] py-3.5 px-1 border-b border-[rgba(255,255,255,0.1)] no-underline flex items-center justify-between",
+                  active ? "text-gold-deep font-bold" : "text-[rgba(255,255,255,0.9)] font-medium"
                 )}
                 style={{
                   opacity: mobileOpen ? 1 : 0,
@@ -226,7 +229,7 @@ export function MarketingNav() {
                 onClick={() => setMobileOpen(false)}
               >
                 {n.label}
-                <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", active ? "bg-teal-bright shadow-[0_0_8px_var(--teal-bright)]" : "bg-transparent")} />
+                <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", active ? "bg-gold shadow-[0_0_8px_var(--gold)]" : "bg-transparent")} />
               </Link>
             );
           })}
