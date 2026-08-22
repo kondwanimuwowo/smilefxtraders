@@ -770,11 +770,23 @@
   .avatar { @apply rounded-full grid place-items-center text-white font-bold shrink-0; }
   .avatar-ring { @apply shadow-[0_0_0_3px_var(--bg),0_0_0_5px_var(--gold)]; }
 
-  /* reveal entrance */
+  /* reveal entrance.
+
+     Both resets clear the offset with translate-y-0, not just `transform: none`.
+     Tailwind v4 compiles translate-y-5 to the standalone `translate` property
+     rather than to a `transform` function the way v3 did, so the plain
+     `transform: none` these rules were written with cancelled nothing: every
+     revealed element on every marketing page faded in but stayed parked 20px
+     low, permanently.
+
+     It has to be translate-y-0 and not `translate: none` -- none is the
+     property's initial value, and the CSS pipeline drops declarations that
+     only restate the initial, so that spelling vanished from the build
+     output entirely. Verified in the browser: the rule now ships. */
   .reveal { @apply opacity-0 translate-y-5 transition-all duration-700 ease-app; }
-  .reveal.in { @apply opacity-100; transform: none; }
+  .reveal.in { @apply opacity-100 translate-y-0; transform: none; }
   @media (prefers-reduced-motion: reduce) {
-    .reveal { @apply transition-none opacity-100; transform: none; }
+    .reveal { @apply transition-none opacity-100 translate-y-0; transform: none; }
   }
 
   /* ---------- responsive ---------- */
