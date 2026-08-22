@@ -156,13 +156,13 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className={cn("font-display font-bold tabular-nums leading-none text-[18px]", cls.textCls)}>
+            <span className={cn("font-display font-bold tabular-nums text-[18px] leading-none", cls.textCls)}>
               {cotIndex}
             </span>
             <span className="font-medium leading-none mt-0.5 text-[9px] text-ink-dim">/100</span>
           </div>
         </div>
-        <div className={cn("text-center font-semibold leading-tight px-2 py-0.5 rounded text-[10.5px] max-w-[80px]", cls.badgeBgCls, cls.badgeTextCls)}>
+        <div className={cn("text-center font-semibold px-2 py-0.5 rounded text-[10.5px] max-w-[80px] leading-tight", cls.badgeBgCls, cls.badgeTextCls)}>
           {zoneLabel}
         </div>
         <div className="text-center text-[9.5px] text-ink-dim">COT Index · 3yr</div>

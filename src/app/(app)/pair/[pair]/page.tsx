@@ -530,7 +530,7 @@ export default function PairOverviewPage() {
                 <div className="flex items-start gap-4 mb-4">
                   <Ring value={cotData.cotIndex} size={60} stroke={6} color={cotSig.strokeColor}>
                     <div className="text-center">
-                      <div className={cn("font-display font-bold tabular-nums leading-none text-[16px]", cotSig.textCls)}>
+                      <div className={cn("font-display font-bold tabular-nums text-[16px] leading-none", cotSig.textCls)}>
                         {cotData.cotIndex}
                       </div>
                       <div className="text-[9px] leading-none mt-0.5 text-ink-dim">/100</div>

@@ -62,7 +62,7 @@ export function SignalBars({ signal, size = "md", showLabel = false, className }
   return (
     <div className={cn("flex flex-col items-center gap-1.5", className)}>
       {svg}
-      <span className={cn("text-center font-semibold leading-tight px-2 py-0.5 rounded text-[12.5px]", cfg.bgCls, cfg.textCls)}>
+      <span className={cn("text-center font-semibold px-2 py-0.5 rounded text-[12.5px] leading-tight", cfg.bgCls, cfg.textCls)}>
         {cfg.label}
       </span>
     </div>

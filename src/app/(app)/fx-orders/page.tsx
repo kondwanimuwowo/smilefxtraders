@@ -181,7 +181,7 @@ function DateCard({ summary, isToday }: { summary: FxDateSummary; isToday: boole
         <div className="flex items-start justify-between gap-3">
           <div>
             <div
-              className={cn("font-display font-bold leading-none tabular-nums text-[28px] tracking-[-0.03em]", isToday ? "text-teal-deep" : "text-ink-strong")}
+              className={cn("font-display font-bold tabular-nums text-[28px] tracking-[-0.03em] leading-none", isToday ? "text-teal-deep" : "text-ink-strong")}
             >
               {dd}
               <span className={cn("text-[18px] font-normal mx-0.5", isToday ? "text-teal-deep" : "text-ink-dim")}>/</span>
