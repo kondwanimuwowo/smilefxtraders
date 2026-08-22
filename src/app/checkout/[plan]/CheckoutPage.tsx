@@ -194,8 +194,8 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
   if (step === "success") {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-app-bg">
-        <div className="rounded-3xl px-10 py-12 text-center max-w-sm w-full bg-panel border border-line">
-          <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-teal-tint border-2 border-teal">
+        <div className="rounded-3xl px-10 py-12 text-center max-w-sm w-full bg-panel shadow-md">
+          <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-teal-tint">
             <Icon name="check_circle" size={32} className="text-teal-deep" />
           </div>
           <h2 className="font-display font-medium text-[24px] mb-2 tracking-[-0.02em] text-ink-strong">
@@ -219,10 +219,10 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
   if (step === "waiting" || step === "failed") {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-app-bg">
-        <div className="rounded-3xl px-10 py-12 text-center max-w-sm w-full bg-panel border border-line">
+        <div className="rounded-3xl px-10 py-12 text-center max-w-sm w-full bg-panel shadow-md">
           {step === "waiting" ? (
             <>
-              <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-gold-tint border-2 border-gold">
+              <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-gold-tint">
                 <Icon name={payMethod === "card" ? "credit_card" : "phone_android"} size={32} className="animate-pulse text-gold-deep" />
               </div>
               <h2 className="font-display font-medium text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">
@@ -246,7 +246,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
             </>
           ) : (
             <>
-              <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-coral-tint border-2 border-coral">
+              <div className="size-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-coral-tint">
                 <Icon name="error" size={32} className="text-coral-deep" />
               </div>
               <h2 className="font-display font-medium text-[22px] mb-2 tracking-[-0.02em] text-ink-strong">Payment failed</h2>
@@ -254,7 +254,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
               <button
                 type="button"
                 onClick={() => { setStep("form"); setErrMsg(""); }}
-                className="w-full py-3 rounded-xl font-semibold text-[14px] bg-panel-2 border border-line text-ink-strong"
+                className="w-full py-3 rounded-xl font-semibold text-[14px] bg-panel-2 shadow-sm text-ink-strong"
               >
                 Try again
               </button>
@@ -281,10 +281,10 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
 
           {/* ── Left: plan summary + order total + trust strip ── */}
           <div className="flex flex-col gap-4">
-            <div className="rounded-2xl p-6 bg-panel" style={{ border: `1px solid color-mix(in srgb, ${plan.color} 25%, transparent)` }}>
+            <div className="rounded-2xl p-6 bg-panel shadow-md">
               <div className="flex items-start gap-3 mb-4">
                 <div className="size-11 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: `color-mix(in srgb, ${plan.color} 12%, transparent)`, border: `1px solid color-mix(in srgb, ${plan.color} 25%, transparent)` }}
+                  style={{ background: `color-mix(in srgb, ${plan.color} 12%, transparent)` }}
                 >
                   <Icon name={plan.icon} size={22} style={{ color: plan.color }} />
                 </div>
@@ -296,7 +296,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
               <ul className="space-y-2 mb-5">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-[13px] text-ink-mid">
-                    <Icon name="check_circle" size={15} className="text-teal-solid shrink-0" />
+                    <Icon name="check_circle" size={15} className="text-teal-solid-ink shrink-0" />
                     {f}
                   </li>
                 ))}
@@ -323,10 +323,10 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
             </div>
 
             {/* Trust strip */}
-            <div className="rounded-2xl p-5 bg-panel border border-line flex flex-col gap-3">
+            <div className="rounded-2xl p-5 bg-panel shadow-md flex flex-col gap-3">
               <div className="flex items-center gap-2.5 text-[13px] text-ink-mid">
                 <Icon name="lock" size={16} className="text-teal-deep shrink-0" />
-                Payments are processed securely by Lenco &mdash; we never see or store your card or mobile money details.
+                Payments are processed securely by Lenco. We never see or store your card or mobile money details.
               </div>
               <div className="flex items-center gap-2.5 text-[13px] text-ink-mid">
                 <Icon name="verified_user" size={16} className="text-teal-deep shrink-0" />
@@ -343,13 +343,13 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
               <button
                 type="button"
                 onClick={() => { clearPendingPlan(); router.push("/onboarding"); }}
-                className="w-full text-center text-[13.5px] font-semibold py-3 rounded-xl border border-line bg-panel-2 text-ink-strong hover:bg-hover transition-colors"
+                className="w-full text-center text-[13.5px] font-semibold py-3 rounded-xl bg-panel-2 shadow-sm text-ink-strong hover:bg-hover transition-colors"
               >
                 Continue with Free account instead
               </button>
             )}
 
-            <div className="rounded-2xl p-5 bg-panel border border-line">
+            <div className="rounded-2xl p-5 bg-panel shadow-md">
               <h2 className="font-display font-medium text-[18px] mb-4 tracking-[-0.02em] text-ink-strong">
                 Payment details
               </h2>
@@ -357,11 +357,11 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
               {/* Billing cycle */}
           <div className="mb-4">
             <label className="block text-[11px] font-semibold uppercase tracking-wide mb-2 text-ink-dim">Billing cycle</label>
-            <div className="flex rounded-xl overflow-hidden border border-line">
+            <div className="flex gap-0.5 p-1 rounded-full bg-panel-2">
               {(["monthly", "annual"] as const).map((c) => (
                 <button key={c} type="button" onClick={() => setCycle(c)}
-                  className={`flex-1 py-2.5 text-[13px] font-semibold capitalize transition-all ${
-                    cycle === c ? "bg-teal-solid text-white" : "bg-panel-2 text-ink-mid"
+                  className={`flex-1 py-2 rounded-full text-[13px] font-semibold capitalize transition-colors ${
+                    cycle === c ? "bg-teal-solid text-white" : "bg-transparent text-ink-mid hover:text-ink-strong"
                   }`}
                 >
                   {c} {c === "annual" && <span className="text-[11px] opacity-75">−20%</span>}
@@ -371,7 +371,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
           </div>
 
           {/* Amount display */}
-          <div className="flex flex-col items-center justify-center mb-4 py-3 rounded-xl bg-panel-2 border border-line">
+          <div className="flex flex-col items-center justify-center mb-4 py-3 rounded-xl bg-panel-2">
             <div className="flex items-center">
               <span className="font-display font-bold tabular-nums text-[32px] tracking-[-0.03em]" style={{ color: plan.color }}>
                 {symbol}{price.toLocaleString()}
@@ -404,7 +404,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
               <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide mb-1.5 text-ink-dim">
                 Mobile money operator
                 {autoPicked && (
-                  <span className="text-[9.5px] font-bold normal-case px-1.5 py-0.5 rounded-full bg-teal-tint text-teal-deep border border-[rgba(8,174,170,0.2)]">
+                  <span className="text-[9.5px] font-bold normal-case px-1.5 py-0.5 rounded-full bg-teal-tint text-teal-deep">
                     auto-detected
                   </span>
                 )}
@@ -417,10 +417,10 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
                       key={op.value}
                       type="button"
                       onClick={() => { setOperator(op.value); setAutoPicked(false); }}
-                      className={`flex flex-col items-center gap-1.5 rounded-xl px-2 py-2.5 transition-all border ${
+                      className={`flex flex-col items-center gap-1.5 rounded-xl px-2 py-2.5 transition-all ${
                         active
-                          ? "bg-teal-tint-soft border-teal shadow-[inset_0_0_0_1px_rgba(8,174,170,0.25)]"
-                          : "bg-panel-2 border-line"
+                          ? "bg-teal-tint shadow-ring-teal-2"
+                          : "bg-panel-2 shadow-sm"
                       }`}
                     >
                       <NetworkLogo op={op.value} size={30} />
@@ -437,7 +437,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
                 disabled={cardLoading}
                 onClick={payWithCard}
                 className={cn(
-                  "w-full mt-2.5 py-3 rounded-xl text-[13.5px] font-semibold flex items-center justify-center gap-2 bg-panel-2 border border-line text-ink-strong transition-opacity",
+                  "w-full mt-2.5 py-3 rounded-xl text-[13.5px] font-semibold flex items-center justify-center gap-2 bg-panel-2 shadow-sm text-ink-strong transition-opacity",
                   cardLoading && "opacity-70"
                 )}
               >
@@ -447,7 +447,7 @@ export function CheckoutPage({ paramsPromise, needsOnboarding }: { paramsPromise
             </div>
 
             {errMsg && (
-              <p className="text-[12.5px] px-3 py-2 rounded-xl bg-coral-tint-soft text-coral-deep border border-[rgba(234,82,61,0.2)]">
+              <p className="text-[12.5px] px-3 py-2 rounded-xl bg-coral-tint-soft text-coral-deep shadow-ring-coral">
                 {errMsg}
               </p>
             )}
