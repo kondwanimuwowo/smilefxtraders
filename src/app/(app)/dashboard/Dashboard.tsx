@@ -407,7 +407,7 @@ function ActiveTradesPanel() {
       </div>
 
       {/* Footer pulse */}
-      <div className="flex items-center gap-2 px-5 py-2.5 bg-[rgba(248,185,61,0.05)]">
+      <div className="flex items-center gap-2 px-5 py-2.5 bg-gold-tint-soft">
         <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold shadow-[0_0_6px_var(--gold)] animate-[live-pulse_2s_infinite]" />
         <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-gold-deep">
           {active.length} position{active.length !== 1 ? "s" : ""} live
@@ -493,7 +493,7 @@ function SessionCard() {
               Sessions
             </span>
             {isKillzone && (
-              <span className="text-[9px] font-bold uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-full bg-[rgba(48,232,223,0.08)] text-teal-deep shadow-[0_0_0_2px_rgba(48,232,223,0.22)]">
+              <span className="text-[9px] font-bold uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-full bg-teal-tint-soft text-teal-deep shadow-ring-teal-2">
                 Killzone
               </span>
             )}

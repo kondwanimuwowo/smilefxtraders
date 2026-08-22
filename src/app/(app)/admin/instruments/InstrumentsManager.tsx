@@ -312,7 +312,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
               </button>
               <button
                 onClick={() => handleDelete(inst.id)}
-                className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-[rgba(234,82,61,0.1)]"
+                className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-coral-tint"
                 aria-label="Delete"
               >
                 <Icon name="delete" size={16} className="text-coral-deep" />
@@ -454,7 +454,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
             </div>
 
             {error && (
-              <div className="mt-4 px-3.5 py-2.5 rounded-xl text-[13px] bg-[rgba(234,82,61,0.1)] text-coral-deep shadow-[0_0_0_1px_rgba(234,82,61,0.2)]">
+              <div className="mt-4 px-3.5 py-2.5 rounded-xl text-[13px] bg-coral-tint text-coral-deep shadow-ring-coral">
                 {error}
               </div>
             )}

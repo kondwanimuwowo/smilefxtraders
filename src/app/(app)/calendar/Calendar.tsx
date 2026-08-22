@@ -117,7 +117,7 @@ export function Calendar() {
                   className={cn(
                     "flex items-center gap-3 px-5 py-3",
                     i < dayEvents.length - 1 && "border-b border-line",
-                    ev.impact === 3 && "bg-[rgba(234,82,61,0.025)]"
+                    ev.impact === 3 && "bg-coral-tint-soft"
                   )}
                 >
                   <div className="text-[11.5px] tabular-nums text-ink-dim w-16 shrink-0">

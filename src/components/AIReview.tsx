@@ -175,7 +175,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           <button
             type="button"
             onClick={runReview}
-            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-[rgba(8,174,170,0.12)] text-teal-deep border border-[rgba(8,174,170,0.2)]"
+            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-teal-tint text-teal-deep border border-[rgba(8,174,170,0.2)]"
           >
             Review
           </button>
@@ -185,7 +185,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
           <button
             type="button"
             onClick={runReview}
-            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-[rgba(234,82,61,0.10)] text-coral-deep border border-[rgba(234,82,61,0.2)]"
+            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-coral-tint text-coral-deep border border-[rgba(234,82,61,0.2)]"
           >
             Retry
           </button>
@@ -194,7 +194,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
         {state === "locked" && (
           <a
             href="/pricing"
-            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-[rgba(248,185,61,0.12)] text-gold-deep border border-[rgba(248,185,61,0.2)]"
+            className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all shrink-0 bg-gold-tint text-gold-deep border border-[rgba(248,185,61,0.2)]"
           >
             Upgrade
           </a>
@@ -262,7 +262,7 @@ export function AIReview({ trade, autoRun = false, initialReview, onSave }: Prop
 
           {/* Tip */}
           {result.tip && (
-            <div className="rounded-xl px-3.5 py-3 flex items-start gap-2.5 bg-[rgba(248,185,61,0.08)] border border-[rgba(248,185,61,0.2)]">
+            <div className="rounded-xl px-3.5 py-3 flex items-start gap-2.5 bg-gold-tint-soft border border-[rgba(248,185,61,0.2)]">
               <Icon name="lightbulb" size={15} fill className="text-gold-deep shrink-0 mt-0.5" />
               <p className="text-[12.5px] leading-relaxed text-ink-mid">
                 <span className="font-semibold text-gold-deep">{tipLabel}</span>

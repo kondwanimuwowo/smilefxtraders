@@ -175,7 +175,7 @@ export function Profile() {
                   key={b.label}
                   className={`flex flex-col items-center text-center gap-1 rounded-xl py-3 px-1 ${
                     b.earned
-                      ? "bg-[rgba(8,174,170,0.07)] ring-2 ring-teal-deep"
+                      ? "bg-teal-tint-soft ring-2 ring-teal-deep"
                       : "bg-panel-2 shadow-sm opacity-45"
                   }`}
                   title={b.desc}

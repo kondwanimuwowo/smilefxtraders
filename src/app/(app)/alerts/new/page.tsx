@@ -137,7 +137,7 @@ export default function PostAlertPage() {
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {form.tags.map((t) => (
                     <button key={t} type="button" onClick={() => set("tags", form.tags.filter((x) => x !== t))}
-                      className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[rgba(8,174,170,0.1)] text-teal-deep ring-2 ring-teal-deep"
+                      className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-teal-tint text-teal-deep ring-2 ring-teal-deep"
                     >
                       {t} <Icon name="close" size={10} />
                     </button>

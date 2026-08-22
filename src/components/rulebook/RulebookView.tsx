@@ -9,8 +9,8 @@ import { cn } from "@/lib/cn";
 import type { RuleStats } from "@/lib/gavo/rule-stats";
 
 const WEIGHT_CHIP: Record<RuleWeight, string> = {
-  invalidating: "bg-[rgba(234,82,61,0.12)] text-coral-deep",
-  core:         "bg-[rgba(248,185,61,0.12)] text-gold-deep",
+  invalidating: "bg-coral-tint text-coral-deep",
+  core:         "bg-gold-tint text-gold-deep",
   supporting:   "bg-panel-2 text-ink-dim",
 };
 
@@ -147,7 +147,7 @@ export function RulebookView({ stats }: { stats?: Record<Framework, RuleStats> }
                   key={rule.id}
                   id={rule.id}
                   className={cn(
-                    "px-5 py-4 scroll-mt-24 target:bg-[rgba(8,174,170,0.06)] transition-colors",
+                    "px-5 py-4 scroll-mt-24 target:bg-teal-tint-soft transition-colors",
                     ri < group.rules.length - 1 && "border-b border-line",
                   )}
                 >

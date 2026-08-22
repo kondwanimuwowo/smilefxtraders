@@ -73,7 +73,7 @@ export default function CurrencyProfilePage() {
         <button onClick={() => router.back()} className="flex items-center gap-1.5 mb-5 text-[13px] font-semibold hover:opacity-75 text-ink-dim">
           <Icon name="arrow_back" size={16} /> Back
         </button>
-        <div className="rounded-2xl px-5 py-4 text-[13px] bg-[rgba(234,82,61,0.07)] shadow-[0_0_0_2px_rgba(234,82,61,0.2)] text-coral-deep">
+        <div className="rounded-2xl px-5 py-4 text-[13px] bg-coral-tint-soft shadow-ring-coral-2 text-coral-deep">
           MacroEdge doesn&apos;t track a calendar/currency profile for {C}.
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function CurrencyProfilePage() {
         {scoresLoading ? (
           <Skeleton h={80} r={12} />
         ) : !score ? (
-          <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 text-[12.5px] leading-relaxed bg-[rgba(248,185,61,0.05)] shadow-[0_0_0_2px_rgba(248,185,61,0.18)] text-ink-mid">
+          <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 text-[12.5px] leading-relaxed bg-gold-tint-soft shadow-ring-gold-2 text-ink-mid">
             <Icon name="info" size={15} fill className="text-gold-deep shrink-0 mt-px" />
             <span>
               No score computed yet for {C}. Scores are built from calendar releases (surprise vs.
@@ -146,9 +146,9 @@ export default function CurrencyProfilePage() {
                     className={cn(
                       "text-[11px] font-bold tabular-nums w-9 text-center shrink-0 rounded-md py-0.5",
                       b.weightedContribution > 0
-                        ? "text-teal-deep bg-[rgba(48,232,223,0.10)]"
+                        ? "text-teal-deep bg-teal-tint"
                         : b.weightedContribution < 0
-                          ? "text-coral-deep bg-[rgba(255,89,66,0.10)]"
+                          ? "text-coral-deep bg-coral-tint"
                           : "text-ink-dim bg-track"
                     )}
                   >
@@ -261,10 +261,10 @@ export default function CurrencyProfilePage() {
                 className={cn(
                   "text-[11px] font-bold px-2 py-0.5 rounded-lg shrink-0",
                   b.biasLabel.includes("BUY")
-                    ? "text-teal-deep bg-[rgba(48,232,223,0.10)]"
+                    ? "text-teal-deep bg-teal-tint"
                     : b.biasLabel.includes("SELL")
-                      ? "text-coral-deep bg-[rgba(255,89,66,0.10)]"
-                      : "text-gold-deep bg-[rgba(248,185,61,0.10)]"
+                      ? "text-coral-deep bg-coral-tint"
+                      : "text-gold-deep bg-gold-tint"
                 )}
               >
                 {b.biasLabel.replace("_", " ")}

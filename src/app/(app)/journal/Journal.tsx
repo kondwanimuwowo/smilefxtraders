@@ -44,9 +44,9 @@ function pnlCls(t: Trade): { textCls: string; bgCls: string; shadowCls: string }
 
 function StatusPill({ result }: { result: Trade["result"] }) {
   const cfg = {
-    win:  { label: "Win",  cls: "text-teal-deep bg-[rgba(48,232,223,0.12)]" },
-    loss: { label: "Loss", cls: "text-coral-deep bg-[rgba(255,89,66,0.12)]" },
-    open: { label: "Open", cls: "text-gold-deep bg-[rgba(248,185,61,0.12)]" },
+    win:  { label: "Win",  cls: "text-teal-deep bg-teal-tint" },
+    loss: { label: "Loss", cls: "text-coral-deep bg-coral-tint" },
+    open: { label: "Open", cls: "text-gold-deep bg-gold-tint" },
   }[result];
   return (
     <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-bold uppercase tracking-[0.04em]", cfg.cls)}>

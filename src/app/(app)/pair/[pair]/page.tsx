@@ -71,11 +71,11 @@ function computeVerdict(
   const dxy = usdBase ? rawDxy : -rawDxy;
   const total = cot + htf + dxy;
 
-  if (total >= 2)  return { tone: "confirmed_bull", label: "Confirmed Bullish", desc: "All three factors point the same way: institutional bias is bullish, and longs have full confluence behind them this week.", textCls: "text-teal-deep",  bgCls: "bg-[rgba(48,232,223,0.07)]", ringCls: "ring-2 ring-teal-deep", iconBgCls: "bg-[rgba(48,232,223,0.22)]", icon: "trending_up",   cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  if (total === 1) return { tone: "lean_bull",       label: "Bullish Lean",      desc: "Two of the three factors lean bullish, which is a usable directional edge. Confirm it with HTF structure before committing.", textCls: "text-teal-deep",         bgCls: "bg-[rgba(8,174,170,0.06)]",  ringCls: "ring-2 ring-teal-deep",        iconBgCls: "bg-[rgba(8,174,170,0.18)]",  icon: "arrow_upward",  cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  if (total === 0) return { tone: "mixed",           label: "No Clear Bias",     desc: "The factors disagree this week, so neither COT nor trend alignment gives you an edge. Wait until they line up.", textCls: "text-gold-deep",         bgCls: "bg-[rgba(248,185,61,0.06)]", ringCls: "ring-2 ring-gold-deep",        iconBgCls: "bg-[rgba(248,185,61,0.18)]", icon: "remove",        cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  if (total === -1)return { tone: "lean_bear",       label: "Bearish Lean",      desc: "Two of the three factors lean bearish, which is a usable directional edge. Wait for an HTF structure shift before selling.", textCls: "text-coral-deep",        bgCls: "bg-[rgba(234,82,61,0.06)]",  ringCls: "ring-2 ring-coral-deep",       iconBgCls: "bg-[rgba(234,82,61,0.18)]",  icon: "arrow_downward",cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  return               { tone: "confirmed_bear",  label: "Confirmed Bearish", desc: "All three factors point the same way: institutional bias is bearish, and shorts have full confluence behind them this week.", textCls: "text-coral-deep", bgCls: "bg-[rgba(255,89,66,0.07)]",  ringCls: "ring-2 ring-coral-deep", iconBgCls: "bg-[rgba(255,89,66,0.22)]",  icon: "trending_down", cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total >= 2)  return { tone: "confirmed_bull", label: "Confirmed Bullish", desc: "All three factors point the same way: institutional bias is bullish, and longs have full confluence behind them this week.", textCls: "text-teal-deep",  bgCls: "bg-teal-tint-soft", ringCls: "ring-2 ring-teal-deep", iconBgCls: "bg-[rgba(48,232,223,0.22)]", icon: "trending_up",   cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total === 1) return { tone: "lean_bull",       label: "Bullish Lean",      desc: "Two of the three factors lean bullish, which is a usable directional edge. Confirm it with HTF structure before committing.", textCls: "text-teal-deep",         bgCls: "bg-teal-tint-soft",  ringCls: "ring-2 ring-teal-deep",        iconBgCls: "bg-teal-tint",  icon: "arrow_upward",  cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total === 0) return { tone: "mixed",           label: "No Clear Bias",     desc: "The factors disagree this week, so neither COT nor trend alignment gives you an edge. Wait until they line up.", textCls: "text-gold-deep",         bgCls: "bg-gold-tint-soft", ringCls: "ring-2 ring-gold-deep",        iconBgCls: "bg-gold-tint", icon: "remove",        cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total === -1)return { tone: "lean_bear",       label: "Bearish Lean",      desc: "Two of the three factors lean bearish, which is a usable directional edge. Wait for an HTF structure shift before selling.", textCls: "text-coral-deep",        bgCls: "bg-coral-tint-soft",  ringCls: "ring-2 ring-coral-deep",       iconBgCls: "bg-coral-tint",  icon: "arrow_downward",cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  return               { tone: "confirmed_bear",  label: "Confirmed Bearish", desc: "All three factors point the same way: institutional bias is bearish, and shorts have full confluence behind them this week.", textCls: "text-coral-deep", bgCls: "bg-coral-tint-soft",  ringCls: "ring-2 ring-coral-deep", iconBgCls: "bg-[rgba(255,89,66,0.22)]",  icon: "trending_down", cotScore: cot, htfScore: htf, dxyScore: dxy, total };
 }
 
 // ── Bias cell ─────────────────────────────────────────────────────────────────
@@ -258,7 +258,7 @@ export default function PairOverviewPage() {
         <button onClick={() => router.back()} className="flex items-center gap-1.5 mb-5 text-[13px] font-semibold hover:opacity-75 text-ink-dim">
           <Icon name="arrow_back" size={16} /> Back
         </button>
-        <div className="rounded-2xl px-5 py-4 text-[13px] shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral-deep">
+        <div className="rounded-2xl px-5 py-4 text-[13px] shadow-ring-coral bg-coral-tint-soft text-coral-deep">
           Unknown pair: {P}
         </div>
       </div>
@@ -369,7 +369,7 @@ export default function PairOverviewPage() {
             />
 
             {tfs.length === 0 ? (
-              <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 text-[12.5px] leading-relaxed shadow-sm bg-[rgba(248,185,61,0.05)] text-ink-mid">
+              <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 text-[12.5px] leading-relaxed shadow-sm bg-gold-tint-soft text-ink-mid">
                 <Icon name="info" size={15} fill className="text-gold-deep shrink-0 mt-px" />
                 <span>
                   No trend data for {P}.{" "}
@@ -445,7 +445,7 @@ export default function PairOverviewPage() {
                 {relevantEvents.map((ev, i) => (
                   <div
                     key={ev.id}
-                    className={cn("flex items-center gap-3 px-5 py-3", i < relevantEvents.length - 1 && "border-b border-line", ev.impact === 3 && "bg-[rgba(234,82,61,0.025)]")}
+                    className={cn("flex items-center gap-3 px-5 py-3", i < relevantEvents.length - 1 && "border-b border-line", ev.impact === 3 && "bg-coral-tint-soft")}
                   >
                     <ImpactDots level={ev.impact} />
                     <div className="flex-1 min-w-0">
@@ -605,7 +605,7 @@ export default function PairOverviewPage() {
                       <div
                         className={cn(
                           "flex items-center gap-2 rounded-xl px-3 py-2.5",
-                          confirms ? "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.07)]" : "shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)]"
+                          confirms ? "shadow-ring-teal bg-teal-tint-soft" : "shadow-ring-coral bg-coral-tint-soft"
                         )}
                       >
                         <Icon
@@ -649,7 +649,7 @@ export default function PairOverviewPage() {
                 </div>
               ))}
             </div>
-            <div className="mt-3 rounded-xl px-3 py-2.5 flex items-center gap-2 text-[11.5px] shadow-sm bg-[rgba(248,185,61,0.05)] text-gold-deep">
+            <div className="mt-3 rounded-xl px-3 py-2.5 flex items-center gap-2 text-[11.5px] shadow-sm bg-gold-tint-soft text-gold-deep">
               <Icon name="construction" size={13} />
               Manual entry or journal integration coming soon
             </div>

@@ -70,7 +70,7 @@ function UploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
             onClick={() => inputRef.current?.click()}
             className={cn(
               "flex flex-col items-center justify-center rounded-2xl gap-2 py-8 transition-all border-2 border-dashed text-ink-mid",
-              file ? "border-teal bg-[rgba(8,174,170,0.04)]" : "border-line bg-panel-2"
+              file ? "border-teal bg-teal-tint-soft" : "border-line bg-panel-2"
             )}
           >
             <Icon name={file ? "check_circle" : "upload_file"} size={28} fill
@@ -108,7 +108,7 @@ function UploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
             <div
               className={cn(
                 "rounded-xl px-3 py-2.5 text-[12.5px]",
-                status === "error" ? "shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral-deep" : "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.07)] text-teal-deep"
+                status === "error" ? "shadow-ring-coral bg-coral-tint-soft text-coral-deep" : "shadow-ring-teal bg-teal-tint-soft text-teal-deep"
               )}
             >
               {msg}
@@ -177,7 +177,7 @@ function DateCard({ summary, isToday }: { summary: FxDateSummary; isToday: boole
       )}
     >
       {/* Top strip — date + day name */}
-      <div className={cn("px-5 pt-5 pb-4", isToday ? "bg-[rgba(8,174,170,0.03)]" : "bg-panel-2")}>
+      <div className={cn("px-5 pt-5 pb-4", isToday ? "bg-teal-tint-soft" : "bg-panel-2")}>
         <div className="flex items-start justify-between gap-3">
           <div>
             <div
@@ -344,7 +344,7 @@ export default function FxOrdersPage() {
             <div
               className={cn(
                 "flex items-start gap-2 text-[12px] font-medium px-3 py-2 rounded-xl max-w-sm",
-                syncErr ? "shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral-deep" : "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.07)] text-teal-deep"
+                syncErr ? "shadow-ring-coral bg-coral-tint-soft text-coral-deep" : "shadow-ring-teal bg-teal-tint-soft text-teal-deep"
               )}
             >
               <Icon name={syncErr ? "error" : "check_circle"} size={14} fill className="shrink-0 mt-px" />
@@ -397,7 +397,7 @@ export default function FxOrdersPage() {
       )}
 
       {/* ── Education callout ── */}
-      <div className="rounded-2xl px-5 py-4 mb-7 flex items-start gap-3 shadow-sm bg-[rgba(248,185,61,0.05)]">
+      <div className="rounded-2xl px-5 py-4 mb-7 flex items-start gap-3 shadow-sm bg-gold-tint-soft">
         <Icon name="tips_and_updates" size={16} fill className="text-gold-deep shrink-0 mt-px" />
         <div>
           <div className="text-[12.5px] font-semibold mb-0.5 text-gold-deep">
@@ -419,7 +419,7 @@ export default function FxOrdersPage() {
         </div>
       ) : loadError ? (
         <div className="rounded-2xl p-12 flex flex-col items-center gap-4 text-center bg-panel shadow-md">
-          <div className="flex items-center justify-center w-16 h-16 rounded-2xl shadow-[0_0_0_1px_rgba(234,82,61,0.15)] bg-[rgba(234,82,61,0.06)]">
+          <div className="flex items-center justify-center w-16 h-16 rounded-2xl shadow-ring-coral bg-coral-tint-soft">
             <Icon name="error" size={32} fill className="text-coral-deep" />
           </div>
           <div>
@@ -441,7 +441,7 @@ export default function FxOrdersPage() {
         </div>
       ) : summaries.length === 0 ? (
         <div className="rounded-2xl p-12 flex flex-col items-center gap-4 text-center bg-panel shadow-md">
-          <div className="flex items-center justify-center w-16 h-16 rounded-2xl shadow-[0_0_0_1px_rgba(8,174,170,0.15)] bg-[rgba(8,174,170,0.06)]">
+          <div className="flex items-center justify-center w-16 h-16 rounded-2xl shadow-ring-teal bg-teal-tint-soft">
             <Icon name="event_busy" size={32} className="text-teal-deep" />
           </div>
           <div>

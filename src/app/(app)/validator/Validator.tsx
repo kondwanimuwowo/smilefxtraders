@@ -31,15 +31,15 @@ const READINESS_CFG: Record<Readiness, {
 }> = {
   cleared: {
     label: "Cleared to trade", icon: "verified", color: "var(--teal)",
-    textCls: "text-teal-deep", bgCls: "bg-[rgba(8,174,170,0.10)]",
+    textCls: "text-teal-deep", bgCls: "bg-teal-tint",
   },
   caution: {
     label: "Proceed with caution", icon: "warning", color: "var(--gold)",
-    textCls: "text-gold-deep", bgCls: "bg-[rgba(248,185,61,0.12)]",
+    textCls: "text-gold-deep", bgCls: "bg-gold-tint",
   },
   "do-not-take": {
     label: "Do not take this", icon: "cancel", color: "var(--coral)",
-    textCls: "text-coral-deep", bgCls: "bg-[rgba(234,82,61,0.12)]",
+    textCls: "text-coral-deep", bgCls: "bg-coral-tint",
   },
 };
 
@@ -47,8 +47,8 @@ const STATUS_ICON: Record<Status, string>    = { pass: "check_circle", fail: "ca
 const STATUS_TEXT_CLS: Record<Status, string> = { pass: "text-teal-deep", fail: "text-coral-deep", warn: "text-gold-deep", na: "text-ink-dim" };
 
 const WEIGHT_CHIP: Record<RuleWeight, string> = {
-  invalidating: "bg-[rgba(234,82,61,0.12)] text-coral-deep",
-  core:         "bg-[rgba(248,185,61,0.12)] text-gold-deep",
+  invalidating: "bg-coral-tint text-coral-deep",
+  core:         "bg-gold-tint text-gold-deep",
   supporting:   "bg-panel-2 text-ink-dim",
 };
 
@@ -162,7 +162,7 @@ function ModelInfoCard({ framework, model }: { framework: Framework; model: stri
         <p className="text-[12px] leading-relaxed text-ink-mid">{info.tip}</p>
         <div className="flex flex-wrap gap-1.5 mt-2">
           {info.need.map((n) => (
-            <span key={n} className="text-[10.5px] font-semibold px-2 py-0.5 rounded-lg bg-[rgba(8,174,170,0.12)] text-teal-deep">
+            <span key={n} className="text-[10.5px] font-semibold px-2 py-0.5 rounded-lg bg-teal-tint text-teal-deep">
               {n}
             </span>
           ))}

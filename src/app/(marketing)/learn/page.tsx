@@ -54,7 +54,7 @@ export default function LearnPage() {
             {LEVELS.map(({ num, title, desc, state, lessons }) => {
               const icon = state === "done" ? "verified" : state === "current" ? "play_circle" : "lock";
               const iconColorCls = state === "done" ? "text-teal-deep" : state === "current" ? "text-gold-deep" : "text-ink-dim";
-              const iconBgCls = state === "current" ? "bg-[rgba(248,185,61,0.16)]" : state === "done" ? "bg-[rgba(8,174,170,0.14)]" : "bg-[var(--bg-soft)]";
+              const iconBgCls = state === "current" ? "bg-gold-tint" : state === "done" ? "bg-teal-tint" : "bg-[var(--bg-soft)]";
               const tag = state === "done"
                 ? <span className="chip text-[11px]">Complete</span>
                 : state === "current"

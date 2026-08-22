@@ -69,7 +69,7 @@ export function PricingAdmin({ initial }: Props) {
                   <div className="text-[12px] text-ink-dim">{meta.tagline}</div>
                 </div>
                 {meta.popular && (
-                  <span className="ml-auto text-[11px] font-bold px-3 py-1 rounded-full bg-[rgba(8,174,170,0.12)] text-teal-deep">
+                  <span className="ml-auto text-[11px] font-bold px-3 py-1 rounded-full bg-teal-tint text-teal-deep">
                     Most popular
                   </span>
                 )}
@@ -134,7 +134,7 @@ export function PricingAdmin({ initial }: Props) {
         })}
       </div>
 
-      <div className="mt-6 rounded-xl px-5 py-4 flex items-start gap-3 bg-[rgba(248,185,61,0.08)] shadow-[0_0_0_1px_rgba(248,185,61,0.25)]">
+      <div className="mt-6 rounded-xl px-5 py-4 flex items-start gap-3 bg-gold-tint-soft shadow-ring-gold">
         <Icon name="info" size={18} className="mt-px text-gold-deep" />
         <p className="text-[13px] leading-[1.6] text-ink-mid">
           Annual prices are per month (billed as a lump sum). Example: K239/mo annual = K2,868 charged once a year.

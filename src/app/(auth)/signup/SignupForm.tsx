@@ -139,7 +139,7 @@ export function SignupForm() {
   if (pendingEmail) {
     return (
       <div className="flex flex-col items-center text-center py-6">
-        <div className="size-14 rounded-2xl flex items-center justify-center mb-5 bg-[rgba(8,174,170,0.08)] border border-[rgba(8,174,170,0.2)]">
+        <div className="size-14 rounded-2xl flex items-center justify-center mb-5 bg-teal-tint-soft border border-[rgba(8,174,170,0.2)]">
           <Icon name="mark_email_unread" size={28} className="text-teal-deep" />
         </div>
         <h1 className="font-display font-medium mb-2 text-[24px] tracking-[-0.01em] text-ink-strong">
@@ -229,7 +229,7 @@ export function SignupForm() {
       <TurnstileWidget innerRef={turnstile.ref} action="signup" />
 
       {error && (
-        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-deep border border-[rgba(234,82,61,0.2)]">
+        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-coral-tint text-coral-deep border border-[rgba(234,82,61,0.2)]">
           {error}
         </div>
       )}

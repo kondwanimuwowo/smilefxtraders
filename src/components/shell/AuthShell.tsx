@@ -66,7 +66,7 @@ export async function AuthShell({ children }: { children: ReactNode }) {
           <div className="flex flex-col gap-3 mt-7">
             {FEATURES.map(({ icon, text }) => (
               <div key={text} className="flex items-center gap-3 text-[13.5px] text-[rgba(255,255,255,0.88)]">
-                <span className="flex items-center justify-center rounded-[8px] shrink-0 size-[30px] bg-[rgba(8,174,170,0.18)]">
+                <span className="flex items-center justify-center rounded-[8px] shrink-0 size-[30px] bg-teal-tint">
                   <Icon name={icon} size={17} className="text-teal-deep" />
                 </span>
                 {text}

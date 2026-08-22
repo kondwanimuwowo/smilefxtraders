@@ -57,7 +57,7 @@ function MembershipSection() {
           Your plan stays active until the end of the current billing period. No pro-rata refunds.
         </p>
         {confirmOpen ? (
-          <div className="rounded-xl p-4 mb-2 bg-[rgba(234,82,61,0.06)] ring-2 ring-coral-deep">
+          <div className="rounded-xl p-4 mb-2 bg-coral-tint-soft ring-2 ring-coral-deep">
             <p className="text-[13px] font-semibold mb-3 text-coral-deep">
               Cancel {planLabel}? You&apos;ll lose live alerts, AI reviews, and full Academy access.
             </p>
@@ -690,7 +690,7 @@ export function Settings() {
               Deleting your account will permanently remove all your trades, journal entries, community posts, and settings. This cannot be undone, and your email address can&apos;t be used to create another account afterward.
             </p>
             {deleteConfirmOpen ? (
-              <div className="rounded-xl p-4 bg-[rgba(234,82,61,0.06)] ring-2 ring-coral-deep">
+              <div className="rounded-xl p-4 bg-coral-tint-soft ring-2 ring-coral-deep">
                 <p className="text-[13px] font-semibold mb-3 text-coral-deep">
                   Type your username (@{handle || "…"}) to confirm.
                 </p>

@@ -51,7 +51,7 @@ export default function MacroEdgeOverviewPage() {
             href={`/macroedge/${strongest.currency}`}
             className="flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-panel shadow-md hover:ring-2 ring-teal-deep transition-shadow"
           >
-            <span className="flex items-center justify-center size-9 rounded-xl shrink-0 bg-[rgba(48,232,223,0.10)]">
+            <span className="flex items-center justify-center size-9 rounded-xl shrink-0 bg-teal-tint">
               <Icon name="trending_up" size={17} className="text-teal-deep" />
             </span>
             <div className="min-w-0">
@@ -65,7 +65,7 @@ export default function MacroEdgeOverviewPage() {
             href={`/macroedge/${weakest.currency}`}
             className="flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-panel shadow-md hover:ring-2 ring-coral-deep transition-shadow"
           >
-            <span className="flex items-center justify-center size-9 rounded-xl shrink-0 bg-[rgba(255,89,66,0.10)]">
+            <span className="flex items-center justify-center size-9 rounded-xl shrink-0 bg-coral-tint">
               <Icon name="trending_down" size={17} className="text-coral-deep" />
             </span>
             <div className="min-w-0">
@@ -162,9 +162,9 @@ export default function MacroEdgeOverviewPage() {
                     className={cn(
                       "text-[11px] font-bold px-2 py-0.5 rounded-lg shrink-0",
                       `text-${tone}`,
-                      tone === "teal-bright" && "bg-[rgba(48,232,223,0.10)]",
-                      tone === "coral-bright" && "bg-[rgba(255,89,66,0.10)]",
-                      tone === "gold" && "bg-[rgba(248,185,61,0.10)]"
+                      tone === "teal-bright" && "bg-teal-tint",
+                      tone === "coral-bright" && "bg-coral-tint",
+                      tone === "gold" && "bg-gold-tint"
                     )}
                   >
                     {b.biasLabel.replace("_", " ")}

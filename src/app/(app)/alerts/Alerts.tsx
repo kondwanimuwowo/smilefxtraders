@@ -142,10 +142,10 @@ import { fmtRelative } from "@/lib/date";
 function timeAgo(iso: string): string { return fmtRelative(iso); }
 
 const STATUS_CONFIG: Record<AlertStatusApp, { label: string; textCls: string; bgCls: string; icon: string }> = {
-  active:    { label: "Active",    textCls: "text-teal-deep",        bgCls: "bg-[rgba(8,174,170,0.12)]",  icon: "radio_button_checked" },
-  tp1:       { label: "TP1 Hit",   textCls: "text-teal-deep",  bgCls: "bg-[rgba(48,232,223,0.12)]", icon: "done_all" },
-  tp2:       { label: "TP2 Hit",   textCls: "text-teal-deep",  bgCls: "bg-[rgba(48,232,223,0.16)]", icon: "verified" },
-  sl:        { label: "Stop Loss", textCls: "text-coral-deep",       bgCls: "bg-[rgba(234,82,61,0.12)]",  icon: "cancel" },
+  active:    { label: "Active",    textCls: "text-teal-deep",        bgCls: "bg-teal-tint",  icon: "radio_button_checked" },
+  tp1:       { label: "TP1 Hit",   textCls: "text-teal-deep",  bgCls: "bg-teal-tint", icon: "done_all" },
+  tp2:       { label: "TP2 Hit",   textCls: "text-teal-deep",  bgCls: "bg-teal-tint", icon: "verified" },
+  sl:        { label: "Stop Loss", textCls: "text-coral-deep",       bgCls: "bg-coral-tint",  icon: "cancel" },
   cancelled: { label: "Cancelled", textCls: "text-ink-dim",     bgCls: "bg-[rgba(0,0,0,0.06)]",       icon: "block" },
   closed:    { label: "Closed",    textCls: "text-ink-dim",     bgCls: "bg-[rgba(0,0,0,0.06)]",       icon: "lock" },
 };
@@ -285,7 +285,7 @@ function AlertCard({
           />
           <span className="text-[12px] font-medium text-ink-mid">Kondwani · Instructor</span>
           {(alert.taken ?? 0) > 0 && (
-            <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-[rgba(8,174,170,0.1)] text-teal-deep">
+            <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-teal-tint text-teal-deep">
               {alert.taken} taken
             </span>
           )}
@@ -395,7 +395,7 @@ export function Alerts() {
     <div className="view">
       {/* Free-plan delay warning */}
       {user?.plan === "free" && (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4 text-[13px] bg-[rgba(248,185,61,0.08)] ring-2 ring-gold-deep text-gold-deep">
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4 text-[13px] bg-gold-tint-soft ring-2 ring-gold-deep text-gold-deep">
           <Icon name="schedule" size={16} className="text-gold-deep shrink-0" />
           <span>
             <strong>Free plan</strong>: alerts are shown with a 4-hour delay.{" "}
@@ -417,7 +417,7 @@ export function Alerts() {
         </div>
         <div className="flex items-center gap-3">
           {activeCount > 0 && (
-            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[rgba(8,174,170,0.1)] ring-2 ring-teal-deep">
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-teal-tint ring-2 ring-teal-deep">
               <span className="relative flex size-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-teal" />
                 <span className="relative inline-flex rounded-full size-2 bg-teal" />
@@ -526,7 +526,7 @@ export function Alerts() {
 
       {/* Pro plan note — students only */}
       {!isInstructor && (
-        <div className="mt-6 rounded-2xl px-5 py-4 flex items-start gap-3 bg-[rgba(248,185,61,0.06)] ring-2 ring-gold-deep">
+        <div className="mt-6 rounded-2xl px-5 py-4 flex items-start gap-3 bg-gold-tint-soft ring-2 ring-gold-deep">
           <Icon name="workspace_premium" size={17} fill className="text-gold-deep shrink-0 mt-px" />
           <p className="text-[12.5px] leading-relaxed text-ink-mid">
             <strong className="text-ink-strong">Edge & Pro traders</strong> receive alerts in real time via this feed and push notifications. Free plan members see alerts with a 4-hour delay. Upgrade in{" "}

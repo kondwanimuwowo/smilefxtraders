@@ -6,9 +6,9 @@ import { useMarkNotifsRead } from "@/lib/hooks/useNotifications";
 import { Icon } from "@/components/ui";
 
 const TONE_CONFIG: Record<string, { icon: string; iconCls: string; bgCls: string }> = {
-  teal:  { icon: "notifications_active", iconCls: "text-teal-deep",  bgCls: "bg-[rgba(8,174,170,0.1)]"  },
-  gold:  { icon: "workspace_premium",    iconCls: "text-gold-deep",  bgCls: "bg-[rgba(248,185,61,0.1)]" },
-  coral: { icon: "warning",              iconCls: "text-coral-deep", bgCls: "bg-[rgba(234,82,61,0.1)]"  },
+  teal:  { icon: "notifications_active", iconCls: "text-teal-deep",  bgCls: "bg-teal-tint"  },
+  gold:  { icon: "workspace_premium",    iconCls: "text-gold-deep",  bgCls: "bg-gold-tint" },
+  coral: { icon: "warning",              iconCls: "text-coral-deep", bgCls: "bg-coral-tint"  },
 };
 
 import { fmtRelative } from "@/lib/date";
@@ -47,7 +47,7 @@ export function Notifications() {
 
       {notifs.length === 0 ? (
         <div className="rounded-2xl flex flex-col items-center py-20 text-center bg-panel shadow-md">
-          <div className="size-14 rounded-2xl flex items-center justify-center mb-4 bg-[rgba(8,174,170,0.08)] ring-2 ring-teal-deep">
+          <div className="size-14 rounded-2xl flex items-center justify-center mb-4 bg-teal-tint-soft ring-2 ring-teal-deep">
             <Icon name="notifications" size={26} className="text-teal-deep" />
           </div>
           <div className="font-semibold text-[15px] mb-1 text-ink-strong">
@@ -72,7 +72,7 @@ export function Notifications() {
                       key={n.id}
                       href={n.href ?? "#"}
                       onClick={() => markRead.mutate({ id: n.id })}
-                      className={`flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-hover bg-[rgba(8,174,170,0.03)] ${i > 0 ? "border-t border-line" : ""}`}
+                      className={`flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-hover bg-teal-tint-soft ${i > 0 ? "border-t border-line" : ""}`}
                     >
                       <div className={`size-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${cfg.bgCls}`}>
                         <Icon name={n.icon || cfg.icon} size={17} className={cfg.iconCls} />

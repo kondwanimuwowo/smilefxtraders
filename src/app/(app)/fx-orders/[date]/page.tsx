@@ -55,7 +55,7 @@ function LevelRow({ level, spot, pair }: { level: FxLevel; spot: number | null; 
       : "bg-track";
 
   const rowBgCls = near
-    ? (above ? "bg-[rgba(48,232,223,0.05)]" : "bg-[rgba(255,89,66,0.05)]")
+    ? (above ? "bg-teal-tint-soft" : "bg-coral-tint-soft")
     : "bg-transparent";
 
   return (
@@ -80,7 +80,7 @@ function LevelRow({ level, spot, pair }: { level: FxLevel; spot: number | null; 
       {/* Pip distance */}
       {near && dist !== null && (
         <span
-          className={cn("text-[10px] font-semibold shrink-0 rounded-md px-1.5 py-0.5", above ? "text-teal-deep bg-[rgba(8,174,170,0.1)]" : "text-coral-deep bg-[rgba(234,82,61,0.1)]")}
+          className={cn("text-[10px] font-semibold shrink-0 rounded-md px-1.5 py-0.5", above ? "text-teal-deep bg-teal-tint" : "text-coral-deep bg-coral-tint")}
         >
           {Math.round(dist)}p
         </span>
@@ -108,7 +108,7 @@ function PairCard({ record, liveSpot }: { record: FxOrderRecord; liveSpot: strin
       )}
     >
       {/* Card header */}
-      <div className={cn("flex items-center justify-between px-4 py-3", hasAlert ? "bg-[rgba(8,174,170,0.03)]" : "bg-panel-2")}>
+      <div className={cn("flex items-center justify-between px-4 py-3", hasAlert ? "bg-teal-tint-soft" : "bg-panel-2")}>
         <div className="flex items-center gap-2">
           <span className="font-display font-bold text-[14px] tracking-[-0.01em] text-ink-strong">
             {PAIR_LABELS[record.pair] ?? record.pair}
@@ -288,7 +288,7 @@ export default function FxOrdersDatePage() {
             Large ≥$1bn notional
           </div>
           <div className="flex items-center gap-1.5 text-[11.5px] text-ink-dim">
-            <span className="text-[10px] font-bold rounded-md px-1 py-0.5 bg-[rgba(8,174,170,0.1)] text-teal-deep">
+            <span className="text-[10px] font-bold rounded-md px-1 py-0.5 bg-teal-tint text-teal-deep">
               25p
             </span>
             pip distance from spot
@@ -298,7 +298,7 @@ export default function FxOrdersDatePage() {
 
       {/* ── Error ── */}
       {error && (
-        <div className="rounded-2xl px-5 py-4 text-[13px] shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.06)] text-coral-deep">
+        <div className="rounded-2xl px-5 py-4 text-[13px] shadow-ring-coral bg-coral-tint-soft text-coral-deep">
           {error}
         </div>
       )}

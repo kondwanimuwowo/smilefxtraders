@@ -106,6 +106,9 @@
     --teal-tint:  rgba(8, 174, 170, 0.20);
     --coral-tint: rgba(255, 89, 66, 0.18);
     --gold-tint:  rgba(248, 185, 61, 0.16);
+    --teal-tint-soft:  rgba(8, 174, 170, 0.10);
+    --coral-tint-soft: rgba(255, 89, 66, 0.10);
+    --gold-tint-soft:  rgba(248, 185, 61, 0.09);
     --line:       rgba(255, 255, 255, 0.14);
   }
 }
@@ -271,6 +274,18 @@
   --coral-tint: rgba(234, 82, 61, 0.12);
   --gold-tint:  rgba(248, 185, 61, 0.16);
 
+  /* Half-strength tints, for the larger washes: callout panels, table row
+     highlights, section backgrounds. The -tint values above are tuned for
+     pills and chips, and at card size the same alpha reads as a coloured
+     block rather than as a hint.
+
+     Two steps per hue is the whole scale. Before this there were sixty-one
+     distinct alphas inlined across the app (0.03, 0.035, 0.05, 0.06, 0.07,
+     0.08, 0.1, 0.10, 0.12, 0.14 ...), which is not a scale, it is drift. */
+  --teal-tint-soft:  rgba(8, 174, 170, 0.06);
+  --coral-tint-soft: rgba(234, 82, 61, 0.06);
+  --gold-tint-soft:  rgba(248, 185, 61, 0.07);
+
   /* COT positioning chart series — darker steps of the brand hues so 2px
      lines pass 3:1 contrast on the white panel (validated). Retail is a
      deliberately recessive gray; identity comes from legend + direct labels. */
@@ -321,6 +336,9 @@
   --teal-tint:  rgba(8, 174, 170, 0.20);
   --coral-tint: rgba(255, 89, 66, 0.16);
   --gold-tint:  rgba(248, 185, 61, 0.14);
+  --teal-tint-soft:  rgba(8, 174, 170, 0.10);
+  --coral-tint-soft: rgba(255, 89, 66, 0.09);
+  --gold-tint-soft:  rgba(248, 185, 61, 0.08);
 
   /* COT chart series — brand hues pass contrast on the dark panel as-is */
   --chart-ls:     var(--teal);
@@ -374,6 +392,9 @@
   --color-teal-tint:  var(--teal-tint);
   --color-coral-tint: var(--coral-tint);
   --color-gold-tint:  var(--gold-tint);
+  --color-teal-tint-soft:  var(--teal-tint-soft);
+  --color-coral-tint-soft: var(--coral-tint-soft);
+  --color-gold-tint-soft:  var(--gold-tint-soft);
 
   /* Direction semantics (tweakable — never hard-code teal/coral directly) */
   --color-long:         var(--long);
@@ -393,6 +414,27 @@
   --shadow-card-sm: var(--shadow-card-sm);
   --shadow-card-md: var(--shadow-card-md);
   --shadow-card-lg: var(--shadow-card-lg);
+
+  /* Hairline rings (shadow-ring-*), for tinted status boxes, selected options
+     and focus-ish states that need an edge without a real border.
+
+     These were previously written inline as one-off arbitrary values in 32
+     places across four hues and eight different alphas (0.15, 0.18, 0.2, 0.22,
+     0.25, 0.3, 0.35, 0.4), so the same "coral warning box" edge was three
+     different weights depending on which file you were in. One alpha per width
+     now: 0.20 hairline, 0.30 emphasis.
+
+     They are built with color-mix off the brand hue tokens rather than baked
+     rgba, so they follow a rebrand and do not need a dark-theme duplicate. */
+  --shadow-ring-teal:    0 0 0 1px color-mix(in srgb, var(--teal) 20%, transparent);
+  --shadow-ring-coral:   0 0 0 1px color-mix(in srgb, var(--coral) 20%, transparent);
+  --shadow-ring-gold:    0 0 0 1px color-mix(in srgb, var(--gold) 20%, transparent);
+  --shadow-ring-neutral: 0 0 0 1px color-mix(in srgb, var(--ink-strong) 20%, transparent);
+
+  --shadow-ring-teal-2:    0 0 0 2px color-mix(in srgb, var(--teal) 30%, transparent);
+  --shadow-ring-coral-2:   0 0 0 2px color-mix(in srgb, var(--coral) 30%, transparent);
+  --shadow-ring-gold-2:    0 0 0 2px color-mix(in srgb, var(--gold) 30%, transparent);
+  --shadow-ring-neutral-2: 0 0 0 2px color-mix(in srgb, var(--ink-strong) 30%, transparent);
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────────── */
@@ -696,6 +738,9 @@
     --teal-tint:  rgba(8, 174, 170, 0.20);
     --coral-tint: rgba(255, 89, 66, 0.18);
     --gold-tint:  rgba(248, 185, 61, 0.16);
+    --teal-tint-soft:  rgba(8, 174, 170, 0.10);
+    --coral-tint-soft: rgba(255, 89, 66, 0.10);
+    --gold-tint-soft:  rgba(248, 185, 61, 0.09);
   }
   .soft { @apply bg-[var(--bg-soft)]; }
 

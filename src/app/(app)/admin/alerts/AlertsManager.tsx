@@ -30,10 +30,10 @@ const STATUS_STYLE: Record<AlertStatusApp, { bg: string; color: string; label: s
 // Plain-consumption class equivalents for the two badge usages that don't
 // need the alpha-suffix concatenation above.
 const STATUS_BG_CLS: Record<AlertStatusApp, string> = {
-  active:    "bg-[rgba(8,174,170,0.12)]",
-  tp1:       "bg-[rgba(8,174,170,0.08)]",
-  tp2:       "bg-[rgba(8,174,170,0.12)]",
-  sl:        "bg-[rgba(234,82,61,0.1)]",
+  active:    "bg-teal-tint",
+  tp1:       "bg-teal-tint-soft",
+  tp2:       "bg-teal-tint",
+  sl:        "bg-coral-tint",
   cancelled: "bg-[rgba(154,154,154,0.08)]",
   closed:    "bg-[rgba(154,154,154,0.08)]",
 };
@@ -164,7 +164,7 @@ export function AlertsManager() {
                 <div key={a.id} className={i < alerts.length - 1 ? "border-b border-line" : undefined}>
                   {/* Main row */}
                   <div
-                    className={cn("hidden sm:grid grid-cols-[80px_44px_1fr_90px_80px_60px_80px_40px] items-center px-5 py-3", a.status === "active" && "bg-[rgba(8,174,170,0.02)]")}
+                    className={cn("hidden sm:grid grid-cols-[80px_44px_1fr_90px_80px_60px_80px_40px] items-center px-5 py-3", a.status === "active" && "bg-teal-tint-soft")}
                   >
                     <span className="font-semibold text-[13px] text-ink-strong">
                       {a.pair}
@@ -172,7 +172,7 @@ export function AlertsManager() {
                     <span
                       className={cn(
                         "text-[10.5px] font-bold uppercase px-1.5 py-0.5 rounded-full w-fit",
-                        a.dir === "long" ? "bg-[rgba(8,174,170,0.12)] text-teal-deep" : "bg-[rgba(234,82,61,0.1)] text-coral-deep"
+                        a.dir === "long" ? "bg-teal-tint text-teal-deep" : "bg-coral-tint text-coral-deep"
                       )}
                     >
                       {a.dir === "long" ? "L" : "S"}
@@ -212,7 +212,7 @@ export function AlertsManager() {
                         <span
                           className={cn(
                             "text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full",
-                            a.dir === "long" ? "bg-[rgba(8,174,170,0.12)] text-teal-deep" : "bg-[rgba(234,82,61,0.1)] text-coral-deep"
+                            a.dir === "long" ? "bg-teal-tint text-teal-deep" : "bg-coral-tint text-coral-deep"
                           )}
                         >
                           {a.dir}
@@ -265,7 +265,7 @@ export function AlertsManager() {
                         <button
                           type="button"
                           onClick={() => { if (confirm("Delete this alert permanently?")) deleteAlert(a.id); }}
-                          className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11.5px] font-semibold transition-all hover:opacity-80 bg-[rgba(234,82,61,0.08)] text-coral-deep shadow-[0_0_0_1px_rgba(234,82,61,0.2)]"
+                          className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11.5px] font-semibold transition-all hover:opacity-80 bg-coral-tint-soft text-coral-deep shadow-ring-coral"
                         >
                           <Icon name="delete" size={13} />
                           Delete

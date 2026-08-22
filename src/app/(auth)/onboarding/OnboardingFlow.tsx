@@ -229,7 +229,7 @@ export function OnboardingFlow() {
                   onClick={() => setTradingDuration(value)}
                   className={cn(
                     "flex items-center justify-center p-4 rounded-xl text-center font-semibold text-[14px] transition-all",
-                    active ? "ring-2 ring-teal-deep bg-[rgba(8,174,170,0.08)] text-ink-strong" : "shadow-md bg-panel-2 text-ink-mid"
+                    active ? "ring-2 ring-teal-deep bg-teal-tint-soft text-ink-strong" : "shadow-md bg-panel-2 text-ink-mid"
                   )}
                 >
                   {label}
@@ -259,7 +259,7 @@ export function OnboardingFlow() {
                   onClick={() => setSkill(value)}
                   className={cn(
                     "flex items-center justify-between p-4 rounded-xl text-left transition-all",
-                    active ? "ring-2 ring-teal-deep bg-[rgba(8,174,170,0.08)]" : "shadow-md bg-panel-2"
+                    active ? "ring-2 ring-teal-deep bg-teal-tint-soft" : "shadow-md bg-panel-2"
                   )}
                 >
                   <div>
@@ -299,7 +299,7 @@ export function OnboardingFlow() {
                   onClick={() => setGoal(value)}
                   className={cn(
                     "flex items-center justify-between p-4 rounded-xl text-left transition-all",
-                    active ? "ring-2 ring-teal-deep bg-[rgba(8,174,170,0.08)]" : "shadow-md bg-panel-2"
+                    active ? "ring-2 ring-teal-deep bg-teal-tint-soft" : "shadow-md bg-panel-2"
                   )}
                 >
                   <div>
@@ -337,7 +337,7 @@ export function OnboardingFlow() {
                   onClick={() => toggleInstrument(key)}
                   className={cn(
                     "flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-center transition-all",
-                    selected ? "ring-2 ring-teal-deep bg-[rgba(8,174,170,0.08)]" : "shadow-sm bg-panel-2"
+                    selected ? "ring-2 ring-teal-deep bg-teal-tint-soft" : "shadow-sm bg-panel-2"
                   )}
                 >
                   <span className={cn("font-semibold text-[13px]", selected ? "text-ink-strong" : "text-ink-mid")}>

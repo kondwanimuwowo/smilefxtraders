@@ -228,11 +228,11 @@ export default function FeaturesPage() {
                   ].map(({ label, sub, state }) => (
                     <div
                       key={label}
-                      className={`flex items-center gap-[11px] p-[11px] rounded-[10px] ${state === "locked" ? "opacity-70" : "opacity-100"} ${state === "current" ? "bg-[rgba(248,185,61,0.1)]" : "bg-[var(--bg-soft)]"}`}
+                      className={`flex items-center gap-[11px] p-[11px] rounded-[10px] ${state === "locked" ? "opacity-70" : "opacity-100"} ${state === "current" ? "bg-gold-tint" : "bg-[var(--bg-soft)]"}`}
                     >
                       <span
                         className={`w-[30px] h-[30px] rounded-lg grid place-items-center ${
-                          state === "current" ? "bg-gold" : state === "done" ? "bg-[rgba(8,174,170,0.14)]" : "bg-[var(--bg-tint)]"
+                          state === "current" ? "bg-gold" : state === "done" ? "bg-teal-tint" : "bg-[var(--bg-tint)]"
                         }`}
                       >
                         <Icon

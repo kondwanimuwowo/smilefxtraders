@@ -59,8 +59,8 @@ function pnlTextCls(t: Trade) {
   return t.pnlR > 0 ? "text-teal-deep" : "text-coral-deep";
 }
 function resultBgCls(t: Trade) {
-  if (t.result === "open") return "bg-[rgba(248,185,61,0.14)]";
-  return t.pnlR > 0 ? "bg-[rgba(8,174,170,0.14)]" : "bg-[rgba(234,82,61,0.14)]";
+  if (t.result === "open") return "bg-gold-tint";
+  return t.pnlR > 0 ? "bg-teal-tint" : "bg-coral-tint";
 }
 
 function MetaBox({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
@@ -200,7 +200,7 @@ export default function TradeDetailPage() {
             </h1>
             <DirPill dir={t.dir} />
             {t.framework === "SnD" && (
-              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-[rgba(248,185,61,0.12)] text-gold-deep shadow-[0_0_0_2px_rgba(248,185,61,0.25)]">
+              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-gold-tint text-gold-deep shadow-ring-gold-2">
                 S&D
               </span>
             )}
@@ -426,7 +426,7 @@ export default function TradeDetailPage() {
                   {fibTags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-[rgba(248,185,61,0.13)] shadow-[0_0_0_2px_rgba(248,185,61,0.3)] text-gold-deep"
+                      className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold bg-gold-tint shadow-ring-gold-2 text-gold-deep"
                     >
                       <Icon name="architecture" size={11} />
                       {tag}
@@ -456,7 +456,7 @@ export default function TradeDetailPage() {
 
           {/* Discipline breach — merged with mistake if both present */}
           {!t.discipline && (
-            <div className="flex items-start gap-3 rounded-xl px-4 py-4 bg-[rgba(234,82,61,0.07)] shadow-[0_0_0_2px_rgba(234,82,61,0.22)]">
+            <div className="flex items-start gap-3 rounded-xl px-4 py-4 bg-coral-tint-soft shadow-ring-coral-2">
               <Icon name="warning" size={18} fill className="text-coral-deep shrink-0 mt-px" />
               <div>
                 <div className="font-semibold text-[13px] mb-1 text-coral-deep">

@@ -119,7 +119,7 @@ function HistoryBadge({ weeks }: { weeks: number }) {
   return (
     <span
       title={`${weeks} weeks of CFTC report history available for this instrument`}
-      className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded cursor-help bg-[rgba(8,174,170,0.08)] text-teal-deep border border-[rgba(8,174,170,0.18)]"
+      className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded cursor-help bg-teal-tint-soft text-teal-deep border border-[rgba(8,174,170,0.18)]"
     >
       <Icon name="history" size={11} />
       {weeks > 52 ? `${years}yr` : `${weeks}wk`}
@@ -329,7 +329,7 @@ function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: bool
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="mb-5 rounded-xl shadow-sm bg-[rgba(248,185,61,0.05)]">
+    <div className="mb-5 rounded-xl shadow-sm bg-gold-tint-soft">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -349,21 +349,21 @@ function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: bool
           <div className="grid gap-4 text-[12.5px] leading-relaxed grid-cols-1 md:grid-cols-3 text-ink-mid">
             <div>
               <div className="flex items-center gap-1.5 mb-2">
-                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal-deep">1</div>
+                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-teal-tint text-teal-deep">1</div>
                 <span className="font-semibold text-ink-strong">Identify the Bias</span>
               </div>
               Check whether Large Speculators are <strong>net long</strong> (positive net = bullish bias) or <strong>net short</strong> (negative net = bearish bias). Then check the WoW direction: are they adding or reducing? Adding to a net long position is the strongest bullish confirmation.
             </div>
             <div>
               <div className="flex items-center gap-1.5 mb-2">
-                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal-deep">2</div>
+                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-teal-tint text-teal-deep">2</div>
                 <span className="font-semibold text-ink-strong">Check Divergence</span>
               </div>
               The most powerful signal is when large specs and commercials are both aligned. Commercials hedge the opposite side, so when they are heavily short while large specs go long, that&apos;s institutional conviction you want to trade with.
             </div>
             <div>
               <div className="flex items-center gap-1.5 mb-2">
-                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-[rgba(8,174,170,0.1)] text-teal-deep">3</div>
+                <div className="size-6 rounded-full flex items-center justify-center font-bold text-[11px] bg-teal-tint text-teal-deep">3</div>
                 <span className="font-semibold text-ink-strong">Confirm with Price</span>
               </div>
               COT alone does not give you an entry; it gives you a directional filter. Combine a bullish COT signal with a swept liquidity pool, a valid OB or FVG on HTF, and a killzone entry window.
@@ -371,11 +371,11 @@ function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: bool
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-[12.5px] leading-relaxed text-ink-mid">
-            <div className="rounded-xl px-4 py-3 shadow-sm bg-[rgba(8,174,170,0.05)]">
+            <div className="rounded-xl px-4 py-3 shadow-sm bg-teal-tint-soft">
               <div className="font-semibold mb-1 text-teal-deep">Extreme readings: reversal or continuation?</div>
               At COT Index &gt; 80, large specs are near their most bullish in a year. Always check price structure — if price has not yet moved proportionally, COT is leading; if price has already run hard, the extreme may be signalling a top.
             </div>
-            <div className="rounded-xl px-4 py-3 shadow-sm bg-[rgba(248,185,61,0.05)]">
+            <div className="rounded-xl px-4 py-3 shadow-sm bg-gold-tint-soft">
               <div className="font-semibold mb-1 text-gold-deep">DXY is your master bias</div>
               When the USD Index (DXY) COT Index is low, that&apos;s a tailwind for EURUSD, GBPUSD, NZDUSD, AUDUSD, and XAUUSD longs simultaneously. Cross-reference DXY with your pairs for the strongest setups.
             </div>
@@ -655,8 +655,8 @@ export function CotReports() {
           <div
             className={cn(
               "flex items-center gap-2 px-3 py-1.5 rounded-xl text-[12px]",
-              allLoaded ? "shadow-[0_0_0_1px_rgba(8,174,170,0.2)] bg-[rgba(8,174,170,0.08)] text-teal-deep"
-                : hasData ? "shadow-[0_0_0_1px_rgba(248,185,61,0.2)] bg-[rgba(248,185,61,0.08)] text-gold-deep"
+              allLoaded ? "shadow-ring-teal bg-teal-tint-soft text-teal-deep"
+                : hasData ? "shadow-ring-gold bg-gold-tint-soft text-gold-deep"
                   : "bg-panel-2 text-ink-dim"
             )}
           >
@@ -691,12 +691,12 @@ export function CotReports() {
 
       {/* ── Load error ── */}
       {loadError && (
-        <div className="mb-5 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-[13px] shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral-deep">
+        <div className="mb-5 rounded-xl px-4 py-3 flex items-center justify-between gap-3 text-[13px] shadow-ring-coral bg-coral-tint-soft text-coral-deep">
           <span>Couldn&apos;t load COT data. Please try again.</span>
           <button
             type="button"
             onClick={() => refetch()}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[12px] font-semibold transition-all active:scale-95 bg-[rgba(234,82,61,0.1)] border border-[rgba(234,82,61,0.25)] shrink-0"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[12px] font-semibold transition-all active:scale-95 bg-coral-tint border border-[rgba(234,82,61,0.25)] shrink-0"
           >
             <Icon name="refresh" size={13} />
             Retry

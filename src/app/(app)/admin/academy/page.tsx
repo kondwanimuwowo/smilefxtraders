@@ -62,7 +62,7 @@ export default async function AdminAcademyPage() {
       {/* Course cards */}
       <div className="flex flex-col gap-4">
         {courses.map((course) => {
-          const tierCls   = course.tier === "free" ? "bg-panel-2 text-ink-dim" : course.tier === "edge" ? "bg-[rgba(8,174,170,0.12)] text-teal-deep" : "bg-[rgba(248,185,61,0.12)] text-gold-deep";
+          const tierCls   = course.tier === "free" ? "bg-panel-2 text-ink-dim" : course.tier === "edge" ? "bg-teal-tint text-teal-deep" : "bg-gold-tint text-gold-deep";
           const tierLabel = course.tier === "free" ? "Free" : course.tier === "edge" ? "Edge" : "Pro";
           const totalCompletions = course.lessons.reduce((s, l) => s + (completionMap.get(l.id) ?? 0), 0);
           const maxCompletions   = Math.max(...course.lessons.map((l) => completionMap.get(l.id) ?? 0), 1);
@@ -89,7 +89,7 @@ export default async function AdminAcademyPage() {
                         {tierLabel}
                       </span>
                       {!course.published && (
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[rgba(234,82,61,0.12)] text-coral-deep">
+                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-coral-tint text-coral-deep">
                           Draft
                         </span>
                       )}

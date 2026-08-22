@@ -100,9 +100,9 @@ function GradeTable() {
             <span
               className={cn(
                 "font-display font-bold text-[16px] w-11 h-11 rounded-full grid place-items-center shrink-0 tabular-nums",
-                g.tone === "teal" ? "bg-[rgba(8,174,170,0.12)] text-teal-deep"
-                  : g.tone === "gold" ? "bg-[rgba(248,185,61,0.16)] text-gold-deep"
-                  : "bg-[rgba(234,82,61,0.12)] text-coral-deep",
+                g.tone === "teal" ? "bg-teal-tint text-teal-deep"
+                  : g.tone === "gold" ? "bg-gold-tint text-gold-deep"
+                  : "bg-coral-tint text-coral-deep",
               )}
             >
               {g.grade}
@@ -131,7 +131,7 @@ export function MarketingRulebook() {
               "inline-flex items-center py-[9px] px-5 rounded-full text-[13.5px] font-semibold transition-colors duration-150",
               framework === fw
                 ? "bg-teal-solid text-white"
-                : "bg-bg-tint text-teal-deep hover:bg-[rgba(8,174,170,0.18)]",
+                : "bg-bg-tint text-teal-deep hover:bg-teal-tint",
             )}
           >
             {RULEBOOK[fw].label}

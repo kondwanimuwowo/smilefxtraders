@@ -414,14 +414,14 @@ function ComposeBox() {
             <div className="w-px h-4 shrink-0 bg-line" />
             <TogglePill
               active={dir === "long"}
-              activeClass="bg-[rgba(8,174,170,0.15)] text-teal-deep ring-2 ring-teal-deep"
+              activeClass="bg-teal-tint text-teal-deep ring-2 ring-teal-deep"
               onClick={() => setDir(dir === "long" ? "" : "long")}
             >
               Long
             </TogglePill>
             <TogglePill
               active={dir === "short"}
-              activeClass="bg-[rgba(234,82,61,0.12)] text-coral-deep ring-2 ring-coral-deep"
+              activeClass="bg-coral-tint text-coral-deep ring-2 ring-coral-deep"
               onClick={() => setDir(dir === "short" ? "" : "short")}
             >
               Short
@@ -429,14 +429,14 @@ function ComposeBox() {
             <div className="w-px h-4 shrink-0 bg-line" />
             <TogglePill
               active={result === "WIN"}
-              activeClass="bg-[rgba(8,174,170,0.12)] text-teal-deep ring-2 ring-teal-deep"
+              activeClass="bg-teal-tint text-teal-deep ring-2 ring-teal-deep"
               onClick={() => setResult(result === "WIN" ? "" : "WIN")}
             >
               Win
             </TogglePill>
             <TogglePill
               active={result === "LOSS"}
-              activeClass="bg-[rgba(234,82,61,0.1)] text-coral-deep ring-2 ring-coral-deep"
+              activeClass="bg-coral-tint text-coral-deep ring-2 ring-coral-deep"
               onClick={() => setResult(result === "LOSS" ? "" : "LOSS")}
             >
               Loss

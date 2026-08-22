@@ -170,7 +170,7 @@ export function LoginForm() {
 
       {/* Error */}
       {error && (
-        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-deep border border-[rgba(234,82,61,0.2)]">
+        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-coral-tint text-coral-deep border border-[rgba(234,82,61,0.2)]">
           {error}
         </div>
       )}

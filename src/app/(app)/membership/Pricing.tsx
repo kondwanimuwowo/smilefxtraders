@@ -136,7 +136,7 @@ export function Pricing() {
       </div>
 
       <div
-        className="rounded-2xl px-6 py-5 flex items-center gap-4 mb-10 bg-[rgba(8,174,170,0.06)] ring-2 ring-teal-deep"
+        className="rounded-2xl px-6 py-5 flex items-center gap-4 mb-10 bg-teal-tint-soft ring-2 ring-teal-deep"
       >
         <Icon name="verified_user" size={30} fill className="text-teal-deep shrink-0" />
         <div>

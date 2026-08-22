@@ -114,7 +114,7 @@ export function SessionTimeline() {
             Session Timeline
           </span>
           {isKillzone && (
-            <span className="text-[9.5px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-[rgba(48,232,223,0.08)] text-teal-deep shadow-[0_0_0_1px_rgba(48,232,223,0.22)]">
+            <span className="text-[9.5px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-teal-tint-soft text-teal-deep shadow-ring-teal">
               London · NY Overlap
             </span>
           )}

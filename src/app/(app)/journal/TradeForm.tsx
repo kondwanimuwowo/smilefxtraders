@@ -296,7 +296,7 @@ export function TradeForm({ edit, preset, onSaved, onCancel }: Props) {
               <span className="flex items-center gap-1.5">
                 Planned R:R
                 {calculatedRR !== null && (
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[rgba(8,174,170,0.1)] text-teal-deep shadow-[0_0_0_2px_rgba(8,174,170,0.2)]">
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-teal-tint text-teal-deep shadow-ring-teal-2">
                     auto
                   </span>
                 )}
@@ -405,7 +405,7 @@ export function TradeForm({ edit, preset, onSaved, onCancel }: Props) {
                       }
                       className={`rounded-full px-3 py-1 text-[12px] font-semibold transition-all cursor-pointer ${
                         active
-                          ? "bg-[rgba(248,185,61,0.15)] ring-2 ring-gold-deep text-gold-deep"
+                          ? "bg-gold-tint ring-2 ring-gold-deep text-gold-deep"
                           : "bg-panel-2 shadow-sm text-ink-dim"
                       }`}
                     >

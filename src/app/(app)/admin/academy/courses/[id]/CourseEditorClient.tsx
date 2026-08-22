@@ -161,7 +161,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
           <button
             type="button"
             onClick={addLesson}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold bg-[rgba(8,174,170,0.1)] text-teal-deep shadow-[0_0_0_1px_rgba(8,174,170,0.2)]"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-semibold bg-teal-tint text-teal-deep shadow-ring-teal"
           >
             <Icon name="add" size={15} />
             Add lesson
@@ -183,7 +183,7 @@ export function CourseEditorClient({ course }: { course: Course }) {
                 <div className="text-[11.5px] text-ink-dim">{lesson.duration}</div>
               </div>
               {!lesson.published && (
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 bg-[rgba(234,82,61,0.1)] text-coral-deep">
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 bg-coral-tint text-coral-deep">
                   Draft
                 </span>
               )}

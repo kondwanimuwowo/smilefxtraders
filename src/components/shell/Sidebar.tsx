@@ -190,7 +190,7 @@ export function Sidebar() {
                 localStorage.setItem("smfx_sidebar", next ? "1" : "0");
                 return next;
               })}
-              className="shrink-0 flex items-center justify-center rounded-lg transition-colors size-7 text-ink-dim bg-transparent hover:bg-[rgba(8,174,170,0.1)]"
+              className="shrink-0 flex items-center justify-center rounded-lg transition-colors size-7 text-ink-dim bg-transparent hover:bg-teal-tint"
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <Icon name={collapsed ? "chevron_right" : "chevron_left"} size={18} />

@@ -83,9 +83,9 @@ export function Topbar() {
 // ── NotifBell ─────────────────────────────────────────────────────────────────
 
 const TONE_CONFIG: Record<string, { icon: string; textCls: string; bgCls: string }> = {
-  teal:  { icon: "notifications_active", textCls: "text-teal-deep",  bgCls: "bg-[rgba(8,174,170,0.1)]"  },
-  gold:  { icon: "workspace_premium",    textCls: "text-gold-deep",  bgCls: "bg-[rgba(248,185,61,0.1)]" },
-  coral: { icon: "warning",              textCls: "text-coral-deep", bgCls: "bg-[rgba(234,82,61,0.1)]"  },
+  teal:  { icon: "notifications_active", textCls: "text-teal-deep",  bgCls: "bg-teal-tint"  },
+  gold:  { icon: "workspace_premium",    textCls: "text-gold-deep",  bgCls: "bg-gold-tint" },
+  coral: { icon: "warning",              textCls: "text-coral-deep", bgCls: "bg-coral-tint"  },
 };
 
 import { fmtRelative } from "@/lib/date";
@@ -193,7 +193,7 @@ function NotifBell() {
                     className={cn(
                       "flex items-start gap-3 px-4 py-3 transition-colors hover:bg-hover",
                       i < preview.length - 1 && "border-b border-line",
-                      n.unread && "bg-[rgba(8,174,170,0.03)]"
+                      n.unread && "bg-teal-tint-soft"
                     )}
                   >
                     <div className={cn("size-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5", cfg.bgCls)}>

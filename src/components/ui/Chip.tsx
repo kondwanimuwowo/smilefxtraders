@@ -5,9 +5,9 @@ type ChipTone = "neutral" | "teal" | "coral" | "gold";
 
 const TONES: Record<ChipTone, string> = {
   neutral: "bg-[rgba(154,208,206,0.10)] text-[var(--ink-mid)]",
-  teal:    "bg-[rgba(8,174,170,0.16)] text-[var(--teal-deep)]",
-  coral:   "bg-[rgba(234,82,61,0.16)] text-[var(--coral-deep)]",
-  gold:    "bg-[rgba(248,185,61,0.16)] text-[var(--gold-deep)]",
+  teal:    "bg-teal-tint text-[var(--teal-deep)]",
+  coral:   "bg-coral-tint text-[var(--coral-deep)]",
+  gold:    "bg-gold-tint text-[var(--gold-deep)]",
 };
 
 interface ChipProps {

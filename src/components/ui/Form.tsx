@@ -168,7 +168,7 @@ export function Select({ value, onChange, options, disabled, compact, borderless
                   className={cn(
                     "w-full text-left px-3.5 py-2 text-[13px] flex items-center justify-between gap-2 transition-colors",
                     active
-                      ? "bg-[rgba(8,174,170,0.10)] text-teal-deep"
+                      ? "bg-teal-tint text-teal-deep"
                       : "bg-transparent text-ink-strong hover:bg-hover"
                   )}
                 >

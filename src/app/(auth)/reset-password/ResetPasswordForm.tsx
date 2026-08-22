@@ -111,7 +111,7 @@ export function ResetPasswordForm() {
   if (status === "invalid") {
     return (
       <div className="flex flex-col items-center text-center gap-5">
-        <div className="size-16 rounded-full flex items-center justify-center bg-[rgba(234,82,61,0.10)] border-2 border-[rgba(234,82,61,0.25)]">
+        <div className="size-16 rounded-full flex items-center justify-center bg-coral-tint border-2 border-[rgba(234,82,61,0.25)]">
           <Icon name="link_off" size={32} className="text-coral-deep" />
         </div>
         <div>
@@ -139,7 +139,7 @@ export function ResetPasswordForm() {
   if (status === "success") {
     return (
       <div className="flex flex-col items-center text-center gap-5">
-        <div className="size-16 rounded-full flex items-center justify-center bg-[rgba(8,174,170,0.12)] border-2 border-[rgba(8,174,170,0.3)]">
+        <div className="size-16 rounded-full flex items-center justify-center bg-teal-tint border-2 border-[rgba(8,174,170,0.3)]">
           <Icon name="lock_open" size={32} className="text-teal-deep" />
         </div>
         <div>
@@ -189,7 +189,7 @@ export function ResetPasswordForm() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-deep border border-[rgba(234,82,61,0.2)]">
+        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-coral-tint text-coral-deep border border-[rgba(234,82,61,0.2)]">
           {error}
         </div>
       )}

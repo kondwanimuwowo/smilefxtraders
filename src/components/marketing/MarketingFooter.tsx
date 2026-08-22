@@ -101,7 +101,7 @@ export function MarketingFooter() {
             href="https://ic.com/?camp=67851"
             target="_blank"
             rel="sponsored nofollow noopener noreferrer"
-            className="inline-block shrink-0 rounded-md overflow-hidden opacity-80 transition-opacity hover:opacity-100"
+            className="inline-block shrink-0 rounded-sm overflow-hidden opacity-80 transition-opacity hover:opacity-100"
           >
             {/* IC Markets names these by BACKGROUND, not by ink: "white" is the
                 dark wordmark on an opaque white ground, which is what reads on

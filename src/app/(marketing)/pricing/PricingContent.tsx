@@ -74,7 +74,7 @@ export function PricingContent({ prices }: Props) {
           </div>
 
           {/* Money-back */}
-          <div className="reveal flex items-center gap-4 mt-10 mx-auto max-w-[640px] py-5 px-6 bg-[rgba(8,174,170,0.06)] border border-[rgba(8,174,170,0.2)] rounded-[18px]">
+          <div className="reveal flex items-center gap-4 mt-10 mx-auto max-w-[640px] py-5 px-6 bg-teal-tint-soft border border-[rgba(8,174,170,0.2)] rounded-[18px]">
             <Icon name="verified_user" size={28} className="text-teal-deep shrink-0" />
             <div>
               <div className="font-bold text-[15px] text-ink-strong">7-day money-back guarantee</div>

@@ -77,8 +77,8 @@ const avgCellCls = cn("px-3.5 py-2 whitespace-nowrap [font-feature-settings:'tnu
 
 // Column-group background tints — replace vertical border rules between
 // Large Spec / Commercial / Retail column blocks.
-const lsTint = "bg-[rgba(8,174,170,0.035)]";
-const cTint  = "bg-[rgba(248,185,61,0.035)]";
+const lsTint = "bg-teal-tint-soft";
+const cTint  = "bg-gold-tint-soft";
 const ssTint = "bg-[rgba(11,66,93,0.035)]";
 
 // ── Main page ─────────────────────────────────────────────────────────────────
@@ -323,7 +323,7 @@ export default function CotPairPage() {
 
       {/* ── Error state ── */}
       {error && (
-        <div className="rounded-2xl px-5 py-4 text-[13px] shadow-[0_0_0_1px_rgba(234,82,61,0.2)] bg-[rgba(234,82,61,0.07)] text-coral-deep">
+        <div className="rounded-2xl px-5 py-4 text-[13px] shadow-ring-coral bg-coral-tint-soft text-coral-deep">
           Pair not found or data unavailable. <button onClick={() => router.back()} className="underline">Go back</button>
         </div>
       )}
@@ -365,7 +365,7 @@ export default function CotPairPage() {
               className={cn(
                 "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all active:scale-95 border",
                 showSmallSpec
-                  ? "bg-[rgba(8,174,170,0.12)] text-teal-deep border-[rgba(8,174,170,0.3)]"
+                  ? "bg-teal-tint text-teal-deep border-[rgba(8,174,170,0.3)]"
                   : "bg-panel-2 text-ink-dim border-line"
               )}
             >
@@ -391,7 +391,7 @@ export default function CotPairPage() {
                       className={cn(
                         thBase,
                         "px-4 pt-[7px] pb-[5px] text-center text-[10px] tracking-[0.07em] text-teal-deep",
-                        "bg-[rgba(8,174,170,0.07)]"
+                        "bg-teal-tint-soft"
                       )}
                     >
                       Large Spec
@@ -406,7 +406,7 @@ export default function CotPairPage() {
                       className={cn(
                         thBase,
                         "px-4 pt-[7px] pb-[5px] text-center text-[10px] tracking-[0.07em] text-gold-deep",
-                        "bg-[rgba(248,185,61,0.07)]"
+                        "bg-gold-tint-soft"
                       )}
                     >
                       Commercial
@@ -433,7 +433,7 @@ export default function CotPairPage() {
                         key={`ls-${label}`}
                         className={cn(
                           thSub,
-                          "px-3.5 pt-[5px] pb-2 text-right text-[9.5px] tracking-[0.06em] bg-[rgba(8,174,170,0.05)]",
+                          "px-3.5 pt-[5px] pb-2 text-right text-[9.5px] tracking-[0.06em] bg-teal-tint-soft",
                           label === "Net" || label === "% Long" ? "text-teal-deep" : "text-ink-dim"
                         )}
                       >
@@ -446,7 +446,7 @@ export default function CotPairPage() {
                         key={`c-${label}`}
                         className={cn(
                           thSub,
-                          "px-3.5 pt-[5px] pb-2 text-right text-[9.5px] tracking-[0.06em] bg-[rgba(248,185,61,0.05)]",
+                          "px-3.5 pt-[5px] pb-2 text-right text-[9.5px] tracking-[0.06em] bg-gold-tint-soft",
                           label === "Net" ? "text-gold-deep" : "text-ink-dim"
                         )}
                       >
@@ -474,7 +474,7 @@ export default function CotPairPage() {
                   {avg13 && (() => {
                     const deltaLS = rows[0] ? rows[0].largeSpecNet - avg13.largeSpecNet : 0;
                     return (
-                      <tr className="bg-[rgba(8,174,170,0.025)]">
+                      <tr className="bg-teal-tint-soft">
                         <td className={cn(avgCellCls, "text-left font-sans text-teal-deep font-bold")}>
                           <span className="flex items-center gap-2">
                             13W Avg
@@ -531,7 +531,7 @@ export default function CotPairPage() {
                       : pct <= 40 ? "text-coral-deep"
                       : "text-ink-mid";
 
-                    const rowTint = isLatest ? "bg-[rgba(8,174,170,0.035)]" : undefined;
+                    const rowTint = isLatest ? "bg-teal-tint-soft" : undefined;
 
                     return (
                       <tr key={row.date} className={cn(rowTint, "border-b border-line-soft last:border-0")}>
@@ -543,7 +543,7 @@ export default function CotPairPage() {
                           <span className="flex items-center gap-2">
                             {fmtDateShort(row.date)}
                             {isLatest && (
-                              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded font-sans bg-[rgba(8,174,170,0.15)] text-teal-deep">
+                              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded font-sans bg-teal-tint text-teal-deep">
                                 Latest
                               </span>
                             )}

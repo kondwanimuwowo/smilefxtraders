@@ -53,7 +53,7 @@ export function ForgotPasswordForm() {
   if (state === "sent") {
     return (
       <div className="flex flex-col items-center text-center gap-5">
-        <div className="size-16 rounded-full flex items-center justify-center bg-[rgba(8,174,170,0.12)] border-2 border-[rgba(8,174,170,0.3)]">
+        <div className="size-16 rounded-full flex items-center justify-center bg-teal-tint border-2 border-[rgba(8,174,170,0.3)]">
           <Icon name="mark_email_read" size={32} className="text-teal-deep" />
         </div>
         <div>
@@ -102,7 +102,7 @@ export function ForgotPasswordForm() {
       <TurnstileWidget innerRef={turnstile.ref} action="password-reset" />
 
       {(state === "error") && (
-        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-[rgba(234,82,61,0.10)] text-coral-deep border border-[rgba(234,82,61,0.2)]">
+        <div className="mb-4 rounded-xl px-4 py-3 text-[13px] bg-coral-tint text-coral-deep border border-[rgba(234,82,61,0.2)]">
           {error}
         </div>
       )}

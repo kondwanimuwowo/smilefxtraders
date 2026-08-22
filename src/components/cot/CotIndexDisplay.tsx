@@ -55,11 +55,11 @@ interface IdxCls {
 }
 
 const IDX_CLS: Record<"coralBright" | "coral" | "tealBright" | "teal" | "gold", IdxCls> = {
-  coralBright: { textCls: "text-coral-deep", barBgCls: "bg-coral-bright", markerBorderCls: "border-coral-bright", badgeBgCls: "bg-[rgba(255,89,66,0.12)]",  badgeTextCls: "text-coral-deep", badgeBorderCls: "border-[rgba(255,89,66,0.12)]"  },
-  coral:       { textCls: "text-coral-deep",        barBgCls: "bg-coral",        markerBorderCls: "border-coral",        badgeBgCls: "bg-[rgba(234,82,61,0.10)]",  badgeTextCls: "text-coral-deep",        badgeBorderCls: "border-[rgba(234,82,61,0.10)]"  },
-  tealBright:  { textCls: "text-teal-deep",  barBgCls: "bg-teal-bright",  markerBorderCls: "border-teal-bright",  badgeBgCls: "bg-[rgba(48,232,223,0.12)]", badgeTextCls: "text-teal-deep",  badgeBorderCls: "border-[rgba(48,232,223,0.12)]" },
-  teal:        { textCls: "text-teal-deep",         barBgCls: "bg-teal",         markerBorderCls: "border-teal",         badgeBgCls: "bg-[rgba(8,174,170,0.10)]",  badgeTextCls: "text-teal-deep",         badgeBorderCls: "border-[rgba(8,174,170,0.10)]"  },
-  gold:        { textCls: "text-gold-deep",         barBgCls: "bg-gold",         markerBorderCls: "border-gold",         badgeBgCls: "bg-[rgba(248,185,61,0.10)]", badgeTextCls: "text-gold-deep",         badgeBorderCls: "border-[rgba(248,185,61,0.10)]" },
+  coralBright: { textCls: "text-coral-deep", barBgCls: "bg-coral-bright", markerBorderCls: "border-coral-bright", badgeBgCls: "bg-coral-tint",  badgeTextCls: "text-coral-deep", badgeBorderCls: "border-[rgba(255,89,66,0.12)]"  },
+  coral:       { textCls: "text-coral-deep",        barBgCls: "bg-coral",        markerBorderCls: "border-coral",        badgeBgCls: "bg-coral-tint",  badgeTextCls: "text-coral-deep",        badgeBorderCls: "border-[rgba(234,82,61,0.10)]"  },
+  tealBright:  { textCls: "text-teal-deep",  barBgCls: "bg-teal-bright",  markerBorderCls: "border-teal-bright",  badgeBgCls: "bg-teal-tint", badgeTextCls: "text-teal-deep",  badgeBorderCls: "border-[rgba(48,232,223,0.12)]" },
+  teal:        { textCls: "text-teal-deep",         barBgCls: "bg-teal",         markerBorderCls: "border-teal",         badgeBgCls: "bg-teal-tint",  badgeTextCls: "text-teal-deep",         badgeBorderCls: "border-[rgba(8,174,170,0.10)]"  },
+  gold:        { textCls: "text-gold-deep",         barBgCls: "bg-gold",         markerBorderCls: "border-gold",         badgeBgCls: "bg-gold-tint", badgeTextCls: "text-gold-deep",         badgeBorderCls: "border-[rgba(248,185,61,0.10)]" },
 };
 
 function indexCls(idx: number): IdxCls {
@@ -97,8 +97,8 @@ function RangeTrack({ value, label, weeks, cls }: { value: number; label: string
         </span>
       </div>
       <div className="relative rounded-full overflow-hidden h-1.5 bg-track">
-        <div className="absolute top-0 left-0 h-full w-1/5 bg-[rgba(234,82,61,0.15)]" />
-        <div className="absolute top-0 right-0 h-full w-1/5 bg-[rgba(8,174,170,0.15)]" />
+        <div className="absolute top-0 left-0 h-full w-1/5 bg-coral-tint" />
+        <div className="absolute top-0 right-0 h-full w-1/5 bg-teal-tint" />
         <div
           className={cn("absolute top-0 left-0 h-full rounded-full opacity-45 transition-[width] duration-700 ease-app", cls.barBgCls)}
           style={{ width: `${value}%` }}
@@ -181,7 +181,7 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
             <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-dim">
               COT Index
             </span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-[rgba(8,174,170,0.08)] text-teal-deep border border-[rgba(8,174,170,0.18)]">
+            <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-teal-tint-soft text-teal-deep border border-[rgba(8,174,170,0.18)]">
               {totalWeeks >= 156 ? "3yr · 156w range" : `${totalWeeks}w range`}
             </span>
           </div>
@@ -217,11 +217,11 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
 
         {/* Zone key */}
         <div className="flex items-center justify-between pt-1">
-          <span className="text-[10px] px-2 py-0.5 rounded bg-[rgba(234,82,61,0.10)] text-coral-deep">
+          <span className="text-[10px] px-2 py-0.5 rounded bg-coral-tint text-coral-deep">
             0–20 extreme short
           </span>
           <span className="text-[10px] text-ink-dim">40–60 neutral</span>
-          <span className="text-[10px] px-2 py-0.5 rounded bg-[rgba(8,174,170,0.10)] text-teal-deep">
+          <span className="text-[10px] px-2 py-0.5 rounded bg-teal-tint text-teal-deep">
             80–100 extreme long
           </span>
         </div>
