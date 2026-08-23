@@ -677,6 +677,26 @@
      here and get a pale glyph on a pale chip. */
   --icon:       #36525F;
   --teal-solid-ink: var(--teal-solid);
+
+  /* The brand hues have to be pinned here too, and this was the gap.
+     Surfaces were re-pinned above but the -deep and -tint families were not,
+     so a visitor who had turned the dashboard dark and then opened a marketing
+     page got --teal-deep resolving to the bright cyan and --gold-deep to the
+     light gold, both on surfaces that stayed white: 1.53:1 and 1.41:1.
+     Measured in the browser, on a plain section with no dark ancestor. */
+  --teal-deep:  #076F6B;
+  --coral-deep: #AE3A2A;
+  --gold-deep:  #8A6009;
+  --teal-tint:  rgba(8, 174, 170, 0.12);
+  --coral-tint: rgba(234, 82, 61, 0.12);
+  --gold-tint:  rgba(248, 185, 61, 0.16);
+  --teal-tint-soft:  rgba(8, 174, 170, 0.06);
+  --coral-tint-soft: rgba(234, 82, 61, 0.06);
+  --gold-tint-soft:  rgba(248, 185, 61, 0.07);
+  --line-soft:  rgba(11, 66, 93, 0.045);
+  --chart-ls:     #00938E;
+  --chart-comm:   #B27B0A;
+  --chart-retail: #5C707C;
 }
 
 @layer base {
@@ -900,7 +920,17 @@
   .price-feat .det { @apply text-ink-dim; }
   .price-x { @apply flex gap-2.5 items-start text-sm text-ink-dim py-[7px]; }
   .price-divider { @apply border-t border-line my-3.5; }
-  .toggle-wrap { @apply inline-flex items-center gap-1.5 p-[5px] bg-[var(--bg-soft)] rounded-full; }
+  /* A light island inside the dark hero section, so it has to undo the .dark
+     token flip the same way .marketing-theme undoes the app theme. Without
+     this the "-20%" label rendered #FFD37A on a #F2F6F8 track at 1.30:1. */
+  .toggle-wrap {
+    @apply inline-flex items-center gap-1.5 p-[5px] bg-[var(--bg-soft)] rounded-full;
+    --teal-deep:  #076F6B;
+    --coral-deep: #AE3A2A;
+    --gold-deep:  #8A6009;
+    --ink-mid:    rgba(8, 42, 59, 0.78);
+    --ink-strong: #082A3B;
+  }
   .faq-item { @apply border-b border-line; }
   .faq-item:first-child { @apply border-t border-line; }
   @media (max-width: 900px) {
