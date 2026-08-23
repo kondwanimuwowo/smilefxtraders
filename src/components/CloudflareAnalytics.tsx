@@ -39,6 +39,8 @@ export function CloudflareAnalytics() {
     <Script
       id="cf-web-analytics"
       strategy="lazyOnload"
+      // Cloudflare ships the beacon as a module; matching their snippet.
+      type="module"
       src="https://static.cloudflareinsights.com/beacon.min.js"
       data-cf-beacon={JSON.stringify({ token: BEACON_TOKEN })}
     />
