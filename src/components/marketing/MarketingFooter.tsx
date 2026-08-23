@@ -92,30 +92,6 @@ export function MarketingFooter() {
               loading="lazy"
             />
           </a>
-
-          {/* Broker referral (introducing-broker link). rel="sponsored nofollow"
-              is Google's required markup for a commission-bearing link and is
-              invisible to visitors, so it stays regardless of what the visible
-              copy says. */}
-          <a
-            href="https://ic.com/?camp=67851"
-            target="_blank"
-            rel="sponsored nofollow noopener noreferrer"
-            className="inline-block shrink-0 rounded-sm overflow-hidden opacity-80 transition-opacity hover:opacity-100"
-          >
-            {/* IC Markets names these by BACKGROUND, not by ink: "white" is the
-                dark wordmark on an opaque white ground, which is what reads on
-                this footer and matches the boxed Trustpilot widget beside it.
-                Source is 200x55, so 35px tall lands at 127px wide. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="https://promo.icmarkets.com/Logos/2021/200x55/BAN_ICM_white_200x55.png"
-              alt="IC Markets"
-              width={127}
-              height={35}
-              loading="lazy"
-            />
-          </a>
         </div>
 
 
