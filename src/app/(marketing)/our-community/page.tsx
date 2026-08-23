@@ -15,7 +15,7 @@ export default function OurCommunityPage() {
       <section className="dark py-32 pb-24 bg-[radial-gradient(ellipse_at_12%_18%,rgba(8,174,170,0.45)_0%,transparent_52%),radial-gradient(ellipse_at_88%_88%,rgba(248,185,61,0.32)_0%,transparent_48%),linear-gradient(155deg,#0C4E6B_0%,#082A3B_60%)]">
         <div className="container">
           <div className="sec-head reveal">
-            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">Discipline is easier together</h2>
+            <h1 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">Discipline is easier together</h1>
             <p className="lead mt-[18px]">Share setups, climb the monthly leaderboard, and keep your streak alive alongside traders who take this as seriously as you do.</p>
           </div>
         </div>

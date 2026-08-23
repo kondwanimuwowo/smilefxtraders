@@ -784,6 +784,10 @@
   .eyebrow { @apply text-xs font-bold uppercase tracking-[0.26em] text-teal-deep inline-flex items-center gap-2; }
   .sec-head { @apply max-w-[680px]; }
   .sec-head.center { @apply mx-auto text-center; }
+  /* h1 and h2 share this, because the top-of-page hero heading has to be an
+     h1 for search engines while every later section heading stays an h2. The
+     two must look identical -- the tag carries meaning, not size. */
+  .sec-head h1,
   .sec-head h2 { @apply mt-4 text-[clamp(30px,4vw,46px)]; }
   .sec-head .lead { @apply text-[15px] text-ink-mid mt-5 leading-[1.6]; }
   .dark .sec-head .lead { @apply text-[rgba(255,255,255,0.74)]; }

@@ -13,7 +13,7 @@ export default function BlogPage() {
       <div className="container">
         <div className="sec-head center reveal">
           <Icon name="menu_book" size={40} className="mx-auto mb-4 text-teal-deep" />
-          <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">Market Insights, coming soon</h2>
+          <h1 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">Market Insights, coming soon</h1>
           <p className="lead mt-[18px]">We&apos;re building a home for weekly market commentary, COT breakdowns, and trading write-ups. Check back soon.</p>
         </div>
       </div>

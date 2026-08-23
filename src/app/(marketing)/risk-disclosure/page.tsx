@@ -12,7 +12,7 @@ export default function RiskDisclosurePage() {
       <section className="dark py-32 pb-16 bg-[radial-gradient(ellipse_at_12%_18%,rgba(8,174,170,0.45)_0%,transparent_52%),radial-gradient(ellipse_at_88%_88%,rgba(248,185,61,0.32)_0%,transparent_48%),linear-gradient(155deg,#0C4E6B_0%,#082A3B_60%)]">
         <div className="container">
           <div className="sec-head center reveal">
-            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">Risk Disclosure</h2>
+            <h1 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">Risk Disclosure</h1>
             <p className="lead mt-[18px]">Trading is a skill built over time, and it also carries real risk of loss. Read this before you trade.</p>
           </div>
         </div>

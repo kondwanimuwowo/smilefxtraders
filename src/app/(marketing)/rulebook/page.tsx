@@ -67,9 +67,9 @@ export default function MarketingRulebookPage() {
         <div className="container">
           <div className="sec-head reveal">
             <span className="eyebrow">Published in full</span>
-            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">
+            <h1 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">
               The Rulebook
-            </h2>
+            </h1>
             <p className="lead">
               Fourteen rules per framework, thirteen of them required and one optional confluence. Every trade our members journal is graded against them,
               and Gavo checks what it can against real broker price data. Here it is in full, before

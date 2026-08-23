@@ -23,7 +23,9 @@ function BrandLogo({ scrolled }: { scrolled: boolean }) {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={scrolled ? "/smile-logo-dark.png" : "/smile-fx-logo-wht.png"}
-      alt="Smile FX Traders"
+      // Empty on purpose: the brand name sits beside this as real text, so
+      // real alt here makes a screen reader announce it twice.
+      alt=""
       width={38}
       height={38}
       className="rounded-[10px] object-contain block"

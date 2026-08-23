@@ -25,7 +25,7 @@ export default function LearnPage() {
       <section className="dark py-32 pb-24 bg-[radial-gradient(ellipse_at_12%_18%,rgba(8,174,170,0.45)_0%,transparent_52%),radial-gradient(ellipse_at_88%_88%,rgba(248,185,61,0.32)_0%,transparent_48%),linear-gradient(155deg,#0C4E6B_0%,#082A3B_60%)]">
         <div className="container">
           <div className="sec-head reveal">
-            <h2 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">From your first candle to a funded account</h2>
+            <h1 className="m-0 font-extrabold tracking-[-0.01em] leading-[1.18] text-[clamp(28px,3.8vw,46px)]">From your first candle to a funded account</h1>
             <p className="lead mt-[18px]">Six levels, taught in order. Master each before the next unlocks, so nothing is skipped and nothing is rushed. This is the same path we walk every new trader through.</p>
           </div>
           <div className="flex gap-7 mt-[34px] flex-wrap">
