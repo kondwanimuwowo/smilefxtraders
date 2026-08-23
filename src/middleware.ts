@@ -156,11 +156,16 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // robots.txt, sitemap.xml and llms.txt are excluded alongside the static
-    // assets. They are public by definition and every request for them arrives
-    // anonymous, so without this the auth guard redirected all three to /login
-    // and a crawler asking for the sitemap got a login page. Excluding them
-    // here also skips a Supabase session lookup on every crawl.
-    "/((?!_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|llms\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Static and machine-facing files are excluded from the auth guard.
+    // Every request for them arrives anonymous, so without this the guard
+    // redirected them to /login and a crawler asking for the sitemap got a
+    // login page. Excluding them also skips a Supabase session lookup per
+    // crawl.
+    //
+    // The extension list covers site-verification files too (Bing's
+    // BingSiteAuth.xml, Google's google<hash>.html), which is why xml, txt,
+    // json and html are in there. The named robots/sitemap/llms entries are
+    // now redundant with it but kept as documentation of intent.
+    "/((?!_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|llms\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|xml|txt|json|webmanifest|html)$).*)",
   ],
 };

@@ -49,6 +49,12 @@ export const metadata: Metadata = {
     title: `${SITE.name} | ${SITE.tagline}`,
     description: SITE.description,
   },
+  // Site-verification tags. Rendered into <head> by Next rather than kept as
+  // a file in public/, which keeps them out of the auth guard's way and means
+  // they cannot be lost in a deploy that misses a static asset.
+  verification: {
+    other: { "msvalidate.01": "19266FC92B3C5F6FA5496A2179CDE794" },
+  },
   robots: {
     index: true,
     follow: true,
