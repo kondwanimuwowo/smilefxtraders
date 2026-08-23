@@ -139,16 +139,15 @@ export function MarketingNav() {
                   className={cn(
                     "px-[13px] py-2 rounded-lg text-[14.5px] no-underline transition-all duration-200",
                     scrolled ? "hover:bg-[rgba(11,66,93,0.06)]" : "hover:bg-[rgba(255,255,255,0.08)]",
-                    // Unscrolled the bar is transparent over the navy hero, so
-                    // the active link needs the light gold; scrolled it sits on
-                    // a near-white blur and needs the dark one. `on-dark` on the
-                    // header flips --gold-deep for the whole subtree, so this
-                    // stays one class either way: #FFD37A over the hero (6.43:1)
-                    // and #8A6009 once the bar turns white (4.97:1). The second
-                    // reads brownish, which is unavoidable -- no gold light
-                    // enough to still look gold clears AA as text on white.
+                    // Wayfinding here is carried by weight and contrast, not by
+                    // hue. Teal already means "interactive" and gold means
+                    // instructor, streak and premium; spending either on "you
+                    // are here" gives one colour two jobs. Active is simply the
+                    // foreground at full strength, inactive is the same colour
+                    // dimmed, which also sidesteps the fact that the only gold
+                    // dark enough to pass AA on white stops looking gold.
                     pathname === n.href
-                      ? "text-gold-deep font-bold"
+                      ? (scrolled ? "text-ink-strong font-semibold" : "text-white font-semibold")
                       : (scrolled ? "text-ink-mid font-medium" : "text-[rgba(255,255,255,0.78)] font-medium")
                   )}
                 >
@@ -219,7 +218,7 @@ export function MarketingNav() {
                 href={n.href}
                 className={cn(
                   "font-display text-[19px] py-3.5 px-1 border-b border-[rgba(255,255,255,0.1)] no-underline flex items-center justify-between",
-                  active ? "text-gold-deep font-bold" : "text-[rgba(255,255,255,0.9)] font-medium"
+                  active ? "text-white font-semibold" : "text-[rgba(255,255,255,0.65)] font-medium"
                 )}
                 style={{
                   opacity: mobileOpen ? 1 : 0,
@@ -229,7 +228,7 @@ export function MarketingNav() {
                 onClick={() => setMobileOpen(false)}
               >
                 {n.label}
-                <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", active ? "bg-gold shadow-[0_0_8px_var(--gold)]" : "bg-transparent")} />
+                <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", active ? "bg-teal-bright shadow-[0_0_8px_var(--teal-bright)]" : "bg-transparent")} />
               </Link>
             );
           })}
