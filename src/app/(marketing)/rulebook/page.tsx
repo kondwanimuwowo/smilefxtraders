@@ -3,7 +3,7 @@ import { MarketingRulebook } from "@/components/rulebook/MarketingRulebook";
 import { CTACard } from "@/components/marketing/CTACard";
 import { RULEBOOK, allRules } from "@/lib/rulebook";
 
-const TITLE = "The Rulebook | Smile FX Traders";
+const TITLE = "The Rulebook";
 const DESCRIPTION =
   "The rules every Smile FX Traders setup is graded against, for Smart Money Concepts and Supply & Demand. Published in full, before you join.";
 

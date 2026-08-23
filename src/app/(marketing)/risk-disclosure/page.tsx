@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Risk Disclosure | Smile FX Traders",
+  title: "Risk Disclosure",
   description: "Understand the risks of trading forex, CFDs, and other leveraged instruments before using Smile FX Traders.",
+  alternates: { canonical: "/risk-disclosure" },
 };
 
 export default function RiskDisclosurePage() {

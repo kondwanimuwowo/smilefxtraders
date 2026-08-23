@@ -10,7 +10,8 @@ export interface FAQAccordionItem {
 }
 
 interface FAQAccordionProps {
-  items: FAQAccordionItem[];
+  /** readonly so a shared `as const` list can be passed straight in. */
+  items: readonly FAQAccordionItem[];
   title?: string;
   titleClassName?: string;
   className?: string;

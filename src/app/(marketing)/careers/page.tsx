@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Icon } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Careers | Smile FX Traders",
+  title: "Careers",
   description: "Join the Smile FX Traders team.",
+  alternates: { canonical: "/careers" },
 };
 
 export default function CareersPage() {

@@ -4,8 +4,9 @@ import { MarketingCard } from "@/components/marketing/MarketingCard";
 import { FeatureBlock } from "@/components/marketing/FeatureBlock";
 
 export const metadata: Metadata = {
-  title: "Academy | Smile FX Traders",
+  title: "Academy",
   description: "A structured smart-money curriculum: six levels from market-structure foundations to a funded account, taught in order.",
+  alternates: { canonical: "/learn" },
 };
 
 const LEVELS = [

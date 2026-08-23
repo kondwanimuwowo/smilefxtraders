@@ -4,8 +4,9 @@ import { MarketingCard } from "@/components/marketing/MarketingCard";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
-  title: "About | Smile FX Traders",
+  title: "About",
   description: "The story behind Smile FX Traders, and the team giving African traders real tools, an honest method, and a community built on discipline.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {

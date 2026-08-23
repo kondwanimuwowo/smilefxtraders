@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Open_Sans, Ubuntu } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { SITE, SITE_URL } from "@/lib/seo";
 import Script from "next/script";
 import { ConsentGatedAnalytics } from "@/components/ConsentGatedAnalytics";
 import { CookieConsent } from "@/components/CookieConsent";
@@ -23,8 +24,35 @@ const ubuntu = Ubuntu({
 });
 
 export const metadata: Metadata = {
-  title: "Smile FX Traders",
-  description: "Trade smart money. Together.",
+  // metadataBase is what lets Next resolve every relative OG image, canonical
+  // and alternate into an absolute URL. Without it those tags either go missing
+  // or ship as paths, which no crawler or social scraper can follow.
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE.name} | ${SITE.tagline}`,
+    template: `%s | ${SITE.name}`,
+  },
+  description: SITE.description,
+  applicationName: SITE.name,
+  referrer: "origin-when-cross-origin",
+  openGraph: {
+    type: "website",
+    siteName: SITE.name,
+    locale: SITE.locale,
+    url: SITE_URL,
+    title: `${SITE.name} | ${SITE.tagline}`,
+    description: SITE.description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE.name} | ${SITE.tagline}`,
+    description: SITE.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+  },
 };
 
 // Explicit instead of relying on Next's implicit default — guarantees pinch-zoom

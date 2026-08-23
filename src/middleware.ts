@@ -156,6 +156,11 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // robots.txt, sitemap.xml and llms.txt are excluded alongside the static
+    // assets. They are public by definition and every request for them arrives
+    // anonymous, so without this the auth guard redirected all three to /login
+    // and a crawler asking for the sitemap got a login page. Excluding them
+    // here also skips a Supabase session lookup on every crawl.
+    "/((?!_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|llms\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

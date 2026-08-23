@@ -5,16 +5,9 @@ import { Button, Icon } from "@/components/ui";
 import { MarketingPlanCard } from "@/components/pricing/MarketingPlanCard";
 import { FAQAccordion } from "@/components/marketing/FAQAccordion";
 import { PLAN_META } from "@/lib/plans";
+import { PRICING_FAQ } from "@/lib/pricing-faq";
 import type { PlanPrices } from "@/lib/plans";
 
-const FAQ_ITEMS = [
-  { q: "Can I pay in Kwacha?", a: "Yes, all prices have a ZMW equivalent. Payments are processed via Airtel Money, MTN MoMo, Zamtel Kwacha, or card." },
-  { q: "Is there a free trial for Pro?", a: "Not currently. The Starter plan is free forever and gives you access to all the core tools. Upgrade when the limits become a constraint." },
-  { q: "What frameworks does the platform support?", a: "SMC (Smart Money Concepts) and Supply & Demand. You choose your framework during onboarding, and all tools (the validator, alerts, and journal) reflect your choice." },
-  { q: "Can I cancel at any time?", a: "Yes. No contracts, no lock-ins. Cancel from your account settings and you keep access until the end of your billing period." },
-  { q: "What is the 1-on-1 mentorship?", a: "Pro members get monthly private sessions with Kondwani. He reviews your journal, identifies patterns, and gives you a personalised improvement plan." },
-  { q: "Do annual plans cost less?", a: "Yes, annual billing saves 20% on all paid plans." },
-];
 
 interface Props {
   prices: PlanPrices[];
@@ -91,7 +84,7 @@ export function PricingContent({ prices }: Props) {
       <section className="section soft">
         <div className="container max-w-[820px]">
           <div className="sec-head center reveal mb-2">
-            <FAQAccordion title="Good to know" items={FAQ_ITEMS} />
+            <FAQAccordion title="Good to know" items={PRICING_FAQ} />
           </div>
         </div>
       </section>

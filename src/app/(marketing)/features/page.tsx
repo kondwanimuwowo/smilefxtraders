@@ -4,8 +4,9 @@ import { CTACard } from "@/components/marketing/CTACard";
 import { FeatureBlock } from "@/components/marketing/FeatureBlock";
 
 export const metadata: Metadata = {
-  title: "Features | Smile FX Traders",
+  title: "Features",
   description: "Every tool a disciplined trader needs: journal, rules validator, live alerts, COT reports, MacroEdge fundamentals, Gavo AI review, and the Academy.",
+  alternates: { canonical: "/features" },
 };
 
 export default function FeaturesPage() {

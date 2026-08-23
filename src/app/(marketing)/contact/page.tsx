@@ -3,8 +3,9 @@ import { Icon } from "@/components/ui";
 import { SOCIAL_LINKS } from "@/lib/social-links";
 
 export const metadata: Metadata = {
-  title: "Contact Us | Smile FX Traders",
+  title: "Contact",
   description: "Get in touch with the Smile FX Traders team.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {

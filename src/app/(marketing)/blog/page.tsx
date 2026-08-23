@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Icon } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Blog & Market Insights | Smile FX Traders",
+  title: "Blog & Market Insights",
   description: "Market commentary and trading insights from Smile FX Traders, coming soon.",
+  alternates: { canonical: "/blog" },
 };
 
 export default function BlogPage() {

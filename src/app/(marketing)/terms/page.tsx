@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Smile FX Traders",
+  title: "Terms of Service",
   description: "The terms that govern your use of Smile FX Traders.",
+  alternates: { canonical: "/terms" },
 };
 
 export default function TermsPage() {

@@ -3,8 +3,9 @@ import { Button, Icon } from "@/components/ui";
 import { MarketingCard } from "@/components/marketing/MarketingCard";
 
 export const metadata: Metadata = {
-  title: "Community | Smile FX Traders",
+  title: "Community",
   description: "Trade alongside a community of disciplined smart-money traders across Africa. Leaderboard, shared setups, streaks, and accountability.",
+  alternates: { canonical: "/our-community" },
 };
 
 export default function OurCommunityPage() {

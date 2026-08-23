@@ -5,6 +5,9 @@ import Lenis from "lenis";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { MarketingScripts } from "@/components/marketing/MarketingScripts";
+import { JsonLd } from "@/components/marketing/JsonLd";
+import { organizationSchema } from "@/lib/seo";
+import { SOCIAL_LINKS } from "@/lib/social-links";
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
@@ -24,8 +27,16 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Only real profiles go into sameAs. A placeholder "#" would assert a
+  // profile that does not exist, which is exactly the kind of claim that makes
+  // an engine distrust the rest of the entity.
+  const socialUrls = SOCIAL_LINKS
+    .map((s) => s.href)
+    .filter((href) => href.startsWith("http"));
+
   return (
     <div className="marketing-theme">
+      <JsonLd data={organizationSchema(socialUrls)} />
       <MarketingScripts />
       <MarketingNav />
       {children}

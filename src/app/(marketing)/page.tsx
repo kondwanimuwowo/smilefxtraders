@@ -9,9 +9,18 @@ import { PLAN_META } from "@/lib/plans";
 import { getPlanPrices } from "@/lib/server/getPlanPrices";
 
 export const metadata: Metadata = {
-  title: "Smile FX Traders | Trade Smart Money, Together",
+  // No title here on purpose. The root layout's default already reads
+  // "Smile FX Traders | Trade Smart Money, Together", and setting it again
+  // would run it through the "%s | Smile FX Traders" template twice.
   description:
-    "A professional trading desk for SMC and Supply & Demand traders. Journal your edge, validate every setup, and follow live calls from our trading desk.",
+    "A professional trading desk for SMC and Supply & Demand traders. Journal your edge, validate every setup before you take it, and follow live calls from Lusaka.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    url: "/",
+    title: "Smile FX Traders | Trade Smart Money, Together",
+    description:
+      "Journal your edge, validate every setup against a 14-rule checklist, and learn Smart Money Concepts from first principles. Kwacha and USD pricing.",
+  },
 };
 
 export default async function HomePage() {
