@@ -15,7 +15,9 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     type: "article",
-    images: ["/rules-validator.jpg"],
+    // No explicit images here: an explicit openGraph.images beats the
+    // opengraph-image.png file convention, and this page has its own
+    // purpose-made card sitting next to it in the route folder.
   },
 };
 

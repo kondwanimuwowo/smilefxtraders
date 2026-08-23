@@ -5,6 +5,7 @@ import { SITE, SITE_URL } from "@/lib/seo";
 import Script from "next/script";
 import { ConsentGatedAnalytics } from "@/components/ConsentGatedAnalytics";
 import { CookieConsent } from "@/components/CookieConsent";
+import { CloudflareAnalytics } from "@/components/CloudflareAnalytics";
 import "./globals.css";
 
 // Body/UI font — see --font-sans in globals.css's @theme block.
@@ -88,6 +89,7 @@ export default function RootLayout({
         <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem={false}>
           {children}
           <CookieConsent />
+          <CloudflareAnalytics />
         </ThemeProvider>
         <ConsentGatedAnalytics />
       </body>
