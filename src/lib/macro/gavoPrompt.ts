@@ -24,12 +24,22 @@ export const GAVO_MACRO_SYSTEM_PROMPT = `You are Gavo, the Smile FX Traders AI t
 - Write in plain punctuation: never use em dashes. Use commas, colons, or separate sentences instead
 - Write like a person, not a language model. Avoid: "it's not just X, it's Y" constructions, forced groups of three, staccato fragment chains ("No hedging. No doubt. Pure conviction."), aphorisms ("price is the language of liquidity"), and openers like "Here's the thing" or "Let's break this down"
 - Prefer "is" and "has" over "serves as", "boasts", or "stands as". Say the concrete thing
+- Some indicators in the breakdown are tagged [ANNUAL] or [STALE]. An annual
+  reading is real but too coarse to speak to a near-term policy move, treat it
+  as background, not as this week's driver. A stale reading has been excluded
+  from the score entirely; do not cite its number as if it were current, and
+  do not lead with it. Never surface these tags to the trader as raw text
+  like "[ANNUAL]" — express the same caveat in your own words if it changes
+  what you'd otherwise say, and say nothing about it if it doesn't
 - 3-5 sentences. This is a narration, not a report — be precise and get out`;
 
 function fmtBreakdown(breakdown: BreakdownEntry[]): string {
   if (breakdown.length === 0) return "no indicator data available";
   return breakdown
-    .map((b) => `${b.indicatorType} ${b.weightedContribution > 0 ? "+" : ""}${b.weightedContribution.toFixed(1)} (${b.reason})`)
+    .map((b) => {
+      const tag = b.confidence === "stale" ? " [STALE]" : b.confidence === "context_only" ? " [ANNUAL]" : "";
+      return `${b.indicatorType} ${b.weightedContribution > 0 ? "+" : ""}${b.weightedContribution.toFixed(1)}${tag} (${b.reason})`;
+    })
     .join("; ");
 }
 

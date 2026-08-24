@@ -107,7 +107,25 @@ export default function MacroEdgeOverviewPage() {
                     i < scores.length - 1 && "border-b border-line"
                   )}
                 >
-                  <span className="text-[13px] font-bold text-ink-strong w-10 shrink-0">{s.currency}</span>
+                  <span className="text-[13px] font-bold text-ink-strong w-10 shrink-0 flex items-center gap-1">
+                    {s.currency}
+                    {(s.confidence.tier === "context_only" || s.confidence.tier === "stale") && (
+                      <span
+                        title={
+                          s.confidence.tier === "stale"
+                            ? "Built from data that appears to have stopped updating — open for detail"
+                            : "Built mostly from annual data — open for detail"
+                        }
+                      >
+                        <Icon
+                          name="info"
+                          size={12}
+                          fill
+                          className={s.confidence.tier === "stale" ? "text-coral-deep" : "text-gold-deep"}
+                        />
+                      </span>
+                    )}
+                  </span>
                   <div className="flex-1 h-1.5 rounded-full bg-track overflow-hidden">
                     <div
                       className={cn("h-full rounded-full", positive ? "bg-teal-bright" : negative ? "bg-coral-bright" : "bg-gold")}

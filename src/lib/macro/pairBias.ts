@@ -5,6 +5,8 @@ import { deriveMetaMap } from "@/lib/pairs";
 import { getInstruments } from "@/lib/server/getInstruments";
 import { TRACKED_CURRENCIES } from "./indicatorMap";
 import { fanOutMacroBiasFlip } from "@/lib/notify-events";
+import { summarizeConfidence } from "./confidence";
+import type { BreakdownEntry } from "./scoring";
 
 // Layer 4 — pair differential. NOT a new "blended score": it's base currency
 // score minus quote currency score, thresholded into a BiasLabel. See the
@@ -65,6 +67,11 @@ export async function computePairBias(pair: string) {
     const xauScore = -XAU_USD_INVERSION_WEIGHT * usd.totalScore;
     const differential = xauScore - usd.totalScore;
     const inputHash = createHash("sha256").update(`XAU:${usd.inputHash}`).digest("hex").slice(0, 16);
+    // XAU has no indicators of its own — it inherits USD's confidence, since
+    // that is the only real data behind this differential.
+    const confidence = summarizeConfidence(
+      (usd.breakdown as unknown as BreakdownEntry[]).map((b) => ({ weight: b.weight, confidence: b.confidence })),
+    );
     return {
       pair,
       baseCurrency: "XAU",
@@ -74,6 +81,7 @@ export async function computePairBias(pair: string) {
       differential,
       biasLabel: labelFromDifferential(differential),
       inputHash,
+      confidence,
     };
   }
 
@@ -88,6 +96,13 @@ export async function computePairBias(pair: string) {
   const differential = base.totalScore - quote.totalScore;
   const inputHash = createHash("sha256").update(`${base.inputHash}:${quote.inputHash}`).digest("hex").slice(0, 16);
 
+  // The pair's confidence is the weaker of its two legs — a divergence is
+  // only as trustworthy as its least-fit input, the same "weakest tier wins"
+  // rule summarizeConfidence already applies within one currency.
+  const baseEntries = (base.breakdown as unknown as BreakdownEntry[]).map((b) => ({ weight: b.weight, confidence: b.confidence }));
+  const quoteEntries = (quote.breakdown as unknown as BreakdownEntry[]).map((b) => ({ weight: b.weight, confidence: b.confidence }));
+  const confidence = summarizeConfidence([...baseEntries, ...quoteEntries]);
+
   return {
     pair,
     baseCurrency: meta.base,
@@ -97,6 +112,7 @@ export async function computePairBias(pair: string) {
     differential,
     biasLabel: labelFromDifferential(differential),
     inputHash,
+    confidence,
   };
 }
 
@@ -104,24 +120,41 @@ export async function recomputeAndStorePairBias(pair: string) {
   const result = await computePairBias(pair);
   if (!result) return null;
 
+  // confidence is not a column on CurrentPairBias — it's derived from the two
+  // legs' breakdowns, which are already persisted, so recomputing it later is
+  // one summarizeConfidence call away rather than a redundant stored copy.
+  const { confidence, ...toStore } = result;
+
   const previous = await prisma.currentPairBias.findUnique({ where: { pair }, select: { biasLabel: true } });
 
   const stored = await prisma.currentPairBias.upsert({
     where: { pair },
-    create: { ...result, computedAt: new Date() },
-    update: { ...result, computedAt: new Date() },
+    create: { ...toStore, computedAt: new Date() },
+    update: { ...toStore, computedAt: new Date() },
   });
 
   if (!previous || previous.biasLabel !== stored.biasLabel) {
-    void fanOutMacroBiasFlip({
-      pair,
-      oldLabel: previous?.biasLabel ?? null,
-      newLabel: stored.biasLabel,
-      differential: stored.differential,
-    }).catch((err) => console.error("[macro] bias-flip fan-out failed", err));
+    // A flip built mostly on annual/context-only data (or worse, on inputs
+    // that turned out stale) is not news a trader should act on the way a
+    // real flip is — it looks identical in the notification either way, and
+    // an alert that reads as fresh information but rests on a feed that has
+    // not moved in over a year is worse than no alert. Suppress rather than
+    // send with a caveat, since a push notification has no room for one.
+    if (confidence.tier === "high" || confidence.tier === "usable") {
+      void fanOutMacroBiasFlip({
+        pair,
+        oldLabel: previous?.biasLabel ?? null,
+        newLabel: stored.biasLabel,
+        differential: stored.differential,
+      }).catch((err) => console.error("[macro] bias-flip fan-out failed", err));
+    } else {
+      console.info(
+        `[macro] bias flip ${pair} ${previous?.biasLabel ?? "—"} → ${stored.biasLabel} suppressed: confidence=${confidence.tier}`,
+      );
+    }
   }
 
-  return stored;
+  return { ...stored, confidence };
 }
 
 export async function computablePairs(): Promise<string[]> {

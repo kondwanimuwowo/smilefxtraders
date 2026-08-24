@@ -1,11 +1,29 @@
 import type { IndicatorType, BiasLabel } from "@/generated/prisma/client";
 
+// Mirrors src/lib/macro/confidence.ts's FitnessTier — kept as a separate
+// literal union here rather than imported, since this file is also read by
+// client components that shouldn't pull in server-only Prisma-adjacent code.
+export type MacroFitnessTier = "high" | "usable" | "context_only" | "stale";
+
+export interface MacroConfidenceSummary {
+  tier: MacroFitnessTier;
+  highWeight: number;
+  usableWeight: number;
+  contextWeight: number;
+  staleWeight: number;
+  totalWeight: number;
+}
+
 export interface MacroBreakdownEntry {
   indicatorType: IndicatorType;
   signal: number;
   weight: number;
   weightedContribution: number;
   reason: string;
+  confidence: MacroFitnessTier;
+  asOf: string | null;
+  ageDays: number | null;
+  includedInScore: boolean;
 }
 
 export interface CurrencyScore {
@@ -14,6 +32,7 @@ export interface CurrencyScore {
   breakdown: MacroBreakdownEntry[];
   computedAt: string;
   inputHash: string;
+  confidence: MacroConfidenceSummary;
 }
 
 export interface PairBias {

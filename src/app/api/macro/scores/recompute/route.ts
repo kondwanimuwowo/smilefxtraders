@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   for (const currency of targets) {
     try {
       const score = await recomputeAndStoreCurrencyScore(currency);
-      results.push({ currency, totalScore: score.totalScore, ok: true });
+      results.push({ currency, totalScore: score.totalScore, confidence: score.confidence.tier, ok: true });
     } catch (err) {
       console.error(`[macro/scores/recompute] ${currency}`, err);
       results.push({ currency, ok: false, error: err instanceof Error ? err.message : String(err) });
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
   for (const pair of affectedPairs) {
     try {
       const bias = await recomputeAndStorePairBias(pair);
-      if (bias) pairResults.push({ pair, biasLabel: bias.biasLabel, differential: bias.differential, ok: true });
+      if (bias) pairResults.push({ pair, biasLabel: bias.biasLabel, differential: bias.differential, confidence: bias.confidence.tier, ok: true });
     } catch (err) {
       console.error(`[macro/scores/recompute] pair ${pair}`, err);
       pairResults.push({ pair, ok: false, error: err instanceof Error ? err.message : String(err) });

@@ -72,21 +72,50 @@ export function recentValidObservations(obs: FredObservation[], count = 3): Fred
 // (well-established, stable IDs). EUR/GBP/NZD series are FRED's mirror of
 // OECD's Main Economic Indicators — unverified against a live key, see the
 // file-level note above.
+// 2026-08-24: CPI/EMPLOYMENT/INTEREST_RATE entries below were added after
+// live-verifying each series's title, frequency and latest observation date
+// against the FRED API directly (not assumed from the ID). Three currencies
+// previously had no live source for these at all and fell back to World
+// Bank's annual data — see confidence.ts for why that matters beyond "old".
+//
+// Two gaps remain with no live FRED substitute found: GBP CPI and NZD CPI.
+// Every OECD-mirror candidate tried for both stopped updating in FRED over a
+// year ago. World Bank annual remains the only automated source for those
+// two until a national statistics API (ONS, Stats NZ) is wired in, or a
+// human enters the release by hand via DataSource.MANUAL.
 export const FRED_SERIES: Record<string, Partial<Record<string, string>>> = {
   USD: {
     INTEREST_RATE: "FEDFUNDS", // Effective Federal Funds Rate
     BOND_YIELD_10Y: "DGS10", // 10-Year Treasury Constant Maturity Rate
+    CPI: "CPILFESL", // CPI, All Items Less Food & Energy (core) — the Fed's own
+    // decisions lean on core PCE (PCEPILFE) more than this, but the platform
+    // has one generic "CPI" slot shared across all four currencies, and core
+    // CPI is the closer match to what EUR/GBP/NZD's own CPI slots represent.
+    EMPLOYMENT: "UNRATE", // Unemployment Rate — replaces the World Bank annual figure
     RETAIL_SALES: "RSAFS", // Advance Retail Sales: Retail and Food Services
     CONSUMER_CONFIDENCE: "UMCSENT", // U. Michigan Consumer Sentiment
   },
   EUR: {
-    INTEREST_RATE: "ECBMRRFR", // ECB Main Refinancing Operations Rate — unverified series id
+    INTEREST_RATE: "ECBDFR", // ECB Deposit Facility Rate — replaces ECBMRRFR, which had
+    // gone stale; this is the rate the ECB itself has been steering with.
     BOND_YIELD_10Y: "IRLTLT01EZM156N", // Long-term interest rate, Euro area (OECD MEI) — unverified
+    CPI: "CP0000EZ19M086NEST", // HICP, headline (all items) — not core. No live core-HICP
+    // series was found on FRED for the euro area; this is headline pending one.
   },
   GBP: {
+    INTEREST_RATE: "IUDSOIA", // SONIA (Sterling Overnight Index Average) — an interbank
+    // proxy for Bank Rate, not the Bank Rate itself, but daily and current
+    // where no direct Bank Rate series was found live on FRED.
     BOND_YIELD_10Y: "IRLTLT01GBM156N", // Long-term interest rate, UK (OECD MEI) — unverified
+    EMPLOYMENT: "LRHUTTTTGBM156S", // Monthly unemployment rate, 15+
   },
   NZD: {
+    INTEREST_RATE: "IR3TIB01NZM156N", // 3-month interbank rate — a proxy for the RBNZ's OCR,
+    // not the OCR itself, but monthly and current where no direct policy-rate
+    // series was found live on FRED.
     BOND_YIELD_10Y: "IRLTLT01NZM156N", // Long-term interest rate, NZ (OECD MEI) — unverified
+    EMPLOYMENT: "LRHUTTTTNZQ156S", // Quarterly unemployment rate, 15+ — genuinely quarterly
+    // at the source (Stats NZ), not a stale monthly feed. See confidence.ts's
+    // classifyLevel for why that is scored as "usable", not penalized.
   },
 };

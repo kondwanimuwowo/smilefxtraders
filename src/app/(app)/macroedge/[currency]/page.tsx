@@ -156,8 +156,24 @@ export default function CurrencyProfilePage() {
                     {b.weightedContribution.toFixed(1)}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-dim">
-                      {b.indicatorType.replaceAll("_", " ")} · weight {b.weight}
+                    <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-ink-dim">
+                      <span>{b.indicatorType.replaceAll("_", " ")} · weight {b.weight}</span>
+                      {b.confidence === "context_only" && (
+                        <span
+                          className="px-1.5 py-px rounded normal-case tracking-normal bg-gold-tint text-gold-deep"
+                          title={b.asOf ? `Annual reading, as of ${b.asOf} — too coarse to signal a near-term move on its own` : "Annual reading — too coarse to signal a near-term move on its own"}
+                        >
+                          annual
+                        </span>
+                      )}
+                      {b.confidence === "stale" && (
+                        <span
+                          className="px-1.5 py-px rounded normal-case tracking-normal bg-coral-tint text-coral-deep"
+                          title={b.asOf ? `Feed hasn't updated since ${b.asOf} — excluded from the score above` : "Feed appears to have stopped updating — excluded from the score above"}
+                        >
+                          stale, excluded
+                        </span>
+                      )}
                     </div>
                     <div className="text-[12px] text-ink-mid truncate">{b.reason}</div>
                   </div>
