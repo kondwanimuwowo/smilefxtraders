@@ -16,7 +16,7 @@ type MacroEvent = {
   eventTime: string;
 };
 
-const CURRENCIES = ["USD", "EUR", "GBP", "NZD"] as const;
+const CURRENCIES = ["USD", "EUR", "GBP", "NZD", "JPY", "CHF", "CAD", "AUD"] as const;
 const CATEGORIES = [
   "CPI", "GDP", "EMPLOYMENT", "RETAIL_SALES", "MANUFACTURING_PMI",
   "CONSUMER_CONFIDENCE", "TRADE_BALANCE", "BOND_YIELD_10Y", "INTEREST_RATE",

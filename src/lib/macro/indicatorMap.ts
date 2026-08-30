@@ -41,6 +41,10 @@ const COUNTRY_TO_CURRENCY: Record<string, string> = {
   EU: "EUR", EMU: "EUR", EA: "EUR", "EURO AREA": "EUR", EUROZONE: "EUR", "EUROPEAN UNION": "EUR",
   GB: "GBP", UK: "GBP", "UNITED KINGDOM": "GBP",
   NZ: "NZD", "NEW ZEALAND": "NZD",
+  JP: "JPY", JAPAN: "JPY",
+  CH: "CHF", SWITZERLAND: "CHF",
+  CA: "CAD", CANADA: "CAD",
+  AU: "AUD", AUSTRALIA: "AUD",
 };
 
 export function mapCountryToCurrency(country: string): string | null {
@@ -50,7 +54,7 @@ export function mapCountryToCurrency(country: string): string | null {
 // The currencies MacroEdge tracks calendar events for. XAU (gold) has no
 // central bank/calendar of its own — deliberately excluded here, see the
 // MacroEdge plan's Layer 3 scoring notes on why XAU gets a different model.
-export const TRACKED_CURRENCIES = ["USD", "EUR", "GBP", "NZD"] as const;
+export const TRACKED_CURRENCIES = ["USD", "EUR", "GBP", "NZD", "JPY", "CHF", "CAD", "AUD"] as const;
 
 // Phase 4 news tagging: simple keyword match against currency/central-bank
 // names. Finnhub's free news endpoint is general market news, not curated
@@ -61,6 +65,10 @@ const NEWS_KEYWORD_RULES: Array<{ pattern: RegExp; currency: string }> = [
   { pattern: /\becb\b|european central bank|lagarde|eurozone|euro area|\beur\b/i, currency: "EUR" },
   { pattern: /\bboe\b|bank of england|bailey|\bgbp\b|british pound|sterling/i, currency: "GBP" },
   { pattern: /\brbnz\b|reserve bank of new zealand|\bnzd\b|new zealand dollar/i, currency: "NZD" },
+  { pattern: /\bboj\b|bank of japan|\bjpy\b|japanese yen/i, currency: "JPY" },
+  { pattern: /\bsnb\b|swiss national bank|\bchf\b|swiss franc/i, currency: "CHF" },
+  { pattern: /\bboc\b|bank of canada|\bcad\b|canadian dollar|loonie/i, currency: "CAD" },
+  { pattern: /\brba\b|reserve bank of australia|\baud\b|australian dollar|aussie/i, currency: "AUD" },
 ];
 
 export function tagNewsCurrency(text: string): string | null {

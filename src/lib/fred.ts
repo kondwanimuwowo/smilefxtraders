@@ -83,6 +83,15 @@ export function recentValidObservations(obs: FredObservation[], count = 3): Fred
 // year ago. World Bank annual remains the only automated source for those
 // two until a national statistics API (ONS, Stats NZ) is wired in, or a
 // human enters the release by hand via DataSource.MANUAL.
+//
+// 2026-08-31: JPY/CHF/CAD/AUD added, live-verified the same way. All four
+// hit the identical CPI problem GBP/NZD already have — every OECD-mirror CPI
+// series tried (level and YoY-growth variants) for all four currencies
+// stopped updating in FRED in 2022-2025 — so CPI for these four is World
+// Bank annual / manual entry only, same fallback path as GBP/NZD. CHF has no
+// live monthly unemployment series either; its quarterly one
+// (LRHUTTTTCHQ156S) is genuinely quarterly at the source, not stale — same
+// treatment as NZD's quarterly employment series above.
 export const FRED_SERIES: Record<string, Partial<Record<string, string>>> = {
   USD: {
     INTEREST_RATE: "FEDFUNDS", // Effective Federal Funds Rate
@@ -117,5 +126,39 @@ export const FRED_SERIES: Record<string, Partial<Record<string, string>>> = {
     EMPLOYMENT: "LRHUTTTTNZQ156S", // Quarterly unemployment rate, 15+ — genuinely quarterly
     // at the source (Stats NZ), not a stale monthly feed. See confidence.ts's
     // classifyLevel for why that is scored as "usable", not penalized.
+  },
+  JPY: {
+    INTEREST_RATE: "IR3TIB01JPM156N", // 3-month interbank rate — a proxy for the BOJ's policy
+    // rate, live-verified 2026-05-01.
+    BOND_YIELD_10Y: "IRLTLT01JPM156N", // Long-term interest rate, Japan (OECD MEI) — verified live
+    EMPLOYMENT: "LRHUTTTTJPM156S", // Monthly unemployment rate, 15+ — verified live
+    // No CPI: every candidate (JPNCPIALLMINMEI, CPALTT01JPM659N) stopped
+    // updating in FRED in 2022. World Bank annual / manual entry only.
+  },
+  CHF: {
+    INTEREST_RATE: "IR3TIB01CHM156N", // 3-month interbank rate — a proxy for the SNB's policy
+    // rate, live-verified.
+    BOND_YIELD_10Y: "IRLTLT01CHM156N", // Long-term interest rate, Switzerland (OECD MEI) — verified live
+    EMPLOYMENT: "LRHUTTTTCHQ156S", // Quarterly unemployment rate, 15+ — genuinely quarterly
+    // at the source, not a stale monthly feed (no live monthly series exists
+    // for Switzerland in this FRED family).
+    // No CPI: every candidate stopped updating in 2025. World Bank annual /
+    // manual entry only.
+  },
+  CAD: {
+    INTEREST_RATE: "IR3TIB01CAM156N", // 3-month interbank rate — a proxy for the BoC's policy
+    // rate, live-verified.
+    BOND_YIELD_10Y: "IRLTLT01CAM156N", // Long-term interest rate, Canada (OECD MEI) — verified live
+    EMPLOYMENT: "LRHUTTTTCAM156S", // Monthly unemployment rate, 15+ — verified live
+    // No CPI: every candidate stopped updating in 2025. World Bank annual /
+    // manual entry only.
+  },
+  AUD: {
+    INTEREST_RATE: "IR3TIB01AUM156N", // 3-month interbank rate — a proxy for the RBA's cash
+    // rate, live-verified.
+    BOND_YIELD_10Y: "IRLTLT01AUM156N", // Long-term interest rate, Australia (OECD MEI) — verified live
+    EMPLOYMENT: "LRHUTTTTAUM156S", // Monthly unemployment rate, 15+ — verified live
+    // No CPI: every candidate (quarterly, the source's real cadence) stopped
+    // updating in 2025. World Bank annual / manual entry only.
   },
 };

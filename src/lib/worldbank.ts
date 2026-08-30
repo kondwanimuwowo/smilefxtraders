@@ -60,6 +60,10 @@ export const WORLD_BANK_COUNTRY_CODE: Record<string, string> = {
   EUR: "EMU",
   GBP: "GB",
   NZD: "NZ",
+  JPY: "JP",
+  CHF: "CH",
+  CAD: "CA",
+  AUD: "AU",
 };
 
 // Indicators World Bank publishes annually that map onto our IndicatorType
