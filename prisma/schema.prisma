@@ -502,6 +502,7 @@ enum DataSource {
   FINNHUB
   FRED
   WORLD_BANK
+  EUROSTAT
   MANUAL
 }
 

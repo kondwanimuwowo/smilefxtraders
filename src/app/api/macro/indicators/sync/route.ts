@@ -3,6 +3,7 @@ import { DataSource, IndicatorType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { fetchFredSeries, recentValidObservations, FredNotConfiguredError, FRED_SERIES } from "@/lib/fred";
 import { fetchWorldBankIndicator, recentNonNull, WORLD_BANK_COUNTRY_CODE, WORLD_BANK_INDICATORS } from "@/lib/worldbank";
+import { fetchEurostatUnemploymentRate, recentEurostatObservations } from "@/lib/eurostat";
 import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
 
 // Cron: pulls FRED + World Bank indicator levels into MacroIndicatorSnapshot
@@ -26,7 +27,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const results = { worldBank: { saved: 0, errors: [] as string[] }, fred: { saved: 0, skipped: false, errors: [] as string[] } };
+  const results = {
+    worldBank: { saved: 0, errors: [] as string[] },
+    fred: { saved: 0, skipped: false, errors: [] as string[] },
+    eurostat: { saved: 0, errors: [] as string[] },
+  };
 
   // ── World Bank (always runs, no key required) ──────────────────────────
   for (const currency of TRACKED_CURRENCIES) {
@@ -109,6 +114,37 @@ export async function POST(req: NextRequest) {
       }
     }
     if (results.fred.skipped) break;
+  }
+
+  // ── Eurostat (EUR employment only — the one FRED-dead series; no key required) ──
+  try {
+    const sinceYear = new Date().getFullYear() - 1;
+    const rows = await fetchEurostatUnemploymentRate(sinceYear);
+    const recent = recentEurostatObservations(rows, 3);
+
+    for (const row of recent) {
+      const periodDate = new Date(`${row.period}-01T00:00:00.000Z`);
+      await prisma.macroIndicatorSnapshot.upsert({
+        where: {
+          currency_indicatorType_periodDate: {
+            currency: "EUR",
+            indicatorType: IndicatorType.EMPLOYMENT,
+            periodDate,
+          },
+        },
+        create: {
+          currency: "EUR",
+          indicatorType: IndicatorType.EMPLOYMENT,
+          value: row.value,
+          periodDate,
+          source: DataSource.EUROSTAT,
+        },
+        update: { value: row.value },
+      });
+      results.eurostat.saved++;
+    }
+  } catch (err) {
+    results.eurostat.errors.push(err instanceof Error ? err.message : String(err));
   }
 
   return NextResponse.json({ ok: true, ...results });
