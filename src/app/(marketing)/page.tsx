@@ -202,33 +202,34 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ===== INSTRUCTOR ===== */}
+      {/* ===== WHY SMILE FX ===== */}
       <section className="section">
         <div className="container">
-          <div className="instr-grid">
-            <div className="reveal relative flex justify-center">
-              <div className="rounded-full overflow-hidden aspect-square w-[min(100%,400px)] bg-[linear-gradient(165deg,#0C4359_0%,#082A3B_78%)] relative shadow-[var(--shadow-card-lg)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/kondwanimuwowo.png" alt="Kondwani" className="w-full h-full object-cover" />
-              </div>
-            </div>
-            <div>
-              <h2 className="reveal mt-4 text-[clamp(28px,3.4vw,40px)]" data-delay="60">Kondwani</h2>
-              <p className="reveal text-[17px] text-ink-mid mt-[22px] leading-[1.7]" data-delay="120">
-                Kondwani teaches the method itself: liquidity, fair-value gaps, order blocks, premium and discount, worked out from first principles rather than handed over as signals. Every live call is checked against the SMC rulebook before it posts, so you can see why a setup qualifies.
-              </p>
-              <p className="reveal text-[17px] text-ink-mid mt-4 leading-[1.7]" data-delay="140">
-                He and the Smile FX team keep the tools and the market data running, and are ready to assist traders in the best way possible.
-              </p>
-              <blockquote className="reveal mt-6 py-[18px] px-[22px] bg-[var(--bg-soft)] rounded-[14px] flex gap-[13px]" data-delay="160">
-                <span className="w-2 rounded-full bg-coral shrink-0" />
-                <p className="text-base italic text-ink leading-[1.6]">&quot;My goal is to shorten the time it takes traders to learn to trade on their own, so they never need a signal service again.&quot;</p>
-              </blockquote>
-              <div className="reveal flex gap-3.5 mt-[26px] flex-wrap" data-delay="200">
-                <Button href="/about" size="lg" iconRight="arrow_forward">Meet the team</Button>
-                <Button href="/learn" size="lg" variant="ghost" icon="school">Browse the Academy</Button>
-              </div>
-            </div>
+          <div className="sec-head center reveal">
+            <h2>Why traders choose Smile FX</h2>
+            <p className="lead">Not a signal group. A desk built to make you self-sufficient.</p>
+          </div>
+          <div className="grid g3 auto-rows-fr mt-14">
+            {[
+              { icon: "rule", title: "Rules, not signals", desc: "Every live call is checked against the 14-rule SMC checklist before it posts. You see the reasoning, not just an entry price." },
+              { icon: undefined, iconNode: <GavoIcon size={32} />, title: "Graded accountability", desc: "Gavo reviews every logged trade against the rulebook and tells you what actually went wrong, not just whether you won." },
+              { icon: "public", title: "Built for Zambia and Africa", desc: "Kwacha and USD pricing, sessions timed for African trading hours, taught by a trader who learned the market from here." },
+            ].map((item, i) => (
+              <MarketingCard
+                key={item.title}
+                icon={item.icon}
+                iconNode={item.iconNode}
+                title={item.title}
+                description={item.desc}
+                className="reveal h-full flex flex-col"
+                dataDelay={i * 80}
+              />
+            ))}
+          </div>
+          <div className="flex justify-center mt-10 reveal">
+            <Button href="/about" size="lg" variant="ghost" iconRight="arrow_forward">
+              Meet the team
+            </Button>
           </div>
         </div>
       </section>
