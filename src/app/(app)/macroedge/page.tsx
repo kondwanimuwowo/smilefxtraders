@@ -155,7 +155,7 @@ export default function MacroEdgeOverviewPage() {
               {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} h={48} r={8} />)}
             </div>
           ) : pairBiases.length === 0 ? (
-            <EmptyState icon="bar_chart" title="No pair biases computed yet" body="Pair bias is derived from currency scores — compute those first." />
+            <EmptyState icon="bar_chart" title="No pair biases computed yet" body="Pair bias is derived from currency scores. Compute those first." />
           ) : (
             pairBiases.map((b, i) => {
               const tone = b.biasLabel.includes("BUY") ? "teal-bright" : b.biasLabel.includes("SELL") ? "coral-bright" : "gold";

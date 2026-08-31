@@ -104,11 +104,15 @@ export function Calendar() {
       </div>
 
       {sortedScores === null ? (
-        <div className="flex gap-2 mb-5 overflow-x-auto">
-          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} w={92} h={54} r={12} />)}
+        <div className="flex gap-2 mb-5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex-1">
+              <Skeleton h={54} r={12} />
+            </div>
+          ))}
         </div>
       ) : sortedScores.length > 0 && (
-        <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
+        <div className="flex gap-2 mb-5">
           {sortedScores.map((s) => {
             const positive = s.totalScore > 0;
             const negative = s.totalScore < 0;
@@ -116,7 +120,7 @@ export function Calendar() {
               <Link
                 key={s.currency}
                 href={`/macroedge/${s.currency}`}
-                className="flex flex-col gap-1 px-3.5 py-2.5 rounded-xl shrink-0 bg-panel shadow-sm hover:ring-2 ring-teal-deep transition-shadow"
+                className="flex-1 flex flex-col gap-1 px-3.5 py-2.5 rounded-xl bg-panel shadow-sm hover:ring-2 ring-teal-deep transition-shadow"
               >
                 <span className="text-[11px] font-bold tracking-wide text-ink-dim">{s.currency}</span>
                 <span
@@ -146,7 +150,7 @@ export function Calendar() {
             icon="event_busy"
             title={filter === "ALL" ? "No events yet" : `No ${filter} events yet`}
             body={filter === "ALL"
-              ? "Nothing on the calendar right now — check back once releases land."
+              ? "Nothing on the calendar right now. Check back once releases land."
               : "Try a different currency filter, or check back later."}
           />
         </Panel>
