@@ -50,8 +50,6 @@ function toRuleValue(indicatorType: IndicatorType, rawValue: number): number {
   return rawValue;
 }
 
-const RECENT_SURPRISE_WINDOW_DAYS = 45;
-
 interface IndicatorReading {
   input: RuleInput;
   confidence: FitnessTier;
@@ -63,37 +61,47 @@ async function buildIndicatorReading(
   currency: string,
   indicatorType: IndicatorType,
 ): Promise<IndicatorReading | null> {
-  // Primary: a recent calendar release with both actual + forecast — see the
-  // plan's Critical Review point 2 on why surprise beats level scoring.
-  const since = new Date();
-  since.setUTCDate(since.getUTCDate() - RECENT_SURPRISE_WINDOW_DAYS);
-
-  const recentRelease = await prisma.economicEvent.findFirst({
-    where: {
-      currency,
-      category: indicatorType,
-      actual: { not: null },
-      forecast: { not: null },
-      eventTime: { gte: since },
-    },
+  // Primary: the most recent calendar release with both actual + forecast —
+  // see the plan's Critical Review point 2 on why surprise beats level
+  // scoring. No flat "last N days" cutoff here (see confidence.ts's
+  // classifySurprise 2026-08-31 note): a quarterly release doesn't stop
+  // being usable just because it's older than a monthly one would be
+  // allowed to be. Fetches the two most recent so classifySurprise can infer
+  // this currency's own observed cadence, the same way classifyLevel does
+  // for snapshots below.
+  const releases = await prisma.economicEvent.findMany({
+    where: { currency, category: indicatorType, actual: { not: null }, forecast: { not: null } },
     orderBy: { eventTime: "desc" },
+    take: 2,
   });
+  const recentRelease = releases[0];
 
   if (recentRelease?.actual && recentRelease.forecast) {
     const actual = Number.parseFloat(recentRelease.actual.replace(/[^0-9.-]/g, ""));
     const forecast = Number.parseFloat(recentRelease.forecast.replace(/[^0-9.-]/g, ""));
     if (Number.isFinite(actual) && Number.isFinite(forecast)) {
-      return {
-        input: {
-          kind: "surprise",
-          indicatorType,
-          actual: toRuleValue(indicatorType, actual),
-          forecast: toRuleValue(indicatorType, forecast),
-        },
-        confidence: classifySurprise().tier,
-        ageDays: Math.round((Date.now() - recentRelease.eventTime.getTime()) / 86_400_000),
-        asOf: recentRelease.eventTime.toISOString().slice(0, 10),
-      };
+      const fitness = classifySurprise({
+        latestEventTime: recentRelease.eventTime,
+        priorEventTime: releases[1]?.eventTime ?? null,
+      });
+      // A surprise reading that's gone stale relative to its own cadence is
+      // worse than a fresh level fallback, if one exists — fall through
+      // rather than returning it. If the level path below also comes up
+      // empty, buildIndicatorReading returns null exactly as it always did
+      // when nothing was available at all.
+      if (fitness.tier !== "stale") {
+        return {
+          input: {
+            kind: "surprise",
+            indicatorType,
+            actual: toRuleValue(indicatorType, actual),
+            forecast: toRuleValue(indicatorType, forecast),
+          },
+          confidence: fitness.tier,
+          ageDays: fitness.ageDays,
+          asOf: recentRelease.eventTime.toISOString().slice(0, 10),
+        };
+      }
     }
   }
 

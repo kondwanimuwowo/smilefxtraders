@@ -29,11 +29,71 @@ export interface FitnessResult {
 
 const MS_PER_DAY = 86_400_000;
 
+// Publication-lag buffer: how late a release can run past its own natural
+// cadence and still be "on schedule", rather than having gone quiet because
+// the feed stopped updating. Shared by both classifyLevel and
+// classifySurprise below -- staleness is a property of "how far past this
+// series' own rhythm", not of which path (calendar release vs. FRED/World
+// Bank snapshot) the reading came through.
+//
+// Bucketed rather than a smooth formula, because the first version of this
+// (cadence/2, clamped 14-60) was calibrated on paper and turned out too
+// tight the moment it ran against real data: it marked FEDFUNDS, RSAFS and
+// UMCSENT "stale" for having a July reading in late August, which is
+// completely normal for a monthly US series, and marked GBP/NZD's 10-year
+// yield "stale" at 84 days when FRED's OECD-mirrored series are well known
+// to run 2-3 months behind the domestic release for that exact reason.
+// Widened using those five confirmed false positives as the calibration,
+// not a guess: a genuinely dead feed (EUR's 10-year OECD proxy, 235 days and
+// rising) still clears this threshold by a wide margin, so the widening
+// does not appear to be hiding real staleness, only false alarms on healthy
+// lag.
+function bufferDaysFor(observedCadenceDays: number): number {
+  return (
+    observedCadenceDays <= 3   ? 10 :  // daily
+    observedCadenceDays <= 10  ? 21 :  // weekly
+    observedCadenceDays <= 45  ? 60 :  // monthly
+    observedCadenceDays <= 120 ? 75 :  // quarterly
+                                  90    // longer, ambiguous cadence
+  );
+}
+
 // A calendar release with both actual and forecast is the best input this
 // system can have, regardless of which upstream feed it came from -- see
-// rules.ts's header note on why surprise beats level. Always "high".
-export function classifySurprise(): FitnessResult {
-  return { tier: "high", ageDays: null, observedCadenceDays: null };
+// rules.ts's header note on why surprise beats level. "high" as long as it
+// isn't stale relative to its own release rhythm; there is no intermediate
+// "usable" tier for surprise the way there is for level, since a matched
+// actual-vs-forecast is inherently top-quality input on its own merits, not
+// merely "on schedule".
+//
+// 2026-08-31: previously always "high" with no staleness check at all, which
+// meant a currency's own real calendar data (e.g. a quarterly rate decision
+// or CPI print) got excluded from the surprise path by scoring.ts's flat
+// 45-day window well before that currency's own next release existed --
+// exactly the "penalized for a slow release calendar, not for anything wrong
+// with the input" failure classifyLevel was already written to avoid on the
+// level path. Reusing the same cadence+buffer math here closes that gap.
+export function classifySurprise(params: {
+  latestEventTime: Date;
+  priorEventTime: Date | null;
+}): FitnessResult {
+  const { latestEventTime, priorEventTime } = params;
+  const ageDays = Math.round((Date.now() - latestEventTime.getTime()) / MS_PER_DAY);
+
+  if (!priorEventTime) {
+    // Only one release has ever been seen for this (currency, indicator)
+    // pair, so its cadence cannot be inferred yet -- high rather than
+    // penalized on a first read.
+    return { tier: "high", ageDays, observedCadenceDays: null };
+  }
+
+  const observedCadenceDays = Math.round((latestEventTime.getTime() - priorEventTime.getTime()) / MS_PER_DAY);
+  const thresholdDays = observedCadenceDays + bufferDaysFor(observedCadenceDays);
+
+  if (ageDays > thresholdDays) {
+    return { tier: "stale", ageDays, observedCadenceDays };
+  }
+  return { tier: "high", ageDays, observedCadenceDays };
 }
 
 export function classifyLevel(params: {
@@ -59,27 +119,7 @@ export function classifyLevel(params: {
   const observedCadenceDays = Math.round(
     (latestPeriodDate.getTime() - priorPeriodDate.getTime()) / MS_PER_DAY,
   );
-
-  // Publication-lag buffer: how late a release can run past its own period
-  // and still be "on schedule". Bucketed rather than a smooth formula,
-  // because the first version of this (cadence/2, clamped 14-60) was
-  // calibrated on paper and turned out too tight the moment it ran against
-  // real data: it marked FEDFUNDS, RSAFS and UMCSENT "stale" for having a
-  // July reading in late August, which is completely normal for a monthly US
-  // series, and marked GBP/NZD's 10-year yield "stale" at 84 days when
-  // FRED's OECD-mirrored series are well known to run 2-3 months behind the
-  // domestic release for that exact reason. Widened using those five
-  // confirmed false positives as the calibration, not a guess: a genuinely
-  // dead feed (EUR's 10-year OECD proxy, 235 days and rising) still clears
-  // this threshold by a wide margin, so the widening does not appear to be
-  // hiding real staleness, only false alarms on healthy lag.
-  const bufferDays =
-    observedCadenceDays <= 3   ? 10 :  // daily
-    observedCadenceDays <= 10  ? 21 :  // weekly
-    observedCadenceDays <= 45  ? 60 :  // monthly
-    observedCadenceDays <= 120 ? 75 :  // quarterly
-                                  90;   // longer, ambiguous cadence
-  const thresholdDays = observedCadenceDays + bufferDays;
+  const thresholdDays = observedCadenceDays + bufferDaysFor(observedCadenceDays);
 
   if (ageDays > thresholdDays) {
     // Gone quiet well past its own normal rhythm: the feed has most likely
