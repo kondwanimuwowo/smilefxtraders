@@ -58,6 +58,16 @@ function bufferDaysFor(observedCadenceDays: number): number {
   );
 }
 
+// A first-ever reading for a (currency, indicator) pair has no cadence to
+// measure against, so classifySurprise can't apply the bucket above -- but
+// "can't judge yet" isn't the same as "never goes stale". Without some
+// ceiling, a single manual entry that never gets a follow-up stays "high"
+// confidence indefinitely, however old it gets. 200 days is deliberately
+// generous -- wider than even the quarterly bucket's ~165-day allowance --
+// so this only catches a genuinely abandoned entry, never a currency
+// that's just slower than most.
+const MAX_AGE_WITHOUT_CADENCE_DAYS = 200;
+
 // A calendar release with both actual and forecast is the best input this
 // system can have, regardless of which upstream feed it came from -- see
 // rules.ts's header note on why surprise beats level. "high" as long as it
@@ -83,7 +93,11 @@ export function classifySurprise(params: {
   if (!priorEventTime) {
     // Only one release has ever been seen for this (currency, indicator)
     // pair, so its cadence cannot be inferred yet -- high rather than
-    // penalized on a first read.
+    // penalized on a first read, but not high forever: see
+    // MAX_AGE_WITHOUT_CADENCE_DAYS above.
+    if (ageDays > MAX_AGE_WITHOUT_CADENCE_DAYS) {
+      return { tier: "stale", ageDays, observedCadenceDays: null };
+    }
     return { tier: "high", ageDays, observedCadenceDays: null };
   }
 
