@@ -5,8 +5,10 @@ import Link from "next/link";
 import { Icon, Panel, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type { CalEvent } from "@/lib/calendar";
+import type { MacroScoresResponse } from "@/types/macro";
+import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
 
-const CURRENCY_FILTERS = ["ALL", "USD", "EUR", "GBP", "NZD"] as const;
+const CURRENCY_FILTERS = ["ALL", ...TRACKED_CURRENCIES] as const;
 type CurrencyFilter = (typeof CURRENCY_FILTERS)[number];
 
 const IMPACT_CLS: Record<number, string> = { 1: "bg-ink-dim", 2: "bg-gold", 3: "bg-coral" };
@@ -44,12 +46,17 @@ function groupByDate(events: CalEvent[]): Array<[string, CalEvent[]]> {
 export function Calendar() {
   const [events, setEvents] = useState<CalEvent[] | null>(null);
   const [filter, setFilter] = useState<CurrencyFilter>("ALL");
+  const [scores, setScores] = useState<MacroScoresResponse["scores"] | null>(null);
 
   useEffect(() => {
     fetch("/api/calendar")
       .then((r) => r.json() as Promise<CalEvent[]>)
       .then(setEvents)
       .catch(() => setEvents([]));
+    fetch("/api/macro/scores")
+      .then((r) => r.json() as Promise<MacroScoresResponse>)
+      .then((d) => setScores(d.scores))
+      .catch(() => setScores([]));
   }, []);
 
   const filtered = useMemo(() => {
@@ -60,6 +67,11 @@ export function Calendar() {
   const grouped = useMemo(() => groupByDate(filtered), [filtered]);
   const loading = events === null;
 
+  const sortedScores = useMemo(
+    () => (scores ? [...scores].sort((a, b) => b.totalScore - a.totalScore) : null),
+    [scores]
+  );
+
   return (
     <div className="view flex flex-col min-h-[calc(100vh-60px)]">
       <div className="flex items-start justify-between gap-4 mb-5 flex-wrap">
@@ -68,11 +80,11 @@ export function Calendar() {
             Economic Calendar
           </h1>
           <p className="text-[13px] mt-0.5 text-ink-dim">
-            High-impact events that move the pairs: USD, EUR, GBP, NZD. All times UTC.
+            High-impact events across {TRACKED_CURRENCIES.join(", ")}. All times UTC.
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
           {CURRENCY_FILTERS.map((c) => (
             <button
               key={c}
@@ -90,6 +102,37 @@ export function Calendar() {
           ))}
         </div>
       </div>
+
+      {sortedScores === null ? (
+        <div className="flex gap-2 mb-5 overflow-x-auto">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} w={92} h={54} r={12} />)}
+        </div>
+      ) : sortedScores.length > 0 && (
+        <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
+          {sortedScores.map((s) => {
+            const positive = s.totalScore > 0;
+            const negative = s.totalScore < 0;
+            return (
+              <Link
+                key={s.currency}
+                href={`/macroedge/${s.currency}`}
+                className="flex flex-col gap-1 px-3.5 py-2.5 rounded-xl shrink-0 bg-panel shadow-sm hover:ring-2 ring-teal-deep transition-shadow"
+              >
+                <span className="text-[11px] font-bold tracking-wide text-ink-dim">{s.currency}</span>
+                <span
+                  className={cn(
+                    "font-display font-bold tabular-nums text-[16px]",
+                    positive ? "text-teal-deep" : negative ? "text-coral-deep" : "text-gold-deep"
+                  )}
+                >
+                  {positive ? "+" : ""}
+                  {s.totalScore.toFixed(1)}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex flex-col gap-3">
