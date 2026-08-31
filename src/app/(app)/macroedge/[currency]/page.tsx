@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Icon, Panel, PanelHead, Skeleton } from "@/components/ui";
+import { EmptyState, Icon, Panel, PanelHead, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type { CalEvent } from "@/lib/calendar";
 import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
@@ -201,10 +201,7 @@ export default function CurrencyProfilePage() {
               {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} h={42} r={6} />)}
             </div>
           ) : upcoming.length === 0 ? (
-            <div className="px-5 py-8 text-center">
-              <Icon name="event_busy" size={28} className="text-ink-dim mx-auto mb-2" />
-              <div className="text-[13px] text-ink-dim">No upcoming {C} events</div>
-            </div>
+            <EmptyState icon="event_busy" title={`No upcoming ${C} events`} body="Nothing on the calendar for this currency yet." />
           ) : (
             upcoming.map((ev, i) => (
               <div
@@ -232,10 +229,7 @@ export default function CurrencyProfilePage() {
               {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} h={42} r={6} />)}
             </div>
           ) : released.length === 0 ? (
-            <div className="px-5 py-8 text-center">
-              <Icon name="schedule" size={28} className="text-ink-dim mx-auto mb-2" />
-              <div className="text-[13px] text-ink-dim">No recent {C} releases</div>
-            </div>
+            <EmptyState icon="schedule" title={`No recent ${C} releases`} body="Nothing has been released yet for this currency." />
           ) : (
             released.map((ev, i) => (
               <div

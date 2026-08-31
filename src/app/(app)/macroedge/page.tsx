@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { Icon, Panel, Skeleton } from "@/components/ui";
+import { EmptyState, Icon, Panel, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type { MacroScoresResponse } from "@/types/macro";
 
@@ -89,10 +89,7 @@ export default function MacroEdgeOverviewPage() {
               {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} h={48} r={8} />)}
             </div>
           ) : scores.length === 0 ? (
-            <div className="px-5 py-8 text-center">
-              <Icon name="analytics" size={28} className="text-ink-dim mx-auto mb-2" />
-              <div className="text-[13px] text-ink-dim">No scores computed yet</div>
-            </div>
+            <EmptyState icon="analytics" title="No scores computed yet" body="Run the indicators and scores sync jobs to populate this." />
           ) : (
             scores.map((s, i) => {
               const positive = s.totalScore > 0;
@@ -158,10 +155,7 @@ export default function MacroEdgeOverviewPage() {
               {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} h={48} r={8} />)}
             </div>
           ) : pairBiases.length === 0 ? (
-            <div className="px-5 py-8 text-center">
-              <Icon name="bar_chart" size={28} className="text-ink-dim mx-auto mb-2" />
-              <div className="text-[13px] text-ink-dim">No pair biases computed yet</div>
-            </div>
+            <EmptyState icon="bar_chart" title="No pair biases computed yet" body="Pair bias is derived from currency scores — compute those first." />
           ) : (
             pairBiases.map((b, i) => {
               const tone = b.biasLabel.includes("BUY") ? "teal-bright" : b.biasLabel.includes("SELL") ? "coral-bright" : "gold";

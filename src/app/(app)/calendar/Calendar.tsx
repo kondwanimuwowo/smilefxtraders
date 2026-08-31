@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Icon, Panel, Skeleton } from "@/components/ui";
+import { EmptyState, Panel, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type { CalEvent } from "@/lib/calendar";
 import type { MacroScoresResponse } from "@/types/macro";
@@ -142,10 +142,13 @@ export function Calendar() {
         </div>
       ) : grouped.length === 0 ? (
         <Panel>
-          <div className="py-10 text-center">
-            <Icon name="event_busy" size={28} className="text-ink-dim mx-auto mb-2" />
-            <div className="text-[13px] text-ink-dim">No events match this filter.</div>
-          </div>
+          <EmptyState
+            icon="event_busy"
+            title={filter === "ALL" ? "No events yet" : `No ${filter} events yet`}
+            body={filter === "ALL"
+              ? "Nothing on the calendar right now — check back once releases land."
+              : "Try a different currency filter, or check back later."}
+          />
         </Panel>
       ) : (
         <div className="flex flex-col gap-5">

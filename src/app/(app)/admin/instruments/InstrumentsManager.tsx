@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { cn } from "@/lib/cn";
-import { Icon } from "@/components/ui";
+import { EmptyState, Icon } from "@/components/ui";
 
 type Instrument = {
   id: string;
@@ -210,9 +210,7 @@ export function InstrumentsManager({ initial }: { initial: Instrument[] }) {
         </div>
 
         {sorted.length === 0 && (
-          <div className="px-5 py-12 text-center text-[13px] text-ink-dim">
-            No instruments yet. Click &quot;Add instrument&quot; to create one.
-          </div>
+          <EmptyState icon="currency_exchange" title="No instruments yet" body="Click Add instrument above to create one." />
         )}
 
         {sorted.map((inst, idx) => (

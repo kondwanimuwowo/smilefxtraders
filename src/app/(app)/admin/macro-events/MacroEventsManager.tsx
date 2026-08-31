@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { cn } from "@/lib/cn";
-import { Icon } from "@/components/ui";
+import { EmptyState, Icon } from "@/components/ui";
 
 type MacroEvent = {
   id: string;
@@ -155,9 +155,7 @@ export function MacroEventsManager({ initial }: { initial: MacroEvent[] }) {
         </div>
 
         {sorted.length === 0 && (
-          <div className="px-5 py-12 text-center text-[13px] text-ink-dim">
-            No manual entries yet. Click &quot;Add entry&quot; to create one.
-          </div>
+          <EmptyState icon="event" title="No manual entries yet" body="Click Add entry above to create one." />
         )}
 
         {sorted.map((ev, idx) => (

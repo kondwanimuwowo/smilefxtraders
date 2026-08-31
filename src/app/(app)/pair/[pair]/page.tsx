@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Icon, Ring, Sparkline, Skeleton, Panel, PanelHead } from "@/components/ui";
+import { EmptyState, Icon, Ring, Sparkline, Skeleton, Panel, PanelHead } from "@/components/ui";
 import { FundamentalsPanel } from "@/components/macro/FundamentalsPanel";
 import { NewsFeed } from "@/components/macro/NewsFeed";
 import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
@@ -434,12 +434,11 @@ export default function PairOverviewPage() {
                 {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} h={42} r={6} />)}
               </div>
             ) : relevantEvents.length === 0 ? (
-              <div className="px-5 py-8 text-center">
-                <Icon name="event_busy" size={28} className="text-ink-dim mx-auto mb-2" />
-                <div className="text-[13px] text-ink-dim">
-                  No {meta.currencies.join("/")} events this week
-                </div>
-              </div>
+              <EmptyState
+                icon="event_busy"
+                title={`No ${meta.currencies.join("/")} events this week`}
+                body="Nothing on the calendar for this pair's currencies right now."
+              />
             ) : (
               <>
                 {relevantEvents.map((ev, i) => (
