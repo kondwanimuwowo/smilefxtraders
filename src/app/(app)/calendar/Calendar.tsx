@@ -7,7 +7,6 @@ import { Drawer } from "@/components/ui/Drawer";
 import { ResponsiveRow } from "@/components/ui/ResponsiveRow";
 import { cn } from "@/lib/cn";
 import type { CalEvent } from "@/lib/calendar";
-import type { MacroScoresResponse } from "@/types/macro";
 import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
 import { googleCalendarUrl, downloadIcs } from "@/lib/ics";
 
@@ -87,7 +86,7 @@ function AddToCalendar({ event }: { event: CalEvent }) {
         aria-label="Add to calendar"
         title="Add to calendar"
       >
-        <Icon name="event_available" size={16} />
+        <Icon name="event" size={16} />
       </button>
       {open && (
         <div className="absolute right-0 top-full mt-1 z-10 flex flex-col gap-0.5 rounded-xl p-1.5 min-w-[180px] bg-panel shadow-md">
@@ -105,7 +104,7 @@ function AddToCalendar({ event }: { event: CalEvent }) {
             onClick={() => downloadIcs(event)}
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-[12.5px] font-medium text-left text-ink-mid hover:bg-hover hover:text-ink-strong transition-colors"
           >
-            <Icon name="download" size={15} />
+            <Icon name="save" size={15} />
             Download .ics (Apple/Outlook)
           </button>
         </div>
@@ -122,7 +121,6 @@ export function Calendar() {
   const [impactFilter, setImpactFilter] = useState<Set<1 | 2 | 3>>(new Set(IMPACT_LEVELS));
   const [search, setSearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [scores, setScores] = useState<MacroScoresResponse["scores"] | null>(null);
 
   useEffect(() => {
     setEvents(null);
@@ -131,13 +129,6 @@ export function Calendar() {
       .then(setEvents)
       .catch(() => setEvents([]));
   }, [activeDate]);
-
-  useEffect(() => {
-    fetch("/api/macro/scores")
-      .then((r) => r.json() as Promise<MacroScoresResponse>)
-      .then((d) => setScores(d.scores))
-      .catch(() => setScores([]));
-  }, []);
 
   const filtered = useMemo(() => {
     if (!events) return [];
@@ -151,11 +142,6 @@ export function Calendar() {
 
   const loading = events === null;
   const today = todayUTC();
-
-  const sortedScores = useMemo(
-    () => (scores ? [...scores].sort((a, b) => b.totalScore - a.totalScore) : null),
-    [scores]
-  );
 
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => addDaysUTC(weekStart, i)), [weekStart]);
 
@@ -197,7 +183,7 @@ export function Calendar() {
         <button
           type="button"
           onClick={() => setFiltersOpen(true)}
-          className="md:hidden flex items-center gap-2 px-4 py-2 rounded-full text-[12.5px] font-semibold bg-panel shadow-sm text-ink-mid"
+          className="flex items-center gap-2 px-4 py-2 rounded-full text-[12.5px] font-semibold bg-panel shadow-sm text-ink-mid hover:text-ink-strong transition-colors"
         >
           <Icon name="tune" size={15} />
           Filters
@@ -208,42 +194,6 @@ export function Calendar() {
           )}
         </button>
       </div>
-
-      {/* ── Score strip ── */}
-      {sortedScores === null ? (
-        <div className="flex gap-2 mb-5">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex-1">
-              <Skeleton h={54} r={12} />
-            </div>
-          ))}
-        </div>
-      ) : sortedScores.length > 0 && (
-        <div className="flex gap-2 mb-5 overflow-x-auto">
-          {sortedScores.map((s) => {
-            const positive = s.totalScore > 0;
-            const negative = s.totalScore < 0;
-            return (
-              <Link
-                key={s.currency}
-                href={`/macroedge/${s.currency}`}
-                className="flex-1 min-w-[72px] flex flex-col gap-1 px-3.5 py-2.5 rounded-xl bg-panel shadow-sm hover:ring-2 ring-teal-deep transition-shadow"
-              >
-                <span className="text-[11px] font-bold tracking-wide text-ink-dim">{s.currency}</span>
-                <span
-                  className={cn(
-                    "font-display font-bold tabular-nums text-[16px]",
-                    positive ? "text-teal-deep" : negative ? "text-coral-deep" : "text-gold-deep"
-                  )}
-                >
-                  {positive ? "+" : ""}
-                  {s.totalScore.toFixed(1)}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      )}
 
       {/* ── Day navigator ── */}
       <div className="flex items-center gap-2 mb-4">
@@ -315,59 +265,7 @@ export function Calendar() {
         </label>
       </div>
 
-      {/* ── Desktop filters ── */}
-      <div className="hidden md:flex items-center gap-3 mb-5 flex-wrap">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {CURRENCY_FILTERS.map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => setCurrencyFilter(c)}
-              className={cn(
-                "px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all",
-                currencyFilter === c ? "bg-teal-solid text-white" : "bg-panel-2 text-ink-dim shadow-sm"
-              )}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          {IMPACT_LEVELS.map((level) => (
-            <button
-              key={level}
-              type="button"
-              onClick={() => toggleImpact(level)}
-              className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all",
-                impactFilter.has(level) ? "bg-teal-solid text-white" : "bg-panel-2 text-ink-dim shadow-sm"
-              )}
-            >
-              <ImpactDots level={level} />
-              {IMPACT_LABEL[level]}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-2 px-3.5 py-2 rounded-full flex-1 min-w-[200px] max-w-xs bg-panel shadow-sm">
-          <Icon name="search" size={15} className="text-ink-dim shrink-0" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search events…"
-            className="flex-1 bg-transparent text-[12.5px] leading-5 outline-none text-ink-strong"
-          />
-          {search && (
-            <button type="button" onClick={() => setSearch("")} className="text-ink-dim">
-              <Icon name="close" size={14} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* ── Mobile filters drawer ── */}
+      {/* ── Filters drawer (all breakpoints) ── */}
       <Drawer open={filtersOpen} onClose={() => setFiltersOpen(false)} title="Filters">
         <div className="flex flex-col gap-5">
           <div>
