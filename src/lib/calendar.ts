@@ -27,11 +27,22 @@ function impactStringToNumber(impact: string): 1 | 2 | 3 {
   return 1;
 }
 
+// Was `orderBy: eventTime asc, take: 200` -- an oldest-first slice across
+// every currency combined. As the table grew past 200 rows (worse after the
+// 2026-08 expansion to 8 currencies and the 2026-09 tradingeconomics.com
+// backfill), that permanently excluded both the newest releases and any
+// upcoming event, since ascending-oldest-200 never reaches either end of a
+// table that outgrew the cap (found 2026-09-01, via the MacroEdge USD page
+// showing nothing past May and no upcoming events at all). Newest-first with
+// a larger cap keeps recent/upcoming events in the result regardless of how
+// large the table gets; old history simply falls off the tail instead.
+const CALENDAR_EVENT_LIMIT = 400;
+
 export async function loadCalendarEvents(): Promise<CalEvent[]> {
   try {
     const rows = await prisma.economicEvent.findMany({
-      orderBy: { eventTime: "asc" },
-      take: 200,
+      orderBy: { eventTime: "desc" },
+      take: CALENDAR_EVENT_LIMIT,
     });
 
     const events: CalEvent[] = rows.map((row) => {

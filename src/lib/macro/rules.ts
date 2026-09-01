@@ -15,9 +15,29 @@ import { IndicatorType } from "@/generated/prisma/client";
 // exists — this is the "prior-period delta as a surprise proxy" the plan's
 // Hardest-Parts section calls for.
 
+// `actual`/`forecast`/`current`/`prior` are in rule space — some indicators
+// (EMPLOYMENT) come in sign-flipped by the caller so this file can use one
+// generic "higher is bullish" convention (see HIGHER_IS_BULLISH below). The
+// display* fields carry the same reading in its real-world sign/units, for
+// the reason string only — signal math must never read them. For every
+// indicator that isn't flipped, caller passes the same value in both.
 export type RuleInput =
-  | { kind: "surprise"; indicatorType: IndicatorType; actual: number; forecast: number }
-  | { kind: "level"; indicatorType: IndicatorType; current: number; prior: number | null };
+  | {
+      kind: "surprise";
+      indicatorType: IndicatorType;
+      actual: number;
+      forecast: number;
+      displayActual: number;
+      displayForecast: number;
+    }
+  | {
+      kind: "level";
+      indicatorType: IndicatorType;
+      current: number;
+      prior: number | null;
+      displayCurrent: number;
+      displayPrior: number | null;
+    };
 
 export interface RuleResult {
   signal: number; // -2..2
@@ -55,8 +75,14 @@ function magnitudeToSignal(relDelta: number): number {
 export function applyRule(input: RuleInput): RuleResult {
   const bullishWhenHigher = HIGHER_IS_BULLISH[input.indicatorType];
 
+  // The reason string is user-facing (shown verbatim in the score breakdown
+  // UI) — never interpolate the raw enum key into it. The header above this
+  // text does `indicatorType.replaceAll("_", " ")`; match that here too so
+  // the two don't drift.
+  const label = input.indicatorType.replaceAll("_", " ");
+
   if (input.kind === "surprise") {
-    const { actual, forecast, indicatorType } = input;
+    const { actual, forecast, displayActual, displayForecast } = input;
     const denom = Math.abs(forecast) > 1e-9 ? Math.abs(forecast) : 1;
     const relDelta = (actual - forecast) / denom;
     const signedDelta = bullishWhenHigher ? relDelta : -relDelta;
@@ -64,13 +90,13 @@ export function applyRule(input: RuleInput): RuleResult {
     const direction = actual > forecast ? "beat" : actual < forecast ? "missed" : "matched";
     return {
       signal,
-      reason: `${indicatorType} ${direction} forecast (actual ${actual}, forecast ${forecast})`,
+      reason: `${label} ${direction} forecast (actual ${displayActual}, forecast ${displayForecast})`,
     };
   }
 
-  const { current, prior, indicatorType } = input;
+  const { current, prior, displayCurrent, displayPrior } = input;
   if (prior === null || Math.abs(prior) < 1e-9) {
-    return { signal: 0, reason: `${indicatorType}: no prior period to compare (${current})` };
+    return { signal: 0, reason: `${label}: no prior period to compare (${displayCurrent})` };
   }
   const relDelta = (current - prior) / Math.abs(prior);
   const signedDelta = bullishWhenHigher ? relDelta : -relDelta;
@@ -78,6 +104,6 @@ export function applyRule(input: RuleInput): RuleResult {
   const direction = current > prior ? "rose" : current < prior ? "fell" : "held flat";
   return {
     signal,
-    reason: `${indicatorType} ${direction} vs. prior period (${prior} → ${current})`,
+    reason: `${label} ${direction} vs. prior period (${displayPrior} → ${displayCurrent})`,
   };
 }

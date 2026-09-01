@@ -96,6 +96,8 @@ async function buildIndicatorReading(
             indicatorType,
             actual: toRuleValue(indicatorType, actual),
             forecast: toRuleValue(indicatorType, forecast),
+            displayActual: actual,
+            displayForecast: forecast,
           },
           confidence: fitness.tier,
           ageDays: fitness.ageDays,
@@ -105,30 +107,55 @@ async function buildIndicatorReading(
     }
   }
 
-  // Fallback: latest two MacroIndicatorSnapshot rows (FRED/World Bank) —
-  // trend vs. prior period stands in for a forecast surprise. See
-  // confidence.ts for how the reading's fitness is judged from here.
-  const snapshots = await prisma.macroIndicatorSnapshot.findMany({
+  // Fallback: latest MacroIndicatorSnapshot vs. the most recent prior
+  // snapshot from the SAME source — trend vs. prior period stands in for a
+  // forecast surprise. See confidence.ts for how the reading's fitness is
+  // judged from here.
+  //
+  // Same-source is load-bearing: different sources use different units for
+  // the "same" indicator (FRED's USD CPI slot is CPILFESL, a raw index level
+  // ~336; tradingeconomics.com's CPI is a YoY rate, ~3.4). Diffing across
+  // sources silently produced a nonsense "336.789 -> 3.4" comparison once
+  // both started writing into the same currency+indicatorType bucket
+  // (found 2026-09-01). Restricting prior to the latest reading's own source
+  // keeps every level comparison unit-consistent, regardless of which
+  // sources happen to be feeding a given indicator.
+  const latestSnapshot = await prisma.macroIndicatorSnapshot.findFirst({
     where: { currency, indicatorType },
     orderBy: { periodDate: "desc" },
-    take: 2,
+  });
+  if (!latestSnapshot) return null;
+
+  const priorSnapshot = await prisma.macroIndicatorSnapshot.findFirst({
+    where: {
+      currency,
+      indicatorType,
+      source: latestSnapshot.source,
+      periodDate: { lt: latestSnapshot.periodDate },
+    },
+    orderBy: { periodDate: "desc" },
   });
 
-  if (snapshots.length === 0) return null;
-
-  const current = toRuleValue(indicatorType, snapshots[0].value);
-  const prior = snapshots[1] ? toRuleValue(indicatorType, snapshots[1].value) : null;
+  const current = toRuleValue(indicatorType, latestSnapshot.value);
+  const prior = priorSnapshot ? toRuleValue(indicatorType, priorSnapshot.value) : null;
   const fitness = classifyLevel({
-    source: snapshots[0].source,
-    latestPeriodDate: snapshots[0].periodDate,
-    priorPeriodDate: snapshots[1]?.periodDate ?? null,
+    source: latestSnapshot.source,
+    latestPeriodDate: latestSnapshot.periodDate,
+    priorPeriodDate: priorSnapshot?.periodDate ?? null,
   });
 
   return {
-    input: { kind: "level", indicatorType, current, prior },
+    input: {
+      kind: "level",
+      indicatorType,
+      current,
+      prior,
+      displayCurrent: latestSnapshot.value,
+      displayPrior: priorSnapshot?.value ?? null,
+    },
     confidence: fitness.tier,
     ageDays: fitness.ageDays,
-    asOf: snapshots[0].periodDate.toISOString().slice(0, 10),
+    asOf: latestSnapshot.periodDate.toISOString().slice(0, 10),
   };
 }
 
