@@ -226,8 +226,13 @@ export default function PairOverviewPage() {
     [cotData]
   );
 
+  // actual !== null keeps this to released events only. calEvents is
+  // newest-first (see lib/calendar.ts) and unfiltered — without this, any
+  // future-dated upcoming event would sort ahead of real releases here and
+  // show up with no actual value, since this list (unlike the currency
+  // page's separate upcoming/released split) has nowhere to render one.
   const relevantEvents = useMemo(
-    () => calEvents.filter((e) => meta?.currencies.includes(e.currency)).slice(0, 8),
+    () => calEvents.filter((e) => meta?.currencies.includes(e.currency) && e.actual !== null).slice(0, 8),
     [calEvents, meta]
   );
 
@@ -418,7 +423,7 @@ export default function PairOverviewPage() {
                   Economic Calendar
                 </div>
                 <div className="text-[12px] mt-0.5 text-ink-dim">
-                  {meta.currencies.join(" + ")} events this week
+                  Recent {meta.currencies.join(" + ")} events
                 </div>
               </div>
               <Link
