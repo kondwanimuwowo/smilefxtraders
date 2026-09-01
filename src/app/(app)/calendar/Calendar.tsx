@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { EmptyState, Panel, Skeleton, Icon } from "@/components/ui";
 import { Drawer } from "@/components/ui/Drawer";
-import { ResponsiveRow } from "@/components/ui/ResponsiveRow";
 import { cn } from "@/lib/cn";
 import type { CalEvent } from "@/lib/calendar";
 import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
@@ -30,6 +29,20 @@ function ImpactDots({ level }: { level: 1 | 2 | 3 }) {
 function fmtTime(time: string): string {
   const [h, m] = time.split(":").map(Number);
   return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
+}
+
+function EventResult({ ev }: { ev: CalEvent }) {
+  return (
+    <>
+      {ev.forecast && <span className="text-ink-dim">F: {ev.forecast}{ev.unit}</span>}
+      {ev.previous && <span className="text-ink-dim">P: {ev.previous}{ev.unit}</span>}
+      {ev.actual ? (
+        <span className="text-teal-deep font-semibold">{ev.actual}{ev.unit}</span>
+      ) : (
+        <span className="text-ink-dim italic">Upcoming</span>
+      )}
+    </>
+  );
 }
 
 // ── Date helpers — all UTC, matching how eventTime/date are stored ──────────
@@ -348,55 +361,63 @@ export function Calendar() {
             <div className="text-[13px] font-semibold text-ink-strong">{fmtDateHeading(activeDate)}</div>
           </div>
           {filtered.map((ev, i) => (
-            <div
-              key={ev.id}
-              className={cn(
-                "md:px-5 md:py-3 px-3 pt-3",
-                i < filtered.length - 1 && "md:border-b md:border-line-soft",
-                ev.impact === 3 && "md:bg-coral-tint-soft"
-              )}
-            >
-              <ResponsiveRow
-                gridTemplateColumns="64px 1fr 200px 32px"
-                className="items-center gap-3"
-                cells={[
-                  {
-                    label: "Time",
-                    value: <span className="text-[11.5px] tabular-nums text-ink-dim">{fmtTime(ev.time)}</span>,
-                  },
-                  {
-                    label: "Event",
-                    value: (
-                      <div className="flex items-center gap-2 min-w-0">
-                        <ImpactDots level={ev.impact} />
-                        <Link
-                          href={`/macroedge/${ev.currency}`}
-                          className="text-[11px] font-bold px-2 py-0.5 rounded-lg tracking-wide bg-panel-2 text-ink-mid hover:text-teal-deep hover:shadow-[0_0_0_1px_var(--teal-bright)] transition-colors shrink-0"
-                        >
-                          {ev.currency}
-                        </Link>
-                        <span className="text-[12.5px] font-medium truncate text-ink-strong">{ev.event}</span>
-                      </div>
-                    ),
-                  },
-                  {
-                    label: "Result",
-                    align: "right",
-                    value: (
-                      <div className="flex items-center justify-end gap-3 text-[11.5px]">
-                        {ev.forecast && <span className="text-ink-dim">F: {ev.forecast}{ev.unit}</span>}
-                        {ev.previous && <span className="text-ink-dim">P: {ev.previous}{ev.unit}</span>}
-                        {ev.actual ? (
-                          <span className="text-teal-deep font-semibold">{ev.actual}{ev.unit}</span>
-                        ) : (
-                          <span className="text-ink-dim italic">Upcoming</span>
-                        )}
-                      </div>
-                    ),
-                  },
-                  { label: "Calendar", align: "right", value: <AddToCalendar event={ev} /> },
-                ]}
-              />
+            <div key={ev.id}>
+              {/* Desktop row */}
+              <div
+                className={cn(
+                  "hidden md:grid items-center gap-3 px-5 py-3",
+                  i < filtered.length - 1 && "border-b border-line-soft",
+                  ev.impact === 3 && "bg-coral-tint-soft"
+                )}
+                style={{ gridTemplateColumns: "64px 1fr 200px 32px" }}
+              >
+                <span className="text-[11.5px] tabular-nums text-ink-dim">{fmtTime(ev.time)}</span>
+                <div className="flex items-center gap-2 min-w-0">
+                  <ImpactDots level={ev.impact} />
+                  <Link
+                    href={`/macroedge/${ev.currency}`}
+                    className="text-[11px] font-bold px-2 py-0.5 rounded-lg tracking-wide bg-panel-2 text-ink-mid hover:text-teal-deep hover:shadow-[0_0_0_1px_var(--teal-bright)] transition-colors shrink-0"
+                  >
+                    {ev.currency}
+                  </Link>
+                  <span className="text-[12.5px] font-medium truncate text-ink-strong">{ev.event}</span>
+                </div>
+                <div className="flex items-center justify-end gap-3 text-[11.5px]">
+                  <EventResult ev={ev} />
+                </div>
+                <div className="flex justify-end">
+                  <AddToCalendar event={ev} />
+                </div>
+              </div>
+
+              {/* Mobile card — position conveys meaning instead of repeating a label per field */}
+              <div
+                className={cn(
+                  "md:hidden flex items-center gap-3 px-4 py-3",
+                  i < filtered.length - 1 && "border-b border-line-soft",
+                  ev.impact === 3 && "bg-coral-tint-soft"
+                )}
+              >
+                <div className="flex flex-col items-center gap-1 shrink-0 w-11">
+                  <span className="text-[10.5px] tabular-nums text-ink-dim">{fmtTime(ev.time)}</span>
+                  <ImpactDots level={ev.impact} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <Link
+                      href={`/macroedge/${ev.currency}`}
+                      className="text-[10.5px] font-bold px-1.5 py-0.5 rounded-md tracking-wide bg-panel text-ink-mid shrink-0"
+                    >
+                      {ev.currency}
+                    </Link>
+                    <span className="text-[12.5px] font-medium truncate text-ink-strong">{ev.event}</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-[11px]">
+                    <EventResult ev={ev} />
+                  </div>
+                </div>
+                <AddToCalendar event={ev} />
+              </div>
             </div>
           ))}
         </Panel>
