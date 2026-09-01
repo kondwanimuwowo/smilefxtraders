@@ -70,6 +70,10 @@ export function FundamentalsPanel({ pair }: { pair: string }) {
         <div className="h-16 rounded-xl bg-panel-2 animate-pulse" />
       ) : bias ? (
         <>
+          <div className="text-[11.5px] mb-3 text-ink-dim">
+            Based on economic data — interest rates, CPI, employment, and more. Independent of the technical
+            Weekly Bias above, which can disagree.
+          </div>
           <div className="flex items-stretch gap-2 mb-4">
             <ScoreChip label={bias.baseCurrency} score={bias.baseScore} />
             <ScoreChip label={bias.quoteCurrency} score={bias.quoteScore} />

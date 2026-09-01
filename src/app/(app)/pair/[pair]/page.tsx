@@ -323,8 +323,11 @@ export default function PairOverviewPage() {
 
       {/* ── Weekly Bias Card ── */}
       <div className={cn("rounded-2xl px-6 py-5 mb-6", verdict.bgCls, verdict.ringCls)}>
-        <div className="text-[10.5px] font-semibold uppercase tracking-widest mb-3 text-ink-dim">
+        <div className="text-[10.5px] font-semibold uppercase tracking-widest text-ink-dim">
           Weekly Bias · Three-Factor Confluence
+        </div>
+        <div className="text-[11.5px] mb-3 text-ink-dim">
+          Technical positioning only — COT, trend, and DXY. Independent of the fundamentals score below, which can disagree.
         </div>
         <div className="flex items-start justify-between gap-6 flex-wrap">
           {/* Verdict label */}
