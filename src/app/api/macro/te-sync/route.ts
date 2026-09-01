@@ -150,6 +150,17 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Calendar events (tradingeconomics.com/{country}/calendar) ───────────
+  //
+  // Bounded same-day window for unreleased events: TE's own calendar page
+  // clusters around the current day (verified live), so this deliberately
+  // does NOT try to replace the Finnhub sync's -3/+14 day forward coverage
+  // (/api/calendar/sync, Job 5) -- only today's not-yet-released events are
+  // let through here, closing the "no upcoming events" gap for same-day
+  // releases Finnhub's job has missed, without duplicating its job.
+  const endOfTodayUTC = new Date();
+  endOfTodayUTC.setUTCHours(23, 59, 59, 999);
+  const DEDUP_WINDOW_MS = 90 * 60 * 1000;
+
   const calendarOutcomes = await mapWithConcurrency(
     [...TRACKED_CURRENCIES],
     CONCURRENCY,
@@ -158,11 +169,31 @@ export async function POST(req: NextRequest) {
         const events = await fetchTECalendarEvents(currency);
         let saved = 0;
         for (const ev of events) {
-          // Only store releases with a real actual value — a future
-          // scheduled event with nothing published yet has nothing useful
-          // to persist; it will be picked up on a later run once released,
-          // same as every other sync in this project.
-          if (!ev.actual) continue;
+          // A released event is always worth persisting. An unreleased one
+          // is only worth persisting if it's still today -- further out and
+          // it belongs to Finnhub's forward-looking job instead.
+          if (!ev.actual && ev.eventTime.getTime() > endOfTodayUTC.getTime()) continue;
+
+          if (!ev.actual) {
+            // Dedup guard: skip if a non-TE source (Finnhub) already has this
+            // same event, so an unreleased row doesn't show up twice in the
+            // UI under two different externalIds ("te:<id>" vs Finnhub's own
+            // scheme) for what is the same real-world release.
+            const duplicate = await prisma.economicEvent.findFirst({
+              where: {
+                currency,
+                category: ev.indicatorType,
+                eventTime: {
+                  gte: new Date(ev.eventTime.getTime() - DEDUP_WINDOW_MS),
+                  lte: new Date(ev.eventTime.getTime() + DEDUP_WINDOW_MS),
+                },
+                externalId: { not: { startsWith: "te:" } },
+              },
+              select: { id: true },
+            });
+            if (duplicate) continue;
+          }
+
           await prisma.economicEvent.upsert({
             where: { externalId: ev.externalId },
             create: {
@@ -175,12 +206,13 @@ export async function POST(req: NextRequest) {
               forecast: ev.forecast,
               previous: ev.previous,
               eventTime: ev.eventTime,
-              releasedAt: new Date(),
+              releasedAt: ev.actual ? new Date() : null,
             },
             update: {
               actual: ev.actual,
               forecast: ev.forecast,
               previous: ev.previous,
+              releasedAt: ev.actual ? new Date() : undefined,
             },
           });
           saved++;

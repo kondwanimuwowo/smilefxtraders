@@ -38,12 +38,29 @@ function impactStringToNumber(impact: string): 1 | 2 | 3 {
 // large the table gets; old history simply falls off the tail instead.
 const CALENDAR_EVENT_LIMIT = 400;
 
-export async function loadCalendarEvents(): Promise<CalEvent[]> {
+export interface CalendarRange {
+  from: Date;
+  to: Date;
+}
+
+// When `range` is given (the calendar page's day-tab/date-range queries), the
+// query is bounded by real dates instead of a row-count cap -- a day or week
+// window is always small, so no `take` is needed and nothing outside the
+// requested range can be silently excluded the way the flat top-400 list
+// eventually was. Callers that don't need a specific window (pair page,
+// currency page, dashboard widget) keep the unfiltered newest-first behavior
+// unchanged.
+export async function loadCalendarEvents(range?: CalendarRange): Promise<CalEvent[]> {
   try {
-    const rows = await prisma.economicEvent.findMany({
-      orderBy: { eventTime: "desc" },
-      take: CALENDAR_EVENT_LIMIT,
-    });
+    const rows = range
+      ? await prisma.economicEvent.findMany({
+          where: { eventTime: { gte: range.from, lte: range.to } },
+          orderBy: { eventTime: "asc" },
+        })
+      : await prisma.economicEvent.findMany({
+          orderBy: { eventTime: "desc" },
+          take: CALENDAR_EVENT_LIMIT,
+        });
 
     const events: CalEvent[] = rows.map((row) => {
       const iso = row.eventTime.toISOString();
