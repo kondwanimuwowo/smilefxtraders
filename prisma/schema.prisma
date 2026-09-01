@@ -504,6 +504,7 @@ enum DataSource {
   WORLD_BANK
   EUROSTAT
   MANUAL
+  TRADING_ECONOMICS
 }
 
 model MacroIndicatorSnapshot {
