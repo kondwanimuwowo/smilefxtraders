@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { EmptyState, Panel, Skeleton, Icon } from "@/components/ui";
 import { Drawer } from "@/components/ui/Drawer";
@@ -31,16 +31,73 @@ function fmtTime(time: string): string {
   return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
 }
 
+function formatCountdown(ms: number): string {
+  const totalMinutes = Math.max(0, Math.round(ms / 60_000));
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const minutes = totalMinutes % 60;
+  if (days > 0) return `in ${days}d ${hours}h`;
+  if (hours > 0) return `in ${hours}h ${minutes}m`;
+  return `in ${minutes}m`;
+}
+
+// Handles the three states a not-yet-released event can be in. Ticks its own
+// clock (60s resolution -- a calendar countdown doesn't need per-second
+// precision) rather than requiring the page to re-fetch/re-render everything
+// every minute.
+function CountdownOrStatus({ eventTime, hasNumericExpectation }: { eventTime: Date; hasNumericExpectation: boolean }) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const msRemaining = eventTime.getTime() - now;
+
+  if (msRemaining > 0) {
+    return (
+      <span className="flex items-center gap-1 text-ink-dim">
+        <Icon name="schedule" size={12} />
+        {formatCountdown(msRemaining)}
+      </span>
+    );
+  }
+
+  // Event time has passed with no actual yet. A release TE/Finnhub hasn't
+  // synced the actual for yet (has a forecast/previous) reads differently
+  // from an event that will never have one (a speech -- no forecast or
+  // previous ever existed for it), which was previously mislabeled
+  // "Upcoming" forever once its time passed.
+  if (hasNumericExpectation) {
+    return <span className="text-ink-dim italic">Pending</span>;
+  }
+  return (
+    <span title="Event occurred — nothing to report">
+      <Icon name="check_circle" size={14} className="text-ink-dim" />
+    </span>
+  );
+}
+
 function EventResult({ ev }: { ev: CalEvent }) {
+  if (ev.actual) {
+    return (
+      <>
+        {ev.forecast && <span className="text-ink-dim">F: {ev.forecast}{ev.unit}</span>}
+        {ev.previous && <span className="text-ink-dim">P: {ev.previous}{ev.unit}</span>}
+        <span className="text-teal-deep font-semibold">{ev.actual}{ev.unit}</span>
+      </>
+    );
+  }
+
+  const eventTime = new Date(`${ev.date}T${ev.time}:00.000Z`);
+  const hasNumericExpectation = Boolean(ev.forecast || ev.previous);
+
   return (
     <>
       {ev.forecast && <span className="text-ink-dim">F: {ev.forecast}{ev.unit}</span>}
       {ev.previous && <span className="text-ink-dim">P: {ev.previous}{ev.unit}</span>}
-      {ev.actual ? (
-        <span className="text-teal-deep font-semibold">{ev.actual}{ev.unit}</span>
-      ) : (
-        <span className="text-ink-dim italic">Upcoming</span>
-      )}
+      <CountdownOrStatus eventTime={eventTime} hasNumericExpectation={hasNumericExpectation} />
     </>
   );
 }
@@ -134,6 +191,7 @@ export function Calendar() {
   const [impactFilter, setImpactFilter] = useState<Set<1 | 2 | 3>>(new Set(IMPACT_LEVELS));
   const [search, setSearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setEvents(null);
@@ -262,9 +320,25 @@ export function Calendar() {
           </button>
         )}
 
-        <label className="shrink-0 relative p-2 rounded-lg bg-panel shadow-sm text-ink-mid hover:text-ink-strong transition-colors cursor-pointer">
+        <button
+          type="button"
+          onClick={() => {
+            const input = dateInputRef.current;
+            if (!input) return;
+            // showPicker() opens the native picker without the input itself
+            // ever needing to be visible on screen -- opacity:0 alone doesn't
+            // reliably hide a date input's own chrome on every mobile browser
+            // (its "dd/mm/yyyy" text bled through under the icon button), so
+            // the input stays truly off-screen (sr-only) instead.
+            if (typeof input.showPicker === "function") input.showPicker();
+            else input.focus();
+          }}
+          className="shrink-0 relative p-2 rounded-lg bg-panel shadow-sm text-ink-mid hover:text-ink-strong transition-colors"
+          aria-label="Jump to date"
+        >
           <Icon name="event" size={18} />
           <input
+            ref={dateInputRef}
             type="date"
             value={activeDate}
             onChange={(e) => {
@@ -272,10 +346,11 @@ export function Calendar() {
               setActiveDate(e.target.value);
               setWeekStart(mondayOfWeekUTC(e.target.value));
             }}
-            className="absolute inset-0 opacity-0 cursor-pointer"
-            aria-label="Jump to date"
+            className="sr-only"
+            tabIndex={-1}
+            aria-hidden="true"
           />
-        </label>
+        </button>
       </div>
 
       {/* ── Filters drawer (all breakpoints) ── */}
