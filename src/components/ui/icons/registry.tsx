@@ -14,6 +14,7 @@ import {
   ArrowUpIcon,
   ArrowUpTrayIcon,
   ArrowDownIcon,
+  ArrowDownTrayIcon,
   ArrowsPointingOutIcon,
   ArrowsRightLeftIcon,
   BellAlertIcon,
@@ -167,6 +168,7 @@ export const ICON_REGISTRY: Record<string, IconComponent> = {
   progress_activity: ArrowPathIcon,
   currency_exchange: ArrowsRightLeftIcon,
   upload_file: ArrowUpTrayIcon,
+  download: ArrowDownTrayIcon,
   publish: CloudArrowUpIcon,
   content_copy: DocumentDuplicateIcon,
 

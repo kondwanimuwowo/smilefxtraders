@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { EmptyState, Panel, Skeleton, Icon } from "@/components/ui";
 import { Drawer } from "@/components/ui/Drawer";
 import { cn } from "@/lib/cn";
 import type { CalEvent } from "@/lib/calendar";
 import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
-import { googleCalendarUrl, downloadIcs } from "@/lib/ics";
+import { googleCalendarUrl, openIcsEvent } from "@/lib/ics";
+import { formatInTimeZone } from "@/lib/date";
 
 const CURRENCY_FILTERS = ["ALL", ...TRACKED_CURRENCIES] as const;
 type CurrencyFilter = (typeof CURRENCY_FILTERS)[number];
@@ -26,7 +27,11 @@ function ImpactDots({ level }: { level: 1 | 2 | 3 }) {
   );
 }
 
-function fmtTime(time: string): string {
+// Named fmtTime12h (not fmtTime) -- lib/date.ts already exports its own
+// fmtTime with the opposite job (Date -> 24h "HH:mm"); reusing the name here
+// for a military-string -> 12h AM/PM formatter would read as the same
+// function when it isn't.
+function fmtTime12h(time: string): string {
   const [h, m] = time.split(":").map(Number);
   return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
 }
@@ -131,11 +136,14 @@ function fmtDayLabel(date: string): { weekday: string; day: string } {
 }
 
 function fmtDateHeading(date: string): string {
-  const d = new Date(`${date}T00:00:00Z`);
-  return d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" });
+  return formatInTimeZone(new Date(`${date}T00:00:00Z`), "UTC", "EEEE, MMM d");
 }
 
 // ── Add to Calendar ──────────────────────────────────────────────────────────
+// Icon-only menu, no text labels -- title/aria-label carry the accessible
+// name instead. The .ics option opens the file rather than force-downloading
+// it (see lib/ics.ts's openIcsEvent) so iOS/macOS Safari offers its native
+// "Add to Calendar" sheet directly instead of just saving a file to Files.
 
 function AddToCalendar({ event }: { event: CalEvent }) {
   const [open, setOpen] = useState(false);
@@ -159,24 +167,148 @@ function AddToCalendar({ event }: { event: CalEvent }) {
         <Icon name="event" size={16} />
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 z-10 flex flex-col gap-0.5 rounded-xl p-1.5 min-w-[180px] bg-panel shadow-md">
+        <div className="absolute right-0 top-full mt-1 z-10 flex items-center gap-1 rounded-xl p-1.5 bg-panel shadow-md">
           <a
             href={googleCalendarUrl(event)}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-[12.5px] font-medium text-ink-mid hover:bg-hover hover:text-ink-strong transition-colors"
+            onClick={() => setOpen(false)}
+            className="flex items-center justify-center w-8 h-8 rounded-lg text-ink-mid hover:bg-hover hover:text-teal-deep transition-colors"
+            aria-label="Add to Google Calendar"
+            title="Add to Google Calendar"
           >
-            <Icon name="calendar_month" size={15} />
-            Add to Google Calendar
+            <Icon name="calendar_month" size={16} />
           </a>
           <button
             type="button"
-            onClick={() => downloadIcs(event)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-[12.5px] font-medium text-left text-ink-mid hover:bg-hover hover:text-ink-strong transition-colors"
+            onClick={() => {
+              openIcsEvent(event);
+              setOpen(false);
+            }}
+            className="flex items-center justify-center w-8 h-8 rounded-lg text-ink-mid hover:bg-hover hover:text-teal-deep transition-colors"
+            aria-label="Add to Apple Calendar or download .ics"
+            title="Add to Apple Calendar or download .ics"
           >
-            <Icon name="save" size={15} />
-            Download .ics (Apple/Outlook)
+            <Icon name="download" size={16} />
           </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Custom date picker ───────────────────────────────────────────────────────
+// Replaces the browser's native <input type="date"> picker, whose appearance
+// varies by browser/OS and doesn't follow the app's design system (it also
+// bled its raw text through an opacity-0 overlay on some mobile browsers --
+// see the git history for that fix). Grid math is native UTC Date, not plain
+// date-fns month helpers, for the same reason the rest of this file uses UTC
+// helpers: date-fns's month functions read/write local wall-clock fields, and
+// "date" here always means a UTC calendar day, not the viewer's local one.
+
+const WEEKDAY_HEADERS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+
+function daysInMonthGrid(year: number, monthIndex: number): string[] {
+  const first = new Date(Date.UTC(year, monthIndex, 1));
+  const firstWeekday = first.getUTCDay(); // 0=Sun..6=Sat
+  const leadingDays = firstWeekday === 0 ? 6 : firstWeekday - 1;
+  const gridStart = new Date(Date.UTC(year, monthIndex, 1 - leadingDays));
+  return Array.from({ length: 42 }, (_, i) => {
+    const d = new Date(gridStart);
+    d.setUTCDate(gridStart.getUTCDate() + i);
+    return d.toISOString().slice(0, 10);
+  });
+}
+
+function DatePicker({ value, onChange }: { value: string; onChange: (date: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [viewDate, setViewDate] = useState(value);
+
+  useEffect(() => {
+    if (!open) return;
+    setViewDate(value);
+    const close = () => setOpen(false);
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, [open, value]);
+
+  const [year, month] = viewDate.split("-").map(Number);
+  const monthIndex = month - 1;
+  const grid = useMemo(() => daysInMonthGrid(year, monthIndex), [year, monthIndex]);
+  const monthLabel = formatInTimeZone(new Date(Date.UTC(year, monthIndex, 1)), "UTC", "MMMM yyyy");
+  const today = todayUTC();
+
+  function shiftMonth(dir: -1 | 1) {
+    setViewDate(new Date(Date.UTC(year, monthIndex + dir, 1)).toISOString().slice(0, 10));
+  }
+
+  return (
+    <div className="relative shrink-0" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="p-2 rounded-lg bg-panel shadow-sm text-ink-mid hover:text-ink-strong transition-colors"
+        aria-label="Jump to date"
+      >
+        <Icon name="event" size={18} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1 z-10 rounded-xl p-3 w-[260px] bg-panel shadow-md">
+          <div className="flex items-center justify-between mb-3">
+            <button
+              type="button"
+              onClick={() => shiftMonth(-1)}
+              className="p-1 rounded-lg hover:bg-hover text-ink-mid"
+              aria-label="Previous month"
+            >
+              <Icon name="chevron_left" size={16} />
+            </button>
+            <span className="text-[12.5px] font-semibold text-ink-strong">{monthLabel}</span>
+            <button
+              type="button"
+              onClick={() => shiftMonth(1)}
+              className="p-1 rounded-lg hover:bg-hover text-ink-mid"
+              aria-label="Next month"
+            >
+              <Icon name="chevron_right" size={16} />
+            </button>
+          </div>
+          <div className="grid grid-cols-7 gap-1 mb-1">
+            {WEEKDAY_HEADERS.map((w) => (
+              <div key={w} className="text-[10px] font-semibold text-center text-ink-dim">
+                {w}
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-1">
+            {grid.map((d) => {
+              const inMonth = Number(d.slice(5, 7)) === month;
+              const isToday = d === today;
+              const isSelected = d === value;
+              return (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => {
+                    onChange(d);
+                    setOpen(false);
+                  }}
+                  className={cn(
+                    "aspect-square rounded-lg text-[12px] font-medium transition-colors",
+                    isSelected
+                      ? "bg-teal-solid text-white"
+                      : isToday
+                        ? "ring-2 ring-teal-deep text-ink-strong"
+                        : inMonth
+                          ? "text-ink-strong hover:bg-hover"
+                          : "text-ink-dim opacity-40 hover:bg-hover"
+                  )}
+                >
+                  {Number(d.slice(8, 10))}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
@@ -191,7 +323,6 @@ export function Calendar() {
   const [impactFilter, setImpactFilter] = useState<Set<1 | 2 | 3>>(new Set(IMPACT_LEVELS));
   const [search, setSearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const dateInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setEvents(null);
@@ -320,37 +451,13 @@ export function Calendar() {
           </button>
         )}
 
-        <button
-          type="button"
-          onClick={() => {
-            const input = dateInputRef.current;
-            if (!input) return;
-            // showPicker() opens the native picker without the input itself
-            // ever needing to be visible on screen -- opacity:0 alone doesn't
-            // reliably hide a date input's own chrome on every mobile browser
-            // (its "dd/mm/yyyy" text bled through under the icon button), so
-            // the input stays truly off-screen (sr-only) instead.
-            if (typeof input.showPicker === "function") input.showPicker();
-            else input.focus();
+        <DatePicker
+          value={activeDate}
+          onChange={(d) => {
+            setActiveDate(d);
+            setWeekStart(mondayOfWeekUTC(d));
           }}
-          className="shrink-0 relative p-2 rounded-lg bg-panel shadow-sm text-ink-mid hover:text-ink-strong transition-colors"
-          aria-label="Jump to date"
-        >
-          <Icon name="event" size={18} />
-          <input
-            ref={dateInputRef}
-            type="date"
-            value={activeDate}
-            onChange={(e) => {
-              if (!e.target.value) return;
-              setActiveDate(e.target.value);
-              setWeekStart(mondayOfWeekUTC(e.target.value));
-            }}
-            className="sr-only"
-            tabIndex={-1}
-            aria-hidden="true"
-          />
-        </button>
+        />
       </div>
 
       {/* ── Filters drawer (all breakpoints) ── */}
@@ -446,7 +553,7 @@ export function Calendar() {
                 )}
                 style={{ gridTemplateColumns: "64px 1fr 200px 32px" }}
               >
-                <span className="text-[11.5px] tabular-nums text-ink-dim">{fmtTime(ev.time)}</span>
+                <span className="text-[11.5px] tabular-nums text-ink-dim">{fmtTime12h(ev.time)}</span>
                 <div className="flex items-center gap-2 min-w-0">
                   <ImpactDots level={ev.impact} />
                   <Link
@@ -474,7 +581,7 @@ export function Calendar() {
                 )}
               >
                 <div className="flex flex-col items-center gap-1 shrink-0 w-11">
-                  <span className="text-[10.5px] tabular-nums text-ink-dim">{fmtTime(ev.time)}</span>
+                  <span className="text-[10.5px] tabular-nums text-ink-dim">{fmtTime12h(ev.time)}</span>
                   <ImpactDots level={ev.impact} />
                 </div>
                 <div className="flex-1 min-w-0">
