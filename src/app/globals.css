@@ -453,7 +453,21 @@
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────────── */
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
 @layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
   html {
     min-height: 100%;
     overflow-x: hidden;
