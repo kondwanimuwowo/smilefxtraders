@@ -71,6 +71,7 @@ export function MarketingNav() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [authed, setAuthed] = useState(false);
+  const [waitlistMode, setWaitlistMode] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -98,6 +99,15 @@ export function MarketingNav() {
     supabase.auth.getSession().then(({ data }) => setAuthed(!!data.session));
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, s) => setAuthed(!!s));
     return () => subscription.unsubscribe();
+  }, []);
+
+  // Site gate flag -- a plain env var, so it isn't readable client-side
+  // directly; fetched the same way auth state is checked above.
+  useEffect(() => {
+    fetch("/api/site-gate")
+      .then((r) => r.json())
+      .then((d) => setWaitlistMode(!!d.waitlistMode))
+      .catch(() => setWaitlistMode(false));
   }, []);
 
   const hamburgerColor = mobileOpen ? "#fff" : scrolled ? "var(--ink)" : "rgba(255,255,255,0.9)";
@@ -160,7 +170,11 @@ export function MarketingNav() {
 
             {/* CTA */}
             <div className="hidden lg:flex items-center gap-2">
-              {authed ? (
+              {waitlistMode ? (
+                <Button href="/waitlist" size="lg" iconRight="arrow_forward">
+                  Join the waitlist
+                </Button>
+              ) : authed ? (
                 <Button href="/dashboard" hardNav size="lg" iconRight="arrow_forward">
                   Go to Dashboard
                 </Button>
@@ -244,7 +258,11 @@ export function MarketingNav() {
             transition: `opacity 320ms var(--ease-app, cubic-bezier(0.16,1,0.3,1)) ${60 + NAV.length * 45}ms, transform 320ms var(--ease-app, cubic-bezier(0.16,1,0.3,1)) ${60 + NAV.length * 45}ms`,
           }}
         >
-          {authed ? (
+          {waitlistMode ? (
+            <Button href="/waitlist" size="lg" fullWidth onClick={() => setMobileOpen(false)} iconRight="arrow_forward">
+              Join the waitlist
+            </Button>
+          ) : authed ? (
             <Button href="/dashboard" hardNav size="lg" fullWidth onClick={() => setMobileOpen(false)} iconRight="arrow_forward">
               Go to Dashboard
             </Button>

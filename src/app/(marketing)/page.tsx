@@ -7,6 +7,7 @@ import { FeatureBlock } from "@/components/marketing/FeatureBlock";
 import { MarketingPlanCard } from "@/components/pricing/MarketingPlanCard";
 import { PLAN_META } from "@/lib/plans";
 import { getPlanPrices } from "@/lib/server/getPlanPrices";
+import { isWaitlistMode } from "@/lib/site-gate";
 
 export const metadata: Metadata = {
   // No title here on purpose. The root layout's default already reads
@@ -25,6 +26,7 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const prices = await getPlanPrices();
+  const waitlistMode = isWaitlistMode();
   return (
     <main>
       {/* ===== HERO ===== */}
@@ -49,7 +51,11 @@ export default async function HomePage() {
                 A professional trading desk for SMC and Supply &amp; Demand traders. Journal your edge, validate every setup, and follow live calls from our trading desk.
               </p>
               <div className="reveal flex gap-3.5 mt-8 flex-wrap" data-delay="180">
-                <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Start for free</Button>
+                {waitlistMode ? (
+                  <Button href="/waitlist" size="lg" iconRight="arrow_forward">Join the waitlist</Button>
+                ) : (
+                  <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Start for free</Button>
+                )}
               </div>
             </div>
 
@@ -235,49 +241,54 @@ export default async function HomePage() {
       </section>
 
       {/* ===== PRICING TEASER ===== */}
-      <section className="section soft">
-        <div className="container">
-          <div className="sec-head center reveal mb-[52px]">
-            <h2>Pricing</h2>
-            <p className="lead mt-3.5">Start free. Upgrade when you&apos;re ready.</p>
-          </div>
-          <div className="grid g3 items-start">
-            {PLAN_META.map((meta, i) => (
-              <div key={meta.id} className="reveal" data-delay={i * 80}>
-                <MarketingPlanCard
-                  meta={meta}
-                  prices={prices.find((p) => p.planId === meta.id)!}
-                />
-              </div>
-            ))}
-          </div>
+      {/* Hidden entirely in waitlist mode -- this is pricing content on the
+          homepage, not just the /pricing page, and its plan-card CTAs lead
+          to /signup. */}
+      {!waitlistMode && (
+        <section className="section soft">
+          <div className="container">
+            <div className="sec-head center reveal mb-[52px]">
+              <h2>Pricing</h2>
+              <p className="lead mt-3.5">Start free. Upgrade when you&apos;re ready.</p>
+            </div>
+            <div className="grid g3 items-start">
+              {PLAN_META.map((meta, i) => (
+                <div key={meta.id} className="reveal" data-delay={i * 80}>
+                  <MarketingPlanCard
+                    meta={meta}
+                    prices={prices.find((p) => p.planId === meta.id)!}
+                  />
+                </div>
+              ))}
+            </div>
 
-          {/* Lifetime access */}
-          <div className="reveal text-center mt-8">
-            <Button href="mailto:support@smilefxtraders.com" hardNav size="lg" variant="ghost">
-              Need lifetime access? Contact our sales team
-            </Button>
-          </div>
+            {/* Lifetime access */}
+            <div className="reveal text-center mt-8">
+              <Button href="mailto:support@smilefxtraders.com" hardNav size="lg" variant="ghost">
+                Need lifetime access? Contact our sales team
+              </Button>
+            </div>
 
-          <div className="reveal text-center mt-6">
-            <Link href="/pricing" className="link-arrow text-[15px]">
-              See full pricing &amp; FAQ <Icon name="arrow_forward" />
-            </Link>
+            <div className="reveal text-center mt-6">
+              <Link href="/pricing" className="link-arrow text-[15px]">
+                See full pricing &amp; FAQ <Icon name="arrow_forward" />
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ===== CTA ===== */}
       <section className="section">
         <div className="container">
           <CTACard
             heading="Ready to trade with discipline?"
-            sub="The Starter plan is free, forever. No credit card required."
-            primaryLabel="Create your free account"
-            primaryHref="/signup"
-            primaryHardNav
-            secondaryLabel="See pricing"
-            secondaryHref="/pricing"
+            sub={waitlistMode ? "We're launching soon — join the waitlist to be first in." : "The Starter plan is free, forever. No credit card required."}
+            primaryLabel={waitlistMode ? "Join the waitlist" : "Create your free account"}
+            primaryHref={waitlistMode ? "/waitlist" : "/signup"}
+            primaryHardNav={!waitlistMode}
+            secondaryLabel={waitlistMode ? undefined : "See pricing"}
+            secondaryHref={waitlistMode ? undefined : "/pricing"}
           />
         </div>
       </section>

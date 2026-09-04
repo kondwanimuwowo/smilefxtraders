@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CTACard } from "@/components/marketing/CTACard";
 import { MarketingCard } from "@/components/marketing/MarketingCard";
 import { cn } from "@/lib/cn";
+import { isWaitlistMode } from "@/lib/site-gate";
 
 export const metadata: Metadata = {
   title: "About",
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
+  const waitlistMode = isWaitlistMode();
   return (
     <>
       {/* Dark hero */}
@@ -147,12 +149,12 @@ export default function AboutPage() {
         <div className="container">
           <CTACard
             heading="Trade with people who want you to win, the right way"
-            sub="Join free and see what a disciplined desk feels like."
-            primaryLabel="Start free"
-            primaryHref="/signup"
-            primaryHardNav
-            secondaryLabel="See the community"
-            secondaryHref="/our-community"
+            sub={waitlistMode ? "We're launching soon — join the waitlist to be first in." : "Join free and see what a disciplined desk feels like."}
+            primaryLabel={waitlistMode ? "Join the waitlist" : "Start free"}
+            primaryHref={waitlistMode ? "/waitlist" : "/signup"}
+            primaryHardNav={!waitlistMode}
+            secondaryLabel={waitlistMode ? undefined : "See the community"}
+            secondaryHref={waitlistMode ? undefined : "/our-community"}
             secondaryStyle={{ color: "var(--gold)", borderColor: "var(--gold)" }}
           />
         </div>

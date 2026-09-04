@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Icon, GavoIcon } from "@/components/ui";
 import { CTACard } from "@/components/marketing/CTACard";
 import { FeatureBlock } from "@/components/marketing/FeatureBlock";
+import { isWaitlistMode } from "@/lib/site-gate";
 
 export const metadata: Metadata = {
   title: "Features",
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function FeaturesPage() {
+  const waitlistMode = isWaitlistMode();
   return (
     <>
       {/* Dark hero */}
@@ -261,12 +263,12 @@ export default function FeaturesPage() {
         <div className="container">
           <CTACard
             heading="Start using every tool today"
-            sub="Free to start. No credit card. Upgrade when you're ready for live alerts and AI review."
-            primaryLabel="Create your free account"
-            primaryHref="/signup"
-            primaryHardNav
-            secondaryLabel="See pricing"
-            secondaryHref="/pricing"
+            sub={waitlistMode ? "We're launching soon — join the waitlist to be first in." : "Free to start. No credit card. Upgrade when you're ready for live alerts and AI review."}
+            primaryLabel={waitlistMode ? "Join the waitlist" : "Create your free account"}
+            primaryHref={waitlistMode ? "/waitlist" : "/signup"}
+            primaryHardNav={!waitlistMode}
+            secondaryLabel={waitlistMode ? undefined : "See pricing"}
+            secondaryHref={waitlistMode ? undefined : "/pricing"}
           />
         </div>
       </section>

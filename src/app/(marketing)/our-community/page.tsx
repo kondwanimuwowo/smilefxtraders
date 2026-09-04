@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Button, Icon } from "@/components/ui";
 import { MarketingCard } from "@/components/marketing/MarketingCard";
+import { isWaitlistMode } from "@/lib/site-gate";
 
 export const metadata: Metadata = {
   title: "Community",
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default function OurCommunityPage() {
+  const waitlistMode = isWaitlistMode();
   return (
     <>
       {/* Dark hero */}
@@ -122,10 +124,20 @@ export default function OurCommunityPage() {
         <div className="container">
           <div className="reveal text-center max-w-[560px] mx-auto">
             <h2 className="text-[clamp(28px,4vw,40px)]">Pull up a seat at the desk</h2>
-            <p className="lead mt-3.5">The Starter plan is free. Introduce yourself in the feed and start your streak today.</p>
+            <p className="lead mt-3.5">
+              {waitlistMode
+                ? "We're launching soon — join the waitlist to be first in."
+                : "The Starter plan is free. Introduce yourself in the feed and start your streak today."}
+            </p>
             <div className="flex gap-3.5 justify-center mt-[26px] flex-wrap">
-              <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Join the community</Button>
-              <Button href="/about" size="lg" variant="ghost">Meet the team</Button>
+              {waitlistMode ? (
+                <Button href="/waitlist" size="lg" iconRight="arrow_forward">Join the waitlist</Button>
+              ) : (
+                <>
+                  <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Join the community</Button>
+                  <Button href="/about" size="lg" variant="ghost">Meet the team</Button>
+                </>
+              )}
             </div>
           </div>
         </div>

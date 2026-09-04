@@ -609,3 +609,16 @@ model GavoCotExplanation {
 
   @@map("gavo_cot_explanations")
 }
+
+// ─── Pre-launch site gate ───────────────────────────────────────────────────
+
+// Email capture for both the waiting-list page and the maintenance splash —
+// one shared list, tagged by which one collected it, per the site-gate plan.
+model WaitlistSignup {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   // "waitlist" | "maintenance"
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("waitlist_signups")
+}

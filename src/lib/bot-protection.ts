@@ -145,3 +145,33 @@ export async function validateSignupSecurity(
 
   return { ok: true };
 }
+
+// Same disposable-domain/suspicious-pattern/rate-limit checks as signup, but
+// its own rate-limit keys -- the waitlist form is a different, unauthenticated
+// surface, and sharing signup's bucket would let waitlist spam lock someone
+// out of actually signing up later (or vice versa).
+export async function validateWaitlistSecurity(
+  email: string,
+  ip: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const normalized = email.trim().toLowerCase();
+
+  if (isDisposableDomain(normalized)) {
+    return { ok: false, error: "Please use a permanent email address." };
+  }
+  if (looksSuspicious(normalized)) {
+    return { ok: false, error: "That email address doesn't look valid. Please use a real address." };
+  }
+
+  const ipOk = await checkRateLimit(`rate-limit:waitlist:ip:${ip}`, 10, 3600);
+  if (!ipOk) {
+    return { ok: false, error: "Too many attempts from this network. Please try again in an hour." };
+  }
+
+  const emailOk = await checkRateLimit(`rate-limit:waitlist:email:${normalized}`, 3, 3600);
+  if (!emailOk) {
+    return { ok: false, error: "Too many attempts with this email. Please try again in an hour." };
+  }
+
+  return { ok: true };
+}

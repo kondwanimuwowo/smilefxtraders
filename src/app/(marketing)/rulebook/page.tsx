@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { MarketingRulebook } from "@/components/rulebook/MarketingRulebook";
 import { CTACard } from "@/components/marketing/CTACard";
 import { RULEBOOK, allRules } from "@/lib/rulebook";
+import { isWaitlistMode } from "@/lib/site-gate";
 
 const TITLE = "The Rulebook";
 const DESCRIPTION =
@@ -55,6 +56,7 @@ function ruleListJsonLd() {
 // platform can show a prospect: most competitors describe their edge, this
 // states it and then grades against it.
 export default function MarketingRulebookPage() {
+  const waitlistMode = isWaitlistMode();
   return (
     <>
       <script
@@ -89,9 +91,9 @@ export default function MarketingRulebookPage() {
         <div className="container">
           <CTACard
             heading="Get graded against it"
-            sub="Journal a trade and Gavo reviews it against these rules, checking what it can against real broker price data."
-            primaryLabel="Start free"
-            primaryHref="/signup"
+            sub={waitlistMode ? "We're launching soon — join the waitlist to be first in." : "Journal a trade and Gavo reviews it against these rules, checking what it can against real broker price data."}
+            primaryLabel={waitlistMode ? "Join the waitlist" : "Start free"}
+            primaryHref={waitlistMode ? "/waitlist" : "/signup"}
           />
         </div>
       </section>

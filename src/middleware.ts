@@ -1,8 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { authCookieOptions } from "@/lib/supabase/cookie-options";
+import { isMaintenanceMode, isWaitlistMode } from "@/lib/site-gate";
 
-const PUBLIC_PREFIXES = ["/login", "/signup", "/onboarding", "/forgot-password", "/reset-password", "/api", "/auth", "/features", "/pricing", "/about", "/learn", "/our-community", "/insights", "/contact", "/stories", "/resources", "/terms", "/privacy", "/risk-disclosure", "/blog", "/careers", "/rulebook"];
+const PUBLIC_PREFIXES = ["/login", "/signup", "/onboarding", "/forgot-password", "/reset-password", "/api", "/auth", "/features", "/pricing", "/about", "/learn", "/our-community", "/insights", "/contact", "/stories", "/resources", "/terms", "/privacy", "/risk-disclosure", "/blog", "/careers", "/rulebook", "/waitlist", "/maintenance"];
 // Note: /api is already public, so /api/webhooks/lenco is covered — no extra entry needed.
 const PUBLIC_EXACT    = ["/"]; // exact match only
 
@@ -27,7 +28,7 @@ const APP_HOST       = process.env.NEXT_PUBLIC_APP_HOST       ?? "app.smilefxtra
 // route groups are organisational and do not create URL segments, so two pages
 // both resolving to /rulebook is a build error regardless of host. Same split
 // as /pricing vs /membership and /learn vs /academy.
-const MARKETING_PREFIXES = ["/features", "/pricing", "/about", "/learn", "/our-community", "/terms", "/privacy", "/risk-disclosure", "/blog", "/careers", "/contact", "/rulebook"];
+const MARKETING_PREFIXES = ["/features", "/pricing", "/about", "/learn", "/our-community", "/terms", "/privacy", "/risk-disclosure", "/blog", "/careers", "/contact", "/rulebook", "/waitlist"];
 
 function isMarketingPath(pathname: string) {
   return (
@@ -45,9 +46,58 @@ function crossHostRedirect(request: NextRequest, host: string, pathname?: string
   return NextResponse.redirect(url, 308);
 }
 
+// Pre-launch site gate — waiting-list mode and maintenance mode, both
+// toggled via env vars (src/lib/site-gate.ts). Checked before anything else
+// in this file: a bypass link needs to work regardless of host-split routing
+// or which mode is active, including maintenance mode, where nothing else on
+// the site is reachable and there's no dependency on being logged in.
+const BYPASS_COOKIE = "sfx_gate_bypass";
+
+function checkGateBypass(request: NextRequest): { response: NextResponse | null; bypassed: boolean } {
+  const bypassSecret = process.env.SITE_GATE_BYPASS_SECRET;
+  if (!bypassSecret) return { response: null, bypassed: false };
+
+  const bypassParam = request.nextUrl.searchParams.get("bypass");
+  if (bypassParam === bypassSecret) {
+    const url = request.nextUrl.clone();
+    url.searchParams.delete("bypass");
+    const res = NextResponse.redirect(url);
+    res.cookies.set(BYPASS_COOKIE, bypassSecret, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 30,
+      path: "/",
+    });
+    return { response: res, bypassed: true };
+  }
+
+  return { response: null, bypassed: request.cookies.get(BYPASS_COOKIE)?.value === bypassSecret };
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host")?.split(":")[0] ?? "";
+
+  const { response: bypassResponse, bypassed } = checkGateBypass(request);
+  if (bypassResponse) return bypassResponse;
+
+  // Neither gate ever applies to /api or /auth -- cron/webhook routes must
+  // keep running during a launch gate, and GET /api/site-gate itself (which
+  // the marketing nav fetches to know whether to show a waitlist CTA) would
+  // otherwise redirect to /waitlist and break on non-JSON.
+  const skipGate = SKIP_AUTH_PREFIXES.some((p) => pathname.startsWith(p));
+
+  // Maintenance mode is a total gate -- skip host-split entirely (bouncing
+  // an apex-domain visitor to the app subdomain just to see a splash page is
+  // pointless extra latency while the whole site is down anyway) and send
+  // every path except the splash itself there, on whichever host it came in on.
+  if (!bypassed && !skipGate && isMaintenanceMode() && pathname !== "/maintenance") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/maintenance";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
 
   // Canonicalise www → apex
   if (host === `www.${MARKETING_HOST}`) {
@@ -68,6 +118,22 @@ export async function middleware(request: NextRequest) {
     }
     // marketing pages live on the apex
     return crossHostRedirect(request, MARKETING_HOST);
+  }
+
+  // Waiting-list mode: the marketing site stays browsable, but /pricing and
+  // the whole authenticated app are unreachable, and no page here leads to
+  // login/signup/onboarding. Reuses isMarketingPath (already pathname-only)
+  // -- a request passes through untouched only if it's a marketing page and
+  // not /pricing; everything else (including /login, /signup, /onboarding,
+  // and the entire (app) tree) redirects to /waitlist.
+  if (!bypassed && !skipGate && isWaitlistMode() && pathname !== "/waitlist") {
+    const allowed = isMarketingPath(pathname) && pathname !== "/pricing";
+    if (!allowed) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/waitlist";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
   }
 
   // Skip Supabase entirely for paths whose result is never used here. This

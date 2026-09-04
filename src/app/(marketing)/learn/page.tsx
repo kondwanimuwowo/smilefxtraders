@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Button, Icon } from "@/components/ui";
 import { MarketingCard } from "@/components/marketing/MarketingCard";
 import { FeatureBlock } from "@/components/marketing/FeatureBlock";
+import { isWaitlistMode } from "@/lib/site-gate";
 
 export const metadata: Metadata = {
   title: "Academy",
@@ -19,6 +20,7 @@ const LEVELS = [
 ];
 
 export default function LearnPage() {
+  const waitlistMode = isWaitlistMode();
   return (
     <>
       {/* Dark hero */}
@@ -162,8 +164,14 @@ export default function LearnPage() {
             <h2 className="text-[clamp(28px,4vw,40px)]">Start at Level 1 today</h2>
             <p className="lead mt-3.5">Foundations is free on the Starter plan. Climb at your own pace.</p>
             <div className="flex gap-3.5 justify-center mt-[26px] flex-wrap">
-              <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Begin learning</Button>
-              <Button href="/pricing" size="lg" variant="ghost">Compare plans</Button>
+              {waitlistMode ? (
+                <Button href="/waitlist" size="lg" iconRight="arrow_forward">Join the waitlist</Button>
+              ) : (
+                <>
+                  <Button href="/signup" hardNav size="lg" iconRight="arrow_forward">Begin learning</Button>
+                  <Button href="/pricing" size="lg" variant="ghost">Compare plans</Button>
+                </>
+              )}
             </div>
           </div>
         </div>
