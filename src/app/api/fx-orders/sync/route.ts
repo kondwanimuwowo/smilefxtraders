@@ -178,23 +178,25 @@ Rules:
 
 // ── Image extraction from InvestingLive page ──────────────────────────────────
 
-// Every filename format InvestingLive has used for the daily table image,
-// in order of preference. They switch formats periodically, so the sync
-// accepts any of them; to support a new one, add an entry here.
+// Every filename format the sync accepts for the daily table image, in
+// order of preference. InvestingLive rotates formats (seemingly to throw off
+// crawlers), so this list includes both formats seen so far and plausible
+// future ones; to support a new one, add an entry here.
 //
-//  - `filename` is tested against the decoded filename (no path or query).
-//  - `dated`: the first capture group is the expiry date, which must equal
-//    the date being synced. Dated formats are the safest: they can never pick
+//  - `filename` is tested against the normalized base name: decoded, no
+//    extension, with CMS noise suffixes stripped (see normalizeImageName).
+//  - `dated`: the name must contain a date equal to the date being synced
+//    (see nameHasDate). Dated formats are the safest: they can never pick
 //    up the banner or an older post's table from a "related posts" block.
 //  - `path`, if set, must also match the full URL.
 //
-// Never add a catch-all. On 2026-08-10 InvestingLive began serving a
-// generic banner ("FXO FX OPTION EXPIRIES.jpg") ahead of the chart, and for
-// five straight days the vision model was handed that banner and asked to
-// read option levels off it. It duly produced plausible-looking numbers —
-// GBPUSD 1.5500 alongside 1.2700, duplicate strikes, spot prices vanishing
-// — and nothing flagged it, because fabricated data looks exactly like real
-// data once it is in the table.
+// Only add undated formats with a narrow `path`, and never a catch-all. On
+// 2026-08-10 InvestingLive began serving a generic banner ("FXO FX OPTION
+// EXPIRIES.jpg") ahead of the chart, and for five straight days the vision
+// model was handed that banner and asked to read option levels off it. It
+// duly produced plausible-looking numbers — GBPUSD 1.5500 alongside 1.2700,
+// duplicate strikes, spot prices vanishing — and nothing flagged it, because
+// fabricated data looks exactly like real data once it is in the table.
 interface ImageFormat {
   name:     string;
   filename: RegExp;
@@ -202,45 +204,85 @@ interface ImageFormat {
   path?:    RegExp;
 }
 
+const CMS_IMAGES = /^https:\/\/investinglive\.com\/cms\/media\/images\//i;
+const OLD_CDN    = /^https:\/\/images\.investinglive\.com\/images\//i;
+
 const IMAGE_FORMATS: ImageFormat[] = [
   {
-    // Since early 2026-09: "FXO 290926.jpg". Also accepts other separators
-    // and date orders (FXO_29-09-2026.png, FXO-20260929.webp, …) — see
-    // stampMatchesDate.
+    // Seen since early 2026-09: "FXO 290926". Also covers the date in other
+    // orders and separators, before or after the marker: FXO_29-09-2026,
+    // FXO-20260929, 290926 FXO, fxo-29-sep-2026, FXO 29 September…
     name:     "FXO + date",
-    filename: /^FXO[\s_+-]*(\d{1,4}[\s._-]?\d{1,2}[\s._-]?\d{2,4})\.(?:jpe?g|png|webp)$/i,
+    filename: /(?:^|[^a-z])fxo(?:[^a-z]|$)/i,
     dated:    true,
   },
   {
-    // 2026-08 → early 2026-09: upload timestamp, e.g. "8-6-2026-1-53-02-pm.jpg".
-    name:     "upload timestamp",
-    filename: /^\d{1,2}-\d{1,2}-\d{4}-[\d-]+(?:am|pm)\.(?:jpe?g|png)$/i,
-    dated:    false,
-    path:     /^https:\/\/investinglive\.com\/cms\/media\/images\//i,
+    // Speculative: a descriptive name with a date, e.g.
+    // fx-option-expiries-29-september-2026, FX_Options_290926,
+    // option-expiry-2026-09-29, fx-expiries-29sep26.
+    name:     "descriptive + date",
+    filename: /fx[\s_+.-]*options?|options?[\s_+.-]*expir|fx[\s_+.-]*expir/i,
+    dated:    true,
   },
   {
-    // Before 2026-08 (old image CDN), preferring the 900px rendition.
-    name:     "legacy CDN (900px)",
-    filename: /^FXO.*_size900\.jpe?g$/i,
+    // Seen 2026-08 → early 2026-09: upload timestamp, e.g. "8-6-2026-1-53-02-pm".
+    name:     "upload timestamp",
+    filename: /^\d{1,2}-\d{1,2}-\d{4}-[\d-]+(?:am|pm)$/i,
     dated:    false,
-    path:     /^https:\/\/images\.investinglive\.com\/images\//i,
+    path:     CMS_IMAGES,
+  },
+  {
+    // Speculative: other timestamp-style uploads, which carry the upload
+    // date — e.g. "Screenshot 2026-09-29 at 13.53.02", "image_2026-09-29_135302",
+    // "IMG_20260929_135302", "2026-09-29-13-53-02". Lowest-confidence dated
+    // format (any same-day upload in the CMS would qualify), hence below the
+    // others and limited to the CMS image directory.
+    name:     "dated upload",
+    filename: /^(?:screenshot|screen[\s_-]*shot|image|img|photo|capture|snip)?[\s_+.-]*\d{4}[\s_.-]?\d{2}[\s_.-]?\d{2}(?:\D|$)/i,
+    dated:    true,
+    path:     CMS_IMAGES,
+  },
+  {
+    // Seen before 2026-08 (old image CDN), preferring the 900px rendition.
+    name:     "legacy CDN (900px)",
+    filename: /^FXO.*_size900$/i,
+    dated:    false,
+    path:     OLD_CDN,
   },
   {
     name:     "legacy CDN",
-    filename: /^FXO.*\.jpe?g$/i,
+    filename: /^FXO/i,
     dated:    false,
-    path:     /^https:\/\/images\.investinglive\.com\/images\//i,
+    path:     OLD_CDN,
   },
 ];
 
-// Never the table, whichever format it happens to match.
-const BANNER_IMAGE = /FX[\s_-]*OPTION[\s_-]*EXPIRIES/i;
+const IMAGE_EXT = /\.(?:jpe?g|png|webp|avif)$/i;
 
-// Whether a filename date stamp denotes `date`. Separated stamps are read
-// as D-M-Y or Y-M-D (2- or 4-digit year); bare digit runs as DDMMYY,
-// DDMMYYYY, YYYYMMDD or YYMMDD. US month-first order is deliberately not
-// accepted: for days 1–12 it's indistinguishable from day-first, and a
-// wrong guess would silently file one day's levels under another.
+// Never the table, whichever format it happens to match.
+const BANNER_IMAGE = /FX[\s_-]*OPTION[\s_-]*EXPIRIES(?![\s_.-]*\d)|banner|logo|header|thumbnail|avatar/i;
+
+// Strips extension and the suffixes CMSs and editors tack onto filenames
+// (except the old CDN's _size900, which a legacy format matches on),
+// so "FXO 290926-1024x576-scaled (1).jpg" is judged as "FXO 290926". A bare
+// trailing "-1" is left alone: it's indistinguishable from part of a date.
+function normalizeImageName(filename: string): string {
+  let base = filename.replace(IMAGE_EXT, "").trim();
+  const NOISE = /(?:[\s_-]*\(\d+\)|-scaled|-\d{2,4}x\d{2,4}|[\s_-]+v\d+|[\s_-]+(?:copy|final|new|updated|edited|web|hd|large|full))$/i;
+  for (let prev = ""; prev !== base; ) {
+    prev = base;
+    base = base.replace(NOISE, "").trim();
+  }
+  return base;
+}
+
+const MONTH_ABBR = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
+
+// Whether a numeric date stamp denotes `date`. Separated stamps are read as
+// D-M-Y or Y-M-D (2- or 4-digit year); bare digit runs as DDMMYY, DDMMYYYY,
+// YYYYMMDD or YYMMDD. US month-first order is deliberately not accepted:
+// for days 1–12 it's indistinguishable from day-first, and a wrong guess
+// would silently file one day's levels under another.
 function stampMatchesDate(stamp: string, date: Date): boolean {
   const d  = date.getUTCDate();
   const m  = date.getUTCMonth() + 1;
@@ -264,6 +306,33 @@ function stampMatchesDate(stamp: string, date: Date): boolean {
   ].includes(digits);
 }
 
+// Whether any date written in `name` is `date`: numeric stamps (see
+// stampMatchesDate) or a month name, either order, year optional
+// ("29-sep-26", "29th September 2026", "sept 29", "29sep").
+function nameHasDate(name: string, date: Date): boolean {
+  for (const m of name.matchAll(/(?<!\d)(\d{1,4}[\s_.-]\d{1,2}[\s_.-]\d{2,4})(?!\d)/g)) {
+    if (stampMatchesDate(m[1], date)) return true;
+  }
+  for (const m of name.matchAll(/(?<!\d)(\d{6}|\d{8})(?!\d)/g)) {
+    if (stampMatchesDate(m[1], date)) return true;
+  }
+
+  const DAY   = String.raw`(\d{1,2})(?!\d)(?:st|nd|rd|th)?`;
+  const MONTH = String.raw`(jan|feb|mar|apr|may|jun|jul|aug|sept?|oct|nov|dec)[a-z]*`;
+  const YEAR  = String.raw`(?:[\s_.,-]*(\d{4}|\d{2}))?`;
+  const dayFirst   = new RegExp(String.raw`(?<!\d)${DAY}[\s_.-]*${MONTH}${YEAR}(?!\d)`, "gi");
+  const monthFirst = new RegExp(String.raw`${MONTH}[\s_.-]*${DAY}${YEAR}(?!\d)`, "gi");
+  const matches = (day: string, mon: string, yr: string | undefined) => {
+    const year = yr === undefined ? undefined : Number(yr) < 100 ? 2000 + Number(yr) : Number(yr);
+    return Number(day) === date.getUTCDate()
+      && MONTH_ABBR.indexOf(mon.slice(0, 3).toLowerCase()) === date.getUTCMonth()
+      && (year === undefined || year === date.getUTCFullYear());
+  };
+  for (const m of name.matchAll(dayFirst))   if (matches(m[1], m[2], m[3])) return true;
+  for (const m of name.matchAll(monthFirst)) if (matches(m[2], m[1], m[3])) return true;
+  return false;
+}
+
 // Every image URL referenced from an attribute on the page (src, data-src,
 // srcset, og:image content, …), resolved against the page URL, in document
 // order. Reads whole attribute values rather than matching URLs with one
@@ -278,7 +347,7 @@ function findPageImages(pageHtml: string, pageUrl: string): { url: string; filen
     const refs = value.split(/,\s+/).map((r) => r.trim().replace(/\s+\d+(?:\.\d+)?[wx]$/i, ""));
 
     for (const ref of refs) {
-      if (!/\.(?:jpe?g|png|webp)(?:[?#]|$)/i.test(ref)) continue;
+      if (!/\.(?:jpe?g|png|webp|avif)(?:[?#]|$)/i.test(ref)) continue;
       try {
         const url = new URL(ref.replace(/ /g, "%20"), pageUrl);
         const filename = decodeURIComponent(url.pathname.split("/").pop() ?? "");
@@ -302,10 +371,10 @@ function extractImageUrl(pageHtml: string, pageUrl: string, targetDate: Date): {
 
   for (const format of IMAGE_FORMATS) {
     for (const img of images) {
-      const m = img.filename.match(format.filename);
-      if (!m || (format.path && !format.path.test(img.url))) continue;
-      if (format.dated && !stampMatchesDate(m[1], targetDate)) {
-        wrongDay.push(img.filename);
+      const name = normalizeImageName(img.filename);
+      if (!format.filename.test(name) || (format.path && !format.path.test(img.url))) continue;
+      if (format.dated && !nameHasDate(name, targetDate)) {
+        if (!wrongDay.includes(img.filename)) wrongDay.push(img.filename);
         continue;
       }
       return { url: img.url, format: format.name };
