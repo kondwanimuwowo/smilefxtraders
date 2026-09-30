@@ -26,42 +26,61 @@ const MONTHS = [
   "july","august","september","october","november","december",
 ];
 
-// Fallback when the orders index doesn't list the post (e.g. backfilling an
-// older date that has scrolled off it). Matches InvestingLive's current slug
-// shape, confirmed 2026-09-29:
-//   /orders/fx-option-expiries-for-29-september-10am-new-york-cut/
-// Posts before ~2026-07 carried a trailing -YYYYMMDD suffix instead, but
-// those dates are already synced.
-function buildInvestingLiveUrl(date: Date): string {
-  const day   = date.getUTCDate();
-  const month = MONTHS[date.getUTCMonth()];
-  return `https://investinglive.com/orders/fx-option-expiries-for-${day}-${month}-10am-new-york-cut/`;
-}
+// Every post-URL shape InvestingLive has used, newest first. They rotate
+// slug formats every so often, so rather than guessing one we try each in
+// turn (see fetchPostPage). To support a new shape, add an entry here.
+const POST_SLUG_FORMATS: ((date: Date) => string)[] = [
+  // Current (confirmed 2026-09-29): fx-option-expiries-for-29-september-10am-new-york-cut/
+  (d) => `fx-option-expiries-for-${d.getUTCDate()}-${MONTHS[d.getUTCMonth()]}-10am-new-york-cut/`,
+  // Until ~2026-07: same slug with a trailing -YYYYMMDD.
+  (d) => {
+    const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const dd = String(d.getUTCDate()).padStart(2, "0");
+    return `fx-option-expiries-for-${d.getUTCDate()}-${MONTHS[d.getUTCMonth()]}-10am-new-york-cut-${d.getUTCFullYear()}${mm}${dd}/`;
+  },
+];
 
-// Resolves the real post URL for `date` from InvestingLive's orders index,
-// instead of guessing a slug. Their URL scheme has changed at least once
-// already (dropping the -YYYYMMDD suffix on recent posts) — path casing
-// itself doesn't matter (/Orders/ and /orders/ both resolve to the same
-// page), but the slug shape does, and guessing it is fragile. Falls back to
-// buildInvestingLiveUrl() if the index can't be fetched or doesn't contain a
-// matching link (e.g. for older archived dates).
-async function findPostUrl(date: Date): Promise<string> {
-  const day   = date.getUTCDate();
-  const month = MONTHS[date.getUTCMonth()];
-  const slugFragment = `fx-option-expiries-for-${day}-${month}-10am-new-york-cut`;
+// Candidate post URLs for `date`, best first. The orders index is the most
+// reliable source because it reflects whatever slug InvestingLive is using
+// right now (path casing doesn't matter — /Orders/ and /orders/ resolve to
+// the same page). The constructed slugs cover older dates that have
+// scrolled off the index, or an index that can't be fetched.
+async function findPostUrls(date: Date): Promise<string[]> {
+  const candidates: string[] = [];
+  const slugFragment = `fx-option-expiries-for-${date.getUTCDate()}-${MONTHS[date.getUTCMonth()]}-10am-new-york-cut`;
 
   try {
     const res = await fetchWithTimeout("https://investinglive.com/orders", { headers: FETCH_HEADERS }, 15_000);
     if (res.ok) {
       const html = await res.text();
-      const match = html.match(new RegExp(`href="(/orders/${slugFragment}[^"]*)"`, "i"));
-      if (match?.[1]) return `https://investinglive.com${match[1]}`;
+      const match = html.match(new RegExp(`href="(?:https://investinglive\\.com)?(/orders/${slugFragment}[^"]*)"`, "i"));
+      if (match?.[1]) candidates.push(`https://investinglive.com${match[1]}`);
     }
   } catch (err) {
-    console.warn("[fx-orders/sync] orders index lookup failed, falling back to constructed URL:", err);
+    console.warn("[fx-orders/sync] orders index lookup failed, falling back to constructed URLs:", err);
   }
 
-  return buildInvestingLiveUrl(date);
+  for (const slug of POST_SLUG_FORMATS) {
+    const url = `https://investinglive.com/orders/${slug(date)}`;
+    if (!candidates.includes(url)) candidates.push(url);
+  }
+  return candidates;
+}
+
+// Fetches the first candidate URL that isn't a 404. Any other status (a 403
+// from bot protection, a 5xx) is returned straight away: a different slug
+// won't fix those, and hammering the site would only make blocking likelier.
+async function fetchPostPage(date: Date): Promise<{ url: string; res: Response }> {
+  const candidates = await findPostUrls(date);
+  let last!: { url: string; res: Response };
+  for (const url of candidates) {
+    console.log("[fx-orders/sync] Fetching page:", url);
+    const res = await fetchWithTimeout(url, { headers: FETCH_HEADERS }, 15_000);
+    last = { url, res };
+    if (res.status !== 404) break;
+    await res.body?.cancel();
+  }
+  return last;
 }
 
 // ── Trading-day sequence ──────────────────────────────────────────────────────
@@ -159,100 +178,145 @@ Rules:
 
 // ── Image extraction from InvestingLive page ──────────────────────────────────
 
-// The daily table screenshot is uploaded with a date/time-stamped filename,
-// e.g. "8-6-2026-1-53-02-pm.jpg". Article furniture (banners, logos) lives in
-// the same directory with descriptive names instead.
-const DATE_STAMPED_IMAGE = /\/\d{1,2}-\d{1,2}-\d{4}-[\d-]+(?:am|pm)\.(?:jpg|jpeg|png)$/i;
-
-// Current upload format (since early 2026-09): "FXO 290926.jpg" — "FXO", an
-// optional separator (a raw or %20-encoded space in practice), then the
-// expiry date as DDMMYY. Crucially distinct from the "FXO FX OPTION
-// EXPIRIES.jpg" banner, which has no date digits.
-const FXO_DATED_IMAGE = /FXO(?:%20|[ _+-])?(\d{6})\.(?:jpe?g|png|webp)/gi;
-
-function ddmmyy(date: Date): string {
-  const dd = String(date.getUTCDate()).padStart(2, "0");
-  const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const yy = String(date.getUTCFullYear()).slice(-2);
-  return `${dd}${mm}${yy}`;
+// Every filename format InvestingLive has used for the daily table image,
+// in order of preference. They switch formats periodically, so the sync
+// accepts any of them; to support a new one, add an entry here.
+//
+//  - `filename` is tested against the decoded filename (no path or query).
+//  - `dated`: the first capture group is the expiry date, which must equal
+//    the date being synced. Dated formats are the safest: they can never pick
+//    up the banner or an older post's table from a "related posts" block.
+//  - `path`, if set, must also match the full URL.
+//
+// Never add a catch-all. On 2026-08-10 InvestingLive began serving a
+// generic banner ("FXO FX OPTION EXPIRIES.jpg") ahead of the chart, and for
+// five straight days the vision model was handed that banner and asked to
+// read option levels off it. It duly produced plausible-looking numbers —
+// GBPUSD 1.5500 alongside 1.2700, duplicate strikes, spot prices vanishing
+// — and nothing flagged it, because fabricated data looks exactly like real
+// data once it is in the table.
+interface ImageFormat {
+  name:     string;
+  filename: RegExp;
+  dated:    boolean;
+  path?:    RegExp;
 }
 
-// Finds every "FXO DDMMYY" image URL in the page, wherever it's referenced
-// (src, data-src, srcset, og:image), resolved against the page URL. Walks
-// back from each filename match to the start of its URL rather than
-// matching the whole URL in one regex, because the filename itself may
-// contain a raw space.
-function findFxoDatedImages(pageHtml: string, pageUrl: string): { url: string; stamp: string }[] {
-  const found: { url: string; stamp: string }[] = [];
-  for (const m of pageHtml.matchAll(FXO_DATED_IMAGE)) {
-    let start = m.index;
-    while (start > 0 && !`"'(,=\n\t `.includes(pageHtml[start - 1])) start--;
-    const raw = pageHtml.slice(start, m.index + m[0].length);
-    // A bare filename (alt text, a caption) isn't a reference to the image.
-    if (!raw.includes("/")) continue;
-    try {
-      const url = new URL(raw.replace(/ /g, "%20"), pageUrl).toString();
-      if (!found.some((f) => f.url === url)) found.push({ url, stamp: m[1] });
-    } catch {
-      // Malformed URL — skip.
+const IMAGE_FORMATS: ImageFormat[] = [
+  {
+    // Since early 2026-09: "FXO 290926.jpg". Also accepts other separators
+    // and date orders (FXO_29-09-2026.png, FXO-20260929.webp, …) — see
+    // stampMatchesDate.
+    name:     "FXO + date",
+    filename: /^FXO[\s_+-]*(\d{1,4}[\s._-]?\d{1,2}[\s._-]?\d{2,4})\.(?:jpe?g|png|webp)$/i,
+    dated:    true,
+  },
+  {
+    // 2026-08 → early 2026-09: upload timestamp, e.g. "8-6-2026-1-53-02-pm.jpg".
+    name:     "upload timestamp",
+    filename: /^\d{1,2}-\d{1,2}-\d{4}-[\d-]+(?:am|pm)\.(?:jpe?g|png)$/i,
+    dated:    false,
+    path:     /^https:\/\/investinglive\.com\/cms\/media\/images\//i,
+  },
+  {
+    // Before 2026-08 (old image CDN), preferring the 900px rendition.
+    name:     "legacy CDN (900px)",
+    filename: /^FXO.*_size900\.jpe?g$/i,
+    dated:    false,
+    path:     /^https:\/\/images\.investinglive\.com\/images\//i,
+  },
+  {
+    name:     "legacy CDN",
+    filename: /^FXO.*\.jpe?g$/i,
+    dated:    false,
+    path:     /^https:\/\/images\.investinglive\.com\/images\//i,
+  },
+];
+
+// Never the table, whichever format it happens to match.
+const BANNER_IMAGE = /FX[\s_-]*OPTION[\s_-]*EXPIRIES/i;
+
+// Whether a filename date stamp denotes `date`. Separated stamps are read
+// as D-M-Y or Y-M-D (2- or 4-digit year); bare digit runs as DDMMYY,
+// DDMMYYYY, YYYYMMDD or YYMMDD. US month-first order is deliberately not
+// accepted: for days 1–12 it's indistinguishable from day-first, and a
+// wrong guess would silently file one day's levels under another.
+function stampMatchesDate(stamp: string, date: Date): boolean {
+  const d  = date.getUTCDate();
+  const m  = date.getUTCMonth() + 1;
+  const y  = date.getUTCFullYear();
+  const p2 = (n: number) => String(n).padStart(2, "0");
+
+  const parts = stamp.split(/[\s._-]+/).filter(Boolean).map(Number);
+  if (parts.length === 3) {
+    const year = (n: number) => (n < 100 ? 2000 + n : n);
+    const [a, b, c] = parts;
+    return (a === d && b === m && year(c) === y) || (year(a) === y && b === m && c === d);
+  }
+
+  const digits = stamp.replace(/\D/g, "");
+  const yy = p2(y % 100);
+  return [
+    `${p2(d)}${p2(m)}${yy}`,
+    `${p2(d)}${p2(m)}${y}`,
+    `${y}${p2(m)}${p2(d)}`,
+    `${yy}${p2(m)}${p2(d)}`,
+  ].includes(digits);
+}
+
+// Every image URL referenced from an attribute on the page (src, data-src,
+// srcset, og:image content, …), resolved against the page URL, in document
+// order. Reads whole attribute values rather than matching URLs with one
+// regex because filenames can contain raw spaces ("FXO 290926.jpg").
+function findPageImages(pageHtml: string, pageUrl: string): { url: string; filename: string }[] {
+  const found: { url: string; filename: string }[] = [];
+  const attrs = pageHtml.matchAll(/\b(?:src|data-[\w-]*src|srcset|data-[\w-]*srcset|content|href)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi);
+
+  for (const a of attrs) {
+    const value = (a[1] ?? a[2] ?? "").trim();
+    // srcset: "url 900w, url 300w" — split entries, drop width/density descriptors.
+    const refs = value.split(/,\s+/).map((r) => r.trim().replace(/\s+\d+(?:\.\d+)?[wx]$/i, ""));
+
+    for (const ref of refs) {
+      if (!/\.(?:jpe?g|png|webp)(?:[?#]|$)/i.test(ref)) continue;
+      try {
+        const url = new URL(ref.replace(/ /g, "%20"), pageUrl);
+        const filename = decodeURIComponent(url.pathname.split("/").pop() ?? "");
+        const href = url.toString();
+        if (!found.some((f) => f.url === href)) found.push({ url: href, filename });
+      } catch {
+        // Malformed URL or escape sequence — skip.
+      }
     }
   }
   return found;
 }
 
-async function extractImageUrl(pageHtml: string, pageUrl: string, targetDate: Date): Promise<string | null> {
-  // Current format: accept only the image whose DDMMYY stamp is the date
-  // being synced, so neither the banner nor an older post's table (e.g. in
-  // a "related posts" block) can ever be handed to the vision model.
-  const fxoImages = findFxoDatedImages(pageHtml, pageUrl);
-  const wanted    = ddmmyy(targetDate);
-  const fxoMatch  = fxoImages.find((img) => img.stamp === wanted);
-  if (fxoMatch) return fxoMatch.url;
-  if (fxoImages.length) {
-    console.error(
-      `[fx-orders/sync] found FXO image(s) ${fxoImages.map((i) => i.url).join(", ")} ` +
-      `but none stamped ${wanted}; refusing to extract`
-    );
+// Picks the table image for `targetDate`: the first image matching the
+// most preferred format that has one. Deliberately returns null rather than
+// guessing when nothing matches — traders size positions off these levels,
+// so publishing nothing (a visible gap) beats publishing invented strikes.
+function extractImageUrl(pageHtml: string, pageUrl: string, targetDate: Date): { url: string; format: string } | null {
+  const images   = findPageImages(pageHtml, pageUrl).filter((img) => !BANNER_IMAGE.test(img.filename));
+  const wrongDay: string[] = [];
+
+  for (const format of IMAGE_FORMATS) {
+    for (const img of images) {
+      const m = img.filename.match(format.filename);
+      if (!m || (format.path && !format.path.test(img.url))) continue;
+      if (format.dated && !stampMatchesDate(m[1], targetDate)) {
+        wrongDay.push(img.filename);
+        continue;
+      }
+      return { url: img.url, format: format.name };
+    }
   }
 
-  // Every article-body image, in document order.
-  const bodyImages = [...pageHtml.matchAll(
-    /<img[^>]+src="(https:\/\/investinglive\.com\/cms\/media\/images\/[^"?]+\.(?:jpg|jpeg|png))(?:\?[^"]*)?"/gi
-  )].map((m) => m[1]);
-
-  // Pick the date-stamped upload, not merely the first image on the page.
-  //
-  // This previously took the first match and assumed it was the table. On
-  // 2026-08-10 InvestingLive began serving a generic banner
-  // ("FXO FX OPTION EXPIRIES.jpg") ahead of the chart, so for five straight
-  // days the vision model was handed a decorative header and asked to read
-  // option levels off it. It duly produced plausible-looking numbers —
-  // GBPUSD 1.5500 alongside 1.2700, duplicate strikes, spot prices vanishing
-  // — and nothing flagged it, because fabricated data looks exactly like real
-  // data once it is in the table.
-  const dated = bodyImages.find((url) => DATE_STAMPED_IMAGE.test(url));
-  if (dated) return dated;
-
-  // Legacy formats, kept as fallbacks in case InvestingLive reverts.
-  const legacy = [
-    /data-src="(https:\/\/images\.investinglive\.com\/images\/FXO[^"]+_size900\.jpg)"/,
-    /data-src="(https:\/\/images\.investinglive\.com\/images\/FXO[^"]+\.jpg)"/,
-    /og:image[^>]*content="(https:\/\/images\.investinglive\.com\/images\/FXO[^"]+\.jpg)"/,
-  ];
-  for (const pattern of legacy) {
-    const m = pageHtml.match(pattern);
-    if (m?.[1]) return m[1];
-  }
-
-  // Deliberately refuse rather than fall back to an unrecognised image.
-  // Traders size positions off these levels: publishing nothing is a visible
-  // gap they can work around, while publishing invented strikes is not.
-  if (bodyImages.length) {
-    console.error(
-      `[fx-orders/sync] no date-stamped image found; refusing to extract from ${bodyImages[0]} ` +
-      `(${bodyImages.length} candidate image(s) on page)`
-    );
-  }
+  console.error(
+    `[fx-orders/sync] no image matched a known filename format; refusing to extract. ` +
+    (wrongDay.length ? `Dated images for other days: ${wrongDay.join(", ")}. ` : "") +
+    `Images on page: ${images.map((i) => i.filename).join(", ") || "none"}`
+  );
   return null;
 }
 
@@ -377,11 +441,7 @@ export async function POST(req: NextRequest) {
       : new Date();
 
     const tradingDays = tradingDaySequence(targetDate, 7);
-    const pageUrl     = await findPostUrl(targetDate);
-
-    console.log("[fx-orders/sync] Fetching page:", pageUrl);
-
-    const pageRes = await fetchWithTimeout(pageUrl, { headers: FETCH_HEADERS }, 15_000);
+    const { url: pageUrl, res: pageRes } = await fetchPostPage(targetDate);
 
     if (!pageRes.ok) {
       // A 404 here is routine, not a failure: InvestingLive typically doesn't
@@ -409,13 +469,14 @@ export async function POST(req: NextRequest) {
     }
 
     const html     = await pageRes.text();
-    const imageUrl = await extractImageUrl(html, pageUrl, targetDate);
+    const image = extractImageUrl(html, pageUrl, targetDate);
 
-    if (!imageUrl) {
+    if (!image) {
       return NextResponse.json({ error: "Could not find FXO image URL in page HTML", url: pageUrl }, { status: 422 });
     }
 
-    console.log("[fx-orders/sync] Extracted image URL:", imageUrl);
+    const imageUrl = image.url;
+    console.log(`[fx-orders/sync] Extracted image URL (${image.format} format):`, imageUrl);
 
     // Short-circuit: InvestingLive image URLs are unique per post, so if
     // today's target date already has a record from this exact image, the
