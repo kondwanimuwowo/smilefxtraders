@@ -26,17 +26,16 @@ const MONTHS = [
   "july","august","september","october","november","december",
 ];
 
-// Fallback only — InvestingLive's actual slug format changed (2026-07): the
-// newest post(s) no longer carry a trailing -YYYYMMDD suffix at all, so this
-// guess 404s for the current day. findPostUrl() below is the real lookup
-// path; this is only used if that fetch fails outright.
+// Fallback when the orders index doesn't list the post (e.g. backfilling an
+// older date that has scrolled off it). Matches InvestingLive's current slug
+// shape, confirmed 2026-09-29:
+//   /orders/fx-option-expiries-for-29-september-10am-new-york-cut/
+// Posts before ~2026-07 carried a trailing -YYYYMMDD suffix instead, but
+// those dates are already synced.
 function buildInvestingLiveUrl(date: Date): string {
   const day   = date.getUTCDate();
   const month = MONTHS[date.getUTCMonth()];
-  const y     = date.getUTCFullYear();
-  const mm    = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const dd    = String(date.getUTCDate()).padStart(2, "0");
-  return `https://investinglive.com/orders/fx-option-expiries-for-${day}-${month}-10am-new-york-cut-${y}${mm}${dd}/`;
+  return `https://investinglive.com/orders/fx-option-expiries-for-${day}-${month}-10am-new-york-cut/`;
 }
 
 // Resolves the real post URL for `date` from InvestingLive's orders index,
@@ -165,7 +164,57 @@ Rules:
 // the same directory with descriptive names instead.
 const DATE_STAMPED_IMAGE = /\/\d{1,2}-\d{1,2}-\d{4}-[\d-]+(?:am|pm)\.(?:jpg|jpeg|png)$/i;
 
-async function extractImageUrl(pageHtml: string): Promise<string | null> {
+// Current upload format (since early 2026-09): "FXO 290926.jpg" — "FXO", an
+// optional separator (a raw or %20-encoded space in practice), then the
+// expiry date as DDMMYY. Crucially distinct from the "FXO FX OPTION
+// EXPIRIES.jpg" banner, which has no date digits.
+const FXO_DATED_IMAGE = /FXO(?:%20|[ _+-])?(\d{6})\.(?:jpe?g|png|webp)/gi;
+
+function ddmmyy(date: Date): string {
+  const dd = String(date.getUTCDate()).padStart(2, "0");
+  const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const yy = String(date.getUTCFullYear()).slice(-2);
+  return `${dd}${mm}${yy}`;
+}
+
+// Finds every "FXO DDMMYY" image URL in the page, wherever it's referenced
+// (src, data-src, srcset, og:image), resolved against the page URL. Walks
+// back from each filename match to the start of its URL rather than
+// matching the whole URL in one regex, because the filename itself may
+// contain a raw space.
+function findFxoDatedImages(pageHtml: string, pageUrl: string): { url: string; stamp: string }[] {
+  const found: { url: string; stamp: string }[] = [];
+  for (const m of pageHtml.matchAll(FXO_DATED_IMAGE)) {
+    let start = m.index;
+    while (start > 0 && !`"'(,=\n\t `.includes(pageHtml[start - 1])) start--;
+    const raw = pageHtml.slice(start, m.index + m[0].length);
+    // A bare filename (alt text, a caption) isn't a reference to the image.
+    if (!raw.includes("/")) continue;
+    try {
+      const url = new URL(raw.replace(/ /g, "%20"), pageUrl).toString();
+      if (!found.some((f) => f.url === url)) found.push({ url, stamp: m[1] });
+    } catch {
+      // Malformed URL — skip.
+    }
+  }
+  return found;
+}
+
+async function extractImageUrl(pageHtml: string, pageUrl: string, targetDate: Date): Promise<string | null> {
+  // Current format: accept only the image whose DDMMYY stamp is the date
+  // being synced, so neither the banner nor an older post's table (e.g. in
+  // a "related posts" block) can ever be handed to the vision model.
+  const fxoImages = findFxoDatedImages(pageHtml, pageUrl);
+  const wanted    = ddmmyy(targetDate);
+  const fxoMatch  = fxoImages.find((img) => img.stamp === wanted);
+  if (fxoMatch) return fxoMatch.url;
+  if (fxoImages.length) {
+    console.error(
+      `[fx-orders/sync] found FXO image(s) ${fxoImages.map((i) => i.url).join(", ")} ` +
+      `but none stamped ${wanted}; refusing to extract`
+    );
+  }
+
   // Every article-body image, in document order.
   const bodyImages = [...pageHtml.matchAll(
     /<img[^>]+src="(https:\/\/investinglive\.com\/cms\/media\/images\/[^"?]+\.(?:jpg|jpeg|png))(?:\?[^"]*)?"/gi
@@ -360,7 +409,7 @@ export async function POST(req: NextRequest) {
     }
 
     const html     = await pageRes.text();
-    const imageUrl = await extractImageUrl(html);
+    const imageUrl = await extractImageUrl(html, pageUrl, targetDate);
 
     if (!imageUrl) {
       return NextResponse.json({ error: "Could not find FXO image URL in page HTML", url: pageUrl }, { status: 422 });
