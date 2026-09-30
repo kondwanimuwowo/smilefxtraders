@@ -2,12 +2,12 @@
 
 import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import { Icon, Skeleton } from "@/components/ui";
+import { Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import { PAIRS_ORDER, PAIR_LABELS } from "@/types/fx-orders";
+import { PAIRS_ORDER } from "@/types/fx-orders";
 import type { FxDateSummary } from "@/types/fx-orders";
 import { useStore } from "@/lib/store";
+import { FxDatesTable, FxDatesTableSkeleton } from "./FxDatesTable";
 
 // ── Upload modal ──────────────────────────────────────────────────────────────
 
@@ -161,113 +161,6 @@ function StatChip({
   );
 }
 
-// ── Date card ─────────────────────────────────────────────────────────────────
-
-function DateCard({ summary, isToday }: { summary: FxDateSummary; isToday: boolean }) {
-  const parts = summary.date.split("-").map(Number);
-  const dd    = String(parts[2]).padStart(2, "0");
-  const mm    = String(parts[1]).padStart(2, "0");
-
-  return (
-    <Link
-      href={`/fx-orders/${summary.date}`}
-      className={cn(
-        "group flex flex-col rounded-2xl overflow-hidden transition-all duration-150 bg-panel",
-        isToday ? "shadow-[0_0_0_2px_var(--teal),0_4px_20px_rgba(8,174,170,0.06)]" : "shadow-sm"
-      )}
-    >
-      {/* Top strip — date + day name */}
-      <div className={cn("px-5 pt-5 pb-4", isToday ? "bg-teal-tint-soft" : "bg-panel-2")}>
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div
-              className={cn("font-display font-bold tabular-nums text-[28px] tracking-[-0.03em] leading-none", isToday ? "text-teal-deep" : "text-ink-strong")}
-            >
-              {dd}
-              <span className={cn("text-[18px] font-normal mx-0.5", isToday ? "text-teal-deep" : "text-ink-dim")}>/</span>
-              {mm}
-            </div>
-            <div
-              className={cn("text-[11.5px] font-semibold mt-1.5 uppercase tracking-wider", isToday ? "text-teal-deep" : "text-ink-dim")}
-            >
-              {isToday ? "Today" : summary.dayName}
-            </div>
-          </div>
-
-          <div className="flex flex-col items-end shrink-0">
-            <span className={cn("text-[10px] font-semibold uppercase tracking-wider", isToday ? "text-teal-deep" : "text-ink-dim")}>
-              {isToday ? "Today" : "NY Cut"}
-            </span>
-            <span className="tabular-nums text-[11px] mt-0.5 text-ink-dim">
-              10:00 AM
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats row */}
-      <div className="flex items-center gap-4 px-5 py-4 flex-1">
-        <div className="flex items-center gap-1.5">
-          <Icon name="currency_exchange" size={14} className="text-ink-dim" />
-          <span className="font-display font-bold tabular-nums text-[18px] text-ink-strong">
-            {summary.pairCount}
-          </span>
-          <span className="text-[11px] text-ink-dim">pairs</span>
-        </div>
-
-        <div className="w-px h-4 bg-line" />
-
-        <div className="flex items-center gap-1.5">
-          <Icon name="format_list_bulleted" size={14} className="text-ink-dim" />
-          <span className="font-display font-bold tabular-nums text-[18px] text-ink-strong">
-            {summary.levelCount}
-          </span>
-          <span className="text-[11px] text-ink-dim">levels</span>
-        </div>
-
-        <div className="flex-1" />
-
-        <Icon
-          name="arrow_forward"
-          size={16}
-          className={cn("transition-transform group-hover:translate-x-0.5 shrink-0", isToday ? "text-teal-deep" : "text-ink-dim")}
-        />
-      </div>
-
-      {/* Pair chip row */}
-      <div className="flex flex-wrap gap-1.5 px-5 pb-4 pt-3 bg-panel-2">
-        {summary.pairs.map((pair) => (
-          <span
-            key={pair}
-            className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-panel text-ink-dim tracking-[0.01em]"
-          >
-            {PAIR_LABELS[pair] ?? pair}
-          </span>
-        ))}
-      </div>
-    </Link>
-  );
-}
-
-// ── Card skeleton ─────────────────────────────────────────────────────────────
-
-function CardSkeleton() {
-  return (
-    <div className="rounded-2xl overflow-hidden bg-panel shadow-sm">
-      <div className="px-5 pt-5 pb-4 bg-panel-2">
-        <Skeleton h={28} r={6} />
-        <div className="mt-2.5"><Skeleton h={11} r={4} style={{ width: "40%" }} /></div>
-      </div>
-      <div className="px-5 py-4"><Skeleton h={20} r={6} style={{ width: "55%" }} /></div>
-      <div className="px-5 pb-4 pt-3 flex gap-1.5 flex-wrap bg-panel-2">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} h={20} r={4} style={{ width: 50 }} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function FxOrdersPage() {
@@ -412,11 +305,9 @@ export default function FxOrdersPage() {
         </div>
       </div>
 
-      {/* ── Date card grid ── */}
+      {/* ── Date table ── */}
       {loading ? (
-        <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
-          {Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
-        </div>
+        <FxDatesTableSkeleton />
       ) : loadError ? (
         <div className="rounded-2xl p-12 flex flex-col items-center gap-4 text-center bg-panel shadow-md">
           <div className="flex items-center justify-center w-16 h-16 rounded-2xl shadow-ring-coral bg-coral-tint-soft">
@@ -478,11 +369,7 @@ export default function FxOrdersPage() {
           )}
         </div>
       ) : (
-        <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
-          {summaries.map((s) => (
-            <DateCard key={s.date} summary={s} isToday={s.date === today} />
-          ))}
-        </div>
+        <FxDatesTable data={summaries} today={today} />
       )}
     </div>
   );
