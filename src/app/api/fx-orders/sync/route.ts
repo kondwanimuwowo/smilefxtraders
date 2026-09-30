@@ -190,6 +190,9 @@ Rules:
 //    up the banner or an older post's table from a "related posts" block.
 //  - `path`, if set, must also match the full URL.
 //
+// Every speculative format must also carry a table-specific marker ("FXO",
+// "option expiries", …): a date alone isn't enough, because any unrelated
+// image uploaded that day (a chart, a screenshot) carries the same date.
 // Only add undated formats with a narrow `path`, and never a catch-all. On
 // 2026-08-10 InvestingLive began serving a generic banner ("FXO FX OPTION
 // EXPIRIES.jpg") ahead of the chart, and for five straight days the vision
@@ -229,17 +232,6 @@ const IMAGE_FORMATS: ImageFormat[] = [
     name:     "upload timestamp",
     filename: /^\d{1,2}-\d{1,2}-\d{4}-[\d-]+(?:am|pm)$/i,
     dated:    false,
-    path:     CMS_IMAGES,
-  },
-  {
-    // Speculative: other timestamp-style uploads, which carry the upload
-    // date — e.g. "Screenshot 2026-09-29 at 13.53.02", "image_2026-09-29_135302",
-    // "IMG_20260929_135302", "2026-09-29-13-53-02". Lowest-confidence dated
-    // format (any same-day upload in the CMS would qualify), hence below the
-    // others and limited to the CMS image directory.
-    name:     "dated upload",
-    filename: /^(?:screenshot|screen[\s_-]*shot|image|img|photo|capture|snip)?[\s_+.-]*\d{4}[\s_.-]?\d{2}[\s_.-]?\d{2}(?:\D|$)/i,
-    dated:    true,
     path:     CMS_IMAGES,
   },
   {
