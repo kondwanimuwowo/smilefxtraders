@@ -53,7 +53,7 @@ function crossHostRedirect(request: NextRequest, host: string, pathname?: string
 // the site is reachable and there's no dependency on being logged in.
 const BYPASS_COOKIE = "sfx_gate_bypass";
 
-function checkGateBypass(request: NextRequest): { response: NextResponse | null; bypassed: boolean } {
+function checkGateBypass(request: NextRequest, host: string): { response: NextResponse | null; bypassed: boolean } {
   const bypassSecret = process.env.SITE_GATE_BYPASS_SECRET;
   if (!bypassSecret) return { response: null, bypassed: false };
 
@@ -62,12 +62,17 @@ function checkGateBypass(request: NextRequest): { response: NextResponse | null;
     const url = request.nextUrl.clone();
     url.searchParams.delete("bypass");
     const res = NextResponse.redirect(url);
+    // Scoped to the apex domain (leading dot) so one visit also covers the
+    // app subdomain. A host-only cookie set on smilefxtraders.com is never sent
+    // to app.smilefxtraders.com, which is where the dashboard lives.
+    const cookieDomain = host.endsWith(MARKETING_HOST) ? `.${MARKETING_HOST}` : undefined;
     res.cookies.set(BYPASS_COOKIE, bypassSecret, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 30,
       path: "/",
+      domain: cookieDomain,
     });
     return { response: res, bypassed: true };
   }
@@ -79,7 +84,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host")?.split(":")[0] ?? "";
 
-  const { response: bypassResponse, bypassed } = checkGateBypass(request);
+  const { response: bypassResponse, bypassed } = checkGateBypass(request, host);
   if (bypassResponse) return bypassResponse;
 
   // Neither gate ever applies to /api or /auth -- cron/webhook routes must
