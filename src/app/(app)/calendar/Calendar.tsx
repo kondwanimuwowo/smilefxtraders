@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { EmptyState, Panel, Skeleton, Icon } from "@/components/ui";
+import { EmptyState, Panel, Skeleton, Icon, Button } from "@/components/ui";
 import { Drawer } from "@/components/ui/Drawer";
 import { cn } from "@/lib/cn";
 import type { CalEvent } from "@/lib/calendar";
@@ -324,13 +324,23 @@ export function Calendar() {
   const [search, setSearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+
   useEffect(() => {
     setEvents(null);
+    setLoadFailed(false);
     fetch(`/api/calendar?from=${activeDate}&to=${activeDate}`)
-      .then((r) => r.json() as Promise<CalEvent[]>)
+      .then((r) => {
+        if (!r.ok) throw new Error(`calendar responded ${r.status}`);
+        return r.json() as Promise<CalEvent[]>;
+      })
       .then(setEvents)
-      .catch(() => setEvents([]));
-  }, [activeDate]);
+      .catch(() => {
+        setLoadFailed(true);
+        setEvents([]);
+      });
+  }, [activeDate, reloadKey]);
 
   const filtered = useMemo(() => {
     if (!events) return [];
@@ -525,6 +535,15 @@ export function Calendar() {
             <Skeleton key={i} h={52} r={12} />
           ))}
         </div>
+      ) : loadFailed ? (
+        <Panel>
+          <div className="flex flex-col items-center py-14 text-center">
+            <Icon name="error" size={32} className="text-coral-deep mb-3" />
+            <div className="font-semibold text-[15px] mb-1 text-ink-strong">Couldn&apos;t load the calendar</div>
+            <div className="text-[13px] text-ink-dim mb-4">Check your connection and try again.</div>
+            <Button variant="outline" size="sm" onClick={() => setReloadKey((k) => k + 1)}>Try again</Button>
+          </div>
+        </Panel>
       ) : filtered.length === 0 ? (
         <Panel>
           <EmptyState

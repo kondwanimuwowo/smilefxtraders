@@ -127,7 +127,7 @@ export async function loadCotOverview(): Promise<CotOverviewResult> {
         pair:         inst.pair,
         label:        inst.label,
         usdBase:      inst.usdBase,
-        history:      window.slice(0, 8),
+        history:      window.slice(0, 14),
         totalWeeks,
         openInterest: rows[0].openInterest,
         cotIndex52w,

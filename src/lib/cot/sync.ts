@@ -27,7 +27,7 @@ function n(s: string) { return parseInt(s ?? "0") || 0; }
  * (USDJPY/USDCHF/USDCAD): nets are multiplied by −1 so positive = bullish on
  * the displayed pair. Long/short columns stay raw (contract framing).
  */
-export async function syncInstrument(code: string, pair: string, inverted: boolean, limit = 8): Promise<number> {
+export async function syncInstrument(code: string, pair: string, inverted: boolean, limit = 16): Promise<number> {
   const url = new URL(CFTC_BASE);
   url.searchParams.set("$where",  `cftc_contract_market_code='${code}'`);
   url.searchParams.set("$order",  "report_date_as_yyyy_mm_dd DESC");

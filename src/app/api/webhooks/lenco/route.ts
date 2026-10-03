@@ -78,23 +78,23 @@ export async function POST(req: NextRequest) {
   const signature = req.headers.get("x-lenco-signature") ?? "";
   const secret    = process.env.LENCO_WEBHOOK_SECRET ?? "";
 
-  // Verify HMAC-SHA256 signature if secret is configured
-  if (secret) {
-    const expected = crypto
-      .createHmac("sha256", secret)
-      .update(rawBody)
-      .digest("hex");
+  // Fail closed: without the secret we cannot tell a genuine Lenco call from
+  // a forged one, so every webhook is refused rather than trusted.
+  if (!secret) {
+    console.error("[lenco webhook] LENCO_WEBHOOK_SECRET is not set; refusing webhook");
+    return NextResponse.json({ error: "Webhook not configured" }, { status: 503 });
+  }
 
-    let valid = false;
-    try {
-      valid = crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
-    } catch {
-      valid = false; // length mismatch throws
-    }
-    if (!valid) {
-      console.warn("[lenco webhook] invalid signature");
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-    }
+  const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
+  let valid = false;
+  try {
+    valid = crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+  } catch {
+    valid = false; // length mismatch throws
+  }
+  if (!valid) {
+    console.warn("[lenco webhook] invalid signature");
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
   let payload: LencoWebhookPayload;
@@ -126,7 +126,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true });
   }
 
-  if (status === "successful") {
+  // Don't activate on status alone: the paid amount and currency must match
+  // what this subscription was created for. A mismatch is logged and left for
+  // a human, and /api/checkout/verify still re-polls Lenco for the real state.
+  const paidMinor = payload.data?.amount !== undefined
+    ? Math.round(Number.parseFloat(payload.data.amount) * 100)
+    : NaN;
+  const amountMatches =
+    Number.isFinite(paidMinor) &&
+    paidMinor === sub.amountCents &&
+    (payload.data?.currency ?? sub.currency) === sub.currency;
+
+  if (status === "successful" && !amountMatches) {
+    console.error(`[lenco webhook] amount/currency mismatch for subscription ${sub.id}; not activating`);
+  } else if (status === "successful") {
     const now      = new Date();
     const renewsAt = addMonths(now, sub.billingCycle === "annual" ? 12 : 1);
 

@@ -45,7 +45,7 @@ export default function FeaturesPage() {
                 "Win rate by SMC model (OB+BOS, Liquidity Sweep, SMT divergence…)",
                 "Discipline score that tracks how often you followed the rules",
                 "AI review from Gavo: a structured debrief on any trade",
-                "Equity curve built automatically from your closed trades",
+                "Equity curve on your dashboard, built from your closed trades",
               ]}
             />
             <div className="feature-visual reveal" data-delay="120">
@@ -72,7 +72,6 @@ export default function FeaturesPage() {
                 "Reads 'cleared to trade', 'proceed with caution', or 'do not take this' — not a grade",
                 "Pip calculator auto-fills from your account size and risk %",
                 "One-click export to journal, pre-filled with pair, direction, model, R:R",
-                "Grade-based result (A+ to D) with a pass/fail badge",
               ]}
             />
             <div className="feature-visual reveal" data-delay="120">
@@ -96,7 +95,7 @@ export default function FeaturesPage() {
                 "Posted every trading day during London and New York sessions",
                 "All alerts validated against the SMC rulebook before posting",
                 "Tap 'Copy to journal' to log any alert as your own trade",
-                "Filter by pair or model",
+                "Filter by pair or status",
                 "Free plan shows a 4-hour delay; Pro subscribers see alerts live",
               ]}
             />
@@ -134,9 +133,9 @@ export default function FeaturesPage() {
               title="COT Reports"
               lead="See what large speculators and commercials are doing in the futures market, straight from the CFTC's Commitment of Traders report."
               bullets={[
-                "Updated every Tuesday after the CFTC release",
+                "Updated every Friday after the CFTC release",
                 "Net positioning gauge for EURUSD, GBPUSD, XAUUSD, USDJPY, and more",
-                "52-week range bar to show when specs are near historical extremes",
+                "3-year index to show when specs are near historical extremes",
                 "Bullish / bearish / neutral signal per instrument",
                 "Inverted pairs (USDJPY, USDCHF) handled correctly",
               ]}
@@ -208,7 +207,7 @@ export default function FeaturesPage() {
           <div className="feature-row scroll-mt-[90px]" id="academy">
             <FeatureBlock
               title="Academy"
-              lead="6 structured courses from market structure basics to prop firm readiness. Video lessons + quizzes, all inside the platform."
+              lead="6 structured courses from market structure basics to prop firm readiness. Video lessons, all inside the platform."
               bullets={[
                 "Course 1: Market Structure & Basics",
                 "Course 2: Order Blocks, FVG, and POIs",

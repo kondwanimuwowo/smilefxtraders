@@ -8,7 +8,7 @@
 import { prisma } from "@/lib/prisma";
 import { computeCotStats, INDEX_WEEKS } from "./signal";
 import { fanOutCotSignal } from "@/lib/notify-events";
-import { SIGNAL_CFG } from "@/components/cot/signalCfg";
+import { SIGNAL_CFG } from "@/lib/cot/signalConfig";
 import type { CotSignal } from "./types";
 
 const EXTREME_HIGH = 80;

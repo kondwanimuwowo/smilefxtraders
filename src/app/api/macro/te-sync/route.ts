@@ -1,3 +1,4 @@
+import { requireCronSecret } from "@/lib/cron-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { DataSource, IndicatorType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -60,14 +61,8 @@ const IMPACT_BY_INDICATOR: Record<IndicatorType, "high" | "medium" | "low"> = {
 type UnitOutcome = { ok: true; saved: number } | { ok: false; error: string };
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-cron-secret");
-  const origin = req.headers.get("origin");
-  const host = req.headers.get("host");
-  const sameOrigin = origin ? origin.includes(host ?? "") : true;
-
-  if (process.env.CRON_SECRET && !sameOrigin && secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = requireCronSecret(req);
+  if (denied) return denied;
 
   const results = {
     bondYields: { saved: 0, errors: [] as string[] },

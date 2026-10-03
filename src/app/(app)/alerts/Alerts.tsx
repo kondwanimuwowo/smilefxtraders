@@ -349,7 +349,7 @@ const STATUS_FILTERS = [
 export function Alerts() {
   const { journaledAlerts, addJournaledAlert, toast, user } = useStore();
   const { mutate: addTrade } = useAddTrade();
-  const { data: alerts = [], isLoading } = useAlerts();
+  const { data: alerts = [], isLoading, isError, refetch } = useAlerts();
   const router = useRouter();
   const instrumentSymbols = useInstrumentSymbols();
   const pairFilters = ["All", ...(instrumentSymbols.length ? instrumentSymbols : ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"])];
@@ -370,7 +370,7 @@ export function Alerts() {
       tags:       alert.tags,
       note:       `From Kondwani's alert · Entry ${alert.entry} / SL ${alert.sl} / TP ${alert.tp1}`,
       fromAlert:  alert.id,
-      discipline: true,
+      discipline: false, // not checked yet; the trader confirms it
     });
     addJournaledAlert(alert.id);
     toast(`${alert.pair} setup copied to journal`, "teal", "add_task");
@@ -490,6 +490,15 @@ export function Alerts() {
             <div key={i} className="rounded-2xl h-64 animate-pulse bg-panel shadow-md" />
           ))}
         </div>
+      ) : isError ? (
+        <Panel>
+          <div className="flex flex-col items-center py-14 text-center">
+            <Icon name="error" size={32} className="text-coral-deep mb-3" />
+            <div className="font-semibold text-[15px] mb-1 text-ink-strong">Couldn&apos;t load alerts</div>
+            <div className="text-[13px] text-ink-dim mb-4">Check your connection and try again.</div>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>Try again</Button>
+          </div>
+        </Panel>
       ) : filtered.length === 0 ? (
         <Panel>
           <div className="flex flex-col items-center py-14 text-center">

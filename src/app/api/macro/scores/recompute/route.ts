@@ -1,3 +1,4 @@
+import { requireCronSecret } from "@/lib/cron-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { recomputeAndStoreCurrencyScore } from "@/lib/macro/scoring";
 import { recomputeAndStorePairBias, computablePairs } from "@/lib/macro/pairBias";
@@ -11,14 +12,8 @@ import { getInstruments } from "@/lib/server/getInstruments";
 // param recomputes every tracked currency (the daily safety-net run).
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-cron-secret");
-  const origin = req.headers.get("origin");
-  const host = req.headers.get("host");
-  const sameOrigin = origin ? origin.includes(host ?? "") : true;
-
-  if (process.env.CRON_SECRET && !sameOrigin && secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = requireCronSecret(req);
+  if (denied) return denied;
 
   const { searchParams } = new URL(req.url);
   const currencyParam = searchParams.get("currency")?.toUpperCase();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type { CotCommentary } from "@/lib/cot/commentary";
@@ -115,6 +115,8 @@ function RangeTrack({ value, label, weeks, cls }: { value: number; label: string
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compact = false, commentary }: CotIndexDisplayProps) {
+  // Full mode shows the 3-year range first; the other ranges sit behind a control.
+  const [showMoreRanges, setShowMoreRanges] = useState(false);
   const index52w    = useMemo(() => computeIndex(rows, 52),          [rows]);
   const indexApprox = useMemo(() => computeIndex(rows, rows.length), [rows]);
 
@@ -211,9 +213,14 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
 
       {/* Three-range tracks */}
       <div className="px-5 py-4 flex flex-col gap-4">
-        <RangeTrack value={index52w}   label="1-year"    weeks="52w"        cls={indexCls(index52w)}   />
         <RangeTrack value={cotIndex}   label="3-year"    weeks="156w"       cls={indexCls(cotIndex)}   />
-        <RangeTrack value={thirdValue} label={thirdLabel} weeks={thirdWeeks} cls={indexCls(thirdValue)} />
+
+        {showMoreRanges && (
+          <>
+            <RangeTrack value={index52w}   label="1-year"    weeks="52w"        cls={indexCls(index52w)}   />
+            <RangeTrack value={thirdValue} label={thirdLabel} weeks={thirdWeeks} cls={indexCls(thirdValue)} />
+          </>
+        )}
 
         {/* Zone key */}
         <div className="flex items-center justify-between pt-1">
@@ -225,9 +232,17 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
             80–100 extreme long
           </span>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setShowMoreRanges((v) => !v)}
+          className="self-start text-[11px] font-semibold text-teal-deep underline underline-offset-2"
+        >
+          {showMoreRanges ? "Hide other ranges" : "Show 1-year and all-time ranges"}
+        </button>
       </div>
 
-      {/* Peak / current / trough anchors */}
+      {showMoreRanges && (
       <div className="px-5 py-3 grid grid-cols-3 gap-2 bg-panel-2">
         <div>
           <div className="text-[10px] uppercase tracking-wide font-medium mb-0.5 text-ink-dim">Period peak</div>
@@ -245,6 +260,7 @@ export function CotIndexDisplay({ rows, cotIndex, cotIndexAll, totalWeeks, compa
           <div className="text-[10px] text-ink-dim">{fmtDate(troughDate)}</div>
         </div>
       </div>
+      )}
 
       {/* Interpretation — same engine as the overview card's divergence panel */}
       {commentary && (

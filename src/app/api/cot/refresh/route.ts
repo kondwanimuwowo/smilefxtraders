@@ -43,7 +43,7 @@ export async function POST() {
     }
 
     const before  = await snapshotCotSignals(cotPairs);
-    const results = await syncAllInstruments(instruments, 8);
+    const results = await syncAllInstruments(instruments, 16);
     await notifyCotSignalChanges(before); // no-op unless a new report landed
 
     return NextResponse.json({ ok: true, synced: new Date().toISOString(), results });

@@ -1,3 +1,4 @@
+import { requireCronSecret } from "@/lib/cron-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { DataSource, IndicatorType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -8,7 +9,7 @@ import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
 
 // Cron: pulls FRED + World Bank indicator levels into MacroIndicatorSnapshot
 // (Layer 1's slower-moving, non-calendar data). Follows the same
-// x-cron-secret + sameOrigin auth pattern as the other sync routes.
+// requireCronSecret (lib/cron-auth) like the other sync routes.
 //
 // FRED_API_KEY is configured (added post-Phase-2, live-verified: all 8
 // USD/EUR/GBP/NZD series in FRED_SERIES resolved successfully). If the key
@@ -46,14 +47,8 @@ async function mapWithConcurrency<T, R>(items: T[], limit: number, fn: (item: T)
 type UnitOutcome = { ok: true; saved: number } | { ok: false; error: string };
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-cron-secret");
-  const origin = req.headers.get("origin");
-  const host = req.headers.get("host");
-  const sameOrigin = origin ? origin.includes(host ?? "") : true;
-
-  if (process.env.CRON_SECRET && !sameOrigin && secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = requireCronSecret(req);
+  if (denied) return denied;
 
   const results = {
     worldBank: { saved: 0, errors: [] as string[] },

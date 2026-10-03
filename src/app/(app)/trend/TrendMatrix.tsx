@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Panel, Icon, Button } from "@/components/ui";
+import { Panel, Icon, Button, EmptyState } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { fmtDateTime } from "@/lib/date";
 import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
@@ -318,6 +318,20 @@ export function TrendMatrix({ initial }: { initial: TrendMatrixInitial | null })
   const updatedLabel = updatedAt
     ? fmtDateTime(updatedAt)
     : null;
+
+  // Students never see the built-in sample matrix. The instructor still gets
+  // it as a starting point for their first publish.
+  if (!initial && !isInstructor) {
+    return (
+      <Panel>
+        <EmptyState
+          icon="ssid_chart"
+          title="No trend matrix published yet"
+          body="Your instructor publishes the matrix weekly. Check back after the next update."
+        />
+      </Panel>
+    );
+  }
 
   return (
     <div className="view">

@@ -117,6 +117,11 @@ const TRANSIENT_CONNECTION_ERROR = /Query read timeout|timeout exceeded when try
 // Three attempts at a 1.5s timeout bounds the worst case at ~4.5s.
 const RETRY_ATTEMPTS = 3;
 
+const READ_OPERATIONS = new Set([
+  "findUnique", "findUniqueOrThrow", "findFirst", "findFirstOrThrow",
+  "findMany", "count", "aggregate", "groupBy",
+]);
+
 function createPrismaClient() {
   const connectionString = resolveConnectionString();
   // Workers reuses isolates (and this module-level singleton) across
@@ -255,6 +260,10 @@ function createPrismaClient() {
         // completely different causes, and we currently cannot tell them
         // apart from the logs.
         const label = `${model ?? "raw"}.${operation}`;
+        // Only retry reads. A write can time out after the server has already
+        // committed it, so retrying would apply it twice (duplicate
+        // subscriptions, notifications, trades). Writes fail once, as before.
+        if (!READ_OPERATIONS.has(operation)) return query(args);
         let lastErr: unknown;
         for (let attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
           const startedAt = Date.now();

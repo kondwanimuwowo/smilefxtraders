@@ -1,3 +1,4 @@
+import { requireCronSecret } from "@/lib/cron-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { fetchGeneralNews, FinnhubError } from "@/lib/finnhub";
@@ -9,14 +10,8 @@ import { tagNewsCurrency } from "@/lib/macro/indicatorMap";
 // burst Finnhub's shared per-key rate budget in the same minute.
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-cron-secret");
-  const origin = req.headers.get("origin");
-  const host = req.headers.get("host");
-  const sameOrigin = origin ? origin.includes(host ?? "") : true;
-
-  if (process.env.CRON_SECRET && !sameOrigin && secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = requireCronSecret(req);
+  if (denied) return denied;
 
   try {
     const items = await fetchGeneralNews();

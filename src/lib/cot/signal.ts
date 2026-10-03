@@ -27,8 +27,24 @@ export interface CotStats {
   cotIndexC:      number;
   signal:         CotSignal;
   wowChange:      number;
+  /** Large-spec net change over ~13 weeks, matched by date (null if no report near that date). */
+  change13w:      number | null;
   divergenceType: CotDivergence;
   reportDate:     string;
+}
+
+const DAY_MS = 86_400_000;
+
+/** Finds the row closest to 91 days before `current`, within ±10 days. Date-based, so a gap in the data can't stretch the window. */
+function rowAround13WeeksAgo(rows: NetRow[], current: NetRow): NetRow | null {
+  const target = new Date(current.date).getTime() - 91 * DAY_MS;
+  let best: NetRow | null = null;
+  let bestDiff = Infinity;
+  for (const r of rows) {
+    const diff = Math.abs(new Date(r.date).getTime() - target);
+    if (diff < bestDiff) { best = r; bestDiff = diff; }
+  }
+  return best && bestDiff <= 10 * DAY_MS ? best : null;
 }
 
 export function percentile(value: number, min: number, max: number): number {
@@ -60,6 +76,8 @@ export function computeCotStats(rows: NetRow[], fallback?: CotRangeFallback): Co
   const cotIndexC = percentile(current.commercialNet, minC, maxC);
 
   const wowChange    = current.largeSpecNet - prev.largeSpecNet;
+  const past13w     = rowAround13WeeksAgo(window, current);
+  const change13w    = past13w ? current.largeSpecNet - past13w.largeSpecNet : null;
   const lsIncreasing = wowChange > 0;
   // Commercials go more short (net decreases) when hedging against a rising
   // market — that is the bullish confirmation under the pair-framed convention.
@@ -92,11 +110,11 @@ export function computeCotStats(rows: NetRow[], fallback?: CotRangeFallback): Co
     month: "short", day: "numeric", year: "numeric",
   });
 
-  return { cotIndex, cotIndexC, signal, wowChange, divergenceType, reportDate };
+  return { cotIndex, cotIndexC, signal, wowChange, change13w, divergenceType, reportDate };
 }
 
 /** Placeholder stats for instruments with no usable DB history yet. */
 export const EMPTY_COT_STATS: CotStats = {
   cotIndex: 50, cotIndexC: 50, signal: "neutral",
-  wowChange: 0, divergenceType: "mixed", reportDate: "—",
+  wowChange: 0, change13w: null, divergenceType: "mixed", reportDate: "—",
 };

@@ -1,3 +1,4 @@
+import { requireCronSecret } from "@/lib/cron-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { fetchEconomicCalendar, FinnhubError } from "@/lib/finnhub";
@@ -5,7 +6,7 @@ import { mapCountryToCurrency, mapEventTitleToIndicator, TRACKED_CURRENCIES } fr
 import type { Prisma } from "@/generated/prisma/client";
 
 // Cron: pulls Finnhub's economic calendar for a rolling window and upserts
-// into EconomicEvent. Follows the same x-cron-secret + sameOrigin auth
+// into EconomicEvent. Protected by requireCronSecret (lib/cron-auth)
 // pattern as /api/fx-orders/sync.
 
 function impactToString(impact: string): string {
@@ -20,14 +21,8 @@ function toEventId(ev: { event: string; country: string; time: string }): string
 }
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-cron-secret");
-  const origin = req.headers.get("origin");
-  const host = req.headers.get("host");
-  const sameOrigin = origin ? origin.includes(host ?? "") : true;
-
-  if (process.env.CRON_SECRET && !sameOrigin && secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = requireCronSecret(req);
+  if (denied) return denied;
 
   try {
     const { searchParams } = new URL(req.url);

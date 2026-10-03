@@ -80,7 +80,9 @@ function HistoryTable({ history }: { history: CotEntry["history"] }) {
         </thead>
         <tbody>
           {rows.map((w, i) => {
-            const prev = rows[i + 1];
+            // Look up the previous week in the full history, not the 4-row slice,
+            // so the 4th row still gets its change.
+            const prev = history[i + 1];
             const chg  = prev ? w.largeSpecNet - prev.largeSpecNet : null;
             return (
               <tr key={w.date} className="border-b border-line-soft last:border-0">
@@ -130,10 +132,12 @@ function HistoryBadge({ weeks }: { weeks: number }) {
 // ── Main card ─────────────────────────────────────────────────────────────────
 
 function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) => void }) {
+  const [spanWeeks, setSpanWeeks] = useState<8 | 13>(8);
   const [histOpen, setHistOpen] = useState(false);
 
-  // No DB data yet — render a placeholder card
-  if (!entry.history.length) {
+  // Fewer than two weeks can't produce a change or a percentile, so show that
+  // instead of a neutral 50 and empty bars.
+  if (entry.history.length < 2) {
     return (
       <div className="rounded-2xl p-5 flex items-center gap-4 bg-panel shadow-md">
         <div className="size-10 rounded-full flex items-center justify-center shrink-0 bg-panel-2">
@@ -142,7 +146,9 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
         <div>
           <div className="font-display font-bold text-[15px] text-ink-strong">{entry.label}</div>
           <div className="text-[12px] mt-0.5 text-ink-dim">
-            COT data not yet available. Check back after Friday&apos;s CFTC release.
+            {entry.history.length === 0
+              ? "COT data not yet available. Check back after Friday's CFTC release."
+              : "Not enough history yet. Signals appear once two weekly reports are stored."}
           </div>
         </div>
       </div>
@@ -160,7 +166,8 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
   );
 
   // Sparkline: reverse history so oldest is left (chronological)
-  const sparkData = [...entry.history].reverse().map((w) => w.largeSpecNet);
+  const sparkHistory = entry.history.slice(0, spanWeeks);
+  const sparkData = [...sparkHistory].reverse().map((w) => w.largeSpecNet);
   // Color based on net direction — are specs net long or net short?
   const sparkColor = cur.largeSpecNet >= 0 ? "var(--teal-bright)" : "var(--coral-bright)";
 
@@ -217,6 +224,11 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
               {fmt(entry.wowChange)}
             </div>
             <div className="text-[11px] text-ink-dim">WoW change</div>
+            {entry.change13w != null && (
+              <div className={cn("text-[10.5px] tabular-nums mt-0.5", entry.change13w >= 0 ? "text-teal-deep" : "text-coral-deep")}>
+                13W {fmt(entry.change13w)}
+              </div>
+            )}
             {entry.openInterest != null && entry.openInterest > 0 && (
               <div className="text-[10.5px] tabular-nums mt-0.5 text-ink-dim">
                 OI {fmtAbs(entry.openInterest)} · net{" "}
@@ -281,15 +293,32 @@ function CotCard({ entry, onOpen }: { entry: CotEntry; onOpen: (pair: string) =>
         {/* 8-week sparkline */}
         <div className="flex flex-col items-center justify-center gap-1.5 min-w-[100px]">
           <div className="text-[10px] font-semibold text-center mb-0.5 text-ink-dim">
-            Large Spec · 8W
+            Large Spec · {sparkHistory.length}W
           </div>
           <Sparkline data={sparkData} width={100} height={48} color={sparkColor} strokeW={1.5} />
           <div className="w-full flex justify-between text-[10px] tabular-nums text-ink-dim">
-            <span>{fmtAbs(Math.min(...sparkData))}</span>
-            <span>{fmtAbs(Math.max(...sparkData))}</span>
+            <span>{fmt(Math.min(...sparkData))}</span>
+            <span>{fmt(Math.max(...sparkData))}</span>
           </div>
           <div className="text-[10px] text-center text-ink-dim">
-            {entry.history.length >= 8 ? "8 weeks" : `${entry.history.length} weeks`}
+            {sparkHistory.length} weeks
+            {entry.history.length >= 13 && (
+              <div className="flex justify-center gap-1 mt-1">
+                {([8, 13] as const).map((w) => (
+                  <button
+                    key={w}
+                    type="button"
+                    onClick={() => setSpanWeeks(w)}
+                    className={cn(
+                      "px-1.5 py-0.5 rounded text-[10px] font-semibold",
+                      spanWeeks === w ? "bg-teal-tint text-teal-deep" : "text-ink-dim"
+                    )}
+                  >
+                    {w}W
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -373,7 +402,7 @@ function EducationPanel({ hasData, totalHistory, entriesCount }: { hasData: bool
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-[12.5px] leading-relaxed text-ink-mid">
             <div className="rounded-xl px-4 py-3 shadow-sm bg-teal-tint-soft">
               <div className="font-semibold mb-1 text-teal-deep">Extreme readings: reversal or continuation?</div>
-              At COT Index &gt; 80, large specs are near their most bullish in a year. Always check price structure. If price has not yet moved proportionally, COT is leading; if price has already run hard, the extreme may be signalling a top.
+              At COT Index &gt; 80, large specs are near their most bullish in three years. Always check price structure. If price has not yet moved proportionally, COT is leading; if price has already run hard, the extreme may be signalling a top.
             </div>
             <div className="rounded-xl px-4 py-3 shadow-sm bg-gold-tint-soft">
               <div className="font-semibold mb-1 text-gold-deep">DXY is your master bias</div>

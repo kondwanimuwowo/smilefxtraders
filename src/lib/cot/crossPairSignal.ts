@@ -103,7 +103,7 @@ export async function computeCrossPairSignal(base: string, quote: string): Promi
   if (rows.length < 2) return null;
 
   const stats = computeCotStats(rows);
-  const history: CotWeek[] = rows.slice(0, 8).map((r) => ({
+  const history: CotWeek[] = rows.slice(0, 14).map((r) => ({
     date:           r.date,
     largeSpecNet:   r.largeSpecNet,
     commercialNet:  r.commercialNet,

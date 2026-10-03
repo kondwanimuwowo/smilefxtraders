@@ -21,10 +21,6 @@ type Bias = "bullish" | "bearish" | "ranging";
 const TFS = ["MN", "W", "D", "H4", "H1"] as const;
 type TF = typeof TFS[number];
 
-// Fallback for any pair missing from the persisted trend matrix — mirrors
-// TrendMatrix.tsx's own DEFAULT_ROW exactly, so a pair absent from the last
-// publish renders identically on both pages instead of silently disagreeing.
-const DEFAULT_ROW: Record<TF, Bias> = { MN: "ranging", W: "ranging", D: "ranging", H4: "ranging", H1: "ranging" };
 
 // ── Bias verdict ──────────────────────────────────────────────────────────────
 
@@ -210,7 +206,8 @@ export default function PairOverviewPage() {
         if (tick) setPriceTick(tick);
       }
       if (trend.status === "fulfilled" && trend.value) {
-        setTrendMatrix(trend.value.matrix[P] ?? DEFAULT_ROW);
+        // No row for this pair means no published trend: leave it unset rather than invent one.
+        setTrendMatrix(trend.value.matrix[P] ?? {});
       }
       setLoading(false);
     });

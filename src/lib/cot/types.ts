@@ -26,13 +26,14 @@ export interface CotEntry {
   label:          string;
   usdBase:        boolean; // true = USDJPY/USDCHF/USDCAD — nets inverted at write time
   reportDate:     string;
-  history:        CotWeek[];  // newest first, up to 8 weeks (display); full history in DB
+  history:        CotWeek[];  // newest first, up to 14 weeks (card sparkline 8W/13W); full history in DB
   cotIndex:       number;     // 0–100 (large spec percentile within the 3yr/156w range)
   cotIndexC:      number;     // 0–100 (commercial percentile within the 3yr/156w range)
   cotIndex52w:    number | null; // 0–100 within the 1-year window (null when <52w history)
   cotIndexAll:    number | null; // 0–100 within the FULL stored history
   signal:         CotSignal;
   wowChange:      number;
+  change13w:      number | null; // large-spec net change over ~13 weeks (null without a report near that date)
   divergenceType: CotDivergence;
   totalWeeks:     number;         // total history available in DB
   openInterest:   number | null;  // latest week's total contracts outstanding

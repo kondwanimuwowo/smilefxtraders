@@ -93,15 +93,19 @@ export default function CotPairPage() {
   const [offset,      setOffset]      = useState(0);
   const [total,       setTotal]       = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [error,       setError]       = useState(false);
+  const [error,       setError]       = useState<string | null>(null);
+  const [reloadKey,   setReloadKey]   = useState(0);
+  const [loadMoreFailed, setLoadMoreFailed] = useState(false);
   const [locked,      setLocked]      = useState(false);
 
   useEffect(() => {
     setLoading(true);
+    setError(null);
     fetchWithRetry(`/api/cot/${pair}?offset=0`)
       .then((r) => {
         if (r.status === 403) throw new Error("locked");
-        if (!r.ok) throw new Error("not found");
+        if (r.status === 404) throw new Error("not-found");
+        if (!r.ok) throw new Error("unavailable");
         return r.json() as Promise<CotDetailResponse>;
       })
       .then((d) => {
@@ -113,13 +117,18 @@ export default function CotPairPage() {
       })
       .catch((e: Error) => {
         if (e.message === "locked") setLocked(true);
-        else setError(true);
+        else setError(
+          e.message === "not-found"
+            ? "This pair isn't tracked, or there isn't enough COT history for it yet."
+            : "COT data is temporarily unavailable. Try again in a moment."
+        );
         setLoading(false);
       });
-  }, [pair]);
+  }, [pair, reloadKey]);
 
   function loadMore() {
     setLoadingMore(true);
+    setLoadMoreFailed(false);
     fetchWithRetry(`/api/cot/${pair}?offset=${offset}`)
       .then((r) => {
         // Previously parsed the body with no status check, so a 5xx's
@@ -132,7 +141,10 @@ export default function CotPairPage() {
         setOffset((o) => o + d.rows.length);
         setLoadingMore(false);
       })
-      .catch(() => setLoadingMore(false));
+      .catch(() => {
+        setLoadingMore(false);
+        setLoadMoreFailed(true);
+      });
   }
 
   // Per-column min/max for heat map (recomputed when rows extend)
@@ -178,6 +190,9 @@ export default function CotPairPage() {
   }, [rows]);
 
   const [showSmallSpec, setShowSmallSpec] = useState(false);
+  // Commercials are hidden by default so a first read is just Large Specs.
+  // They're still in the data and the signal; this only changes what's shown.
+  const [showCommercial, setShowCommercial] = useState(false);
 
   // Shared commentary — the SAME engine the overview card uses, so the card
   // and this page never say different things about the same report.
@@ -324,7 +339,10 @@ export default function CotPairPage() {
       {/* ── Error state ── */}
       {error && (
         <div className="rounded-2xl px-5 py-4 text-[13px] shadow-ring-coral bg-coral-tint-soft text-coral-deep">
-          Pair not found or data unavailable. <button onClick={() => router.back()} className="underline">Go back</button>
+          {error}{" "}
+          <button onClick={() => setReloadKey((k) => k + 1)} className="underline">Try again</button>
+          {" · "}
+          <button onClick={() => router.back()} className="underline">Go back</button>
         </div>
       )}
 
@@ -357,8 +375,21 @@ export default function CotPairPage() {
             )}
             <span className="flex items-center gap-1.5 ml-auto opacity-65">
               <Icon name="info" size={12} />
-              Index = position within displayed range
+              3Y Index = position within the trailing three years for that week
             </span>
+            <button
+              type="button"
+              onClick={() => setShowCommercial((v) => !v)}
+              className={cn(
+                "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all active:scale-95 border",
+                showCommercial
+                  ? "bg-gold-tint-soft text-gold-deep border-[rgba(248,185,61,0.3)]"
+                  : "bg-panel-2 text-ink-dim border-line"
+              )}
+            >
+              <Icon name={showCommercial ? "visibility" : "visibility_off"} size={12} />
+              Commercial
+            </button>
             <button
               type="button"
               onClick={() => setShowSmallSpec((v) => !v)}
@@ -378,11 +409,11 @@ export default function CotPairPage() {
             <TableSkeleton />
           ) : (
             <div className="overflow-x-auto">
-              <table className={cn("w-full border-separate border-spacing-0", showSmallSpec ? "min-w-[1020px]" : "min-w-[780px]")}>
+              <table className={cn("w-full border-separate border-spacing-0", showSmallSpec ? "min-w-[1020px]" : showCommercial ? "min-w-[780px]" : "min-w-[480px]")}>
                 <thead>
                   {/* Group row */}
                   <tr>
-                    <th rowSpan={2} className={cn(thBase, "w-[130px] px-4 py-2 text-left text-[10.5px] tracking-[0.07em]")}>
+                    <th rowSpan={2} className={cn(thBase, "sticky left-0 z-10 bg-panel w-[130px] px-4 py-2 text-left text-[10.5px] tracking-[0.07em]")}>
                       Week Ending
                     </th>
                     {/* Large Spec group — colspan 4: Long, Short, Net, % Long */}
@@ -401,6 +432,7 @@ export default function CotPairPage() {
                       WoW Δ
                     </th>
                     {/* Commercial group */}
+                    {showCommercial && (
                     <th
                       colSpan={3}
                       className={cn(
@@ -411,6 +443,7 @@ export default function CotPairPage() {
                     >
                       Commercial
                     </th>
+                    )}
                     {/* Small Spec group — conditional */}
                     {showSmallSpec && (
                       <th
@@ -441,7 +474,7 @@ export default function CotPairPage() {
                       </th>
                     ))}
                     {/* Commercial sub-cols */}
-                    {(["Long", "Short", "Net"] as const).map((label) => (
+                    {showCommercial && (["Long", "Short", "Net"] as const).map((label) => (
                       <th
                         key={`c-${label}`}
                         className={cn(
@@ -495,11 +528,15 @@ export default function CotPairPage() {
                         <td className={cn(avgCellCls, "text-right font-semibold text-ink-mid")}>
                           {avg13.avgWow != null ? fmtNet(avg13.avgWow) : "—"}
                         </td>
-                        <td className={cn(avgCellCls, cTint, "text-right")}>{fmtRaw(avg13.commercialLong)}</td>
-                        <td className={cn(avgCellCls, cTint, "text-right")}>{fmtRaw(avg13.commercialShort)}</td>
-                        <td className={cn(avgCellCls, cTint, "text-right font-semibold text-ink-mid")}>
-                          {fmtNet(avg13.commercialNet)}
-                        </td>
+                        {showCommercial && (
+                          <>
+                            <td className={cn(avgCellCls, cTint, "text-right")}>{fmtRaw(avg13.commercialLong)}</td>
+                            <td className={cn(avgCellCls, cTint, "text-right")}>{fmtRaw(avg13.commercialShort)}</td>
+                            <td className={cn(avgCellCls, cTint, "text-right font-semibold text-ink-mid")}>
+                              {fmtNet(avg13.commercialNet)}
+                            </td>
+                          </>
+                        )}
                         {showSmallSpec && (
                           <>
                             <td className={cn(avgCellCls, ssTint, "text-right")}>{fmtRaw(avg13.smallSpecLong)}</td>
@@ -516,11 +553,9 @@ export default function CotPairPage() {
                     const wow     = prev ? row.largeSpecNet - prev.largeSpecNet : null;
                     const isLatest = i === 0;
 
-                    const rangeIdx = ranges && ranges.lsMax !== ranges.lsMin
-                      ? Math.round(Math.max(0, Math.min(100,
-                          ((row.largeSpecNet - ranges.lsMin) / (ranges.lsMax - ranges.lsMin)) * 100
-                        )))
-                      : 50;
+                    // Server-computed 3-year index for this week. Null when there isn't
+                    // enough trailing history, shown as a dash rather than a made-up 50.
+                    const rangeIdx = row.cotIndex3yr;
 
                     const pctTotal = (row.largeSpecLong ?? 0) + (row.largeSpecShort ?? 0);
                     const pct = pctTotal > 0 && row.largeSpecLong != null
@@ -537,7 +572,7 @@ export default function CotPairPage() {
                       <tr key={row.date} className={cn(rowTint, "border-b border-line-soft last:border-0")}>
                         {/* Date */}
                         <td className={cn(
-                          cellCls, "font-sans",
+                          cellCls, "font-sans sticky left-0 z-10 bg-panel",
                           isLatest ? "text-ink-strong font-semibold" : "text-ink-dim font-normal"
                         )}>
                           <span className="flex items-center gap-2">
@@ -576,19 +611,23 @@ export default function CotPairPage() {
                           {wow !== null ? fmtNet(wow) : "—"}
                         </td>
 
-                        {/* Commercial Long */}
-                        <td className={cn(dimCellCls, cTint)}>
-                          {fmtRaw(row.commercialLong)}
-                        </td>
-                        {/* Commercial Short */}
-                        <td className={cn(dimCellCls, cTint)}>{fmtRaw(row.commercialShort)}</td>
-                        {/* Commercial Net — heat-map background is per-row computed data, stays inline */}
-                        <td
-                          className={cn(cellCls, "text-right font-semibold text-ink-strong")}
-                          style={{ background: ranges ? heatBg(row.commercialNet, ranges.cMin, ranges.cMax) : undefined }}
-                        >
-                          {fmtNet(row.commercialNet)}
-                        </td>
+                        {showCommercial && (
+                          <>
+                            {/* Commercial Long */}
+                            <td className={cn(dimCellCls, cTint)}>
+                              {fmtRaw(row.commercialLong)}
+                            </td>
+                            {/* Commercial Short */}
+                            <td className={cn(dimCellCls, cTint)}>{fmtRaw(row.commercialShort)}</td>
+                            {/* Commercial Net — heat-map background is per-row computed data, stays inline */}
+                            <td
+                              className={cn(cellCls, "text-right font-semibold text-ink-strong")}
+                              style={{ background: ranges ? heatBg(row.commercialNet, ranges.cMin, ranges.cMax) : undefined }}
+                            >
+                              {fmtNet(row.commercialNet)}
+                            </td>
+                          </>
+                        )}
 
                         {/* Small Spec — conditional */}
                         {showSmallSpec && (
@@ -612,11 +651,11 @@ export default function CotPairPage() {
                             <div className="flex-1 h-1.5 rounded overflow-hidden bg-track">
                               <div
                                 className={cn("h-full rounded", row.largeSpecNet >= 0 ? "bg-teal" : "bg-coral")}
-                                style={{ width: `${rangeIdx}%` }}
+                                style={{ width: `${rangeIdx ?? 0}%` }}
                               />
                             </div>
                             <span className="text-[11px] text-ink-dim min-w-[24px] text-right">
-                              {rangeIdx}
+                              {rangeIdx ?? "—"}
                             </span>
                           </div>
                         </td>
@@ -648,6 +687,9 @@ export default function CotPairPage() {
                 />
                 {loadingMore ? "Loading…" : `Load ${Math.min(104, total - rows.length)} older weeks`}
               </button>
+              {loadMoreFailed && (
+                <span className="text-[12px] text-coral-deep">Couldn&apos;t load older weeks. Try again.</span>
+              )}
             </div>
           )}
 

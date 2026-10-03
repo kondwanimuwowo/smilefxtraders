@@ -95,7 +95,7 @@ function FeaturedAlertCard() {
       tags:       alert.tags,
       note:       `From Kondwani's alert · Entry ${alert.entry} / SL ${alert.sl} / TP ${alert.tp1}`,
       fromAlert:  alert.id,
-      discipline: true,
+      discipline: false, // not checked yet; the trader confirms it
     });
     addJournaledAlert(alert.id);
     toast(`${alert.pair} setup copied to journal`, "teal", "add_task");
@@ -235,18 +235,6 @@ const TREND_PAIRS_FALLBACK = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", 
 type TrendBias = "bullish" | "bearish" | "ranging";
 type TrendMatrixData = Record<string, Record<string, TrendBias>>;
 
-const TREND_DEFAULT: TrendMatrixData = {
-  EURUSD: { MN: "bullish",  W: "bullish",  D: "bearish", H4: "bullish", H1: "bullish"  },
-  GBPUSD: { MN: "bullish",  W: "ranging",  D: "ranging", H4: "bearish", H1: "bearish"  },
-  USDJPY: { MN: "bullish",  W: "bullish",  D: "bullish", H4: "ranging", H1: "ranging"  },
-  USDCHF: { MN: "bearish",  W: "ranging",  D: "ranging", H4: "bullish", H1: "bullish"  },
-  AUDUSD: { MN: "bearish",  W: "bearish",  D: "ranging", H4: "bearish", H1: "ranging"  },
-  NZDUSD: { MN: "bearish",  W: "bearish",  D: "bearish", H4: "bearish", H1: "ranging"  },
-  USDCAD: { MN: "bullish",  W: "ranging",  D: "bullish", H4: "bullish", H1: "ranging"  },
-  XAUUSD: { MN: "bullish",  W: "bullish",  D: "bullish", H4: "bullish", H1: "bullish"  },
-  NAS100: { MN: "bullish",  W: "bullish",  D: "ranging", H4: "ranging", H1: "bearish"  },
-};
-
 function useTrendSnapshot() {
   const trendPairs = useInstrumentSymbols();
 
@@ -266,13 +254,13 @@ function useTrendSnapshot() {
       return res.json() as Promise<{ matrix: TrendMatrixData; updatedAt: string } | null>;
     },
   });
-  const matrix    = data?.matrix ?? TREND_DEFAULT;
+  const matrix    = data?.matrix ?? null;
   const updatedAt = data?.updatedAt ?? null;
 
+  // Only pairs the instructor actually published. No invented biases.
   const activePairs = trendPairs.length ? trendPairs : TREND_PAIRS_FALLBACK;
-  const rows = activePairs.map((pair) => {
-    const DEFAULT_ROW = { MN: "ranging", W: "ranging", D: "ranging", H4: "ranging", H1: "ranging" } as Record<string, TrendBias>;
-    const row = matrix[pair] ?? TREND_DEFAULT[pair] ?? DEFAULT_ROW;
+  const rows = !matrix ? [] : activePairs.filter((pair) => matrix[pair]).map((pair) => {
+    const row = matrix[pair];
     const counts = { bullish: 0, bearish: 0, ranging: 0 };
     TREND_TFS.forEach((tf) => { counts[row[tf] as TrendBias]++; });
     const bias: string = counts.bullish > counts.bearish
@@ -804,6 +792,9 @@ export function Dashboard() {
               ))}
             </div>
             <div className="flex flex-col gap-2">
+              {trendRows.length === 0 && (
+                <EmptyState icon="ssid_chart" title="Not published yet" body="The instructor's trend matrix appears here after the weekly update." />
+              )}
               {trendRows.map(({ pair, tfs, bias }) => (
                 <div key={pair} className="flex items-center gap-1.5">
                   <span className="text-[12px] font-semibold shrink-0 text-ink-strong w-[60px]">
