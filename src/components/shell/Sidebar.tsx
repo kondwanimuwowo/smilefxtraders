@@ -29,6 +29,7 @@ const ADMIN_NAV: { section: string; items: NavItem[] } = {
     { href: "/admin/instruments",  icon: "currency_exchange", label: "Instruments"    },
     { href: "/admin/macro-events", icon: "analytics",         label: "Manual Macro Data" },
     { href: "/admin/pricing",      icon: "sell",              label: "Pricing"        },
+    { href: "/admin/leads",        icon: "group",             label: "Leads"          },
   ],
 };
 
