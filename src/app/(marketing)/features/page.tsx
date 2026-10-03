@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { Icon, GavoIcon } from "@/components/ui";
 import { CTACard } from "@/components/marketing/CTACard";

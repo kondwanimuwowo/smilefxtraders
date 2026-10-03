@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { CTACard } from "@/components/marketing/CTACard";
 import { MarketingCard } from "@/components/marketing/MarketingCard";
