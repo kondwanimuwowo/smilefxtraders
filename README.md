@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Smile FX Traders
 
-## Getting Started
+A community trading platform for forex traders using Smart Money Concepts (ICT) and Supply & Demand, built for Zambia and Africa. Journal trades, get AI-reviewed against a 14-rule SMC/S&D rulebook, follow instructor alerts and the weekly trend matrix, and track COT positioning, the economic calendar, and FX option expiries — all from one dashboard.
 
-First, run the development server:
+Live at [smilefxtraders.com](https://smilefxtraders.com).
+
+## Stack
+
+Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · Prisma 7 + Supabase Postgres · Zustand · Anthropic SDK (AI trade review) · deployed on Cloudflare Workers via OpenNext.
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+# create .env.local with the variables below
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase project + anon key |
+| `DATABASE_URL` / `DIRECT_URL` | Postgres connection (pooled / direct, for Prisma migrations) |
+| `ANTHROPIC_API_KEY` | Gavo, the AI trade reviewer |
+| `RESEND_API_KEY` | transactional email |
+| `TWELVE_DATA_API_KEY`, `FINNHUB_API_KEY`, `FRED_API_KEY` (optional) | market data, economic calendar |
+| `FINNHUB_WEBHOOK_SECRET`, `LENCO_WEBHOOK_SECRET` | inbound webhook verification |
+| `CRON_SECRET` | shared secret for scheduled sync routes |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optional) | rate limiting; fails open if unset |
+| `WAITLIST_MODE`, `MAINTENANCE_MODE`, `SITE_GATE_BYPASS_SECRET` | pre-launch site gating, see `src/middleware.ts` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Full list, plus which routes consume each one, lives in `.claude/CLAUDE.md`.
 
-## Learn More
+## Common commands
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run dev          # start dev server
+npm run build        # production build
+npm run lint          # ESLint
+npm run type-check   # tsc --noEmit
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+node node_modules/prisma/build/index.js migrate dev --name <name>   # DB migration
+node node_modules/prisma/build/index.js generate                    # regenerate Prisma client
+npx prisma studio                                                   # DB GUI
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+npm run cf:preview   # build + preview the Cloudflare Workers bundle locally
+npm run cf:deploy    # build + deploy to Cloudflare Workers
+```
 
-## Deploy on Vercel
+Deploys to production run automatically via GitHub Actions on push to `main`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project docs
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **`CLAUDE.md`** — architecture, state management, design tokens, shell layout, and domain vocabulary (SMC/ICT terms, pricing tiers, the AI review pipeline).
+- **`.claude/CLAUDE.md`** — environment variables and naming/code-style conventions.
+- **`design_handoff_smile_fx_traders/`** — the original design prototypes. Reference only; don't copy verbatim into the Next.js app.
