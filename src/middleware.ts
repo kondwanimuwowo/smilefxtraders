@@ -46,6 +46,30 @@ function crossHostRedirect(request: NextRequest, host: string, pathname?: string
   return NextResponse.redirect(url, 308);
 }
 
+// evlog: hand the request the two correlation headers that evlogMiddleware()
+// from "evlog/next" would set, so a handler wrapped in withEvlog() reports the
+// same request id and the time the request actually entered the chain, rather
+// than starting its own clock inside the handler.
+//
+// This file adopts the headers instead of calling evlogMiddleware() because
+// Next allows exactly one middleware, and this one also does host-splitting,
+// the site gate and the auth guard — and because importing "evlog/next" here
+// would pull node:async_hooks into the Edge bundle this runs in.
+//
+// Called at each return point instead of once up front: the snapshot has to be
+// taken after supabase's setAll() has written refreshed session cookies back
+// onto request.headers, or the refresh would be dropped on the way through.
+function nextWithEvlog(request: NextRequest) {
+  const headers     = new Headers(request.headers);
+  const requestId   = headers.get("x-request-id") ?? crypto.randomUUID();
+  headers.set("x-request-id", requestId);
+  headers.set("x-evlog-start", headers.get("x-evlog-start") ?? String(Date.now()));
+
+  const response = NextResponse.next({ request: { headers } });
+  response.headers.set("x-request-id", requestId);
+  return response;
+}
+
 // Pre-launch site gate — waiting-list mode and maintenance mode, both
 // toggled via env vars (src/lib/site-gate.ts). Checked before anything else
 // in this file: a bypass link needs to work regardless of host-split routing
@@ -151,10 +175,10 @@ export async function middleware(request: NextRequest) {
   // Refresh Token" — and if the actual page navigation lost that race, the
   // guard below saw no user and bounced the whole page back to /login.
   if (SKIP_AUTH_PREFIXES.some((p) => pathname.startsWith(p))) {
-    return NextResponse.next({ request });
+    return nextWithEvlog(request);
   }
 
-  let supabaseResponse = NextResponse.next({ request });
+  let supabaseResponse = nextWithEvlog(request);
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -169,7 +193,7 @@ export async function middleware(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
-          supabaseResponse = NextResponse.next({ request });
+          supabaseResponse = nextWithEvlog(request);
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           );

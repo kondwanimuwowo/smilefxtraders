@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { handleApiError } from "@/lib/api-error";
+import { withEvlog, useLogger } from "@/lib/evlog";
 import { PAIRS_ORDER } from "@/types/fx-orders";
 import type { FxDateSummary, FxLevel } from "@/types/fx-orders";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = withEvlog(async () => {
+  const log = useLogger();
   try {
     const rawDateKeys = await prisma.fxOptionExpiry
       .groupBy({
@@ -58,6 +60,18 @@ export async function GET() {
       };
     });
 
+    // Context for the wide event: what was actually served, not just that the
+    // request succeeded. `weekendFiltered` is the one number worth watching —
+    // it only ever grows past 0 when a bad parse has written a Saturday/Sunday
+    // row into fxOptionExpiry.
+    log.set({
+      fxOrders: {
+        dates:           summaries.length,
+        levels:          summaries.reduce((sum, d) => sum + d.levelCount, 0),
+        weekendFiltered: rawDateKeys.length - dateKeys.length,
+      },
+    });
+
     return NextResponse.json(summaries);
   } catch (err) {
     // Was a hardcoded 500, which told the client "this is our bug, retrying
@@ -66,4 +80,4 @@ export async function GET() {
     // only for something genuinely broken.
     return handleApiError("fx-orders", err);
   }
-}
+});
