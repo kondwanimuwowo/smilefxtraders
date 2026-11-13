@@ -5,6 +5,7 @@ import { requirePaidPlan } from "@/lib/plan-guard";
 import { getInstruments } from "@/lib/server/getInstruments";
 import { computeCotStats, INDEX_WEEKS, percentile } from "@/lib/cot/signal";
 import { GAVO_COT_SYSTEM_PROMPT, buildCotExplainMessage } from "@/lib/cot/gavoPrompt";
+import { getCotPositioning } from "@/lib/cot/positioning";
 
 const client = new Anthropic();
 
@@ -67,8 +68,19 @@ export async function POST(
         ? percentile(current.largeSpecNet, allTimeRange._min.largeSpecNet, allTimeRange._max.largeSpecNet)
         : null;
 
-    // Regenerate only when the latest report week or its net figures change.
-    const inputHash = `${current.reportDate.toISOString()}:${current.largeSpecNet}:${current.commercialNet}:${current.smallSpecNet}`;
+    const reportDate = current.reportDate.toISOString().split("T")[0];
+    const positioning = await getCotPositioning({
+      pair:         upper,
+      reportDate,
+      largeSpecNet: current.largeSpecNet,
+      openInterest: current.openInterest,
+      cotIndex:     stats.cotIndex,
+      change13w:    stats.change13w,
+    });
+
+    // Regenerate when the report week, its net figures, or a positioning flag changes.
+    const flags = `${positioning.crowding?.side ?? "-"}:${positioning.vsPrice ? "vs" : "-"}`;
+    const inputHash = `${current.reportDate.toISOString()}:${current.largeSpecNet}:${current.commercialNet}:${current.smallSpecNet}:${flags}`;
 
     const existing = await prisma.gavoCotExplanation.findUnique({ where: { pair: upper } });
     if (existing && existing.inputHash === inputHash) {
@@ -91,7 +103,8 @@ export async function POST(
       commercialNet:  current.commercialNet,
       smallSpecNet:   current.smallSpecNet,
       openInterest:   current.openInterest,
-      reportDate:     current.reportDate.toISOString().split("T")[0],
+      reportDate,
+      positioning,
     });
 
     const message = await client.messages.create({

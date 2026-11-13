@@ -4,6 +4,7 @@
 // read of the current report, not a fundamental-score narration.
 
 import type { CotSignal, CotDivergence } from "./types";
+import type { CotPositioning } from "./positioning";
 
 export const GAVO_COT_SYSTEM_PROMPT = `You are Gavo, the Smile FX Traders AI trading coach. You narrate CFTC Commitments of Traders (COT) positioning for Smart Money Concepts (SMC) traders.
 
@@ -51,6 +52,7 @@ export function buildCotExplainMessage(ctx: {
   smallSpecNet:   number;
   openInterest:   number | null;
   reportDate:     string;
+  positioning?:   CotPositioning;
 }): string {
   const netPctOfOi =
     ctx.openInterest != null && ctx.openInterest > 0
@@ -73,6 +75,23 @@ export function buildCotExplainMessage(ctx: {
     `Divergence: ${DIVERGENCE_LABEL[ctx.divergenceType]}.`,
     `Large Spec net as % of open interest: ${netPctOfOi}.`,
   ];
+
+  const crowd = ctx.positioning?.crowding;
+  if (crowd) {
+    lines.push(
+      `CROWDED: large specs are crowded ${crowd.side} on ${ctx.pair}` +
+        (crowd.reason === "share_of_oi" && crowd.pctOfOi != null
+          ? ` (${(Math.abs(crowd.pctOfOi) * 100).toFixed(0)}% of open interest).`
+          : " (at an extreme of their 3-year range).") +
+        " Say plainly that a crowded side can unwind fast and that following it late carries squeeze risk.",
+    );
+  }
+  const vs = ctx.positioning?.vsPrice;
+  if (vs) {
+    lines.push(
+      `FIGHTING PRICE: over the last 13 weeks specs changed their net by ${vs.specChange13w > 0 ? "+" : ""}${vs.specChange13w.toLocaleString()} while ${ctx.pair} moved ${vs.priceChangePct > 0 ? "+" : ""}${vs.priceChangePct.toFixed(1)}%. They have been adding against the move and are likely underwater. Explain that this weakens the signal for timing.`,
+    );
+  }
 
   if (ctx.usdBase) {
     lines.push(

@@ -7,6 +7,7 @@ import { CotIndexDisplay } from "@/components/cot/CotIndexDisplay";
 import { CotLockScreen } from "@/components/cot/CotLockScreen";
 import { PositioningChart } from "@/components/cot/PositioningChart";
 import { GavoCotRead } from "@/components/cot/GavoCotRead";
+import { PositioningFlags } from "@/components/cot/PositioningFlags";
 import { SignalBars } from "@/components/cot/SignalBars";
 import { buildCotCommentary } from "@/lib/cot/commentary";
 import { cn } from "@/lib/cn";
@@ -312,6 +313,11 @@ export default function CotPairPage() {
           </div>
         )}
       </div>
+
+      {/* ── Positioning flags: crowding, specs vs price ── */}
+      {!error && !loading && data && (
+        <PositioningFlags pair={data.pair} positioning={data.positioning} />
+      )}
 
       {/* ── Full COT Index display — three-range comparison + interpretation ── */}
       {!error && !loading && data && rows.length > 0 && (

@@ -6,7 +6,9 @@
 // the displayed pair for every instrument. Long/short columns stay raw
 // (contract framing). Consumers must never re-invert.
 
-export type CotSignal = "strong_bull" | "bull" | "neutral" | "bear" | "strong_bear";
+import type { CotPositioning } from "./positioning";
+
+export type CotSignal ="strong_bull" | "bull" | "neutral" | "bear" | "strong_bear";
 
 export type CotDivergence = "aligned" | "mixed" | "counter";
 
@@ -70,4 +72,6 @@ export interface CotDetailResponse {
   reportDate:     string;
   divergenceType: CotDivergence;
   synthetic?:     boolean; // true = derived from the pair's two legs, not a direct CFTC contract
+  /** Crowding and specs-vs-price flags. Absent on synthetic pairs and later pages. */
+  positioning?:   CotPositioning;
 }

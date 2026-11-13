@@ -7,6 +7,7 @@ import { deriveMetaMap } from "@/lib/pairs";
 import { buildSyntheticHistory } from "@/lib/cot/crossPairSignal";
 import type { CotDetailResponse, CotDetailRow } from "@/lib/cot/types";
 import { handleApiError } from "@/lib/api-error";
+import { getCotPositioning } from "@/lib/cot/positioning";
 
 // Rows served per page; the first page fetches INDEX_WEEKS for the signal math.
 const TAKE = 104;
@@ -170,6 +171,17 @@ async function handleGet(
   // the rolling-index windows and, on the first page, the signal math)
   const displayRows = mapped.slice(0, TAKE);
 
+  const positioning = isFirstPage && mapped.length >= 2
+    ? await getCotPositioning({
+        pair:         upper,
+        reportDate:   mapped[0].date,
+        largeSpecNet: mapped[0].largeSpecNet,
+        openInterest: mapped[0].openInterest,
+        cotIndex:     signalData.cotIndex,
+        change13w:    signalData.change13w,
+      })
+    : undefined;
+
   return NextResponse.json({
     pair:    upper,
     label:   inst.label,
@@ -177,6 +189,7 @@ async function handleGet(
     rows:    displayRows,
     totalWeeks,
     cotIndexAll,
+    positioning,
     ...signalData,
   } satisfies CotDetailResponse);
 }
