@@ -13,8 +13,8 @@ export const metadata = { title: "Trend Matrix | Smile FX Traders" };
 // and hands it over as the initial value of ordinary useState, which is what
 // a form seeded from the database actually is.
 //
-// A failed load is not fatal: TrendMatrix falls back to its built-in defaults
-// when `initial` is null, exactly as it did when the fetch failed client-side.
+// A failed load is not fatal: TrendMatrix shows its empty state (or, for the
+// instructor, an all-blank grid) when `initial` is null.
 export default async function TrendPage() {
   const initial = await loadTrendMatrix().catch(() => null);
   return <TrendMatrix initial={initial} />;

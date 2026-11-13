@@ -25,7 +25,7 @@ export default async function DashboardPage() {
 
   await Promise.all([
     queryClient.prefetchQuery({ queryKey: ["alerts"], queryFn: loadInstructorAlerts }),
-    queryClient.prefetchQuery({ queryKey: ["trend-matrix"], queryFn: loadTrendMatrix }),
+    queryClient.prefetchQuery({ queryKey: ["trend-matrix"], queryFn: () => loadTrendMatrix() }),
     queryClient.prefetchQuery({
       queryKey: ["calendar", "today"],
       // Server clock. The client recomputes with its own date on refetch,

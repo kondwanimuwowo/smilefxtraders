@@ -227,13 +227,13 @@ function useTodayEvents() {
   });
 }
 
-// ── Trend snapshot — fetched from API (instructor publishes, everyone reads) ───
+// ── Trend snapshot — computed structure plus instructor overrides ─────────────
 
 const TREND_TFS   = ["MN", "W", "D", "H4", "H1"] as const;
 const TREND_PAIRS_FALLBACK = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
 
 type TrendBias = "bullish" | "bearish" | "ranging";
-type TrendMatrixData = Record<string, Record<string, TrendBias>>;
+type TrendMatrixData = Record<string, Partial<Record<string, TrendBias>>>;
 
 function useTrendSnapshot() {
   const trendPairs = useInstrumentSymbols();
@@ -257,16 +257,18 @@ function useTrendSnapshot() {
   const matrix    = data?.matrix ?? null;
   const updatedAt = data?.updatedAt ?? null;
 
-  // Only pairs the instructor actually published. No invented biases.
+  // Only pairs with a current read. No invented biases.
   const activePairs = trendPairs.length ? trendPairs : TREND_PAIRS_FALLBACK;
-  const rows = !matrix ? [] : activePairs.filter((pair) => matrix[pair]).map((pair) => {
+  // Cells can be missing: a timeframe whose computed read has gone stale is
+  // dropped by the server rather than shown as current.
+  const rows = !matrix ? [] : activePairs.filter((pair) => matrix[pair] && Object.keys(matrix[pair]).length).map((pair) => {
     const row = matrix[pair];
     const counts = { bullish: 0, bearish: 0, ranging: 0 };
-    TREND_TFS.forEach((tf) => { counts[row[tf] as TrendBias]++; });
+    TREND_TFS.forEach((tf) => { const b = row[tf] as TrendBias | undefined; if (b) counts[b]++; });
     const bias: string = counts.bullish > counts.bearish
       ? "Bullish" : counts.bearish > counts.bullish
       ? "Bearish" : "Neutral";
-    const tfs = TREND_TFS.map((tf) => row[tf] as TrendBias);
+    const tfs = TREND_TFS.map((tf) => row[tf] as TrendBias | undefined);
     return { pair, tfs, bias };
   });
 
@@ -764,7 +766,7 @@ export function Dashboard() {
             )}
           </Panel>
 
-          {/* Trend snapshot — live from TrendMatrix localStorage */}
+          {/* Trend snapshot — live from /api/trend-matrix */}
           <Panel>
             <PanelHead
               title="Trend snapshot"
@@ -793,7 +795,7 @@ export function Dashboard() {
             </div>
             <div className="flex flex-col gap-2">
               {trendRows.length === 0 && (
-                <EmptyState icon="ssid_chart" title="Not published yet" body="The instructor's trend matrix appears here after the weekly update." />
+                <EmptyState icon="ssid_chart" title="No trend read yet" body="Market structure reads appear here once the hourly sync has run." />
               )}
               {trendRows.map(({ pair, tfs, bias }) => (
                 <div key={pair} className="flex items-center gap-1.5">

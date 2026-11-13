@@ -1,62 +1,37 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Panel, Icon, Button, EmptyState } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import { fmtDateTime } from "@/lib/date";
+import { fmtDateTime, fmtDayMonth } from "@/lib/date";
 import { useInstrumentSymbols } from "@/lib/hooks/useInstruments";
 import { useStore } from "@/lib/store";
+import type { TrendMatrixData, TrendCell } from "@/lib/trend-matrix";
+import type { TrendBias, TrendTf } from "@/lib/trend/structure";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type Bias   = "bullish" | "bearish" | "ranging";
-type Matrix = Record<string, Record<string, Bias>>;
-type Notes  = Record<string, string>;
+type Bias  = TrendBias;
+type Notes = Record<string, string>;
+/** Unsaved instructor edits, keyed "PAIR:TF". null clears the override. */
+type Pending = Record<string, Bias | null>;
 
 const PAIRS_FALLBACK = ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "XAUUSD", "NAS100"];
-const TFS   = ["MN", "W", "D", "H4", "H1"] as const;
-
-// ── Defaults (shown before first publish) ─────────────────────────────────────
-
-// Fallback for any pair present in PAIRS (derived live from the instruments
-// table) but missing from the persisted matrix — e.g. an instrument added
-// after the matrix was last published. Without this, every matrix[pair]
-// access below would crash on a fresh/never-saved pair.
-const DEFAULT_ROW: Record<string, Bias> = { MN: "ranging", W: "ranging", D: "ranging", H4: "ranging", H1: "ranging" };
-
-const DEFAULT: Matrix = {
-  EURUSD: { MN: "bullish",  W: "bullish",  D: "bearish", H4: "bullish", H1: "bullish"  },
-  GBPUSD: { MN: "bullish",  W: "ranging",  D: "ranging", H4: "bearish", H1: "bearish"  },
-  USDJPY: { MN: "bullish",  W: "bullish",  D: "bullish", H4: "ranging", H1: "ranging"  },
-  USDCHF: { MN: "bearish",  W: "ranging",  D: "ranging", H4: "bullish", H1: "bullish"  },
-  AUDUSD: { MN: "bearish",  W: "bearish",  D: "ranging", H4: "bearish", H1: "ranging"  },
-  NZDUSD: { MN: "bearish",  W: "bearish",  D: "bearish", H4: "bearish", H1: "ranging"  },
-  USDCAD: { MN: "bullish",  W: "ranging",  D: "bullish", H4: "bullish", H1: "ranging"  },
-  XAUUSD: { MN: "bullish",  W: "bullish",  D: "bullish", H4: "bullish", H1: "bullish"  },
-  NAS100: { MN: "bullish",  W: "bullish",  D: "ranging", H4: "ranging", H1: "bearish"  },
-};
-
-const DEFAULT_NOTES: Notes = {
-  EURUSD: "DXY at HTF supply. Watch for continuation short on DXY = long EURUSD.",
-  GBPUSD: "Mixed structure. Waiting for D1 close above 1.2780 for long bias.",
-  USDJPY: "Strong HTF bullish. BOJ intervention risk on H1/H4, so size down.",
-  USDCHF: "Inversely correlated to EURUSD. HTF bearish USD → CHF strength.",
-  AUDUSD: "Risk-off pressure. China data weighing on AUD. Bias short.",
-  NZDUSD: "Strong HTF bearish. RBNZ dovish. Only looking for shorts.",
-  USDCAD: "Oil correlated. Monitor CAD strength on oil rallies.",
-  XAUUSD: "Bullish across all TFs. Geopolitical premium still in play.",
-  NAS100: "Earnings season: choppy H1/H4. HTF structure still bullish.",
-};
+const TFS: readonly TrendTf[] = ["MN", "W", "D", "H4", "H1"];
 
 // ── Bias config ───────────────────────────────────────────────────────────────
 
-const CYCLE: Record<Bias, Bias> = { bullish: "bearish", bearish: "ranging", ranging: "bullish" };
+/** Instructor click cycle. "auto" hands the cell back to the computed read. */
+type Choice = Bias | "auto";
+const CYCLE: Record<Choice, Choice> = { auto: "bullish", bullish: "bearish", bearish: "ranging", ranging: "auto" };
 
 const BIAS_CONFIG: Record<Bias, { icon: string; textCls: string; bgCls: string; barBgCls: string }> = {
-  bullish: { icon: "trending_up",   textCls: "text-teal-deep",  bgCls: "bg-teal-tint", barBgCls: "bg-teal"  },
-  bearish: { icon: "trending_down", textCls: "text-coral-deep", bgCls: "bg-coral-tint",  barBgCls: "bg-coral" },
-  ranging: { icon: "trending_flat", textCls: "text-gold-deep",         bgCls: "bg-gold-tint", barBgCls: "bg-gold"  },
+  bullish: { icon: "trending_up",   textCls: "text-teal-deep",  bgCls: "bg-teal-tint",  barBgCls: "bg-teal"  },
+  bearish: { icon: "trending_down", textCls: "text-coral-deep", bgCls: "bg-coral-tint", barBgCls: "bg-coral" },
+  ranging: { icon: "trending_flat", textCls: "text-gold-deep",  bgCls: "bg-gold-tint",  barBgCls: "bg-gold"  },
 };
+
+const key = (pair: string, tf: TrendTf) => `${pair}:${tf}`;
 
 // ── Confluence helpers ────────────────────────────────────────────────────────
 
@@ -67,9 +42,9 @@ interface Confluence {
   colorCls:  string;
 }
 
-function getConfluence(row: Record<string, Bias>): Confluence {
+function getConfluence(row: Partial<Record<TrendTf, Bias>>): Confluence {
   const counts = { bullish: 0, bearish: 0, ranging: 0 };
-  TFS.forEach((tf) => { counts[row[tf]]++; });
+  TFS.forEach((tf) => { const b = row[tf]; if (b) counts[b]++; });
 
   const dominant = counts.bullish > counts.bearish ? "bullish" : counts.bearish > counts.bullish ? "bearish" : null;
   const strength = dominant ? counts[dominant] : 0;
@@ -87,23 +62,46 @@ function getConfluence(row: Record<string, Bias>): Confluence {
   };
 }
 
+function describeCell(cell: TrendCell | undefined, pending: boolean): string {
+  if (pending) return "Unsaved change";
+  if (!cell) return "No current read";
+  if (cell.source === "instructor") {
+    const auto = cell.autoBias ? ` Structure reads ${cell.autoBias}.` : "";
+    return `Kondwani's call until ${fmtDayMonth(cell.expiresAt!)}.${auto}`;
+  }
+  const brk = cell.lastBreak
+    ? `${cell.lastBreak.type} ${cell.lastBreak.dir === "bullish" ? "up" : "down"} through ${cell.lastBreak.price} on ${fmtDayMonth(cell.lastBreak.at)}. `
+    : "";
+  return `${brk}Computed ${fmtDateTime(cell.asOf)}.`;
+}
+
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function BiasCell({ bias, onClick, readonly, pair, tf }: { bias: Bias; onClick: () => void; readonly: boolean; pair: string; tf: string }) {
-  const cfg = BIAS_CONFIG[bias];
+function BiasCell({ bias, instructor, pending, title, onClick, readonly, pair, tf }: {
+  bias: Bias | null; instructor: boolean; pending: boolean; title: string;
+  onClick: () => void; readonly: boolean; pair: string; tf: string;
+}) {
+  const cfg = bias ? BIAS_CONFIG[bias] : null;
   return (
     <button
       type="button"
       onClick={readonly ? undefined : onClick}
-      title={readonly ? bias : `${bias} (click to change)`}
+      title={title}
       // The icon alone conveys the bias, so a screen reader otherwise reads
-      // this whole grid as a wall of unlabelled buttons. Naming the pair and
-      // timeframe makes each cell meaningful out of visual context.
-      aria-label={`${pair} ${tf}: ${bias}${readonly ? "" : " — click to change"}`}
+      // this whole grid as a wall of unlabelled buttons.
+      aria-label={`${pair} ${tf}: ${bias ?? "no read"}${instructor ? ", instructor override" : ""}${readonly ? "" : ". Click to change"}`}
       disabled={readonly}
-      className={cn("flex items-center justify-center rounded-xl transition-all w-14 h-11 shrink-0", cfg.bgCls, readonly ? "cursor-default" : "cursor-pointer")}
+      className={cn(
+        "relative flex items-center justify-center rounded-xl transition-all w-14 h-11 shrink-0",
+        cfg ? cfg.bgCls : "bg-panel-2",
+        pending && "ring-2 ring-gold-deep",
+        readonly ? "cursor-default" : "cursor-pointer",
+      )}
     >
-      <Icon name={cfg.icon} size={20} className={cfg.textCls} />
+      {cfg ? <Icon name={cfg.icon} size={20} className={cfg.textCls} /> : <Icon name="remove" size={18} className="text-ink-dim" />}
+      {instructor && (
+        <span className="absolute top-0.5 right-1 text-[9px] font-bold text-gold-deep">K</span>
+      )}
     </button>
   );
 }
@@ -126,7 +124,7 @@ function ConfluenceBar({ conf }: { conf: Confluence }) {
   );
 }
 
-function NoteRow({ pair, value, onChange, readonly }: { pair: string; value: string; onChange: (v: string) => void; readonly: boolean }) {
+function NoteRow({ value, onChange, readonly }: { value: string; onChange: (v: string) => void; readonly: boolean }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft]     = useState(value);
 
@@ -182,10 +180,10 @@ function NoteRow({ pair, value, onChange, readonly }: { pair: string; value: str
   );
 }
 
-function SummaryRow({ matrix, pairs }: { matrix: Matrix; pairs: string[] }) {
+function SummaryRow({ matrix, pairs }: { matrix: TrendMatrixData["matrix"]; pairs: string[] }) {
   const tfBias = TFS.map((tf) => {
     const counts = { bullish: 0, bearish: 0, ranging: 0 };
-    pairs.forEach((p) => { if (matrix?.[p]?.[tf]) counts[matrix[p][tf] as Bias]++; });
+    pairs.forEach((p) => { const b = matrix[p]?.[tf]; if (b) counts[b]++; });
     const dom: Bias = counts.bullish > counts.bearish ? "bullish" : counts.bearish > counts.bullish ? "bearish" : "ranging";
     return { tf, dom, counts };
   });
@@ -217,97 +215,110 @@ function SummaryRow({ matrix, pairs }: { matrix: Matrix; pairs: string[] }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export interface TrendMatrixInitial {
-  matrix:    unknown;
-  notes:     unknown;
-  updatedAt: string;
-}
-
-export function TrendMatrix({ initial }: { initial: TrendMatrixInitial | null }) {
+export function TrendMatrix({ initial }: { initial: TrendMatrixData | null }) {
   const isInstructor = useStore((s) => s.user?.role === "instructor");
   const instrumentSymbols = useInstrumentSymbols();
   const PAIRS = instrumentSymbols.length ? instrumentSymbols : PAIRS_FALLBACK;
-  // Seeded from the server render — see (app)/trend/page.tsx. Unlike the
-  // other converted pages this is NOT React Query: the matrix is editable
-  // state that the instructor toggles and then publishes, and treating it as
-  // cached server state would fight the editing flow.
-  const [matrix, setMatrix]         = useState<Matrix>((initial?.matrix as Matrix) ?? DEFAULT);
-  const [notes, setNotes]           = useState<Notes>((initial?.notes as Notes) ?? DEFAULT_NOTES);
-  const [updatedAt, setUpdatedAt]   = useState<string | null>(initial?.updatedAt ?? null);
-  const [isDirty, setIsDirty]       = useState(false);
-  const [saving, setSaving]         = useState(false);
-  const [saveError, setSaveError]   = useState<string | null>(null);
-  // Data arrives with the server render, so there is never a loading pass.
-  // The skeleton branches below are consequently unreachable and could be
-  // removed in a follow-up; left in place here to keep this diff to the data
-  // flow rather than the view.
-  const loading = false;
-  const initialLoad = useRef(true);
 
-  // Track dirty state after initial load
-  useEffect(() => {
-    if (initialLoad.current) return;
-    setIsDirty(true);
-    setSaveError(null);
-  }, [matrix, notes]);
+  // Seeded from the server render (see page.tsx) rather than React Query: the
+  // instructor edits overrides and notes locally, then publishes them.
+  const [data, setData]           = useState<TrendMatrixData | null>(initial);
+  const [notes, setNotes]         = useState<Notes>(initial?.notes ?? {});
+  const [pending, setPending]     = useState<Pending>({});
+  const [notesDirty, setNotesDirty] = useState(false);
+  const [saving, setSaving]       = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Was cleared in the removed fetch's .finally(). Without it the ref stays
-  // true forever, the effect above always bails, and Publish never enables.
-  // Declared after that effect so it runs second on mount: the dirty check
-  // sees `true` and skips the seeded values, then this releases the latch for
-  // real edits.
-  useEffect(() => { initialLoad.current = false; }, []);
-
-  // PAIRS is a fresh array each render, so it can't be a dep directly. Hoist
-  // the joined key into its own value: react-hooks/use-memo rejects a call
-  // expression inside a dependency list (the existing eslint-disable only
-  // covered exhaustive-deps, so this was an unreported lint error).
+  const isDirty = notesDirty || Object.keys(pending).length > 0;
   const pairsKey = PAIRS.join(",");
 
+  // The matrix as it will look once pending edits are published.
+  const effective = useMemo(() => {
+    const out: TrendMatrixData["matrix"] = {};
+    for (const pair of PAIRS) {
+      const row: Partial<Record<TrendTf, Bias>> = {};
+      for (const tf of TFS) {
+        const k = key(pair, tf);
+        const cell = data?.cells[pair]?.[tf];
+        if (k in pending) {
+          const p = pending[k];
+          const auto = cell?.source === "auto" ? cell.bias : cell?.autoBias ?? undefined;
+          const b = p ?? auto;
+          if (b) row[tf] = b;
+        } else if (cell) {
+          row[tf] = cell.bias;
+        }
+      }
+      out[pair] = row;
+    }
+    return out;
+    // PAIRS is a fresh array each render; its joined value is the real dependency.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, pending, pairsKey]);
+
   const confluenceMap = useMemo(
-    () => Object.fromEntries(PAIRS.map((p) => [p, getConfluence(matrix?.[p] ?? DEFAULT_ROW)])),
+    () => Object.fromEntries(PAIRS.map((p) => [p, getConfluence(effective[p] ?? {})])),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [matrix, pairsKey]
+    [effective],
   );
 
-  const tradeablePairs = useMemo(
-    () => PAIRS.filter((p) => confluenceMap[p]?.bias !== "mixed"),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [confluenceMap, pairsKey]
-  );
+  const tradeablePairs = PAIRS.filter((p) => confluenceMap[p]?.bias !== "mixed");
 
-  function toggleCell(pair: string, tf: string) {
-    setMatrix((m) => {
-      const row = m[pair] ?? DEFAULT_ROW;
-      return { ...m, [pair]: { ...row, [tf]: CYCLE[row[tf]] } };
+  function currentChoice(pair: string, tf: TrendTf): Choice {
+    const k = key(pair, tf);
+    if (k in pending) return pending[k] ?? "auto";
+    const cell = data?.cells[pair]?.[tf];
+    return cell?.source === "instructor" ? cell.bias : "auto";
+  }
+
+  function toggleCell(pair: string, tf: TrendTf) {
+    const next = CYCLE[currentChoice(pair, tf)];
+    const savedCell = data?.cells[pair]?.[tf];
+    const saved: Choice = savedCell?.source === "instructor" ? savedCell.bias : "auto";
+    setPending((p) => {
+      const copy = { ...p };
+      if (next === saved) delete copy[key(pair, tf)];
+      else copy[key(pair, tf)] = next === "auto" ? null : next;
+      return copy;
     });
+    setSaveError(null);
   }
 
   function setNote(pair: string, note: string) {
+    if ((notes[pair] ?? "") === note) return;
     setNotes((n) => ({ ...n, [pair]: note }));
+    setNotesDirty(true);
+    setSaveError(null);
   }
 
-  function resetMatrix() {
-    setMatrix(DEFAULT);
-    setNotes(DEFAULT_NOTES);
+  function discard() {
+    setPending({});
+    setNotes(data?.notes ?? {});
+    setNotesDirty(false);
   }
 
   async function handlePublish() {
     setSaving(true);
     setSaveError(null);
     try {
+      const overrides = Object.entries(pending).map(([k, bias]) => {
+        const [pair, tf] = k.split(":");
+        return { pair, tf, bias };
+      });
       const res = await fetch("/api/trend-matrix", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ matrix, notes }),
+        body:    JSON.stringify({ overrides, ...(notesDirty ? { notes } : {}) }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({})) as { error?: string };
         throw new Error(err.error ?? "Failed to publish");
       }
-      const data = await res.json() as { updatedAt: string };
-      setUpdatedAt(data.updatedAt);
-      setIsDirty(false);
+      const fresh = await res.json() as TrendMatrixData;
+      setData(fresh);
+      setNotes(fresh.notes);
+      setPending({});
+      setNotesDirty(false);
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : "Failed to publish");
     } finally {
@@ -315,19 +326,15 @@ export function TrendMatrix({ initial }: { initial: TrendMatrixInitial | null })
     }
   }
 
-  const updatedLabel = updatedAt
-    ? fmtDateTime(updatedAt)
-    : null;
+  const hasAnyRead = !!data && Object.keys(data.cells).length > 0;
 
-  // Students never see the built-in sample matrix. The instructor still gets
-  // it as a starting point for their first publish.
-  if (!initial && !isInstructor) {
+  if (!hasAnyRead && !isInstructor) {
     return (
       <Panel>
         <EmptyState
           icon="ssid_chart"
-          title="No trend matrix published yet"
-          body="Your instructor publishes the matrix weekly. Check back after the next update."
+          title="No trend read yet"
+          body="The matrix fills in from live market structure. Check back shortly."
         />
       </Panel>
     );
@@ -343,9 +350,9 @@ export function TrendMatrix({ initial }: { initial: TrendMatrixInitial | null })
           </h1>
           <p className="text-[13px] mt-0.5 text-ink-dim">
             {isInstructor
-              ? "Set weekly HTF bias for each pair and timeframe, then publish for all students."
-              : "Kondwani's weekly HTF bias read. Updated every Sunday."}
-            {updatedLabel && <span className="ml-2">· Last updated {updatedLabel}</span>}
+              ? "Bias is read from market structure every hour. Click a cell to set your own call for 7 days; click through to Auto to hand it back."
+              : "Bias is read from market structure every hour. Cells marked K are Kondwani's call."}
+            {data?.updatedAt && <span className="ml-2">· Updated {fmtDateTime(data.updatedAt)}</span>}
           </p>
         </div>
 
@@ -361,7 +368,7 @@ export function TrendMatrix({ initial }: { initial: TrendMatrixInitial | null })
 
           {isInstructor && (
             <>
-              <Button type="button" variant="ghost" icon="refresh" onClick={resetMatrix}>Reset</Button>
+              <Button type="button" variant="ghost" icon="refresh" onClick={discard} disabled={!isDirty || saving}>Discard</Button>
               <Button
                 type="button"
                 variant="primary"
@@ -423,48 +430,43 @@ export function TrendMatrix({ initial }: { initial: TrendMatrixInitial | null })
               </tr>
             </thead>
             <tbody>
-              {loading
-                ? PAIRS.map((pair, i) => (
-                    <tr key={pair} className={cn(i < PAIRS.length - 1 && "border-b border-line-soft")}>
-                      <td className="px-5 py-4">
-                        <div className="h-4 w-16 rounded animate-pulse bg-track" />
-                      </td>
-                      {TFS.map((tf) => (
-                        <td key={tf} className="px-2 py-4">
-                          <div className="h-11 w-14 rounded-xl animate-pulse mx-auto bg-track" />
-                        </td>
-                      ))}
-                      <td className="px-5 py-4">
-                        <div className="h-3 w-32 rounded animate-pulse bg-track" />
-                      </td>
-                    </tr>
-                  ))
-                : PAIRS.map((pair, i) => {
-                    const conf = confluenceMap[pair];
+              {PAIRS.map((pair, i) => (
+                <tr
+                  key={pair}
+                  className={cn("group transition-colors hover:bg-hover", i < PAIRS.length - 1 && "border-b border-line-soft")}
+                >
+                  <td className="px-5 py-3.5">
+                    <div className="font-display font-bold text-[14px] text-ink-strong">{pair}</div>
+                    <NoteRow value={notes[pair] ?? ""} onChange={(v) => setNote(pair, v)} readonly={!isInstructor} />
+                  </td>
+                  {TFS.map((tf) => {
+                    const k = key(pair, tf);
+                    const isPending = k in pending;
+                    const cell = data?.cells[pair]?.[tf];
+                    const instructor = isPending ? pending[k] !== null : cell?.source === "instructor";
                     return (
-                      <tr
-                        key={pair}
-                        className={cn("group transition-colors hover:bg-hover", i < PAIRS.length - 1 && "border-b border-line-soft")}
-                      >
-                        <td className="px-5 py-3.5">
-                          <div className="font-display font-bold text-[14px] text-ink-strong">{pair}</div>
-                          <NoteRow pair={pair} value={notes[pair] ?? ""} onChange={(v) => setNote(pair, v)} readonly={!isInstructor} />
-                        </td>
-                        {TFS.map((tf) => (
-                          <td key={tf} className="px-2 py-3 text-center">
-                            <div className="flex justify-center">
-                              <BiasCell bias={(matrix?.[pair] ?? DEFAULT_ROW)[tf]} onClick={() => toggleCell(pair, tf)} readonly={!isInstructor} pair={pair} tf={tf} />
-                            </div>
-                          </td>
-                        ))}
-                        <td className="px-5 py-3">
-                          <ConfluenceBar conf={conf} />
-                        </td>
-                      </tr>
+                      <td key={tf} className="px-2 py-3 text-center">
+                        <div className="flex justify-center">
+                          <BiasCell
+                            bias={effective[pair]?.[tf] ?? null}
+                            instructor={instructor}
+                            pending={isPending}
+                            title={describeCell(cell, isPending)}
+                            onClick={() => toggleCell(pair, tf)}
+                            readonly={!isInstructor}
+                            pair={pair}
+                            tf={tf}
+                          />
+                        </div>
+                      </td>
                     );
-                  })
-              }
-              {!loading && <SummaryRow matrix={matrix} pairs={PAIRS} />}
+                  })}
+                  <td className="px-5 py-3">
+                    <ConfluenceBar conf={confluenceMap[pair]} />
+                  </td>
+                </tr>
+              ))}
+              <SummaryRow matrix={effective} pairs={PAIRS} />
             </tbody>
           </table>
         </div>
@@ -475,8 +477,8 @@ export function TrendMatrix({ initial }: { initial: TrendMatrixInitial | null })
         <Icon name="info" size={17} fill className="text-teal-deep shrink-0 mt-px" />
         <p className="text-[12.5px] leading-relaxed text-ink-mid">
           {isInstructor
-            ? "Update this matrix every Sunday after your weekly chart review, then hit Publish. Students will immediately see your updated bias across all pairs and timeframes."
-            : "This matrix is updated every Sunday by Kondwani after his weekly chart review. Use the bias alignment to confirm your trade direction before entering. Only trade models where the HTF bias matches, and validate in the Rules Validator first."}
+            ? "Each cell follows the last close-based break of structure on that timeframe. Two changes of character with no break of structure to confirm either side reads as ranging. Your calls show a K and lapse back to the computed read after 7 days, so the matrix never goes stale if you miss a week."
+            : "Each cell follows the last close-based break of structure on that timeframe. Hover a cell to see the break behind it. Only trade models where the HTF bias matches, and validate in the Rules Validator first."}
         </p>
       </div>
     </div>

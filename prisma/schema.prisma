@@ -391,14 +391,54 @@ model FxOptionExpiry {
 
 // ─── Trend Matrix ────────────────────────────────────────────────────────────
 
+// Holds the instructor's per-pair notes. `matrix` is legacy: biases now come
+// from TrendStructure (computed) and TrendOverride (instructor, expiring),
+// merged in src/lib/trend-matrix.ts. Left in place rather than dropped.
 model TrendMatrix {
   id        String   @id  // always "singleton" — one shared record
-  matrix    Json     // Record<pair, Record<tf, "bullish"|"bearish"|"ranging">>
+  matrix    Json     // legacy, no longer read
   notes     Json     // Record<pair, string>
   updatedAt DateTime @updatedAt @map("updated_at")
   updatedBy String?  @map("updated_by") // instructor user id
 
   @@map("trend_matrix")
+}
+
+enum TrendBias {
+  bullish
+  bearish
+  ranging
+}
+
+// Market structure computed from broker candles by /api/trend/sync.
+model TrendStructure {
+  pair           String
+  tf             String    // "MN" | "W" | "D" | "H4" | "H1"
+  bias           TrendBias
+  lastBreakType  String?   @map("last_break_type") // "BOS" | "CHoCH"
+  lastBreakDir   String?   @map("last_break_dir")  // "bullish" | "bearish"
+  lastBreakPrice Float?    @map("last_break_price")
+  lastBreakAt    DateTime? @map("last_break_at")
+  swingHigh      Float?    @map("swing_high")
+  swingLow       Float?    @map("swing_low")
+  barTime        DateTime? @map("bar_time") // open time of the newest closed bar used
+  computedAt     DateTime  @map("computed_at")
+
+  @@id([pair, tf])
+  @@map("trend_structures")
+}
+
+// An instructor's call on one cell. Wins over the computed read until it expires.
+model TrendOverride {
+  pair      String
+  tf        String
+  bias      TrendBias
+  setBy     String?   @map("set_by") // instructor user id
+  setAt     DateTime  @default(now()) @map("set_at")
+  expiresAt DateTime  @map("expires_at")
+
+  @@id([pair, tf])
+  @@map("trend_overrides")
 }
 
 // ─── Instruments ─────────────────────────────────────────────────────────────
