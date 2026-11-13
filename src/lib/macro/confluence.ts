@@ -1,20 +1,18 @@
 // Layer 5 — confluence. Deliberately NOT a new blended score or a stored
 // table: it's a read-time side-by-side of signals the platform already
-// computes (TrendMatrix, COT), presented as AGREE/CONFLICT. This is the
-// direct fix for the score-proliferation risk flagged in the plan's Critical
-// Review — MacroEdge must not become a fourth independently-invented
-// directional number for the same pair.
+// computes (Trend Matrix, COT, FX option expiries), presented as
+// AGREE/CONFLICT. This is the direct fix for the score-proliferation risk
+// flagged in the plan's Critical Review — MacroEdge must not become a fourth
+// independently-invented directional number for the same pair.
 //
-// FX Options proximity (the third signal named in the original brief) is
-// deliberately deferred out of this Phase 3 cut — there's no existing
-// "distance from nearest expiry level" computation anywhere in the codebase
-// to reuse (the pair hub's own Key Levels panel says "coming soon" for the
-// same reason), and inventing one here would be new, unreviewed logic rather
-// than reuse of an existing signal. `fxOptionsProximity` stays null until
-// that lands.
+// FX options are not directional, so they never decide agree/conflict. They
+// are passed through so Gavo can say when a large strike near spot is likely
+// to hold price into the cut.
 
 import { getCotSignal } from "@/lib/cot/query";
 import type { CotSignal } from "@/lib/cot/types";
+import { loadTrendMatrix } from "@/lib/trend-matrix";
+import { getFxOptionsProximity, type FxOptionsProximity } from "@/lib/fx-options-proximity";
 
 type TF = "MN" | "W" | "D" | "H4" | "H1";
 type Bias = "bullish" | "bearish" | "ranging";
@@ -24,7 +22,7 @@ export interface ConfluenceSummary {
   trendBias: Bias | "insufficient_data";
   trendCount: number; // how many of 5 TFs agree with trendBias
   cotSignal: CotSignal | "no_data";
-  fxOptionsProximity: null;
+  fxOptionsProximity: FxOptionsProximity | null;
   agreement: "agree" | "conflict" | "insufficient_data";
 }
 
@@ -42,20 +40,20 @@ function trendMajority(row: Partial<Record<TF, Bias>>): { bias: Bias | "insuffic
   return { bias: "ranging", count: Math.max(bullCount, bearCount) };
 }
 
-export async function fetchConfluence(origin: string, pair: string): Promise<ConfluenceSummary> {
-  // COT is read straight from the DB (getCotSignal) rather than via the HTTP
-  // API — the API is plan-gated per user, and this internal signal read must
-  // work regardless of who triggered the explain request.
-  const [trendRes, cotRes] = await Promise.allSettled([
-    fetch(`${origin}/api/trend-matrix`).then((r) => r.json() as Promise<{ matrix: Record<string, Record<TF, Bias>> } | null>),
+export async function fetchConfluence(pair: string): Promise<ConfluenceSummary> {
+  // All three are read server-side directly. COT skips the HTTP API because
+  // that is plan-gated per user, and this internal read must work regardless
+  // of who triggered the explain request.
+  const [trendRes, cotRes, optionsRes] = await Promise.allSettled([
+    loadTrendMatrix(),
     getCotSignal(pair),
+    getFxOptionsProximity(pair),
   ]);
 
   let trendBias: ConfluenceSummary["trendBias"] = "insufficient_data";
   let trendCount = 0;
-  if (trendRes.status === "fulfilled" && trendRes.value) {
-    const row = trendRes.value.matrix[pair] ?? {};
-    const majority = trendMajority(row);
+  if (trendRes.status === "fulfilled") {
+    const majority = trendMajority(trendRes.value.matrix[pair] ?? {});
     trendBias = majority.bias;
     trendCount = majority.count;
   }
@@ -78,5 +76,17 @@ export async function fetchConfluence(origin: string, pair: string): Promise<Con
     agreement = trendBias === cotDirection ? "agree" : "conflict";
   }
 
-  return { trendBias, trendCount, cotSignal, fxOptionsProximity: null, agreement };
+  const fxOptionsProximity = optionsRes.status === "fulfilled" ? optionsRes.value : null;
+
+  return { trendBias, trendCount, cotSignal, fxOptionsProximity, agreement };
+}
+
+/**
+ * The parts of a confluence read that change what Gavo would say. Folded into
+ * the explanation cache key so a trend flip or a strike coming into play
+ * regenerates the text, not just a change in the macro scores.
+ */
+export function confluenceKey(c: ConfluenceSummary): string {
+  const strikes = c.fxOptionsProximity?.inPlay.map((s) => s.price).join(",") ?? "";
+  return `${c.trendBias}:${c.trendCount}:${c.cotSignal}:${c.agreement}:${strikes}`;
 }

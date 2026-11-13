@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { EmptyState, Icon, Ring, Sparkline, Skeleton, Panel, PanelHead } from "@/components/ui";
 import { FundamentalsPanel } from "@/components/macro/FundamentalsPanel";
+import { BiasReconcile } from "@/components/macro/BiasReconcile";
 import { NewsFeed } from "@/components/macro/NewsFeed";
 import { TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
 import { cn } from "@/lib/cn";
@@ -67,11 +68,11 @@ function computeVerdict(
   const dxy = usdBase ? rawDxy : -rawDxy;
   const total = cot + htf + dxy;
 
-  if (total >= 2)  return { tone: "confirmed_bull", label: "Confirmed Bullish", desc: "All three factors point the same way: institutional bias is bullish, and longs have full confluence behind them this week.", textCls: "text-teal-deep",  bgCls: "bg-teal-tint-soft", ringCls: "ring-2 ring-teal-deep", iconBgCls: "bg-[rgba(48,232,223,0.22)]", icon: "trending_up",   cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  if (total >= 2)  return { tone: "confirmed_bull", label: "Confirmed Bullish", desc: "At least two factors read bullish and none disagree, so longs have confluence behind them this week.", textCls: "text-teal-deep",  bgCls: "bg-teal-tint-soft", ringCls: "ring-2 ring-teal-deep", iconBgCls: "bg-[rgba(48,232,223,0.22)]", icon: "trending_up",   cotScore: cot, htfScore: htf, dxyScore: dxy, total };
   if (total === 1) return { tone: "lean_bull",       label: "Bullish Lean",      desc: "Two of the three factors lean bullish, which is a usable directional edge. Confirm it with HTF structure before committing.", textCls: "text-teal-deep",         bgCls: "bg-teal-tint-soft",  ringCls: "ring-2 ring-teal-deep",        iconBgCls: "bg-teal-tint",  icon: "arrow_upward",  cotScore: cot, htfScore: htf, dxyScore: dxy, total };
   if (total === 0) return { tone: "mixed",           label: "No Clear Bias",     desc: "The factors disagree this week, so neither COT nor trend alignment gives you an edge. Wait until they line up.", textCls: "text-gold-deep",         bgCls: "bg-gold-tint-soft", ringCls: "ring-2 ring-gold-deep",        iconBgCls: "bg-gold-tint", icon: "remove",        cotScore: cot, htfScore: htf, dxyScore: dxy, total };
   if (total === -1)return { tone: "lean_bear",       label: "Bearish Lean",      desc: "Two of the three factors lean bearish, which is a usable directional edge. Wait for an HTF structure shift before selling.", textCls: "text-coral-deep",        bgCls: "bg-coral-tint-soft",  ringCls: "ring-2 ring-coral-deep",       iconBgCls: "bg-coral-tint",  icon: "arrow_downward",cotScore: cot, htfScore: htf, dxyScore: dxy, total };
-  return               { tone: "confirmed_bear",  label: "Confirmed Bearish", desc: "All three factors point the same way: institutional bias is bearish, and shorts have full confluence behind them this week.", textCls: "text-coral-deep", bgCls: "bg-coral-tint-soft",  ringCls: "ring-2 ring-coral-deep", iconBgCls: "bg-[rgba(255,89,66,0.22)]",  icon: "trending_down", cotScore: cot, htfScore: htf, dxyScore: dxy, total };
+  return               { tone: "confirmed_bear",  label: "Confirmed Bearish", desc: "At least two factors read bearish and none disagree, so shorts have confluence behind them this week.", textCls: "text-coral-deep", bgCls: "bg-coral-tint-soft",  ringCls: "ring-2 ring-coral-deep", iconBgCls: "bg-[rgba(255,89,66,0.22)]",  icon: "trending_down", cotScore: cot, htfScore: htf, dxyScore: dxy, total };
 }
 
 // ── Bias cell ─────────────────────────────────────────────────────────────────
@@ -324,7 +325,7 @@ export default function PairOverviewPage() {
           Weekly Bias · Three-Factor Confluence
         </div>
         <div className="text-[11.5px] mb-3 text-ink-dim">
-          Technical positioning only — COT, trend, and DXY. Independent of the fundamentals score below, which can disagree.
+          Technical positioning from COT, trend and DXY, read against the fundamentals at the bottom of this card.
         </div>
         <div className="flex items-start justify-between gap-6 flex-wrap">
           {/* Verdict label */}
@@ -349,6 +350,7 @@ export default function PairOverviewPage() {
             <FactorBadge label="DXY Confirmation" score={verdict.dxyScore} />
           </div>
         </div>
+        <BiasReconcile pair={P} techTotal={verdict.total} />
       </div>
 
       {/* ── 2-column content ── */}

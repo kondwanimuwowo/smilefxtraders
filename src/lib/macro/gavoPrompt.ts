@@ -74,11 +74,19 @@ export function buildPairExplainMessage(ctx: {
         ? `Technical confluence CONFLICTS: TrendMatrix reads ${ctx.confluence.trendBias} (${ctx.confluence.trendCount}/5 timeframes), but COT positioning reads ${ctx.confluence.cotSignal}.`
         : "Not enough technical data (TrendMatrix/COT) yet for a confluence read.";
 
+  const opts = ctx.confluence.fxOptionsProximity;
+  const optionsLine = !opts
+    ? null
+    : opts.inPlay.length
+      ? `FX option expiries in play for the ${opts.expiryDate} NY cut (spot ${opts.spot}): ${opts.inPlay.map((s) => `${s.price} (${s.label}, ${s.distancePips > 0 ? "+" : ""}${s.distancePips} pips)`).join(", ")}. Large strikes this close can hold price near them into the cut; mention it as a short-term factor, not a directional signal.`
+      : `No large FX option expiries near spot for the ${opts.expiryDate} cut.`;
+
   return [
     `Explain the current fundamental bias for ${ctx.pair}.`,
     `Bias: ${ctx.biasLabel} (differential ${ctx.differential > 0 ? "+" : ""}${ctx.differential.toFixed(1)})`,
     `${ctx.baseCurrency} score: ${ctx.baseScore > 0 ? "+" : ""}${ctx.baseScore.toFixed(1)} — ${fmtBreakdown(ctx.baseBreakdown)}`,
     `${ctx.quoteCurrency} score: ${ctx.quoteScore > 0 ? "+" : ""}${ctx.quoteScore.toFixed(1)} — ${fmtBreakdown(ctx.quoteBreakdown)}`,
     confluenceLine,
+    ...(optionsLine ? [optionsLine] : []),
   ].join("\n");
 }

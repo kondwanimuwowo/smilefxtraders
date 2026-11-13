@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SubjectType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createClient, getAuthedUser } from "@/lib/supabase/server";
-import { fetchConfluence } from "@/lib/macro/confluence";
+import { fetchConfluence, confluenceKey } from "@/lib/macro/confluence";
 import { GAVO_MACRO_SYSTEM_PROMPT, buildCurrencyExplainMessage, buildPairExplainMessage } from "@/lib/macro/gavoPrompt";
 import type { BreakdownEntry } from "@/lib/macro/scoring";
 
@@ -55,9 +55,11 @@ export async function POST(req: NextRequest) {
         prisma.currentCurrencyScore.findUnique({ where: { currency: bias.baseCurrency } }),
         prisma.currentCurrencyScore.findUnique({ where: { currency: bias.quoteCurrency } }),
       ]);
-      const confluence = await fetchConfluence(req.nextUrl.origin, subjectKey);
+      const confluence = await fetchConfluence(subjectKey);
 
-      inputHash = bias.inputHash;
+      // The confluence is part of what Gavo narrates, so a change there must
+      // regenerate the text even when the macro scores have not moved.
+      inputHash = `${bias.inputHash}:${confluenceKey(confluence)}`;
       userMessage = buildPairExplainMessage({
         pair: subjectKey,
         baseCurrency: bias.baseCurrency,
