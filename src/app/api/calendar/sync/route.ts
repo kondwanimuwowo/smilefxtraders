@@ -2,6 +2,7 @@ import { requireCronSecret } from "@/lib/cron-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { fetchEconomicCalendar, FinnhubError } from "@/lib/finnhub";
+import { fetchFFCalendar } from "@/lib/forexfactory";
 import { mapCountryToCurrency, mapEventTitleToIndicator, TRACKED_CURRENCIES } from "@/lib/macro/indicatorMap";
 import type { Prisma } from "@/generated/prisma/client";
 
@@ -11,6 +12,37 @@ import type { Prisma } from "@/generated/prisma/client";
 
 function impactToString(impact: string): string {
   return impact.toLowerCase();
+}
+
+/**
+ * Upserts the ForexFactory week. Updates never touch `actual`: the feed has
+ * none, and a release value written by another source must not be wiped.
+ */
+async function syncForexFactory(): Promise<{ saved: number; skippedUnmapped: number; totalFetched: number }> {
+  const events = await fetchFFCalendar();
+  let saved = 0;
+  let skippedUnmapped = 0;
+  for (const ev of events) {
+    if (!TRACKED_CURRENCIES.includes(ev.currency as (typeof TRACKED_CURRENCIES)[number])) {
+      skippedUnmapped++;
+      continue;
+    }
+    const fields = {
+      title:     ev.title,
+      category:  mapEventTitleToIndicator(ev.title) ?? undefined,
+      impact:    ev.impact,
+      forecast:  ev.forecast,
+      previous:  ev.previous,
+      eventTime: ev.eventTime,
+    };
+    await prisma.economicEvent.upsert({
+      where:  { externalId: ev.externalId },
+      create: { externalId: ev.externalId, currency: ev.currency, ...fields },
+      update: fields,
+    });
+    saved++;
+  }
+  return { saved, skippedUnmapped, totalFetched: events.length };
 }
 
 function toEventId(ev: { event: string; country: string; time: string }): string {
@@ -36,7 +68,16 @@ export async function POST(req: NextRequest) {
 
     const fmt = (d: Date) => d.toISOString().slice(0, 10);
 
-    const events = await fetchEconomicCalendar(fmt(from), fmt(to));
+    let events: Awaited<ReturnType<typeof fetchEconomicCalendar>>;
+    try {
+      events = await fetchEconomicCalendar(fmt(from), fmt(to));
+    } catch (err) {
+      // Finnhub's calendar is plan-gated on this account (CRON.md, Job 5).
+      // Without a fallback the calendar had no upcoming events at all.
+      if (!(err instanceof FinnhubError)) throw err;
+      console.info(`[calendar/sync] Finnhub unavailable (${err.message}), using ForexFactory`);
+      return NextResponse.json({ ok: true, source: "forexfactory", ...(await syncForexFactory()) });
+    }
 
     let saved = 0;
     let skippedUnmapped = 0;

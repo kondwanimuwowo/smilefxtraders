@@ -213,6 +213,13 @@ export async function fetchTECalendarEvents(currency: string): Promise<TECalenda
       previous,
     });
   }
+  // Since ~11 Nov 2026 the calendar table sits behind an AWS WAF captcha and
+  // the static HTML has no rows at all. Returning [] made that look like a
+  // quiet calendar; fail instead so te-sync reports it.
+  // search(), not test(): ROW_START_RE is global and test() would move its lastIndex.
+  if (out.length === 0 && /awswaf|captcha/i.test(html) && html.search(ROW_START_RE) === -1) {
+    throw new Error(`calendar for ${currency} is behind a captcha, no rows in the page`);
+  }
   return out;
 }
 
