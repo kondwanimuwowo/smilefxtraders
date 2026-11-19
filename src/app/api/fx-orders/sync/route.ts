@@ -1,4 +1,5 @@
 import { requireCronSecret } from "@/lib/cron-auth";
+import { requireInstructorApi } from "@/lib/admin-guard";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -484,8 +485,15 @@ async function storeExtraction(
 // ── Route: POST (auto-sync from InvestingLive) ────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  // Cron sends the shared secret. The instructor's "Sync Today" button calls
+  // this same route from the browser, where it has no secret (and must never
+  // be given one), so accept an authenticated instructor session instead.
+  // Everyone else gets the cron guard's 401.
   const denied = requireCronSecret(req);
-  if (denied) return denied;
+  if (denied) {
+    const notInstructor = await requireInstructorApi();
+    if (notInstructor) return denied;
+  }
 
   try {
     const { searchParams } = new URL(req.url);
@@ -586,7 +594,14 @@ export async function POST(req: NextRequest) {
 
 // ── Route: PUT (manual image upload) ─────────────────────────────────────────
 
+// Instructor-only: this is the fallback behind the "Upload Image" button.
+// /api is deliberately left unauthenticated by middleware (see
+// SKIP_AUTH_PREFIXES), so this check is what stops an anonymous caller from
+// writing FX option data — or spending Anthropic credits on a Vision call.
 export async function PUT(req: NextRequest) {
+  const notInstructor = await requireInstructorApi();
+  if (notInstructor) return notInstructor;
+
   try {
     const form      = await req.formData();
     const imageFile = form.get("image") as File | null;
